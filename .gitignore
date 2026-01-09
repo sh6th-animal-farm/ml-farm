@@ -1,0 +1,53 @@
+### Java ###
+*.class
+*.jar
+*.war
+*.ear
+bin/
+
+### STS3 (Eclipse) ###
+.settings/
+.project
+.classpath
+.metadata/
+.springBeans
+.factorypath
+target/
+
+### IntelliJ IDEA ###
+.idea/
+*.iml
+*.iws
+out/
+gen/
+
+### OS & Misc ###
+.DS_Store       # macOS
+Thumbs.db       # Windows
+*.log           # 로그 파일
+
+### Security & Config ###
+# DB 설정 파일
+src/main/resources/config/database.properties
+src/main/resources/config/db.properties
+
+# 서버 설정 관련
+.recommenders/
+servers/
+
+### Build & Temp ###
+# 메이븐 빌드 결과물
+target/
+*.tmp
+*.bak
+*.swp
+
+# 로그 파일 전체
+logs/
+*.log
+
+### Frontend (Optional) ###
+node_modules/
+dist/
+.env.local
+.env.development.local
