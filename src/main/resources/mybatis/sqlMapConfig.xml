@@ -10,6 +10,14 @@
 	</settings>
 
 	<typeAliases>
+		<typeAlias type="com.animalfarm.mlf.domain.project.dto.FarmDTO"
+			alias="farmDTO" />
+		<typeAlias type="com.animalfarm.mlf.domain.project.dto.FarmEnvDataDTO"
+			alias="farmEnvDataDTO" />
+		<typeAlias type="com.animalfarm.mlf.domain.project.dto.ProjectDTO"
+			alias="projectDTO" />
+		<typeAlias type="com.animalfarm.mlf.domain.project.dto.ProjectPictureDTO"
+			alias="projectPictureDTO" />
 	</typeAliases>
 
 </configuration>
