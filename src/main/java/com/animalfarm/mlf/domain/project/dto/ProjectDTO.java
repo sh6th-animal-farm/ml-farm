@@ -1,4 +1,4 @@
-package com.animalfarrm.mlf.domain.project.dto;
+package com.animalfarm.mlf.domain.project.dto;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
