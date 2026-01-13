@@ -43,7 +43,13 @@
 			<artifactId>jackson-annotations</artifactId>
 			<version>2.9.8</version>
 		</dependency>
-		<!-- Spring -->
+		
+		<!-- 롬복 -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.30</version>
+		</dependency>
 		
 		<!-- redis -->
 		<dependency>
@@ -58,7 +64,7 @@
 			<version>3.8.0</version>
 		</dependency>
 		
-		
+		<!-- Spring -->
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
