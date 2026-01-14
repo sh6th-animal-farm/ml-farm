@@ -1,4 +1,4 @@
-package com.animalfarrm.mlf.domain.user;
+package com.animalfarm.mlf.domain.user;
 
 public class UserController {
 
