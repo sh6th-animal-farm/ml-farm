@@ -1,7 +1,7 @@
 package com.animalfarm.mlf.domain.project.dto;
 
 import java.math.BigDecimal;
-import java.time.ZonedDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -28,13 +28,13 @@ public class ProjectDTO {
 	private BigDecimal subscriptionRate;
 	private String projectStatus; // ENUM: PREPARING, ANNOUNCEMENT, etc.
 
-	private ZonedDateTime announcementStartDate;
-	private ZonedDateTime announcementEndDate;
-	private ZonedDateTime subscriptionStartDate;
-	private ZonedDateTime subscriptionEndDate;
-	private ZonedDateTime resultAnnouncementDate;
-	private ZonedDateTime projectStartDate;
-	private ZonedDateTime projectEndDate;
+	private OffsetDateTime announcementStartDate;
+	private OffsetDateTime announcementEndDate;
+	private OffsetDateTime subscriptionStartDate;
+	private OffsetDateTime subscriptionEndDate;
+	private OffsetDateTime resultAnnouncementDate;
+	private OffsetDateTime projectStartDate;
+	private OffsetDateTime projectEndDate;
 
 	private BigDecimal expectedReturn;
 	private Integer managerCount;

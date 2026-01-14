@@ -1,7 +1,7 @@
 package com.animalfarm.mlf.domain.project.dto;
 
 import java.math.BigDecimal;
-import java.time.ZonedDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -35,7 +35,7 @@ public class FarmDTO {
 	private String description; // 농가 설명 (VARCHAR)
 	private String thumbnailUrl; // 대표 이미지 URL
 
-	private ZonedDateTime openAt; // 농가 개업/오픈 일시
+	private OffsetDateTime openAt; // 농가 개업/오픈 일시
 
 	private List<FarmEnvDataDTO> envDatas;
 }
