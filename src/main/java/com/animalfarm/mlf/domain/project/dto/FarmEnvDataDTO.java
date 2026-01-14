@@ -1,7 +1,7 @@
 package com.animalfarm.mlf.domain.project.dto;
 
 import java.math.BigDecimal;
-import java.time.ZonedDateTime;
+import java.time.OffsetDateTime;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -30,5 +30,5 @@ public class FarmEnvDataDTO {
 	private BigDecimal temperatureOutside; // 외부 온도 (℃)
 
 	// 데이터 수집 시점 (DB 스키마에 따라 추가 가능)
-	private ZonedDateTime createdAt;
+	private OffsetDateTime createdAt;
 }
