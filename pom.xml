@@ -29,10 +29,6 @@
 			<artifactId>postgresql</artifactId>
 			<version>${org.postgres-jdbc-version}</version>
 			<scope>compile</scope>
-			<groupId>org.postgresql</groupId>
-			<artifactId>postgresql</artifactId>
-			<version>${org.postgres-jdbc-version}</version>
-			<scope>compile</scope>
 		</dependency>
 
 

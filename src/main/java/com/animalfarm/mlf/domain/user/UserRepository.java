@@ -1,6 +1,7 @@
 package com.animalfarm.mlf.domain.user;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.mybatis.spring.annotation.MapperScan;
 
 import com.animalfarm.mlf.domain.user.dto.UserDTO;
 
@@ -10,6 +11,7 @@ import com.animalfarm.mlf.domain.user.dto.UserDTO;
  * 더 이상 UserRepositoryImpl 클래스를 직접 만들 필요가 없습니다!
  */
 @Mapper
+@MapperScan("com.animalfarm.mlf.domain.user")
 public interface UserRepository {
 
 	/**
