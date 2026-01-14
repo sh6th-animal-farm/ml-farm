@@ -26,10 +26,9 @@
 	<resources mapping="swagger-ui.html" location="classpath:/META-INF/resources/"/>
 	<resources mapping="/webjars/**" location="classpath:/META-INF/resources/webjars/"/>
 	
-	<!-- MapperScannerConfigurer 추가 -->
+	<!--  MapperScannerConfigurer 추가 -->
 	<beans:bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-		<beans:property name="basePackage"
-		value="com.animalfarm.mlf.domain.user" />
+		<beans:property name="basePackage" value="com.animalfarm.mlf.domain.user" />
 	</beans:bean>
 	
 	
