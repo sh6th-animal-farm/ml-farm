@@ -6,7 +6,61 @@
 
 <mapper namespace="com.animalfarm.mlf.project">
 
+	<!-- 1개의 농장에 여러개의 사진을 여러개 받기 위해 사용 -->
+	<resultMap id="ProjectDetailMap"
+		type="com.animalfarm.mlf.domain.project.dto.ProjectDetailDTO"
+		autoMapping="true">
+		<id column="project_id" property="projectId" />
+
+		<association property="farm"
+			javaType="com.animalfarm.mlf.domain.project.dto.FarmDTO" autoMapping="true">
+			<id column="f_farm_id" property="farmId" />
+			<result column="f_description" property="description" />
+		</association>
+
+		<collection property="images" ofType="string">
+			<result column="image_url" />
+		</collection>
+		
+		<collection property="temperatureInside" ofType="BigDecimal">
+			<result column="temperature_inside" />
+		</collection>
+	</resultMap>
+
 	<select id="selectAll" resultType="projectDTO">
 		select * from projects
+	</select>
+
+	<select id="selectDetail" parameterType="long"
+		resultType="ProjectDetailDTO" resultMap="ProjectDetailMap">
+		SELECT
+		p.*,
+		f.farm_id AS f_farm_id,
+		f.farm_name,
+		f.address_sido,
+		f.address_sigungu,
+		f.address_street,
+		f.address_details,
+		f.latitude,
+		f.longtitude,
+		f.altitude,
+		f.farm_type,
+		f.area,
+		f.description AS
+		f_description,
+		f.open_at,
+		f.thumbnail_url,
+		i.image_url,
+		c.crop,
+		c.method,
+		fed.temperature_inside,
+		t.ticker_symbol
+		FROM projects p
+		left join farms f ON p.farm_id = f.farm_id
+		left join project_images i on p.project_id = i.project_id
+		left join cultivations c on p.project_id = c.project_id
+		left join farm_env_data fed on f.farm_id = fed.farm_id
+		left join tokens t on p.project_id = t.project_id 
+		WHERE p.project_id = #{projectId};
 	</select>
 </mapper>
