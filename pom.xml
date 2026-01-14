@@ -10,10 +10,14 @@
 	<version>1.0.0-BUILD-SNAPSHOT</version>
 	<properties>
 		<java-version>1.11</java-version>
+<<<<<<< HEAD
 		<org.springframework-version>3.1.1.RELEASE</org.springframework-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<org.springframework-version>5.3.5</org.springframework-version>
 
+=======
+		<org.springframework-version>5.3.5</org.springframework-version>
+>>>>>>> 5af41ce867aef1db32f3d804b0782e72eb320ab0
 		<org.aspectj-version>1.6.10</org.aspectj-version>
 		<org.slf4j-version>1.6.6</org.slf4j-version>
 		<org.mybatis-version>3.5.6</org.mybatis-version>
@@ -21,6 +25,7 @@
 		<org.postgres-jdbc-version>42.7.8</org.postgres-jdbc-version>
 	</properties>
 	<dependencies>
+<<<<<<< HEAD
 
 	
 		<!-- Source: https://mvnrepository.com/artifact/org.postgresql/postgresql -->
@@ -67,6 +72,8 @@
 			<scope>compile</scope>
 		</dependency>
 		
+=======
+>>>>>>> 5af41ce867aef1db32f3d804b0782e72eb320ab0
 		<!-- Swagger -->
 		<dependency>
 			<groupId>io.springfox</groupId>
@@ -78,7 +85,10 @@
 			<artifactId>springfox-swagger-ui</artifactId>
 			<version>2.9.2</version>
 		</dependency>
+<<<<<<< HEAD
 		
+=======
+>>>>>>> 5af41ce867aef1db32f3d804b0782e72eb320ab0
 		<!-- Jackson -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
@@ -96,12 +106,61 @@
 			<version>2.9.8</version>
 		</dependency>
 		
+<<<<<<< HEAD
 		<!-- Spring JDBC -->
 		<!-- https://mvnrepository.com/artifact/org.springframework/spring-jdbc -->
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-jdbc</artifactId>
 			<version>${org.springframework-version}</version>
+=======
+		
+		<!-- Keys -->
+		<dependency>
+		    <groupId>io.jsonwebtoken</groupId>
+		    <artifactId>jjwt-api</artifactId>
+		    <version>0.11.5</version>
+		</dependency>
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-impl</artifactId>
+			<version>0.11.5</version>
+			<scope>runtime</scope>
+		</dependency>
+			<dependency>
+				<groupId>io.jsonwebtoken</groupId>
+				<artifactId>jjwt-jackson</artifactId>
+				<version>0.11.5</version>
+				<scope>runtime</scope>
+			</dependency>
+		
+		<!-- spring-test -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>5.3.20</version>
+			<scope>test</scope>
+		</dependency>
+		
+		<!-- lombok -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.30</version>
+		</dependency>
+		
+		<!-- redis -->
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-redis</artifactId>
+			<version>2.7.18</version>
+		</dependency>
+	
+		<dependency>
+			<groupId>redis.clients</groupId>
+			<artifactId>jedis</artifactId>
+			<version>3.8.0</version>
+>>>>>>> 5af41ce867aef1db32f3d804b0782e72eb320ab0
 		</dependency>
 		
 		<!-- Spring -->
