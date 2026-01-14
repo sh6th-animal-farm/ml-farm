@@ -1,4 +1,4 @@
-package com.animalfarrm.mlf.config;
+package com.animalfarm.mlf.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
