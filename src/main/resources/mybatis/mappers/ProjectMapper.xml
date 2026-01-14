@@ -4,9 +4,34 @@
     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.animalfarm.mlf.project">
+<mapper namespace="com.animalfarm.mlf.domain.project.ProjectRepository">
 
-	<select id="selectAll" resultType="projectDTO">
+	<select id="selectAll" resultType="projectListDTO">
 		select * from projects
 	</select>
+	
+	<select id="selectByCondition" parameterType="projectSearchDTO" resultType="projectListDTO">
+		SELECT
+			p.*,
+			f.thumbnail_url,
+			EXISTS (
+		        SELECT 1 
+		        FROM starred_projects s 
+		        WHERE s.project_id = p.project_id 
+		          	AND s.user_id = #{userId}
+		          	AND s.is_starred = true
+	    ) AS is_starred
+		FROM projects p
+	    JOIN farms f on p.farm_id = f.farm_id
+	    <where>
+            AND p.project_status NOT IN ('PREPARING', 'CANCELED', 'COMPLETED')
+	        <if test="keyword != null and keyword != ''">
+	            AND p.project_name LIKE CONCAT('%', #{keyword}, '%')
+	        </if>
+	        <if test="projectStatus != null and projectStatus != ''">
+	            AND p.project_status = #{projectStatus}
+	        </if>
+	    </where>
+	</select>
+	
 </mapper>

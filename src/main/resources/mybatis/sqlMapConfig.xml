@@ -17,6 +17,10 @@
 			alias="farmEnvDataDTO" />
 		<typeAlias type="com.animalfarm.mlf.domain.project.dto.ProjectDTO"
 			alias="projectDTO" />
+		<typeAlias type="com.animalfarm.mlf.domain.project.dto.ProjectListDTO"
+			alias="projectListDTO" />
+		<typeAlias type="com.animalfarm.mlf.domain.project.dto.ProjectSearchDTO"
+			alias="projectSearchDTO" />
 		<typeAlias type="com.animalfarm.mlf.domain.project.dto.ProjectPictureDTO"
 			alias="projectPictureDTO" />
 	</typeAliases>
