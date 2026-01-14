@@ -41,9 +41,6 @@ class ProjectRepositoryTest {
         // 데이터가 있다는 가정하에 로그 출력 및 검증
         if (!result.isEmpty()) {
             ProjectListDTO firstProject = result.get(0);
-            System.out.println("프로젝트명: " + firstProject.getProjectName());
-            System.out.println("찜 여부(isStarred): " + firstProject.getIsStarred());
-            System.out.println("썸네일 URL: " + firstProject.getThumbnailUrl());
             
             // 필수 값들이 잘 매핑되었는지 확인
             assertNotNull(firstProject.getProjectName());
