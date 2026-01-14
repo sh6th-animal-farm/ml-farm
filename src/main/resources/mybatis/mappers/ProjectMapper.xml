@@ -10,7 +10,7 @@
 		select * from projects
 	</select>
 	
-	<select id="selectByCondition" parameterType="projectSearchDTO" resultType="projectListDTO">
+	<select id="selectByCondition" parameterType="projectSearchReqDTO" resultType="projectListDTO">
 		SELECT
 			p.*,
 			f.thumbnail_url,
