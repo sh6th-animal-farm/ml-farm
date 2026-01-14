@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.animalfarm.mlf.project">
+
+	<resultMap type="projectDTO" id="projectMap">
+		<result property="project_id" column="project_id" />
+		<result property="farm_id" column="farm_id" />
+		<result property="project_name" column="project_name" />
+		<result property="project_description" column="project_description" />
+		<result property="project_round" column="project_round" />
+		<result property="target_amount" column="target_amount" />
+		<result property="min_amount_per_investor" column="min_amount_per_investor" />
+		<result property="max_amount_per_investor" column="max_amount_per_investor" />
+		<result property="actual_amount" column="actual_amount" />
+		<result property="subscription_rate" column="subscription_rate" />
+		<result property="project_status" column="project_status" />
+		<result property="announcement_start_date" column="announcement_start_date" />
+		<result property="announcement_end_date" column="announcement_end_date" />
+		<result property="subscription_start_date" column="subscription_start_date" />
+		<result property="subscription_end_date" column="subscription_end_date" />
+		<result property="result_announcement_date" column="result_announcement_date" />
+		<result property="project_start_date" column="project_start_date" />
+		<result property="project_end_date" column="project_end_date" />
+		<result property="expected_return" column="expected_return" />
+		<result property="manager_count" column="manager_count" />
+	</resultMap>
+
+
+	<select id="selectAll" resultType="projectDTO">
+		select * from "Projects"
+	</select>
+</mapper>
