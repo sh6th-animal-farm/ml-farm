@@ -22,6 +22,7 @@
 	</properties>
 	<dependencies>
 
+
 		<!-- Source: https://mvnrepository.com/artifact/org.postgresql/postgresql -->
 		<dependency>
 			<groupId>org.postgresql</groupId>
@@ -30,12 +31,14 @@
 			<scope>compile</scope>
 		</dependency>
 
+
 		<!-- log4jdbc -->
 		<dependency>
-			<groupId>org.lazyluke</groupId>
-			<artifactId>log4jdbc-remix</artifactId>
-			<version>0.2.7</version>
+			<groupId>org.bgee.log4jdbc-log4j2</groupId>
+			<artifactId>log4jdbc-log4j2-jdbc4.1</artifactId>
+			<version>1.16</version>
 		</dependency>
+
 
 		<!-- mybatis-spring -->
 		<dependency>
@@ -66,6 +69,7 @@
 			<scope>compile</scope>
 		</dependency>
 
+
 		<!-- Swagger -->
 		<dependency>
 			<groupId>io.springfox</groupId>
@@ -77,6 +81,7 @@
 			<artifactId>springfox-swagger-ui</artifactId>
 			<version>2.9.2</version>
 		</dependency>
+
 
 		<!-- Jackson -->
 		<dependency>
@@ -94,6 +99,7 @@
 			<artifactId>jackson-annotations</artifactId>
 			<version>2.9.8</version>
 		</dependency>
+
 
 		<!-- Spring JDBC -->
 		<dependency>
