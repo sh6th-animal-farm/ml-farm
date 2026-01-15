@@ -2,31 +2,20 @@ package com.animalfarm.mlf.domain.project;
 
 import java.util.List;
 
-import org.apache.ibatis.session.SqlSession;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.apache.ibatis.annotations.Mapper;
 
 import com.animalfarm.mlf.domain.project.dto.ProjectDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectDetailDTO;
 
-import lombok.extern.slf4j.Slf4j;
+import com.animalfarm.mlf.domain.project.dto.ProjectListDTO;
+import com.animalfarm.mlf.domain.project.dto.ProjectSearchReqDTO;
 
-@Repository
-@Slf4j
-public class ProjectRepository implements ProjectInterface {
+@Mapper
+public interface ProjectRepository {
 
-	@Autowired
-	SqlSession sqlSession;
+	public abstract List<ProjectDTO> selectAll();
 
-	String namespace = "com.animalfarm.mlf.project.";
+	public abstract List<ProjectListDTO> selectByCondition(ProjectSearchReqDTO projectSearchDTO);
 
-	@Override
-	public List<ProjectDTO> selectAll() {
-		return sqlSession.selectList(namespace + "selectAll");
-	}
-
-	@Override
-	public ProjectDetailDTO selectDetail(Long projectId) {
-		return sqlSession.selectOne(namespace + "selectDetail", projectId);
-	}
+	public abstract ProjectDetailDTO selectDetail(Long projectId);
 }
