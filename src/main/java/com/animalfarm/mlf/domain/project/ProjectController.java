@@ -3,11 +3,13 @@ package com.animalfarm.mlf.domain.project;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.animalfarm.mlf.domain.project.dto.ProjectDTO;
@@ -44,10 +46,13 @@ public class ProjectController {
 	}
 
 	@PostMapping("/api/projects/update")
-	public ResponseEntity<String> updateProject(@ModelAttribute
+	public ResponseEntity<String> updateProject(@RequestBody
 	ProjectDTO projectDTO) {
-		projectService.updateProject(projectDTO);
-		return ResponseEntity.ok("success");
+		if (projectService.updateProject(projectDTO)) {
+			return ResponseEntity.ok("success");
+		} else {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("업데이트 중 서버 오류가 발생했습니다.");
+		}
 	}
 
 }

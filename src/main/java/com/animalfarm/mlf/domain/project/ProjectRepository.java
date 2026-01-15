@@ -18,5 +18,5 @@ public interface ProjectRepository {
 
 	public abstract ProjectDetailDTO selectDetail(Long projectId);
 
-	public abstract String updateProject(ProjectDTO projectDTO);
+	public abstract void updateProject(ProjectDTO projectDTO);
 }

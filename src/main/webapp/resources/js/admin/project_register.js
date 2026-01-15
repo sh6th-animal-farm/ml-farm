@@ -1,7 +1,30 @@
+import { DateUtil } from "../util/date_util.js";
+
 let selectedProjectId = null;
 
+// DOM이 다 로드된 후 이벤트 리스너 붙이기
+document.addEventListener('DOMContentLoaded', () => {
+    const btnLoad = document.querySelector('.btn-load');
+    if (btnLoad) {
+        btnLoad.addEventListener('click', openModal);
+    }
+    const btnRegister = document.querySelector('.register-btn');
+    if (btnRegister) {
+        btnRegister.addEventListener('click', insertProject);
+    }
+    const btnEdit = document.querySelector('.edit-btn');
+    if (btnEdit) {
+        btnEdit.addEventListener('click', updateProject);
+    }
+    const btnClose = document.querySelector('.modal-close');
+    if (btnClose) {
+        btnClose.addEventListener('click', closeModal);
+    }
+    
+});
+
 // 모달 열기 및 데이터 로드
-async function openModal() {
+async function openModal () {
     const modal = document.getElementById('projectModal');
     const spinner = document.getElementById('loadingSpinner');
     const listContainer = document.getElementById('projectListContainer');
@@ -14,7 +37,7 @@ async function openModal() {
 
     try {
         // 2. API 호출
-        const response = await fetch('/mlf/api/projects/all');
+        const response = await fetch(`${ctx}/api/projects/all`);
         if (!response.ok) throw new Error('데이터를 불러오는데 실패했습니다.');
         
         const projects = await response.json();
@@ -28,6 +51,11 @@ async function openModal() {
         // 4. 로딩 종료: 스피너 숨기기
         spinner.style.display = 'none';
     }
+}
+
+// 모달 닫기
+function closeModal() {
+    document.getElementById('projectModal').style.display = 'none';
 }
 
 // 프로젝트 리스트 렌더링 함수
@@ -55,15 +83,11 @@ function renderProjectList(projects) {
     });
 }
 
-// 모달 닫기
-function closeModal() {
-    document.getElementById('projectModal').style.display = 'none';
-}
-
 
 // 선택한 프로젝트 정보를 폼에 자동 입력 (차수는 +1)
 async function selectProject(data) {
     selectedProjectId = data.projectId;
+    console.log("pid: ", data.projectId);
     // JSP 내의 input name/id에 맞춰 매핑
     document.getElementsByName('farm_id')[0].value = data.farmId;
     document.getElementsByName('project_name')[0].value = data.projectName;
@@ -86,11 +110,11 @@ async function selectProject(data) {
 
     // 각 날짜 필드 순회하며 값 입력
     for (const [name, value] of Object.entries(dateFields)) {
-        document.getElementsByName(name)[0].value = formatToDateTimeLocal(value);
+        document.getElementsByName(name)[0].value = DateUtil.toLocalDateTime(value);
     }
 
     try {
-        const response = await fetch(`/mlf/api/token/${data.projectId}`);
+        const response = await fetch(`${ctx}/api/token/${data.projectId}`);
         if (!response.ok) throw new Error('토큰 정보를 가져오지 못했습니다.');
         
         const tokenData = await response.json();
@@ -108,25 +132,6 @@ async function selectProject(data) {
     closeModal();
 }
 
-// [헬퍼 함수] Java OffsetDateTime 객체를 datetime-local 포맷(YYYY-MM-DDTHH:mm)으로 변환
-function formatToDateTimeLocal (dateObj) {
-    if (!dateObj || typeof dateObj !== 'object') return '';
-    
-    try {
-        const year = dateObj.year;
-        // 월, 일, 시, 분이 10보다 작으면 앞에 '0'을 붙임 (ex: 1 -> 01)
-        const month = String(dateObj.monthValue).padStart(2, '0');
-        const day = String(dateObj.dayOfMonth).padStart(2, '0');
-        const hour = String(dateObj.hour).padStart(2, '0');
-        const minute = String(dateObj.minute).padStart(2, '0');
-        
-        return `${year}-${month}-${day}T${hour}:${minute}`;
-    } catch (e) {
-        console.error("날짜 변환 중 오류 발생:", e);
-        return '';
-    }
-};
-
 // 폼 데이터를 JSON으로 만드는 공통 함수
 function getFormData() {
     const form = document.querySelector('form');
@@ -135,26 +140,41 @@ function getFormData() {
     
     // FormData를 JSON 객체로 변환
     formData.forEach((value, key) => {
-        obj[key] = value;
+        const camelKey = key.replace(/_([a-z])/g, (g) => g[1].toUpperCase());
+        if (key === 'target_amount' || key === 'project_round') {
+            obj[camelKey] = Number(value);
+        } else if (key.includes('date') && value) {
+            obj[camelKey] = DateUtil.toOffsetDateTime(value);
+        } else {
+            obj[camelKey] = value;
+        }
     });
     
     // 수정일 경우 ID 포함
     if (selectedProjectId) {
-        obj['project_id'] = selectedProjectId;
+        obj['projectId'] = selectedProjectId;
     }
-    
     return obj;
 }
 
 function updateProject() {
     const data = getFormData();
 
-	fetch('/mlf/api/update', { method: 'POST', body: JSON.stringify(data) })
+	fetch(`${ctx}/api/projects/update`, { method: 'POST',
+        headers: { 
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Accept': 'application/json' 
+        },
+        body: JSON.stringify(data) })
 	.then(res => res.text())
 	.then(status => {
 	    if(status === "success") {
-	        window.location.href = "/admin/project/new"; // 여기서 리다이렉트
-	    }
+            alert("수정되었습니다.");
+	        window.location.href = `${ctx}/admin/project/new`;
+	    } else {
+            const errorMsg = status;
+            alert("실패: " + errorMsg);
+        }
 	});
 }
 

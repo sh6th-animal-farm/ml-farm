@@ -4,15 +4,19 @@ import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
 @Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProjectDTO {
@@ -23,17 +27,23 @@ public class ProjectDTO {
 	private Integer projectRound;
 	private BigDecimal targetAmount;
 	private BigDecimal minAmountPerInvestor;
-	private BigDecimal maxAmountPerInvestor;
 	private BigDecimal actualAmount;
 	private BigDecimal subscriptionRate;
 	private String projectStatus; // ENUM: PREPARING, ANNOUNCEMENT, etc.
 
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
 	private OffsetDateTime announcementStartDate;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
 	private OffsetDateTime announcementEndDate;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
 	private OffsetDateTime subscriptionStartDate;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
 	private OffsetDateTime subscriptionEndDate;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
 	private OffsetDateTime resultAnnouncementDate;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
 	private OffsetDateTime projectStartDate;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
 	private OffsetDateTime projectEndDate;
 
 	private BigDecimal expectedReturn;

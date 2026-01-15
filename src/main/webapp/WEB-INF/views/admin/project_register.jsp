@@ -8,6 +8,10 @@
     <title>관리자 모드 | 마이리틀스마트팜</title>
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/admin.css">
+    <script>
+        // 전역 변수로 선언 (보통 'ctx' 또는 'contextPath'라고 명명)
+        const ctx = "${pageContext.request.contextPath}";
+    </script>
 </head>
 <body>
 	<jsp:include page="../../includes/admin_sidebar.jsp" />
@@ -16,7 +20,7 @@
         <div class="container-1200">
             <div class="page-header">
                 <h1>프로젝트 등록/수정</h1>
-                <button type="button" class="btn-load" onclick="openModal()">프로젝트 정보 불러오기</button>
+                <button type="button" class="btn-load">프로젝트 정보 불러오기</button>
             </div>
 
             <form action="/admin/project/insert" method="post">
@@ -94,8 +98,8 @@
                 </div>
                 
                 <div class="button-group">
-                    <button type="button" class="btn-submit register-btn" onclick="insertProject()">프로젝트 등록</button>
-                    <button type="button" class="btn-submit edit-btn" onclick="updateProject()">프로젝트 수정</button>
+                    <button type="button" class="btn-submit register-btn">프로젝트 등록</button>
+                    <button type="button" class="btn-submit edit-btn">프로젝트 수정</button>
                 </div>
             </form>
         </div>
@@ -105,7 +109,7 @@
     <div class="modal-content">
         <div class="modal-header">
             <span>지난 프로젝트 목록 선택</span>
-            <span style="cursor:pointer" onclick="closeModal()">&times;</span>
+            <span class="modal-close" style="cursor:pointer" onclick="">&times;</span>
         </div>
         
         <div id="loadingSpinner" style="display: none; text-align: center; padding: 20px;">
@@ -117,6 +121,6 @@
     </div>
 </div>
     
-    <script src="${pageContext.request.contextPath}/resources/js/admin.js"></script>
+    <script type="module" src="${pageContext.request.contextPath}/resources/js/admin/project_register.js?v=<%=System.currentTimeMillis()%>"></script>
 </body>
 </html>

@@ -97,7 +97,6 @@
             <if test="projectRound != null">project_round = #{projectRound},</if>
             <if test="targetAmount != null">target_amount = #{targetAmount},</if>
             <if test="minAmountPerInvestor != null">min_amount_per_investor = #{minAmountPerInvestor},</if>
-            <if test="maxAmountPerInvestor != null">max_amount_per_investor = #{maxAmountPerInvestor},</if>
             
             <if test="actualAmount != null">actual_amount = #{actualAmount},</if>
             <if test="subscriptionRate != null">subscription_rate = #{subscriptionRate},</if>
