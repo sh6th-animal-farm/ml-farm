@@ -23,7 +23,7 @@
 	
 	<context:component-scan base-package="com.animalfarm.mlf" />
 	
-	<resources mapping="swagger-ui.html" location="classpath:/META-INF/resources/"/>
+	<resources mapping="/swagger-ui.html" location="classpath:/META-INF/resources/"/>
 	<resources mapping="/webjars/**" location="classpath:/META-INF/resources/webjars/"/>
 	
 	<!--  MapperScannerConfigurer 추가 -->
