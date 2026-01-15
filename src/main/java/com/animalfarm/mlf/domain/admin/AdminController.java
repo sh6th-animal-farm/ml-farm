@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
+	static final String ACTIVE_MENU = "activeMenu";
 
 	// /admin 또는 /admin/ 으로 접속 시 실행
 	@GetMapping({"", "/"})
@@ -17,31 +18,31 @@ public class AdminController {
 
 	@GetMapping("/project/new")
 	public String newProject(Model model) {
-		model.addAttribute("activeMenu", "project");
+		model.addAttribute(ACTIVE_MENU, "project");
 		return "admin/project_register";
 	}
 
 	@GetMapping("/farm/new")
 	public String newFarm(Model model) {
-		model.addAttribute("activeMenu", "farm");
+		model.addAttribute(ACTIVE_MENU, "farm");
 		return "admin/farm_register";
 	}
 
 	@GetMapping("/cultivation/new")
 	public String newCultivation(Model model) {
-		model.addAttribute("activeMenu", "cultivation");
+		model.addAttribute(ACTIVE_MENU, "cultivation");
 		return "admin/cultivation_register";
 	}
 
 	@GetMapping("/revenue/new")
 	public String newIncome(Model model) {
-		model.addAttribute("activeMenu", "revenue");
+		model.addAttribute(ACTIVE_MENU, "revenue");
 		return "admin/revenue_register";
 	}
 
 	@GetMapping("/expense/new")
 	public String newExpenditure(Model model) {
-		model.addAttribute("activeMenu", "expense");
+		model.addAttribute(ACTIVE_MENU, "expense");
 		return "admin/expense_register";
 	}
 }
