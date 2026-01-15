@@ -8,13 +8,9 @@ import javax.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.security.SecurityException;
 
 /**
  * [JWT 생성 및 검증기]
@@ -33,7 +29,7 @@ public class JwtProvider {
 	 * Access Token: 60분 (요구사항 반영)
 	 * Refresh Token: 30일 (Redis 보관 기간과 동일하게 설정)
 	 */
-	private final long accessTokenExp = 60 * 60 * 10000L; //1시간
+	private final long accessTokenExp = 60 * 60 * 1000L; //1시간
 	private final long refreshTokenExp = 30L * 24 * 60 * 60 * 1000L; //30일
 
 	@PostConstruct
@@ -68,12 +64,11 @@ public class JwtProvider {
 	 * [Refresh Token 발급]
 	 * Access Token보다 유효기간이 훨씬 길며, Redis에 저장되어 AT 재발급용으로 쓰입니다.
 	 */
-	public String createRegreshToken(String email) {
+	public String createRefreshToken(String email) {
 		Date now = new Date();
 		return Jwts.builder()
 			.setSubject(email)
 			.setIssuedAt(now)
-			.setExpiration(now)
 			.setExpiration(new Date(now.getTime() + refreshTokenExp))
 			.signWith(secretKey, SignatureAlgorithm.HS256)
 			.compact();
@@ -97,14 +92,17 @@ public class JwtProvider {
 
 		try {
 			// 파싱에 성공하면 유효한 토큰
-			Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
+			// [중요] salt 문자열이 아니라, init()에서 만든 this.secretKey 객체를 넣어야 합니다!
+			Jwts.parserBuilder()
+				.setSigningKey(this.secretKey)
+				.build()
+				.parseClaimsJws(token);
+
 			return true;
-		} catch (SecurityException | MalformedJwtException e) {
-			//서명이 잘못되었거나 형식이 틀린 경우
-		} catch (ExpiredJwtException e) {
-			//유효시간이 만료된 경우
-		} catch (UnsupportedJwtException | IllegalArgumentException e) {
-			// 기타 지원하지 않는 토큰인 경우
+		} catch (io.jsonwebtoken.security.SignatureException e) {
+			System.out.println("DEBUG: 서명이 일치하지 않습니다. (열쇠 불일치)");
+		} catch (Exception e) {
+			System.out.println("DEBUG: 토큰 검증 실패: " + e.getMessage());
 		}
 		return false;
 	}

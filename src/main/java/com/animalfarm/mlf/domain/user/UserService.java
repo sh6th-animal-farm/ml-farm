@@ -1,5 +1,8 @@
 package com.animalfarm.mlf.domain.user;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,7 +56,7 @@ public class UserService {
 		// Access Token: 60분 유효 (Subject: email)
 		String accessToken = jwtProvider.createAccessToken(user.getEmail(), user.getRole());
 		// Refresh Token: 30일 유효
-		String refreshToken = jwtProvider.createRegreshToken(user.getEmail());
+		String refreshToken = jwtProvider.createRefreshToken(user.getEmail());
 
 		// 1-4. Redis에 Refresh Token 저장 (Key: "RT:이메일", TTL: 30일)
 		// 30일이 지나면 Redis에서 자동으로 삭제되도록 설정되어 있습니다.
@@ -70,29 +73,48 @@ public class UserService {
 	 * @param refreshToken 클라이언트가 보낸 리프레시 토큰
 	 * @return 새로운 Access Token (60분 유효)
 	 */
-	public String refresh(String refreshToken) {
+	public Map<String, String> refresh(String oldRefreshToken) {
 
 		// 2-1. 전달받은 RT 자체가 JWT로서 유효한지(서명, 만료시간 등) 체크
-		if (!jwtProvider.validateToken(refreshToken)) {
+		if (!jwtProvider.validateToken(oldRefreshToken)) {
 			throw new RuntimeException("Refresh 토큰이 만료되었거나 올바르지 않습니다.");
 		}
 
 		// 2-2. 토큰에서 사용자의 이메일 정보를 추출
-		String email = jwtProvider.getUserEmail(refreshToken);
+		String email = jwtProvider.getUserEmail(oldRefreshToken);
 
-		// 2-3. Redis에 저장된 해당 유저의 '진짜' RT를 가져옴
+		// 2-3. DB에서 사용자 권한(Role) 가져오기
+		// 사용자님의 Mapper나 Repository를 사용하여 DB 정보를 조회합니다.
+		UserDTO user = userRepository.findByEmail(email); // 예시: 이메일로 사용자 조회
+		if (user == null) {
+			throw new RuntimeException("존재하지 않는 사용자입니다.");
+		}
+		String role = user.getRole(); // DB에 저장된 사용자의 권한 (예: ADMIN, USER)
+
+		// 2-4. Redis에 저장된 해당 유저의 '진짜' RT를 가져옴
 		String saveRt = redisUtil.getData("RT:" + email);
 
-		// 2-4. 보안 핵심: 클라이언트가 보낸 RT와 Redis의 RT가 정확히 일치하는지 대조
-		if (refreshToken.equals(saveRt)) {
-			// 일치한다면 사용자의 최신 정보를 DB에서 가져와 새로운 60분짜리 Access Token 발급
-			UserDTO user = userRepository.findByEmail(email);
-			return jwtProvider.createAccessToken(email, user.getRole());
-		} else {
-			// 토큰 가로채기나 변조가 의심되는 상황
-			throw new RuntimeException("토큰 정보가 읽치하지 않습니다. 비정상적인 접근입니다.");
+		// 2-5. 보안 핵심: 클라이언트가 보낸 RT와 Redis의 RT가 정확히 일치하는지 대조
+		// 토큰 가로채기나 변조가 의심되는 상황
+		if (saveRt == null || !saveRt.equals(oldRefreshToken)) {
+			throw new RuntimeException("유효하지 않은 리프레시 토큰입니다.");
 		}
 
+		// 2-6. 일치한다면 사용자의 최신 정보를 DB에서 가져와 새로운 60분짜리 Access Token 발급
+		// 새로운 AT 및 RT 생성 (가져온 role 사용)
+		String newRefreshToken = jwtProvider.createRefreshToken(email);
+		String newAccessToken = jwtProvider.createAccessToken(email, role);
+
+		// 2-7. Redis 업데이트 (기존 것 삭제 후 새 것 저장)
+		redisUtil.deleteData("RT:" + email);
+		redisUtil.saveRefreshToken(email, newRefreshToken);
+
+		// 2-8. 결과 반환
+		Map<String, String> tokenMap = new HashMap<>();
+		tokenMap.put("accessToken", newAccessToken);
+		tokenMap.put("refreshToken", newRefreshToken);
+
+		return tokenMap;
 	}
 
 	/**
