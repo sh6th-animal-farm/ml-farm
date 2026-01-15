@@ -1,4 +1,4 @@
-package com.animalfarm.mlf.domain.user;
+package com.animalfarm.mlf.domain.user.repository;
 
 import org.apache.ibatis.annotations.Mapper;
 
