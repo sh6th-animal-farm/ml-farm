@@ -63,9 +63,6 @@
 		left join tokens t on p.project_id = t.project_id 
 		WHERE p.project_id = #{projectId};
 	</select>
-	<select id="selectAll" resultType="projectListDTO">
-		select * from projects
-	</select>
 	
 	<select id="selectByCondition" parameterType="projectSearchReqDTO" resultType="projectListDTO">
 		SELECT
