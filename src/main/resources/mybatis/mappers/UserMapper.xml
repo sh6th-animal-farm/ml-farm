@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
   
-<mapper namespace="com.animalfarm.mlf.domain.user.UserRepository">
+<mapper namespace="com.animalfarm.mlf.domain.user.repository.UserRepository">
 	
 	<select id="findByEmail" resultType="com.animalfarm.mlf.domain.user.dto.UserDTO">
 		SELECT
