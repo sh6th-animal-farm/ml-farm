@@ -22,7 +22,12 @@ public class ProjectService {
 	public ProjectDetailDTO selectDetail(Long projectId) {
 		return projectRepository.selectDetail(projectId);
 	}
+
 	public List<ProjectListDTO> selectByCondition(ProjectSearchReqDTO searchDTO) {
 		return projectRepository.selectByCondition(searchDTO);
+	}
+
+	public String updateProject(ProjectDTO projectDTO) {
+		return projectRepository.updateProject(projectDTO);
 	}
 }
