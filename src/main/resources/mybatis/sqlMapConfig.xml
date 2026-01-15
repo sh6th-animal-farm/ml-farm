@@ -25,6 +25,9 @@
 			alias="projectPictureDTO" />
 		<typeAlias type="com.animalfarm.mlf.domain.project.dto.ProjectDetailDTO"
 			alias="ProjectDetailDTO" />
+			
+		<typeAlias type="com.animalfarm.mlf.domain.token.dto.TokenDTO"
+			alias="tokenDTO" />
 	</typeAliases>
 
 </configuration>
