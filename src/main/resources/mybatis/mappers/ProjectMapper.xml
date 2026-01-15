@@ -88,4 +88,36 @@
 	    </where>
 	</select>
 	
+	<update id="updateProject" parameterType="com.animalfarm.mlf.domain.project.dto.ProjectDTO">
+        UPDATE projects
+        <set>
+            <if test="farmId != null">farm_id = #{farmId},</if>
+            <if test="projectName != null">project_name = #{projectName},</if>
+            <if test="projectDescription != null">project_description = #{projectDescription},</if>
+            <if test="projectRound != null">project_round = #{projectRound},</if>
+            <if test="targetAmount != null">target_amount = #{targetAmount},</if>
+            <if test="minAmountPerInvestor != null">min_amount_per_investor = #{minAmountPerInvestor},</if>
+            <if test="maxAmountPerInvestor != null">max_amount_per_investor = #{maxAmountPerInvestor},</if>
+            
+            <if test="actualAmount != null">actual_amount = #{actualAmount},</if>
+            <if test="subscriptionRate != null">subscription_rate = #{subscriptionRate},</if>
+            
+            <if test="projectStatus != null">project_status = #{projectStatus},</if>
+            
+            <if test="announcementStartDate != null">announcement_start_date = #{announcementStartDate},</if>
+            <if test="announcementEndDate != null">announcement_end_date = #{announcementEndDate},</if>
+            <if test="subscriptionStartDate != null">subscription_start_date = #{subscriptionStartDate},</if>
+            <if test="subscriptionEndDate != null">subscription_end_date = #{subscriptionEndDate},</if>
+            <if test="resultAnnouncementDate != null">result_announcement_date = #{resultAnnouncementDate},</if>
+            <if test="projectStartDate != null">project_start_date = #{projectStartDate},</if>
+            <if test="projectEndDate != null">project_end_date = #{projectEndDate},</if>
+            
+            <if test="expectedReturn != null">expected_return = #{expectedReturn},</if>
+            <if test="managerCount != null">manager_count = #{managerCount},</if>
+            
+            updated_at = NOW()
+        </set>
+        WHERE project_id = #{projectId}
+    </update>
+	
 </mapper>
