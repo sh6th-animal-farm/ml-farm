@@ -5,6 +5,11 @@ import java.util.Date;
 
 import javax.annotation.PostConstruct;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
@@ -19,10 +24,19 @@ import io.jsonwebtoken.security.Keys;
 @Component
 public class JwtProvider {
 
+	//Authentication 객체를 생성하기 위한 UserDetailsService
+	private final UserDetailsService userDetailsService;
+
 	// 토큰 서명에 사용할 비밀키 (외부 유출 절대 금지)
 	// STO 서비스 특성상 보안을 위해 충분히 긴 시크릿 키를 사용해야 합니다.
 	private String salt = "SmartFarm_STO_Secret_Key_Animal_Farm_MLF_2026_Project_Full_Security";
 	private Key secretKey;
+
+	//final 필드인 UserDetailsService를 초기화 하기 위해 생성자를 통해 주입
+	@Autowired
+	public JwtProvider(UserDetailsService userDetailsService) {
+		this.userDetailsService = userDetailsService;
+	}
 
 	/**
 	 * [토큰 만료 시간 설정]
@@ -105,6 +119,24 @@ public class JwtProvider {
 			System.out.println("DEBUG: 토큰 검증 실패: " + e.getMessage());
 		}
 		return false;
+	}
+
+	/**
+	 * [시큐리티 인증 객체(신분증) 생성]
+	 * - 검증이 완료된 토큰을 바탕으로 스프링 시큐리티가 인식할 수 있는 시큐리티용 Authentication 객체를 생성합니다.
+	 * - 이 객체가 SecurityContextHolder에 저장되어야만 로그인이 성공한 것으로 간주됩니다.
+	 */
+	public Authentication getAuthentication(String token) {
+		// 1. [사용자 식별자 추출] 토큰의 Subject 영역에서 이메일(혹은 ID)을 꺼냅니다.
+		String email = this.getUserEmail(token);
+
+		// 2. [상세 정보 로드] DB에서 해당 유저의 정보와 권한(Role)을 포함한 UserDetails 객체를 가져옵니다.
+		// 이 과정에서 실제 존재하는 회원인지 한 번 더 검증됩니다.
+		UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+
+		// 3. [인증 토큰 생성] 유저 정보와 권한 목록을 담은 시큐리티 전용 인증 토큰을 반환합니다.
+		// 두 번째 인자인 패스워드(Credentials)는 이미 토큰으로 인증되었으므로 빈 문자열로 둡니다.
+		return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
 	}
 
 }
