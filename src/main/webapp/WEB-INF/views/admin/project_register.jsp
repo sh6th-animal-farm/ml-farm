@@ -1,4 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=EUC-KR"
+<%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
@@ -92,31 +92,30 @@
                         </div>
                     </div>
                 </div>
-
-                <button type="submit" class="btn-submit">새 프로젝트 등록 완료</button>
+                
+                <div class="button-group">
+                    <button type="button" class="btn-submit register-btn" onclick="insertProject()">프로젝트 등록</button>
+                    <button type="button" class="btn-submit edit-btn" onclick="updateProject()">프로젝트 수정</button>
+                </div>
             </form>
         </div>
     </main>
 
-
     <div id="projectModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span>지난 프로젝트 목록 선택</span>
-                <span style="cursor:pointer" onclick="closeModal()">&times;</span>
-            </div>
-            <ul class="project-list">
-                <li class="project-item" onclick="selectProject({id: 1, name: '청라 1호 토마토', round: 1, farm: 1, target: 500000000, min: 100000, max: 10000000, roi: 12.5, mgr: 2})">
-                    <strong>청라 1호 토마토 (1차)</strong><br>
-                    <small>농장 ID: 1 | 목표액: 5억 | 수익률: 12.5%</small>
-                </li>
-                <li class="project-item" onclick="selectProject({id: 2, name: '김제 오이 공모', round: 2, farm: 2, target: 300000000, min: 50000, max: 5000000, roi: 10.2, mgr: 1})">
-                    <strong>김제 오이 공모 (2차)</strong><br>
-                    <small>농장 ID: 2 | 목표액: 3억 | 수익률: 10.2%</small>
-                </li>
-            </ul>
+    <div class="modal-content">
+        <div class="modal-header">
+            <span>지난 프로젝트 목록 선택</span>
+            <span style="cursor:pointer" onclick="closeModal()">&times;</span>
         </div>
+        
+        <div id="loadingSpinner" style="display: none; text-align: center; padding: 20px;">
+            <div class="spinner"></div> <p>프로젝트 정보를 불러오는 중...</p>
+        </div>
+
+        <ul id="projectListContainer" class="project-list">
+            </ul>
     </div>
+</div>
     
     <script src="${pageContext.request.contextPath}/resources/js/admin.js"></script>
 </body>
