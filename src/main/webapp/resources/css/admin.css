@@ -1,4 +1,4 @@
-@charset "EUC-KR";
+@charset "UTF-8";
 
 :root {
 	--green-600: #4A9F2E;
@@ -52,6 +52,20 @@ body {
 	background: rgba(74, 159, 46, 0.1);
 	color: var(--green-600);
 	border-right: 4px solid var(--green-600);
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(74, 159, 46, 0.1);
+    border-left-color: var(--green-600);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 10px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
 
 /* Main Content */
@@ -161,6 +175,12 @@ input:focus {
 	border-color: var(--green-600);
 }
 
+.button-group {
+    margin-top: 24px;
+    display: flex;
+    gap: 12px;             /* К╡└М┼╪ Л┌╛Л²╢Л²≤ Й╟└Й╡╘Л²└ 12pxК║° ЙЁ═Л═∙ */
+}
+
 .btn-submit {
 	background: var(--green-600);
 	color: white;
@@ -177,7 +197,8 @@ input:focus {
 .btn-submit:hover {
 	background: var(--green-700);
 }
-/* Modal Style (га╥на╖ф╝ а╤х╦©К) */
+
+/* Modal Style (О©╫О©╫О©╫О©╫О©╫О©╫ф╝ О©╫О©╫х╦О©╫О©╫) */
 .modal {
 	display: none;
 	position: fixed;
