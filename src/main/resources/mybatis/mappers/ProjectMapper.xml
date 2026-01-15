@@ -12,12 +12,6 @@
 		autoMapping="true">
 		<id column="project_id" property="projectId" />
 
-		<association property="farm"
-			javaType="com.animalfarm.mlf.domain.project.dto.FarmDTO" autoMapping="true">
-			<id column="f_farm_id" property="farmId" />
-			<result column="f_description" property="description" />
-		</association>
-
 		<collection property="images" ofType="string">
 			<result column="image_url" />
 		</collection>
@@ -32,36 +26,39 @@
 	</select>
 
 	<select id="selectDetail" parameterType="long"
-		resultType="ProjectDetailDTO" resultMap="ProjectDetailMap">
+		resultMap="ProjectDetailMap">
 		SELECT
 		p.*,
-		f.farm_id AS f_farm_id,
-		f.farm_name,
-		f.address_sido,
-		f.address_sigungu,
-		f.address_street,
-		f.address_details,
-		f.latitude,
-		f.longtitude,
-		f.altitude,
-		f.farm_type,
-		f.area,
-		f.description AS
-		f_description,
-		f.open_at,
-		f.thumbnail_url,
-		i.image_url,
+		f.*,
 		c.crop,
 		c.method,
-		fed.temperature_inside,
-		t.ticker_symbol
+		t.ticker_symbol,
+		UNNEST(img.image_list) AS image_url, -- 이미지가 없으면 빈 배열 '{}' 반환
+		UNNEST(fed.temp_list) AS temperature_inside -- 온도 데이터가 없으면 빈 배열 '{}' 반환
 		FROM projects p
-		left join farms f ON p.farm_id = f.farm_id
-		left join project_images i on p.project_id = i.project_id
-		left join cultivations c on p.project_id = c.project_id
-		left join farm_env_data fed on f.farm_id = fed.farm_id
-		left join tokens t on p.project_id = t.project_id 
-		WHERE p.project_id = #{projectId};
+		LEFT JOIN farms f ON p.farm_id = f.farm_id
+		LEFT JOIN
+		cultivations c ON p.project_id = c.project_id
+		LEFT JOIN tokens t ON
+		p.project_id = t.project_id
+		-- 이미지 서브쿼리: 조인 전 미리 그룹화하여 데이터 중복 생성 방지
+		LEFT JOIN (
+		SELECT project_id, ARRAY_AGG(image_url) AS image_list
+		FROM
+		project_images
+		GROUP BY project_id
+		) img ON p.project_id =
+		img.project_id
+		-- 환경 데이터 서브쿼리: 조인 전 미리 그룹화
+		LEFT JOIN (
+		SELECT farm_id,
+		ARRAY_AGG(temperature_inside) AS temp_list
+		FROM farm_env_data
+		GROUP BY
+		farm_id
+		) fed ON f.farm_id = fed.farm_id
+		WHERE p.project_id =
+		#{projectId};
 	</select>
 	
 	<select id="selectByCondition" parameterType="projectSearchReqDTO" resultType="projectListDTO">
