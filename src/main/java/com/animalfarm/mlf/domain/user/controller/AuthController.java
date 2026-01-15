@@ -1,4 +1,4 @@
-package com.animalfarm.mlf.domain.user;
+package com.animalfarm.mlf.domain.user.controller;
 
 import java.util.Map;
 
@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.animalfarm.mlf.domain.user.dto.LoginRequestDTO;
 import com.animalfarm.mlf.domain.user.dto.TokenResponseDTO;
+import com.animalfarm.mlf.domain.user.service.AuthService;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -24,12 +25,12 @@ import io.swagger.annotations.ApiParam;
  * - Swagger 2를 사용하여 API 문서를 자동 생성합니다.
  */
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api/auth")
 @Api(tags = "User Authentication API", description = "로그인 및 토큰 관리 API")
-public class UserController {
+public class AuthController {
 
 	@Autowired
-	private UserService userService;
+	private AuthService authService;
 
 	/**
 	 * [1. 로그인 API]
@@ -44,7 +45,7 @@ public class UserController {
 		LoginRequestDTO loginRequest) {
 
 		// 1-1. 서비스 계층에 로그인 요청 위임
-		TokenResponseDTO tokenResponse = userService.login(loginRequest);
+		TokenResponseDTO tokenResponse = authService.login(loginRequest);
 
 		// 1-2. 성공 시 200 OK와 함께 토큰 전송
 		return ResponseEntity.ok(tokenResponse);
@@ -63,7 +64,7 @@ public class UserController {
 		String oldRefreshToken = requestBody.get("refreshToken");
 
 		// 2-1. 서비스 계층에서 Redis 검증 후 AT, RT가 담긴 Map을 받아옴
-		Map<String, String> newTokens = userService.refresh(oldRefreshToken);
+		Map<String, String> newTokens = authService.refresh(oldRefreshToken);
 
 		// 2-2. 결과를 그대로 응답 (JSON에 AT와 RT가 모두 포함됨)
 		return ResponseEntity.ok(newTokens);
@@ -88,7 +89,7 @@ public class UserController {
 
 		if (accessToken != null) {
 			// 3-2. 서비스 계층에서 Redis 데이터 처리 (RT 삭제 및 AT 블랙리스트)
-			userService.logout(accessToken);
+			authService.logout(accessToken);
 			return ResponseEntity.ok("로그아웃 되었습니다.");
 		}
 

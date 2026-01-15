@@ -1,4 +1,4 @@
-package com.animalfarm.mlf.domain.user;
+package com.animalfarm.mlf.domain.user.service;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,6 +12,7 @@ import com.animalfarm.mlf.common.RedisUtil;
 import com.animalfarm.mlf.domain.user.dto.LoginRequestDTO;
 import com.animalfarm.mlf.domain.user.dto.TokenResponseDTO;
 import com.animalfarm.mlf.domain.user.dto.UserDTO;
+import com.animalfarm.mlf.domain.user.repository.UserRepository;
 
 /**
  * [사용자 서비스 클래스]
@@ -20,7 +21,7 @@ import com.animalfarm.mlf.domain.user.dto.UserDTO;
  * - PostgreSQL(MyBatis), Redis, JWT 유틸리티를 결합하여 동작합니다.
  */
 @Service
-public class UserService {
+public class AuthService {
 
 	// DB 접근을 담당하는 MyBatis 매퍼 인터페이스 (최근 팀장님이 인터페이스 방식을 채택함)
 	@Autowired
