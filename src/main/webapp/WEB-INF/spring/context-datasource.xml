@@ -11,41 +11,28 @@
 	<!-- Transaction -->
 	<bean id="transactionManager"
 		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-		<property name="dataSource" ref="dataSource2"></property>
+		<property name="dataSource" ref="dataSourceOrigin"></property>
 	</bean>
 	<tx:annotation-driven
 		transaction-manager="transactionManager" />
 		
 	<context:property-placeholder location="classpath:/config/db.properties" />
 	
-	<bean id="dataSourceOriginal" primary="true"
+	<bean id="dataSourceOrigin" destroy-method="close"
 		class="org.apache.commons.dbcp2.BasicDataSource">
 		<property name="driverClassName" value="${db.driver}" />
 		<property name="url" value="${db.url}" />
 		<property name="username" value="${db.username}" />
 		<property name="password" value="${db.password}" />
-		
-    	<!-- 연결 유지 및 유효성 검사 설정 -->
-	    <!-- 연결이 살아있는지 확인할 때 던지는 쿼리 -->
 	    <property name="validationQuery" value="SELECT 1" /> 
-	    <!-- 유효하지 않은 연결은 풀에서 제거 -->
 	    <property name="testWhileIdle" value="true" />
 	</bean>
 
-	<bean id="dataSource2"
-		class="net.sf.log4jdbc.Log4jdbcProxyDataSource">
-		<constructor-arg ref="dataSourceOriginal" />
-		<property name="logFormatter">
-			<bean class="net.sf.log4jdbc.tools.Log4JdbcCustomFormatter">
-				<property name="loggingType" value="MULTI_LINE"></property>
-				<property name="sqlPrefix" value="[ SQL문장 ] "></property>
-			</bean>
-		</property>
-	</bean>
+	
 
 	<bean id="sqlSessionFactory"
 		class="org.mybatis.spring.SqlSessionFactoryBean">
-		<property name="dataSource" ref="dataSource2"></property>
+		<property name="dataSource" ref="dataSourceOrigin"></property>
 		<property name="configLocation"
 			value="classpath:mybatis/sqlMapConfig.xml" />
 		<property name="mapperLocations"

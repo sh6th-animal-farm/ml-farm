@@ -4,7 +4,7 @@
   
 <mapper namespace="com.animalfarm.mlf.domain.user.UserRepository">
 	
-	<select id="findByEmail" resultType="com.animalfarm.mlf.domain.user.dto.serDTO">
+	<select id="findByEmail" resultType="com.animalfarm.mlf.domain.user.dto.UserDTO">
 		SELECT
 			user_id    AS userId,
 			email,
