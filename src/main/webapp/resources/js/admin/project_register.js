@@ -20,7 +20,42 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnClose) {
         btnClose.addEventListener('click', closeModal);
     }
-    
+
+    const imageInput = document.getElementById('imageInput');
+    const previewList = document.getElementById('imagePreviewList');
+    const addBtn = previewList.querySelector('.add-btn');
+
+    // 파일 선택 시 이벤트
+    imageInput.addEventListener('change', function(e) {
+        const files = Array.from(e.target.files);
+        
+        files.forEach(file => {
+            const reader = new FileReader();
+            
+            reader.onload = function(event) {
+                // 미리보기 박스 생성
+                const box = document.createElement('div');
+                box.className = 'image-upload-box';
+                
+                box.innerHTML = `
+                    <img src="${event.target.result}" alt="preview">
+                    <div class="btn-remove">&times;</div>
+                `;
+                
+                // 삭제 이벤트 추가
+                box.querySelector('.btn-remove').onclick = function(e) {
+                    e.stopPropagation(); // 부모 클릭 방지
+                    box.remove();
+                    // 별도의 파일 배열을 관리할것
+                };
+                
+                // 추가 버튼 앞에 삽입
+                previewList.insertBefore(box, addBtn);
+            };
+            
+            reader.readAsDataURL(file);
+        });
+    });
 });
 
 // 모달 열기 및 데이터 로드
@@ -112,6 +147,8 @@ async function selectProject(data) {
     for (const [name, value] of Object.entries(dateFields)) {
         document.getElementsByName(name)[0].value = DateUtil.toLocalDateTime(value);
     }
+    
+    // TODO: 사진 정보 가져와서 displayExistingImages 로 화면에 띄우기 
 
     try {
         const response = await fetch(`${ctx}/api/token/${data.projectId}`);
@@ -157,6 +194,7 @@ function getFormData() {
     return obj;
 }
 
+// 프로젝트 수정
 function updateProject() {
     const data = getFormData();
 
@@ -180,4 +218,43 @@ function updateProject() {
 
 function insertProject() {
     const data = getFormData();
+}
+
+
+// 기존 이미지들을 화면에 그려주는 함수
+function displayExistingImages(imageUrls) {
+    const previewList = document.getElementById('imagePreviewList');
+    const addBtn = previewList.querySelector('.add-btn');
+
+    // 기존에 있던 미리보기들(이미지 박스들)만 제거 (추가 버튼은 남김)
+    const existingBoxes = previewList.querySelectorAll('.image-upload-box:not(.add-btn)');
+    existingBoxes.forEach(box => box.remove());
+
+    if (!imageUrls || !Array.isArray(imageUrls)) return;
+
+    imageUrls.forEach(url => {
+        const box = document.createElement('div');
+        box.className = 'image-upload-box existing'; // 기존 이미지임을 표시하는 클래스 추가
+        
+        // 이미지 경로가 contextPath를 포함해야 한다면 ctx를 붙여줍니다.
+        const fullUrl = url.startsWith('http') ? url : `${ctx}/uploads/projects/${url}`;
+
+        box.innerHTML = `
+            <img src="${fullUrl}" alt="project image">
+            <div class="btn-remove" data-filename="${url}">&times;</div>
+        `;
+
+        // 삭제 버튼 클릭 이벤트 (기존 이미지는 서버에서도 지워야 하므로 처리 방식이 다를 수 있음)
+        box.querySelector('.btn-remove').onclick = function(e) {
+            e.stopPropagation();
+            if(confirm("이 사진을 삭제하시겠습니까?")) {
+                box.remove();
+                // TODO: 삭제된 이미지 파일명을 별도 배열에 담아두었다가 수정 완료 시 서버에 알리기
+                markImageAsDeleted(url); 
+            }
+        };
+
+        // 추가 버튼( + ) 앞에 삽입
+        previewList.insertBefore(box, addBtn);
+    });
 }
