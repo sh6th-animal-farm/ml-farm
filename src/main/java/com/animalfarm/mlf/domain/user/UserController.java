@@ -1,6 +1,5 @@
 package com.animalfarm.mlf.domain.user;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -57,22 +56,17 @@ public class UserController {
 	 * @param requestBody 클라이언트가 보낸 JSON { "refreshToken": "..." }
 	 */
 	@PostMapping("/refresh")
-	@ApiOperation(value = "토큰 재발급", notes = "Refresh Token을 이용하여 새로운 Access Token을 발급받습니다.")
-	public ResponseEntity<?> refresh(
-		@ApiParam(value = "리프레시 토큰 객체", required = true)
-		@RequestBody
-		Map<String, String> requestBody) {
+	@ApiOperation(value = "토큰 재발급", notes = "Refresh Token을 이용하여 새로운 Access Token과 Refresh Token을 발급받습니다.")
+	public ResponseEntity<?> refresh(@RequestBody
+	Map<String, String> requestBody) {
 
-		String refreshToken = requestBody.get(requestBody);
+		String oldRefreshToken = requestBody.get("refreshToken");
 
-		// 2-1. 서비스 계층에서 Redis 검증 후 새 AT 발급
-		String newAccessToken = userService.refresh(refreshToken);
+		// 2-1. 서비스 계층에서 Redis 검증 후 AT, RT가 담긴 Map을 받아옴
+		Map<String, String> newTokens = userService.refresh(oldRefreshToken);
 
-		// 2-2. 결과 포맷팅
-		Map<String, String> response = new HashMap<>();
-		response.put("accessToken", newAccessToken);
-
-		return ResponseEntity.ok(response);
+		// 2-2. 결과를 그대로 응답 (JSON에 AT와 RT가 모두 포함됨)
+		return ResponseEntity.ok(newTokens);
 
 	}
 
@@ -80,7 +74,7 @@ public class UserController {
 	 * [3. 로그아웃 API]
 	 * - 사용자의 세션을 종료하고 토큰을 무효화합니다.
 	 */
-	@PostMapping("/logout")
+	@PostMapping(value = "/logout", produces = "application/json; charset=UTF-8")
 	@ApiOperation(value = "로그아웃", notes = "리프레시 토큰을 삭제하고 엑세스 토큰을 블랙리스트에 등록합니다.")
 	public ResponseEntity<?> logout(HttpServletRequest request) {
 
