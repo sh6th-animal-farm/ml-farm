@@ -25,14 +25,14 @@
 				<button type="button" class="btn-load">프로젝트 정보 불러오기</button>
 			</div>
 
-            <form action="${pageContext.request.contextPath}/api/project/insert" method="post">
+            <form method="post">
                 
                 <div class="form-card">
                     <div class="section-title">기본 정보</div>
                     <div class="grid-3">
                         <div class="form-group">
                             <label>농장 선택 (Farm ID)</label>
-                            <select name="farmId" required>
+                            <select name="farm_id" required>
                             	<option value="">농장을 선택하세요</option>
                             	<c:forEach items="${farmlist}" var="farmdata">
                             		<option value="${farmdata.farmId}">${farmdata.farmName}</option>
@@ -41,45 +41,15 @@
                         </div>
                         <div class="form-group">
                             <label>프로젝트 명</label>
-                            <input type="text" name="projectName" required>
+                            <input type="text" name="project_name" required>
                         </div>
                         <div class="form-group">
                             <label>프로젝트 차수 (Round)</label>
-                            <input type="number" name="projectRound" value="1" required>
+                            <input type="number" name="project_round" value="1" required>
                         </div>
                         <div class="form-group full">
                             <label>프로젝트 상세 설명 <span class="optional">(선택)</span></label>
-                            <textarea name="projectDescription" rows="3"></textarea>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-card">
-                    <div class="section-title">투자 설정</div>
-                    <div class="grid-3">
-                        <div class="form-group">
-                            <label>토큰 명칭</label>
-                            <input type="text" name="tokenName" required>
-                        </div>
-                        <div class="form-group">
-                            <label>종목 코드 (Ticker)</label>
-                            <input type="text" name="tickerSymbol" required>
-                        </div>
-                        <div class="form-group">
-                            <label>목표 금액 (Target)</label>
-                            <input type="number" name="targetAmount" required>
-                        </div>
-                        <div class="form-group">
-                            <label>1인당 최소 투자금</label>
-                            <input type="number" name="minAmountPerInvestor" required>
-                        </div>
-                        <div class="form-group">
-                            <label>현재 모집 금액 <span class="optional">(선택)</span></label>
-                            <input type="number" name="actualAmount" value="0">
-                        </div>
-                        <div class="form-group">
-                            <label>토큰 발행량 <span class="optional"></span></label>
-                            <input type="number" name="totalSupply" value="0">
+                            <textarea name="project_description" rows="3"></textarea>
                         </div>
                     </div>
                 </div>
@@ -171,8 +141,7 @@
 				</div>
 
 				<div class="button-group">
-					<button type="button" class="btn-submit register-btn">프로젝트
-						등록</button>
+					<button type="button" class="btn-submit register-btn">프로젝트 등록</button>
 					<button type="button" class="btn-submit edit-btn">프로젝트 수정</button>
 				</div>
 			</form>

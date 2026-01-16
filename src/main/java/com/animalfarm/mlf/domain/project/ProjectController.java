@@ -1,9 +1,6 @@
 package com.animalfarm.mlf.domain.project;
 
-import java.io.UnsupportedEncodingException;
 import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -64,14 +61,17 @@ public class ProjectController {
 		return projectService.selectByCondition(searchDTO);
 	}
 
-	@PostMapping("/api/project/insert")
-	public void insertProject(ProjectInsertDTO projectInsertDTO, HttpServletRequest request)
-		throws UnsupportedEncodingException {
-		request.setCharacterEncoding("UTF-8");
-		System.out.println("리퀘스트 인코딩: " + request.getCharacterEncoding());
+	@PostMapping("/api/projects/insert")
+	public ResponseEntity<String> insertProject(@RequestBody
+	ProjectInsertDTO projectInsertDTO) {
 		System.out.println("DTO 프로젝트 이름: " + projectInsertDTO.getProjectName());
 		System.out.println("dto" + projectInsertDTO.toString());
-		projectService.insertProject(projectInsertDTO);
+		if (projectService.insertProject(projectInsertDTO)) {
+			return ResponseEntity.ok("success");
+		} else {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("프로젝트 등록 중 서버 오류가 발생했습니다.");
+		}
+
 	}
 
 	@PostMapping("/api/projects/update")

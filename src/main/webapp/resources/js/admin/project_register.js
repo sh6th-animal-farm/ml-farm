@@ -233,6 +233,23 @@ function updateProject() {
 
 function insertProject() {
     const data = getFormData();
+
+    fetch(`${ctx}/api/projects/insert`, { method: 'POST',
+        headers: {
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify(data) })
+    .then(res => res.text())
+    .then(status => {
+        if(status === "success") {
+            alert("등록되었습니다.");
+            window.location.href = `${ctx}/admin/project/new`;
+        } else {
+            const errorMsg = status;
+            alert("실패: " + errorMsg);
+        }
+    });
 }
 
 
