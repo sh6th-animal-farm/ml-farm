@@ -84,26 +84,35 @@
                     </div>
                 </div>
 
-                <div class="form-card">
-                    <div class="section-title">일정 및 기타</div>
-                    <div class="grid-2">
-                        <div class="form-group"><label>공고 시작일</label><input type="datetime-local" name="announcementStartDate" ></div>
-                        <div class="form-group"><label>공고 종료일</label><input type="datetime-local" name="announcementEndDate" ></div>
-                        <div class="form-group"><label>청약 시작일</label><input type="datetime-local" name="subscriptionStartDate" ></div>
-                        <div class="form-group"><label>청약 종료일</label><input type="datetime-local" name="subscriptionEndDate" ></div>
-                        <div class="form-group"><label>결과 발표일</label><input type="datetime-local" name="resultAnnouncementDate" ></div>
-                        <div class="form-group">
-                            <label>예상 수익률 (ROI)</label>
-                            <input type="number" step="0.1" name="expectedReturn" required>
-                        </div>
-                        <div class="form-group"><label>사업 시작일</label><input type="datetime-local" name="projectStartDate" ></div>
-                        <div class="form-group"><label>사업 종료일</label><input type="datetime-local" name="projectEndDate" ></div>
-                        <div class="form-group">
-                            <label>현장 관리자 수</label>
-                            <input type="number" name="managerCount" required>
-                        </div>
-                    </div>
-                </div>
+				<div class="form-card">
+					<div class="section-title">투자 설정</div>
+					<div class="grid-3">
+						<div class="form-group">
+							<label>토큰 명칭</label> <input type="text" name="token_name"
+								required>
+						</div>
+						<div class="form-group">
+							<label>종목 코드 (Ticker)</label> <input type="text"
+								name="ticker_symbol" required>
+						</div>
+						<div class="form-group">
+							<label>목표 금액 (Target)</label> <input type="number"
+								name="target_amount" required>
+						</div>
+						<div class="form-group">
+							<label>토큰 총 발행량 </label> <input
+								type="number" name="total_supply" value="0" required>
+						</div>
+						<div class="form-group">
+							<label>1인당 최소 투자금</label> <input type="number"
+								name="min_amount_per_investor" required>
+						</div>
+						<div class="form-group">
+							<label>현재 모집 금액 <span class="optional">(선택)</span></label> <input
+								type="number" name="actual_amount" value="0">
+						</div>
+					</div>
+				</div>
 
 				<div class="form-card">
 					<div class="section-title">일정 및 기타</div>
