@@ -35,8 +35,8 @@
 		c.crop,
 		c.method,
 		t.ticker_symbol,
-		UNNEST(img.image_list) AS image_url,
-		UNNEST(fed.temp_list) AS temperature_inside
+		UNNEST(img.image_list) AS image_url, 
+		UNNEST(fed.temp_list) AS temperature_inside 
 		FROM projects p
 		LEFT JOIN farms f ON p.farm_id = f.farm_id
 		LEFT JOIN
@@ -63,8 +63,7 @@
 		#{projectId};
 	</select>
 
-	<select id="selectByCondition"
-		parameterType="projectSearchReqDTO" resultType="projectListDTO">
+	<select id="selectByCondition" parameterType="projectSearchReqDTO" resultType="projectListDTO">
 		SELECT
 		p.*,
 		f.thumbnail_url,
@@ -73,12 +72,10 @@
 		FROM starred_projects s
 		WHERE s.project_id = p.project_id
 		AND s.user_id = #{userId}
-		AND
-		s.is_starred = true
+		AND s.is_starred = true
 		) AS is_starred
 		FROM projects p
-		JOIN farms f on
-		p.farm_id = f.farm_id
+		JOIN farms f on p.farm_id = f.farm_id
 		<where>
 			AND p.project_status NOT IN ('PREPARING', 'CANCELED', 'COMPLETED')
 			<if test="keyword != null and keyword != ''">
