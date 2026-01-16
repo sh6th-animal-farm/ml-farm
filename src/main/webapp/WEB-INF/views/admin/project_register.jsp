@@ -1,23 +1,29 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+	pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <title>관리자 모드 | 마이리틀스마트팜</title>
-    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/admin.css">
+<meta charset="UTF-8">
+<title>관리자 모드 | 마이리틀스마트팜</title>
+<link rel="stylesheet" as="style" crossorigin
+	href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<link rel="stylesheet"
+	href="${pageContext.request.contextPath}/resources/css/admin.css">
+<script>
+	// 전역 변수로 선언 (보통 'ctx' 또는 'contextPath'라고 명명)
+	const ctx = "${pageContext.request.contextPath}";
+</script>
 </head>
 <body>
 	<jsp:include page="../../includes/admin_sidebar.jsp" />
 
-    <main class="main-content">
-        <div class="container-1200">
-            <div class="page-header">
-                <h1>프로젝트 등록/수정</h1>
-                <button type="button" class="btn-load" onclick="openModal()">프로젝트 정보 불러오기</button>
-            </div>
+	<main class="main-content">
+		<div class="container-1200">
+			<div class="page-header">
+				<h1>프로젝트 등록/수정</h1>
+				<button type="button" class="btn-load">프로젝트 정보 불러오기</button>
+			</div>
 
             <form action="${pageContext.request.contextPath}/api/project/insert" method="post">
                 
@@ -99,31 +105,90 @@
                     </div>
                 </div>
 
-                <button type="submit" class="btn-submit">새 프로젝트 등록 완료</button>
-            </form>
-        </div>
-    </main>
+				<div class="form-card">
+					<div class="section-title">일정 및 기타</div>
+					<div class="grid-2">
+						<div class="form-group">
+							<label>공고 시작일</label><input type="datetime-local"
+								name="announcement_start_date" required>
+						</div>
+						<div class="form-group">
+							<label>공고 종료일</label><input type="datetime-local"
+								name="announcement_end_date" required>
+						</div>
+						<div class="form-group">
+							<label>청약 시작일</label><input type="datetime-local"
+								name="subscription_start_date" required>
+						</div>
+						<div class="form-group">
+							<label>청약 종료일</label><input type="datetime-local"
+								name="subscription_end_date" required>
+						</div>
+						<div class="form-group">
+							<label>결과 발표일</label><input type="datetime-local"
+								name="result_announcement_date" required>
+						</div>
+						<div class="form-group">
+							<label>예상 수익률 (ROI)</label> <input type="number" step="0.1"
+								name="expected_return" required>
+						</div>
+						<div class="form-group">
+							<label>사업 시작일</label><input type="datetime-local"
+								name="project_start_date" required>
+						</div>
+						<div class="form-group">
+							<label>사업 종료일</label><input type="datetime-local"
+								name="project_end_date" required>
+						</div>
+						<div class="form-group">
+							<label>현장 관리자 수</label> <input type="number" name="manager_count"
+								required>
+						</div>
+					</div>
+				</div>
 
+				<div class="form-card">
+					<div class="section-title">프로젝트 이미지 등록</div>
+					<div class="image-upload-container">
+						<div id="imagePreviewList" class="image-preview-list">
+							<div class="image-upload-box add-btn"
+								onclick="document.getElementById('imageInput').click();">
+								<span class="plus-icon">+</span> <span class="text">사진 추가</span>
+							</div>
+						</div>
+						<input type="file" id="imageInput" name="project_images" multiple
+							accept="image/*" style="display: none;">
+					</div>
+				</div>
 
-    <div id="projectModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span>지난 프로젝트 목록 선택</span>
-                <span style="cursor:pointer" onclick="closeModal()">&times;</span>
-            </div>
-            <ul class="project-list">
-                <li class="project-item" onclick="selectProject({id: 1, name: '청라 1호 토마토', round: 1, farm: 1, target: 500000000, min: 100000, max: 10000000, roi: 12.5, mgr: 2})">
-                    <strong>청라 1호 토마토 (1차)</strong><br>
-                    <small>농장 ID: 1 | 목표액: 5억 | 수익률: 12.5%</small>
-                </li>
-                <li class="project-item" onclick="selectProject({id: 2, name: '김제 오이 공모', round: 2, farm: 2, target: 300000000, min: 50000, max: 5000000, roi: 10.2, mgr: 1})">
-                    <strong>김제 오이 공모 (2차)</strong><br>
-                    <small>농장 ID: 2 | 목표액: 3억 | 수익률: 10.2%</small>
-                </li>
-            </ul>
-        </div>
-    </div>
-    
-    <script src="${pageContext.request.contextPath}/resources/js/admin.js"></script>
+				<div class="button-group">
+					<button type="button" class="btn-submit register-btn">프로젝트
+						등록</button>
+					<button type="button" class="btn-submit edit-btn">프로젝트 수정</button>
+				</div>
+			</form>
+		</div>
+	</main>
+
+	<div id="projectModal" class="modal">
+		<div class="modal-content">
+			<div class="modal-header">
+				<span>지난 프로젝트 목록 선택</span> <span class="modal-close"
+					style="cursor: pointer" onclick="">&times;</span>
+			</div>
+
+			<div id="loadingSpinner"
+				style="display: none; text-align: center; padding: 20px;">
+				<div class="spinner"></div>
+				<p>프로젝트 정보를 불러오는 중...</p>
+			</div>
+
+			<ul id="projectListContainer" class="project-list">
+			</ul>
+		</div>
+	</div>
+
+	<script type="module"
+		src="${pageContext.request.contextPath}/resources/js/admin/project_register.js?v=<%=System.currentTimeMillis()%>"></script>
 </body>
 </html>

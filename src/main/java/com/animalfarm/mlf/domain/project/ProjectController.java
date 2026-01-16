@@ -6,14 +6,18 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.animalfarm.mlf.domain.project.dto.ProjectDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectDetailDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectInsertDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectListDTO;
@@ -48,6 +52,11 @@ public class ProjectController {
 		return projectService.selectDetail(projectId);
 	}
 
+	@GetMapping("/api/projects/all")
+	public List<ProjectDTO> selectAll() {
+		return projectService.selectAll();
+	}
+
 	@GetMapping("/api/projects")
 	public List<ProjectListDTO> selectByCondition(@ModelAttribute
 	ProjectSearchReqDTO searchDTO) {
@@ -63,4 +72,15 @@ public class ProjectController {
 		System.out.println("dto" + projectInsertDTO.toString());
 		projectService.insertProject(projectInsertDTO);
 	}
+
+	@PostMapping("/api/projects/update")
+	public ResponseEntity<String> updateProject(@RequestBody
+	ProjectDTO projectDTO) {
+		if (projectService.updateProject(projectDTO)) {
+			return ResponseEntity.ok("success");
+		} else {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("업데이트 중 서버 오류가 발생했습니다.");
+		}
+	}
+
 }

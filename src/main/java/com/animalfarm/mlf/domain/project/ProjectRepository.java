@@ -25,4 +25,6 @@ public interface ProjectRepository {
 	public abstract List<FarmDTO> selectAllFarm();
 
 	public abstract void insertToken(ProjectInsertDTO projectInsertDTO);
+
+	public abstract void updateProject(ProjectDTO projectDTO);
 }
