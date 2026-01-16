@@ -167,6 +167,6 @@
 	</div>
 
 	<script type="module"
-		src="${pageContext.request.contextPath}/resources/js/admin/project_register.js?v=<%=System.currentTimeMillis()%>"></script>
+		src="${pageContext.request.contextPath}/resources/js/domain/admin/project_register.js?v=<%=System.currentTimeMillis()%>"></script>
 </body>
 </html>
