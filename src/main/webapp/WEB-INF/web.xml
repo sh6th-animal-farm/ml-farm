@@ -44,6 +44,9 @@
 			<param-name>contextConfigLocation</param-name>
 			<param-value>/WEB-INF/spring/appServlet/servlet-context.xml</param-value>
 		</init-param>
+		<multipart-config>
+	        <location></location> <max-file-size>20971520</max-file-size> <max-request-size>41943040</max-request-size> <file-size-threshold>0</file-size-threshold>
+	    </multipart-config>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 

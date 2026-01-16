@@ -19,7 +19,7 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProjectDTO {
+public class ProjectDTO implements ImgEditable {
 	private Long projectId;
 	private Long farmId;
 	private String projectName;
@@ -51,4 +51,8 @@ public class ProjectDTO {
 
 	private List<ProjectPictureDTO> images; // ProjectImages 테이블 연관
 	private Boolean isStared;
+
+	// 이미지 파일명 리스트와 삭제할 ID 리스트
+	private List<String> projectImageNames; // 신규 추가된 파일명들
+	private List<Long> deletedPictureIds; // 삭제 버튼 눌렀던 기존 이미지 ID들
 }

@@ -2,13 +2,16 @@ package com.animalfarm.mlf.domain.project;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.animalfarm.mlf.domain.project.dto.FarmDTO;
+import com.animalfarm.mlf.domain.project.dto.ImgEditable;
 import com.animalfarm.mlf.domain.project.dto.ProjectDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectDetailDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectInsertDTO;
@@ -33,19 +36,22 @@ public class ProjectService {
 		return projectRepository.selectByCondition(searchDTO);
 	}
 
+	@Transactional
 	public boolean insertProject(ProjectInsertDTO projectInsertDTO) {
 		try {
 			BigDecimal subscriptionRate = projectInsertDTO.getActualAmount()
 				.divide(projectInsertDTO.getTargetAmount(), 4, RoundingMode.HALF_UP).multiply(new BigDecimal("100"));
 			projectInsertDTO.setSubscriptionRate(subscriptionRate);
 			projectRepository.insertProject(projectInsertDTO);
-			System.out.println("생성된 프로젝트 ID: " + projectInsertDTO.getProjectId());
+			if (projectInsertDTO.getProjectImageNames() != null && !projectInsertDTO.getProjectImageNames().isEmpty()) {
+				projectRepository.insertPictureList(extractPictureDTO(projectInsertDTO));
+			}
 			projectRepository.insertToken(projectInsertDTO);
 			return true;
 		} catch (Exception e) {
 			System.out.println("오류");
 			e.printStackTrace();
-			return false;
+			throw new RuntimeException("프로젝트 등록 중 오류 발생: " + e.getMessage());
 		}
 	}
 
@@ -53,20 +59,40 @@ public class ProjectService {
 		return projectRepository.selectAllFarm();
 	}
 
+	@Transactional
 	public boolean updateProject(ProjectDTO projectDTO) {
 		try {
 			projectRepository.updateProject(projectDTO);
+			if (projectDTO.getProjectImageNames() != null && !projectDTO.getProjectImageNames().isEmpty()) {
+				projectRepository.insertPictureList(extractPictureDTO(projectDTO));
+			}
+			System.out.println("삭제 사진 ID: " + projectDTO.getDeletedPictureIds());
+			if (projectDTO.getDeletedPictureIds() != null && !projectDTO.getDeletedPictureIds().isEmpty()) {
+				projectRepository.deletePictureList(projectDTO.getDeletedPictureIds());
+			}
 			return true; // 성공 시 true 반환
 		} catch (DataAccessException e) {
 			e.printStackTrace();
-			return false; // 실패 시 false 반환
+			throw new RuntimeException("프로젝트 수정 중 오류 발생: " + e.getMessage());
 		} catch (Exception e) {
 			e.printStackTrace();
-			return false;
+			throw new RuntimeException("프로젝트 수정 중 오류 발생: " + e.getMessage());
 		}
 	}
 
 	public List<ProjectPictureDTO> selectPictures(Long projectId) {
 		return projectRepository.selectPictures(projectId);
 	}
+
+	public List<ProjectPictureDTO> extractPictureDTO(ImgEditable imgEditableDTO) {
+		List<ProjectPictureDTO> newPictureDTOList = new ArrayList<>();
+		for (String projectName : imgEditableDTO.getProjectImageNames()) {
+			ProjectPictureDTO newPicture = new ProjectPictureDTO();
+			newPicture.setProjectId(imgEditableDTO.getProjectId());
+			newPicture.setImageUrl(projectName);
+			newPictureDTOList.add(newPicture);
+		}
+		return newPictureDTOList;
+	}
+
 }

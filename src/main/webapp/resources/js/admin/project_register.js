@@ -1,6 +1,8 @@
 import { DateUtil } from "../util/date_util.js";
+import { UploadUtil } from "../util/upload_util.js";
 
 let selectedProjectId = null;
+let deletedPictureIds = [];
 const previewList = document.getElementById('imagePreviewList');
 const addBtn = previewList.querySelector('.add-btn');
 
@@ -29,16 +31,12 @@ document.addEventListener('DOMContentLoaded', () => {
     imageInput.addEventListener('change', function(e) {
         const files = Array.from(e.target.files);
         
-        files.forEach(file => {
-            const reader = new FileReader();
-            reader.onload = (event)=>addImageBox(event.target.result);
-            reader.readAsDataURL(file);
-        });
+        files.forEach(file => UploadUtil.uploadImage(file, addImageBox))
     });
 });
 
 // 사진 선택 시 동작
-function addImageBox(src) {
+function addImageBox(src, savedFileName) {
     // 미리보기 박스 생성
     const box = document.createElement('div');
     box.className = 'image-upload-box';
@@ -46,6 +44,7 @@ function addImageBox(src) {
     box.innerHTML = `
         <img src="${src}" alt="preview">
         <div class="btn-remove">&times;</div>
+        <input type="hidden" name="project_image_names" value="${savedFileName}">
     `;
     
     // 삭제 이벤트 추가
@@ -123,7 +122,6 @@ function renderProjectList(projects) {
 // 선택한 프로젝트 정보를 폼에 자동 입력 (차수는 +1)
 async function selectProject(data) {
     selectedProjectId = data.projectId;
-    console.log("pid: ", data.projectId);
     // JSP 내의 input name/id에 맞춰 매핑
     document.getElementsByName('farm_id')[0].value = data.farmId;
     document.getElementsByName('project_name')[0].value = data.projectName;
@@ -151,7 +149,7 @@ async function selectProject(data) {
     
     // 사진 정보 가저오기
     try {
-        const response = await fetch(`${ctx}/api/project/picture/${data.projectId}`);
+        const response = await fetch(`${ctx}/api/project/picture/${data.projectId}/all`);
         if (!response.ok) throw new Error('사진 정보를 가져오지 못했습니다.');
         
         const picturesData = await response.json();
@@ -190,9 +188,20 @@ function getFormData() {
     const formData = new FormData(form);
     const obj = {};
     
+    const arrayFields = ['project_image_names', 'projectImageNames'];
+    
     // FormData를 JSON 객체로 변환
     formData.forEach((value, key) => {
         const camelKey = key.replace(/_([a-z])/g, (g) => g[1].toUpperCase());
+
+        if (arrayFields.includes(key) || arrayFields.includes(camelKey)) {
+            if (!obj[camelKey]) {
+                obj[camelKey] = [];
+            }
+            obj[camelKey].push(value);
+            return;
+        }
+
         if (key === 'target_amount' || key === 'project_round') {
             obj[camelKey] = Number(value);
         } else if (key.includes('date') && value) {
@@ -206,6 +215,7 @@ function getFormData() {
     if (selectedProjectId) {
         obj['projectId'] = selectedProjectId;
     }
+    obj['deletedPictureIds'] = deletedPictureIds;
     return obj;
 }
 
@@ -255,34 +265,32 @@ function insertProject() {
 
 // 기존 이미지들을 화면에 그려주는 함수
 function displayExistingImages(picturesData) {
-    let imageUrls = picturesData.map((data)=>`${ctx}/api/project/picture/`+data.pictureId)
-
-    // 기존에 있던 미리보기들(이미지 박스들)만 제거 (추가 버튼은 남김)
     const existingBoxes = previewList.querySelectorAll('.image-upload-box:not(.add-btn)');
     existingBoxes.forEach(box => box.remove());
-
-    if (!imageUrls || !Array.isArray(imageUrls)) return;
-
-    imageUrls.forEach(url => {
+    deletedPictureIds = []; // 모달 새로 열 때 초기화
+    picturesData.forEach(pic => {
         const box = document.createElement('div');
-        box.className = 'image-upload-box existing'; // 기존 이미지임을 표시하는 클래스 추가
+        box.className = 'image-upload-box existing';
         
+        // src는 API 경로, 삭제를 위해 pictureId를 데이터 속성에 저장
         box.innerHTML = `
-            <img src="${url}" alt="project image">
-            <div class="btn-remove" data-filename="${url}">&times;</div>
+            <img src="${ctx}/uploads/projects/${pic.imageUrl}" alt="project image">
+            <div class="btn-remove" data-id="${pic.projectPictureId}">&times;</div>
         `;
 
-        // 삭제 버튼 클릭 이벤트 (기존 이미지는 서버에서도 지워야 하므로 처리 방식이 다를 수 있음)
         box.querySelector('.btn-remove').onclick = function(e) {
             e.stopPropagation();
             if(confirm("이 사진을 삭제하시겠습니까?")) {
+                markImageAsDeleted(pic.projectPictureId); // ID 저장
                 box.remove();
-                // TODO: 삭제된 이미지 파일명을 별도 배열에 담아두었다가 수정 완료 시 서버에 알리기
-                markImageAsDeleted(url); 
             }
         };
-
-        // 추가 버튼( + ) 앞에 삽입
         previewList.insertBefore(box, addBtn);
     });
+}
+
+function markImageAsDeleted(pictureId) {
+    if (pictureId && !deletedPictureIds.includes(pictureId)) {
+        deletedPictureIds.push(pictureId);
+    }
 }

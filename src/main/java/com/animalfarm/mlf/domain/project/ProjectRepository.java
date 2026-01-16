@@ -31,4 +31,8 @@ public interface ProjectRepository {
 
 	public abstract List<ProjectPictureDTO> selectPictures(Long projectId);
 
+	public abstract void insertPictureList(List<ProjectPictureDTO> newPictureDTOs);
+
+	public abstract void deletePictureList(List<Long> deletedPictureIds);
+
 }

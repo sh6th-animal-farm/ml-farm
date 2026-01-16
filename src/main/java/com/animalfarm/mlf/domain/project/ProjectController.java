@@ -84,7 +84,7 @@ public class ProjectController {
 		}
 	}
 
-	@GetMapping("/api/project/picture/{projectId}")
+	@GetMapping("/api/project/picture/{projectId}/all")
 	public List<ProjectPictureDTO> selectPictures(@PathVariable("projectId")
 	Long projectId) {
 		return projectService.selectPictures(projectId);

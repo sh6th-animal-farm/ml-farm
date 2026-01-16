@@ -25,6 +25,7 @@
 
 	<select id="selectAll" resultType="projectDTO">
 		select * from projects
+		order by created_at
 	</select>
 
 	<select id="selectDetail" parameterType="long"
@@ -181,5 +182,27 @@
     	SELECT * from project_images
     	WHERE project_id = #{projectId}
     </select>
+    
+    <insert id="insertPictureList" parameterType="java.util.List">
+    	INSERT INTO project_images (
+	    	project_id,
+	        image_url
+        )
+    	VALUES
+    	<foreach collection="list" item="item" separator=",">
+    	(
+	        #{item.projectId},
+	        #{item.imageUrl}
+    	)
+    	</foreach>
+    </insert>
+    
+    <delete id="deletePictureList" parameterType="java.util.List">
+    	DELETE FROM project_images 
+    	WHERE project_picture_id IN
+    	<foreach collection="list" item="projectPictureId" open="(" separator="," close=")">
+    		 #{projectPictureId}
+   		</foreach>
+    </delete>
 	
 </mapper>
