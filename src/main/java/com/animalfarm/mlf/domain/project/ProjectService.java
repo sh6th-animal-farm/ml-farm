@@ -49,7 +49,6 @@ public class ProjectService {
 			projectRepository.insertToken(projectInsertDTO);
 			return true;
 		} catch (Exception e) {
-			System.out.println("오류");
 			e.printStackTrace();
 			throw new RuntimeException("프로젝트 등록 중 오류 발생: " + e.getMessage());
 		}
@@ -66,7 +65,6 @@ public class ProjectService {
 			if (projectDTO.getProjectImageNames() != null && !projectDTO.getProjectImageNames().isEmpty()) {
 				projectRepository.insertPictureList(extractPictureDTO(projectDTO));
 			}
-			System.out.println("삭제 사진 ID: " + projectDTO.getDeletedPictureIds());
 			if (projectDTO.getDeletedPictureIds() != null && !projectDTO.getDeletedPictureIds().isEmpty()) {
 				projectRepository.deletePictureList(projectDTO.getDeletedPictureIds());
 			}
