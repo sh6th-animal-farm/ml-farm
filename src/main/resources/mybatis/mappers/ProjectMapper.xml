@@ -4,7 +4,8 @@
     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.animalfarm.mlf.domain.project.ProjectRepository">
+<mapper
+	namespace="com.animalfarm.mlf.domain.project.ProjectRepository">
 
 	<!-- 1개의 농장에 여러개의 사진을 여러개 받기 위해 사용 -->
 	<resultMap id="ProjectDetailMap"
@@ -12,17 +13,12 @@
 		autoMapping="true">
 		<id column="project_id" property="projectId" />
 
-		<association property="farm"
-			javaType="com.animalfarm.mlf.domain.project.dto.FarmDTO" autoMapping="true">
-			<id column="f_farm_id" property="farmId" />
-			<result column="f_description" property="description" />
-		</association>
-
 		<collection property="images" ofType="string">
 			<result column="image_url" />
 		</collection>
-		
-		<collection property="temperatureInside" ofType="BigDecimal">
+
+		<collection property="temperatureInside"
+			ofType="BigDecimal">
 			<result column="temperature_inside" />
 		</collection>
 	</resultMap>
@@ -56,36 +52,97 @@
 		fed.temperature_inside,
 		t.ticker_symbol
 		FROM projects p
-		left join farms f ON p.farm_id = f.farm_id
-		left join project_images i on p.project_id = i.project_id
+		left join farms f
+		ON p.farm_id = f.farm_id
+		left join project_images i on p.project_id =
+		i.project_id
 		left join cultivations c on p.project_id = c.project_id
 		left join farm_env_data fed on f.farm_id = fed.farm_id
-		left join tokens t on p.project_id = t.project_id 
+		left join tokens
+		t on p.project_id = t.project_id
 		WHERE p.project_id = #{projectId};
 	</select>
-	
-	<select id="selectByCondition" parameterType="projectSearchReqDTO" resultType="projectListDTO">
+
+	<select id="selectByCondition"
+		parameterType="projectSearchReqDTO" resultType="projectListDTO">
 		SELECT
-			p.*,
-			f.thumbnail_url,
-			EXISTS (
-		        SELECT 1 
-		        FROM starred_projects s 
-		        WHERE s.project_id = p.project_id 
-		          	AND s.user_id = #{userId}
-		          	AND s.is_starred = true
-	    ) AS is_starred
+		p.*,
+		f.thumbnail_url,
+		EXISTS (
+		SELECT 1
+		FROM starred_projects s
+		WHERE s.project_id = p.project_id
+		AND s.user_id = #{userId}
+		AND s.is_starred = true
+		) AS is_starred
 		FROM projects p
-	    JOIN farms f on p.farm_id = f.farm_id
-	    <where>
-            AND p.project_status NOT IN ('PREPARING', 'CANCELED', 'COMPLETED')
-	        <if test="keyword != null and keyword != ''">
-	            AND p.project_name LIKE CONCAT('%', #{keyword}, '%')
-	        </if>
-	        <if test="projectStatus != null and projectStatus != ''">
-	            AND p.project_status = #{projectStatus}
-	        </if>
-	    </where>
+		JOIN farms f on p.farm_id = f.farm_id
+		<where>
+			AND p.project_status NOT IN ('PREPARING', 'CANCELED', 'COMPLETED')
+			<if test="keyword != null and keyword != ''">
+				AND p.project_name LIKE CONCAT('%', #{keyword}, '%')
+			</if>
+			<if test="projectStatus != null and projectStatus != ''">
+				AND p.project_status = #{projectStatus}
+			</if>
+		</where>
 	</select>
-	
+
+	<select id="selectAllFarm" resultType="farmDTO">
+		select * from farms
+	</select>
+
+	<insert id="insertProject" parameterType="projectInsertDTO"
+		useGeneratedKeys="true" keyProperty="projectId" keyColumn="project_id">
+		INSERT INTO
+		projects (
+		farm_id,
+		project_name,
+		project_description,
+		project_round,
+		target_amount,
+		min_amount_per_investor,
+		actual_amount,
+		subscription_rate,
+		project_status,
+		announcement_start_date,
+		announcement_end_date,
+		subscription_start_date,
+		subscription_end_date,
+		result_announcement_date,
+		project_start_date,
+		project_end_date,
+		expected_return,
+		manager_count)
+		VALUES (
+		#{farmId},
+		#{projectName},
+		#{projectDescription},
+		#{projectRound},
+		#{targetAmount},
+		#{minAmountPerInvestor},
+		#{actualAmount},
+		#{subscriptionRate},
+		'PREPARING', -- 초기 상태값 고정 시
+		#{announcementStartDate},
+		#{announcementEndDate},
+		#{subscriptionStartDate},
+		#{subscriptionEndDate},
+		#{resultAnnouncementDate},
+		#{projectStartDate},
+		#{projectEndDate},
+		#{expectedReturn},
+		#{managerCount})
+	</insert>
+
+	<insert id="insertToken" parameterType="projectInsertDTO">
+		INSERT INTO tokens (project_id, token_name, ticker_symbol, total_supply)
+		Values (
+		#{projectId},
+		#{tokenName},
+		#{tickerSymbol},
+		#{totalSupply}
+		)
+	</insert>
+
 </mapper>
