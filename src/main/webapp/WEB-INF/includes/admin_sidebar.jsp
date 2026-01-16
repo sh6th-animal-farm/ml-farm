@@ -1,12 +1,12 @@
-<%@ page language="java" contentType="text/html; charset=EUC-KR"
-	pageEncoding="EUC-KR"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
 <nav class="sidebar">
 	<div class="logo">
-		¸¶ÀÌ¸®Æ² ½º¸¶Æ®ÆÊ<br>Admin
+		ë§ˆì´ë¦¬í‹€ ìŠ¤ë§ˆíŠ¸íŒœ<br>Admin
 	</div>
-	<a href="${pageContext.request.contextPath}/admin/project/new" class="menu-item ${activeMenu == 'project' ? 'active' : ''}">ÇÁ·ÎÁ§Æ® µî·Ï/¼öÁ¤</a>
-	<a href="${pageContext.request.contextPath}/admin/farm/new" class="menu-item ${activeMenu == 'farm' ? 'active' : ''}">³óÀå µî·Ï/¼öÁ¤</a>
-	<a href="${pageContext.request.contextPath}/admin/cultivation/new" class="menu-item ${activeMenu == 'cultivation' ? 'active' : ''}">Àç¹è Á¤º¸ ÀÔ·Â</a>
-	<a href="${pageContext.request.contextPath}/admin/revenue/new" class="menu-item ${activeMenu == 'income' ? 'active' : ''}">¼öÀÍ Á¤º¸ ÀÔ·Â</a>
-	<a href="${pageContext.request.contextPath}/admin/expense/new" class="menu-item ${activeMenu == 'expense' ? 'active' : ''}">ÁöÃâ Á¤º¸ ÀÔ·Â</a>
+	<a href="${pageContext.request.contextPath}/admin/project/new" class="menu-item ${activeMenu == 'project' ? 'active' : ''}">í”„ë¡œì íŠ¸ ë“±ë¡/ìˆ˜ì •</a>
+	<a href="${pageContext.request.contextPath}/admin/farm/new" class="menu-item ${activeMenu == 'farm' ? 'active' : ''}">ë†ìž¥ ë“±ë¡/ìˆ˜ì •</a>
+	<a href="${pageContext.request.contextPath}/admin/cultivation/new" class="menu-item ${activeMenu == 'cultivation' ? 'active' : ''}">ìž¬ë°° ì •ë³´ ìž…ë ¥</a>
+	<a href="${pageContext.request.contextPath}/admin/revenue/new" class="menu-item ${activeMenu == 'income' ? 'active' : ''}">ìˆ˜ìµ ì •ë³´ ìž…ë ¥</a>
+	<a href="${pageContext.request.contextPath}/admin/expense/new" class="menu-item ${activeMenu == 'expense' ? 'active' : ''}">ì§€ì¶œ ì •ë³´ ìž…ë ¥</a>
 </nav>

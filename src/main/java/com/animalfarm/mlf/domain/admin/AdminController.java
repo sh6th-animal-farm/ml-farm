@@ -1,13 +1,19 @@
 package com.animalfarm.mlf.domain.admin;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.animalfarm.mlf.domain.project.ProjectService;
+
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
+
+	@Autowired
+	ProjectService projectService;
 
 	// /admin 또는 /admin/ 으로 접속 시 실행
 	@GetMapping({"", "/"})
@@ -17,7 +23,7 @@ public class AdminController {
 
 	@GetMapping("/project/new")
 	public String newProject(Model model) {
-		model.addAttribute("activeMenu", "project");
+		model.addAttribute("farmlist", projectService.selectAllFarm());
 		return "admin/project_register";
 	}
 
