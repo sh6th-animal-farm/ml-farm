@@ -25,6 +25,7 @@ public class AdminController {
 	@GetMapping("/project/new")
 	public String newProject(Model model) {
 		model.addAttribute("farmlist", projectService.selectAllFarm());
+		model.addAttribute(ACTIVE_MENU, "project");
 		return "admin/project_register";
 	}
 
