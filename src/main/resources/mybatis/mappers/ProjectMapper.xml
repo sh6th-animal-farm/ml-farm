@@ -176,5 +176,10 @@
         </set>
         WHERE project_id = #{projectId}
     </update>
+    
+    <select id="selectPictures" parameterType="long" resultType="projectPictureDTO">
+    	SELECT * from project_images
+    	WHERE project_id = #{projectId}
+    </select>
 	
 </mapper>

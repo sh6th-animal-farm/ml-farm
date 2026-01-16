@@ -21,6 +21,7 @@ import com.animalfarm.mlf.domain.project.dto.ProjectDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectDetailDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectInsertDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectListDTO;
+import com.animalfarm.mlf.domain.project.dto.ProjectPictureDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectSearchReqDTO;
 
 @RestController
@@ -81,6 +82,12 @@ public class ProjectController {
 		} else {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("업데이트 중 서버 오류가 발생했습니다.");
 		}
+	}
+
+	@GetMapping("/api/project/picture/{projectId}")
+	public List<ProjectPictureDTO> selectPictures(@PathVariable("projectId")
+	Long projectId) {
+		return projectService.selectPictures(projectId);
 	}
 
 }

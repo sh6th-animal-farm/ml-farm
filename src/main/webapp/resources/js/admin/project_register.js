@@ -1,6 +1,8 @@
 import { DateUtil } from "../util/date_util.js";
 
 let selectedProjectId = null;
+const previewList = document.getElementById('imagePreviewList');
+const addBtn = previewList.querySelector('.add-btn');
 
 // DOM이 다 로드된 후 이벤트 리스너 붙이기
 document.addEventListener('DOMContentLoaded', () => {
@@ -22,8 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const imageInput = document.getElementById('imageInput');
-    const previewList = document.getElementById('imagePreviewList');
-    const addBtn = previewList.querySelector('.add-btn');
 
     // 파일 선택 시 이벤트
     imageInput.addEventListener('change', function(e) {
@@ -31,32 +31,33 @@ document.addEventListener('DOMContentLoaded', () => {
         
         files.forEach(file => {
             const reader = new FileReader();
-            
-            reader.onload = function(event) {
-                // 미리보기 박스 생성
-                const box = document.createElement('div');
-                box.className = 'image-upload-box';
-                
-                box.innerHTML = `
-                    <img src="${event.target.result}" alt="preview">
-                    <div class="btn-remove">&times;</div>
-                `;
-                
-                // 삭제 이벤트 추가
-                box.querySelector('.btn-remove').onclick = function(e) {
-                    e.stopPropagation(); // 부모 클릭 방지
-                    box.remove();
-                    // 별도의 파일 배열을 관리할것
-                };
-                
-                // 추가 버튼 앞에 삽입
-                previewList.insertBefore(box, addBtn);
-            };
-            
+            reader.onload = (event)=>addImageBox(event.target.result);
             reader.readAsDataURL(file);
         });
     });
 });
+
+// 사진 선택 시 동작
+function addImageBox(src) {
+    // 미리보기 박스 생성
+    const box = document.createElement('div');
+    box.className = 'image-upload-box';
+    
+    box.innerHTML = `
+        <img src="${src}" alt="preview">
+        <div class="btn-remove">&times;</div>
+    `;
+    
+    // 삭제 이벤트 추가
+    box.querySelector('.btn-remove').onclick = function(e) {
+        e.stopPropagation(); // 부모 클릭 방지
+        box.remove();
+        // 별도의 파일 배열을 관리할것
+    };
+    
+    // 추가 버튼 앞에 삽입
+    previewList.insertBefore(box, addBtn);
+};
 
 // 모달 열기 및 데이터 로드
 async function openModal () {
@@ -148,8 +149,21 @@ async function selectProject(data) {
         document.getElementsByName(name)[0].value = DateUtil.toLocalDateTime(value);
     }
     
-    // TODO: 사진 정보 가져와서 displayExistingImages 로 화면에 띄우기 
+    // 사진 정보 가저오기
+    try {
+        const response = await fetch(`${ctx}/api/project/picture/${data.projectId}`);
+        if (!response.ok) throw new Error('사진 정보를 가져오지 못했습니다.');
+        
+        const picturesData = await response.json();
+        if (picturesData) {
+            displayExistingImages(picturesData)
+        }
+    } catch (error) {
+        console.error("Picture API Error:", error);
+        // 사진 정보가 없을 경우 빈칸으로 유지하거나 사용자 알림
+    }
 
+    // 토큰 정보 가져오기
     try {
         const response = await fetch(`${ctx}/api/token/${data.projectId}`);
         if (!response.ok) throw new Error('토큰 정보를 가져오지 못했습니다.');
@@ -160,6 +174,7 @@ async function selectProject(data) {
             // JSP의 input name인 token_name과 ticker_symbol에 값 세팅
             document.getElementsByName('token_name')[0].value = tokenData.tokenName || '';
             document.getElementsByName('ticker_symbol')[0].value = tokenData.tickerSymbol || '';
+            document.getElementsByName('total_supply')[0].value = tokenData.totalSupply || '';
         }
     } catch (error) {
         console.error("Token API Error:", error);
@@ -222,9 +237,8 @@ function insertProject() {
 
 
 // 기존 이미지들을 화면에 그려주는 함수
-function displayExistingImages(imageUrls) {
-    const previewList = document.getElementById('imagePreviewList');
-    const addBtn = previewList.querySelector('.add-btn');
+function displayExistingImages(picturesData) {
+    let imageUrls = picturesData.map((data)=>`${ctx}/api/project/picture/`+data.pictureId)
 
     // 기존에 있던 미리보기들(이미지 박스들)만 제거 (추가 버튼은 남김)
     const existingBoxes = previewList.querySelectorAll('.image-upload-box:not(.add-btn)');
@@ -236,11 +250,8 @@ function displayExistingImages(imageUrls) {
         const box = document.createElement('div');
         box.className = 'image-upload-box existing'; // 기존 이미지임을 표시하는 클래스 추가
         
-        // 이미지 경로가 contextPath를 포함해야 한다면 ctx를 붙여줍니다.
-        const fullUrl = url.startsWith('http') ? url : `${ctx}/uploads/projects/${url}`;
-
         box.innerHTML = `
-            <img src="${fullUrl}" alt="project image">
+            <img src="${url}" alt="project image">
             <div class="btn-remove" data-filename="${url}">&times;</div>
         `;
 

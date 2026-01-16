@@ -13,6 +13,7 @@ import com.animalfarm.mlf.domain.project.dto.ProjectDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectDetailDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectInsertDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectListDTO;
+import com.animalfarm.mlf.domain.project.dto.ProjectPictureDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectSearchReqDTO;
 
 @Service
@@ -62,5 +63,9 @@ public class ProjectService {
 			e.printStackTrace();
 			return false;
 		}
+	}
+
+	public List<ProjectPictureDTO> selectPictures(Long projectId) {
+		return projectRepository.selectPictures(projectId);
 	}
 }
