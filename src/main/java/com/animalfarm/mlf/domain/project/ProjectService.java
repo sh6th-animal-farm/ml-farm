@@ -5,6 +5,7 @@ import java.math.RoundingMode;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import com.animalfarm.mlf.domain.project.dto.FarmDTO;
@@ -48,5 +49,18 @@ public class ProjectService {
 
 	public List<FarmDTO> selectAllFarm() {
 		return projectRepository.selectAllFarm();
+	}
+
+	public boolean updateProject(ProjectDTO projectDTO) {
+		try {
+			projectRepository.updateProject(projectDTO);
+			return true; // 성공 시 true 반환
+		} catch (DataAccessException e) {
+			e.printStackTrace();
+			return false; // 실패 시 false 반환
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 }
