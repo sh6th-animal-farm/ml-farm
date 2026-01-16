@@ -15,8 +15,9 @@
 		<collection property="images" ofType="string">
 			<result column="image_url" />
 		</collection>
-		
-		<collection property="temperatureInside" ofType="BigDecimal">
+
+		<collection property="temperatureInside"
+			ofType="BigDecimal">
 			<result column="temperature_inside" />
 		</collection>
 	</resultMap>
@@ -33,8 +34,8 @@
 		c.crop,
 		c.method,
 		t.ticker_symbol,
-		UNNEST(img.image_list) AS image_url, -- 이미지가 없으면 빈 배열 '{}' 반환
-		UNNEST(fed.temp_list) AS temperature_inside -- 온도 데이터가 없으면 빈 배열 '{}' 반환
+		UNNEST(img.image_list) AS image_url, 
+		UNNEST(fed.temp_list) AS temperature_inside 
 		FROM projects p
 		LEFT JOIN farms f ON p.farm_id = f.farm_id
 		LEFT JOIN
@@ -60,29 +61,46 @@
 		WHERE p.project_id =
 		#{projectId};
 	</select>
-	
+
 	<select id="selectByCondition" parameterType="projectSearchReqDTO" resultType="projectListDTO">
 		SELECT
-			p.*,
-			f.thumbnail_url,
-			EXISTS (
-		        SELECT 1 
-		        FROM starred_projects s 
-		        WHERE s.project_id = p.project_id 
-		          	AND s.user_id = #{userId}
-		          	AND s.is_starred = true
-	    ) AS is_starred
+		p.*,
+		f.thumbnail_url,
+		EXISTS (
+		SELECT 1
+		FROM starred_projects s
+		WHERE s.project_id = p.project_id
+		AND s.user_id = #{userId}
+		AND s.is_starred = true
+		) AS is_starred
 		FROM projects p
-	    JOIN farms f on p.farm_id = f.farm_id
-	    <where>
-            AND p.project_status NOT IN ('PREPARING', 'CANCELED', 'COMPLETED')
-	        <if test="keyword != null and keyword != ''">
-	            AND p.project_name LIKE CONCAT('%', #{keyword}, '%')
-	        </if>
-	        <if test="projectStatus != null and projectStatus != ''">
-	            AND p.project_status = #{projectStatus}
-	        </if>
-	    </where>
+		JOIN farms f on p.farm_id = f.farm_id
+		<where>
+			AND p.project_status NOT IN ('PREPARING', 'CANCELED', 'COMPLETED')
+			<if test="keyword != null and keyword != ''">
+				AND p.project_name LIKE CONCAT('%', #{keyword}, '%')
+			</if>
+			<if test="projectStatus != null and projectStatus != ''">
+				AND p.project_status = #{projectStatus}
+			</if>
+		</where>
 	</select>
+
+	<insert id="insertStrarredProject" parameterType="ProjectStarredDTO">
+		insert into starred_projects (
+		user_id, 
+		project_id)
+		values (
+		#{userId}, 
+		#{projectId})
+	</insert>
 	
+	<update id="updateStarredInterest" parameterType="ProjectStarredDTO">
+		update starred_projects 
+		set is_starred  = false 
+		where 
+		user_id = #{userId}
+		and project_id = #{projectId};
+	</update>
+
 </mapper>
