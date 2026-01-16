@@ -6,11 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.animalfarm.mlf.domain.project.dto.ProjectDetailDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectListDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectSearchReqDTO;
+import com.animalfarm.mlf.domain.project.dto.ProjectStarredDTO;
 
 @RestController
 public class ProjectController {
@@ -35,4 +37,29 @@ public class ProjectController {
 		return projectService.selectByCondition(searchDTO);
 	}
 
+	//관심 프로젝트 신규 등록
+	@PostMapping("/api/projects/starred/newinsert")
+	public String insertStrarredProject(@ModelAttribute
+	ProjectStarredDTO projectStarredDTO) {
+		String message = null;
+		if (projectService.insertStrarredProject(projectStarredDTO)) {
+			message = "success";
+		} else {
+			message = "fail";
+		}
+		return message;
+	}
+
+	//관심 프로젝트 등록 or 해제
+	@PostMapping("/api/projects/starred/interest")
+	public String updateStarred(@ModelAttribute
+	ProjectStarredDTO projectStarredDTO) {
+		String message = null;
+		if (projectService.updateStarred(projectStarredDTO)) {
+			message = "success";
+		} else {
+			message = "fail";
+		}
+		return message;
+	}
 }
