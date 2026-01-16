@@ -80,9 +80,5 @@ class ProjectRepositoryTest {
 
 		// 4. Then
 		assertNotNull(result, "조회 결과가 null입니다.");
-		System.out.println("결과: " + result.getProjectName());
-		System.out.println("결과: " + result.getImages());
-		System.out.println("결과: " + result.getTemperatureInside());
-		System.out.println("결과: " + result.getTickerSymbol());
 	}
 }

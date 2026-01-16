@@ -64,8 +64,6 @@ public class ProjectController {
 	@PostMapping("/api/projects/insert")
 	public ResponseEntity<String> insertProject(@RequestBody
 	ProjectInsertDTO projectInsertDTO) {
-		System.out.println("DTO 프로젝트 이름: " + projectInsertDTO.getProjectName());
-		System.out.println("dto" + projectInsertDTO.toString());
 		if (projectService.insertProject(projectInsertDTO)) {
 			return ResponseEntity.ok("success");
 		} else {
