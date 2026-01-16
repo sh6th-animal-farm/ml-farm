@@ -33,8 +33,7 @@ public class ProjectService {
 		return projectRepository.selectByCondition(searchDTO);
 	}
 
-	public void insertProject(ProjectInsertDTO projectInsertDTO) {
-		String result = "출력";
+	public boolean insertProject(ProjectInsertDTO projectInsertDTO) {
 		try {
 			BigDecimal subscriptionRate = projectInsertDTO.getActualAmount()
 				.divide(projectInsertDTO.getTargetAmount(), 4, RoundingMode.HALF_UP).multiply(new BigDecimal("100"));
@@ -42,9 +41,11 @@ public class ProjectService {
 			projectRepository.insertProject(projectInsertDTO);
 			System.out.println("생성된 프로젝트 ID: " + projectInsertDTO.getProjectId());
 			projectRepository.insertToken(projectInsertDTO);
+			return true;
 		} catch (Exception e) {
 			System.out.println("오류");
 			e.printStackTrace();
+			return false;
 		}
 	}
 
