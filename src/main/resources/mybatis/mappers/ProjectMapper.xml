@@ -4,7 +4,8 @@
     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.animalfarm.mlf.domain.project.ProjectRepository">
+<mapper
+	namespace="com.animalfarm.mlf.domain.project.ProjectRepository">
 
 	<!-- 1개의 농장에 여러개의 사진을 여러개 받기 위해 사용 -->
 	<resultMap id="ProjectDetailMap"
@@ -15,8 +16,9 @@
 		<collection property="images" ofType="string">
 			<result column="image_url" />
 		</collection>
-		
-		<collection property="temperatureInside" ofType="BigDecimal">
+
+		<collection property="temperatureInside"
+			ofType="BigDecimal">
 			<result column="temperature_inside" />
 		</collection>
 	</resultMap>
@@ -33,8 +35,8 @@
 		c.crop,
 		c.method,
 		t.ticker_symbol,
-		UNNEST(img.image_list) AS image_url, -- 이미지가 없으면 빈 배열 '{}' 반환
-		UNNEST(fed.temp_list) AS temperature_inside -- 온도 데이터가 없으면 빈 배열 '{}' 반환
+		UNNEST(img.image_list) AS image_url,
+		UNNEST(fed.temp_list) AS temperature_inside 
 		FROM projects p
 		LEFT JOIN farms f ON p.farm_id = f.farm_id
 		LEFT JOIN
@@ -60,29 +62,63 @@
 		WHERE p.project_id =
 		#{projectId};
 	</select>
-	
-	<select id="selectByCondition" parameterType="projectSearchReqDTO" resultType="projectListDTO">
+
+	<select id="selectByCondition"
+		parameterType="projectSearchReqDTO" resultType="projectListDTO">
 		SELECT
-			p.*,
-			f.thumbnail_url,
-			EXISTS (
-		        SELECT 1 
-		        FROM starred_projects s 
-		        WHERE s.project_id = p.project_id 
-		          	AND s.user_id = #{userId}
-		          	AND s.is_starred = true
-	    ) AS is_starred
+		p.*,
+		f.thumbnail_url,
+		EXISTS (
+		SELECT 1
+		FROM starred_projects s
+		WHERE s.project_id = p.project_id
+		AND s.user_id = #{userId}
+		AND s.is_starred = true
+		) AS is_starred
 		FROM projects p
-	    JOIN farms f on p.farm_id = f.farm_id
-	    <where>
-            AND p.project_status NOT IN ('PREPARING', 'CANCELED', 'COMPLETED')
-	        <if test="keyword != null and keyword != ''">
-	            AND p.project_name LIKE CONCAT('%', #{keyword}, '%')
-	        </if>
-	        <if test="projectStatus != null and projectStatus != ''">
-	            AND p.project_status = #{projectStatus}
-	        </if>
-	    </where>
+		JOIN farms f on p.farm_id = f.farm_id
+		<where>
+			AND p.project_status NOT IN ('PREPARING', 'CANCELED', 'COMPLETED')
+			<if test="keyword != null and keyword != ''">
+				AND p.project_name LIKE CONCAT('%', #{keyword}, '%')
+			</if>
+			<if test="projectStatus != null and projectStatus != ''">
+				AND p.project_status = #{projectStatus}
+			</if>
+		</where>
+	</select>
+
+	<!-- 관심프로젝트 조회 -->
+	<select id="selectStarredProject"
+		parameterType="ProjectStarredDTO" resultType="boolean">
+		SELECT EXISTS (
+		SELECT 1
+		FROM starred_projects
+		WHERE user_id = #{userId}
+		AND project_id = #{projectId}
+		)
 	</select>
 	
+	<!-- 관심프로젝트 추가 -->
+	<insert id="insertStrarredProject"
+		parameterType="ProjectStarredDTO">
+		insert into starred_projects (
+		user_id,
+		project_id)
+		values (
+		#{userId},
+		#{projectId})
+	</insert>
+	
+	<!-- 관심프로젝트 update -->
+	<update id="updateStarred" parameterType="ProjectStarredDTO">
+		UPDATE starred_projects
+		SET is_starred = CASE
+		WHEN is_starred = true THEN false
+		ELSE true
+		END
+		WHERE user_id = #{userId}
+		AND project_id = #{projectId};
+	</update>
+
 </mapper>
