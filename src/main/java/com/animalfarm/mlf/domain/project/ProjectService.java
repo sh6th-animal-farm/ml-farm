@@ -28,22 +28,17 @@ public class ProjectService {
 		return projectRepository.selectByCondition(searchDTO);
 	}
 
-	//관심 프로젝트 신규 생성
+	//select하여 있다면 관심 프로젝트 등록/해제 없다면 관심 프로젝트 신규 생성
 	public boolean insertStrarredProject(ProjectStarredDTO projectStarredDTO) {
 		try {
-			projectRepository.insertStrarredProject(projectStarredDTO);
-			return true;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
-
-	//관심 프로젝트 등록/해제
-	public boolean updateStarred(ProjectStarredDTO projectStarredDTO) {
-		try {
-			projectRepository.updateStarred(projectStarredDTO);
-			return true;
+			boolean isExist = projectRepository.selectStarredProject(projectStarredDTO);
+			if(isExist) {
+				projectRepository.updateStarred(projectStarredDTO);
+				return true;
+			} else {
+				projectRepository.insertStrarredProject(projectStarredDTO);
+				return true;
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
