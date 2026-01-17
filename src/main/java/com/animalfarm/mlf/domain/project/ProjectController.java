@@ -39,10 +39,10 @@ public class ProjectController {
 
 	//관심 프로젝트 신규 등록
 	@PostMapping("/api/projects/starred/interest")
-	public String insertStrarredProject(@ModelAttribute
+	public String upsertStrarredProject(@ModelAttribute
 	ProjectStarredDTO projectStarredDTO) {
 		String message = null;
-		if (projectService.insertStrarredProject(projectStarredDTO)) {
+		if (projectService.upsertStrarredProject(projectStarredDTO)) {
 			message = "success";
 		} else {
 			message = "fail";

@@ -29,7 +29,7 @@ public class ProjectService {
 	}
 
 	//select하여 있다면 관심 프로젝트 등록/해제 없다면 관심 프로젝트 신규 생성
-	public boolean insertStrarredProject(ProjectStarredDTO projectStarredDTO) {
+	public boolean upsertStrarredProject(ProjectStarredDTO projectStarredDTO) {
 		try {
 			boolean isExist = projectRepository.selectStarredProject(projectStarredDTO);
 			if(isExist) {
