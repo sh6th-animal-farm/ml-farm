@@ -18,7 +18,9 @@ public interface ProjectRepository {
 	public abstract List<ProjectListDTO> selectByCondition(ProjectSearchReqDTO projectSearchDTO);
 
 	public abstract ProjectDetailDTO selectDetail(Long projectId);
-
+	
+	public abstract boolean selectStarredProject(ProjectStarredDTO projectStarredDTO);
+	
 	public abstract void insertStrarredProject(ProjectStarredDTO projectStarredDTO);
 
 	public abstract void updateStarred(ProjectStarredDTO projectStarredDTO);

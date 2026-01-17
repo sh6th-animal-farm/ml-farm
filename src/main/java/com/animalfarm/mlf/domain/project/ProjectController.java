@@ -38,24 +38,11 @@ public class ProjectController {
 	}
 
 	//관심 프로젝트 신규 등록
-	@PostMapping("/api/projects/starred/newinsert")
+	@PostMapping("/api/projects/starred/interest")
 	public String insertStrarredProject(@ModelAttribute
 	ProjectStarredDTO projectStarredDTO) {
 		String message = null;
 		if (projectService.insertStrarredProject(projectStarredDTO)) {
-			message = "success";
-		} else {
-			message = "fail";
-		}
-		return message;
-	}
-
-	//관심 프로젝트 등록 or 해제
-	@PostMapping("/api/projects/starred/interest")
-	public String updateStarred(@ModelAttribute
-	ProjectStarredDTO projectStarredDTO) {
-		String message = null;
-		if (projectService.updateStarred(projectStarredDTO)) {
 			message = "success";
 		} else {
 			message = "fail";
