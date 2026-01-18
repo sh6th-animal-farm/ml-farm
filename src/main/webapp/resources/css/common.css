@@ -1,0 +1,380 @@
+/* * Project: My Little Smart Farm (MLF) 
+ * Design System: 1440px Standard Guide Implementation
+ */
+
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css");
+
+:root {
+  /* --- 1. Primary Colors (Green System) --- */
+  --green-950: #163b16; /* Deep Green, 텍스트용 */
+  --green-900: #225223;
+  --green-800: #2e7127;
+  --green-700: #3f8f2d;
+  --green-500: #6cc32d; /* Main Brand Color */
+  --green-400: #85d84d;
+  --green-300: #97e267;
+  --green-200: #aaea81;
+  --green-100: #bef09e;
+  --green-0: #d3f5bb;
+
+  /* --- 2. Greyscale (Neutral System) --- */
+  --gray-900: #191919; /* Title Text */
+  --gray-800: #262626;
+  --gray-700: #313131;
+  --gray-600: #404040; /* Body Text */
+  --gray-500: #565656;
+  --gray-400: #707070;
+  --gray-300: #c6c6c6;
+  --gray-200: #e1e1e1;
+  --gray-100: #f2f2f2;
+  --gray-50: #f8fafb; /* Section Background */
+  --gray-0: #fcfcfc; /* Card Background */
+
+  /* --- 3. Semantic Colors --- */
+  --info: #1976d2;
+  --warning: #ffa000;
+  --error: #d32f2f;
+  --success: #388e3c;
+
+  /* --- 4. Layout & Grid System --- */
+  --container-max: 1296px;
+  --gutter: 24px;
+  --side-margin: 72px;
+  --header-height: 72px;
+
+  /* --- 5. Typography Defaults --- */
+  --font-main:
+    "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, Roboto,
+    sans-serif;
+  --letter-spacing: -0.02em;
+  --line-height-std: 1.4;
+}
+
+/* Base Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  letter-spacing: var(--letter-spacing);
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--gray-50);
+  color: var(--gray-600);
+  line-height: var(--line-height-std);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- Grid System Implementation --- */
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding-left: var(--gutter);
+  padding-right: var(--gutter);
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: calc(var(--gutter) / -2);
+  margin-right: calc(var(--gutter) / -2);
+}
+
+[class*="col-"] {
+  padding-left: calc(var(--gutter) / 2);
+  padding-right: calc(var(--gutter) / 2);
+}
+
+/* 12 Columns Grid */
+.col-1 {
+  width: 8.333%;
+}
+.col-2 {
+  width: 16.666%;
+}
+.col-3 {
+  width: 25%;
+}
+.col-4 {
+  width: 33.333%;
+}
+.col-6 {
+  width: 50%;
+}
+.col-8 {
+  width: 66.666%;
+}
+.col-12 {
+  width: 100%;
+}
+
+/* --- Typography Hierarchy (가이드 준수) --- */
+h1,
+.h1 {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--gray-900);
+}
+
+h2,
+.h2 {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--gray-900);
+}
+
+h3,
+.h3 {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--gray-800);
+}
+
+.body-large {
+  font-size: 18px;
+  font-weight: 500;
+}
+.body-medium {
+  font-size: 16px;
+  font-weight: 400;
+}
+.body-small {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--gray-500);
+}
+
+/* --- UI Components --- */
+
+/* common.css 추가 및 수정 */
+
+.logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: var(--header-height);
+  background-color: #fff; /* 배경은 흰색일 때 그린이 가장 돋보임 */
+}
+
+.logo-text {
+  font-family: var(--font-main);
+  font-weight: 800; /* 조금 더 두껍게(800) 해야 애니메이션 후에도 존재감이 있음 */
+  font-size: 32px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  white-space: nowrap;
+  letter-spacing: -0.02em;
+  color: var(--gray-900); /* 기본색 */
+  cursor: default;
+}
+
+/* 남겨질 핵심 글자 (마, 리, 팜) */
+.keep {
+  color: var(--green-500);
+  transition: color 0.5s ease;
+}
+
+/* 사라질 글자 그룹 */
+.fade-out {
+  display: inline-block;
+  max-width: 150px;
+  opacity: 1;
+  filter: blur(0px);
+  transition:
+    max-width 1.2s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 1s cubic-bezier(0.4, 0, 0.2, 1),
+    filter 1s ease,
+    margin 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 애니메이션 트리거 상태 */
+.logo-text.is-animated .fade-out {
+  max-width: 0;
+  opacity: 0;
+  margin-right: -2px; /* 글자 사이 간격 미세 조정 */
+  filter: blur(8px); /* 흐려짐 강도를 높여 더 몽환적으로 */
+  pointer-events: none;
+}
+
+/* 마리팜이 강조되는 효과 */
+.logo-text.is-animated .keep {
+  text-shadow: 0 0 15px rgba(108, 195, 45, 0.2);
+}
+
+.header-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+/* 메뉴 스타일 */
+.nav-list {
+  display: flex;
+  list-style: none;
+  gap: 48px; /* 이미지 기반 넓은 간격 */
+}
+
+.nav-item {
+  position: relative;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--gray-800);
+  text-decoration: none;
+  padding: 8px 0;
+}
+
+/* 활성화 표시 (그린 닷) */
+.nav-item.active::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  background-color: var(--green-600);
+  border-radius: 50%;
+}
+
+/* 우측 유틸리티 영역 */
+.auth-group {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.btn-login {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gray-800);
+  text-decoration: none;
+}
+
+.btn-signup {
+  background-color: var(--green-600);
+  color: #fff;
+  padding: 8px 20px;
+  border-radius: var(--radius-m); /* 가이드 8px 준수 */
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.btn-signup:hover {
+  background-color: var(--green-700);
+}
+
+/* 사용자 정보 (로그인 후) */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 600;
+  color: var(--gray-900);
+}
+
+.icon-group {
+  display: flex;
+  gap: 16px;
+  margin-right: 8px;
+}
+
+/* Cards */
+.card {
+  background: var(--gray-0);
+  border: 1px solid var(--gray-100);
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: none;
+  font-family: var(--font-main);
+}
+
+.btn-primary {
+  background-color: var(--green-500);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background-color: var(--green-400);
+}
+
+.btn-outline {
+  background-color: transparent;
+  border: 1px solid var(--gray-200);
+  color: var(--gray-700);
+}
+
+.btn-outline:hover {
+  background-color: var(--gray-50);
+}
+
+/* Form Controls */
+.form-group {
+  margin-bottom: 24px;
+}
+
+label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--gray-800);
+}
+
+input[type="text"],
+input[type="number"],
+select,
+textarea {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid var(--gray-200);
+  border-radius: 8px;
+  font-size: 16px;
+  transition: border-color 0.2s;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--green-500);
+  box-shadow: 0 0 0 4px var(--green-0);
+}
+
+/* Footer (가이드 준수) */
+footer {
+  padding-top: 80px;
+  padding-bottom: 80px;
+  background-color: var(--gray-100);
+  border-top: 1px solid var(--gray-200);
+}
+
+/* Utility Classes */
+.text-green {
+  color: var(--green-500);
+}
+.text-error {
+  color: var(--error);
+}
+.bg-section {
+  background-color: var(--gray-50);
+}
