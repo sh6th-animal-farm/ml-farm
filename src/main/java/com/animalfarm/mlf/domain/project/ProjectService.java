@@ -9,6 +9,7 @@ import com.animalfarm.mlf.domain.project.dto.ProjectDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectDetailDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectListDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectSearchReqDTO;
+import com.animalfarm.mlf.domain.project.dto.ProjectStarredDTO;
 
 @Service
 public class ProjectService {
@@ -22,7 +23,25 @@ public class ProjectService {
 	public ProjectDetailDTO selectDetail(Long projectId) {
 		return projectRepository.selectDetail(projectId);
 	}
+
 	public List<ProjectListDTO> selectByCondition(ProjectSearchReqDTO searchDTO) {
 		return projectRepository.selectByCondition(searchDTO);
+	}
+
+	//select하여 있다면 관심 프로젝트 등록/해제 없다면 관심 프로젝트 신규 생성
+	public boolean upsertStrarredProject(ProjectStarredDTO projectStarredDTO) {
+		try {
+			boolean isExist = projectRepository.selectStarredProject(projectStarredDTO);
+			if(isExist) {
+				projectRepository.updateStarred(projectStarredDTO);
+				return true;
+			} else {
+				projectRepository.insertStrarredProject(projectStarredDTO);
+				return true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 }
