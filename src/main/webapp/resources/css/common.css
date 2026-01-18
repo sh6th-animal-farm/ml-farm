@@ -64,6 +64,22 @@ body {
   color: var(--gray-600);
   line-height: var(--line-height-std);
   -webkit-font-smoothing: antialiased;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* 화면 높이 전체를 차지하도록 설정 */
+  margin: 0;
+}
+
+/* 본문 영역 */
+.content-wrapper {
+    flex: 1; /* 남은 여백을 본문이 다 차지해서 푸터를 아래로 밀어냄 */
+    width: 100%;
+}
+
+/* 푸터 영역 */
+.main-footer {
+    width: 100%;
+    /* 푸터의 높이는 내용물에 따라 자동으로 결정됨 */
 }
 
 /* --- Grid System Implementation --- */
@@ -172,6 +188,11 @@ h3,
   letter-spacing: -0.02em;
   color: var(--gray-900); /* 기본색 */
   cursor: default;
+}
+
+a{
+  text-decoration: none;
+    color: inherit; /* 부모의 글자색을 그대로 따라가게 함 */
 }
 
 /* 남겨질 핵심 글자 (마, 리, 팜) */
@@ -360,12 +381,77 @@ input:focus {
   box-shadow: 0 0 0 4px var(--green-0);
 }
 
-/* Footer (가이드 준수) */
-footer {
-  padding-top: 80px;
-  padding-bottom: 80px;
-  background-color: var(--gray-100);
-  border-top: 1px solid var(--gray-200);
+/* --- Footer Custom Styles --- */
+.main-footer {
+    padding: 80px 0; /* 상하 여백 조정 */
+    background-color: #fff; /* 푸터 배경색 */
+    border-top: 1px solid var(--gray-100);
+}
+
+.footer-top-menu {
+    display: flex;
+    gap: 44px;
+    margin-bottom: 24px;
+}
+
+.footer-top-menu a {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--gray-900);
+    text-decoration: none;
+}
+
+.footer-info-text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--gray-400);
+}
+
+.footer-right {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+    justify-content: end;
+    gap: 2px;
+}
+
+.footer-logo {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--gray-900);
+}
+
+.footer-logo span {
+    color: var(--green-600);
+}
+
+.sns-group {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.sns-group a {
+  height: 24px;
+}
+
+.sns-icon {
+    width: 24px;
+    height: 24px;
+    filter: grayscale(1); /* 아이콘 기본 회색 처리 */
+    opacity: 0.6;
+    transition: 0.2s;
+}
+
+.sns-icon:hover {
+    filter: grayscale(0);
+    opacity: 1;
+}
+
+.copyright {
+    font-size: 14px;
+    color: var(--gray-400);
 }
 
 /* Utility Classes */
