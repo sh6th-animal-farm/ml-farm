@@ -1,8 +1,10 @@
-package com.animalfarm.mlf.domain.user;
+package com.animalfarm.mlf.domain.user.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.animalfarm.mlf.domain.user.BizStatusParsed;
+import com.animalfarm.mlf.domain.user.NtsBizApiClient;
 import com.animalfarm.mlf.domain.user.dto.EnterpriseVerifyRequestDTO;
 import com.animalfarm.mlf.domain.user.dto.EnterpriseVerifyResponseDTO;
 
@@ -13,42 +15,39 @@ public class EnterpriseAuthService {
 	private NtsBizApiClient ntsBizApiClient;
 
 	public EnterpriseVerifyResponseDTO verify(EnterpriseVerifyRequestDTO req) {
-		String bNo = normalizeBizNo(req.getBNo());
 
-		if (isBlank(req.getStartDt()) || isBlank(req.getPNm())) {
-			throw new IllegalArgumentException("startDt(개업일자)와 pNm(대표자명)은 필수입니다.");
+		if (isBlank(req.getBNo())) {
+			throw new IllegalArgumentException("bNo(사업자등록번호)는 필수입니다.");
 		}
+
+		String bNo = normalizeBizNo(req.getBNo());
 
 		EnterpriseVerifyResponseDTO res = new EnterpriseVerifyResponseDTO();
 
-		// 1) 상태조회
+		// 1) 상태조회만 수행
 		String statusRaw = ntsBizApiClient.status(bNo);
 		res.setStatusRaw(statusRaw);
 
 		BizStatusParsed statusParsed = ntsBizApiClient.parseStatus(statusRaw);
 
-		if (!statusParsed.isActive()) {
-			res.setVerified(false);
-			res.setStatus(statusParsed.getStatus()); // CLOSED / SUSPENDED / UNKNOWN
-			res.setMessage(statusParsed.getMessage()); // 사유
-			return res;
-		}
-
-		// 2) 진위확인
-		String validateRaw = ntsBizApiClient.validate(bNo, req.getStartDt(), req.getPNm(), req.getBNm());
-		res.setValidateRaw(validateRaw);
-
-		boolean ok = ntsBizApiClient.parseValidateOk(validateRaw);
-
-		if (ok) {
+		if (statusParsed.isActive()) {
 			res.setVerified(true);
 			res.setStatus("ACTIVE");
-			res.setMessage("사업자 진위확인 성공");
+			res.setMessage("확인 되었습니다.");
 		} else {
 			res.setVerified(false);
-			res.setStatus("ACTIVE"); // 상태는 정상이지만 정보 불일치
-			res.setMessage("사업자 정보가 일치하지 않습니다.");
+			// CLOSED / SUSPENDED / UNKNOWN 등
+			res.setStatus(statusParsed.getStatus());
+			res.setMessage(statusParsed.getMessage());
 		}
+
+		// 2) 진위확인(validate) - 가입 단계에서는 비활성화
+		// String validateRaw = ntsBizApiClient.validate(bNo, req.getStartDt(), req.getPNm(), req.getBNm());
+		// res.setValidateRaw(validateRaw);
+		// boolean ok = ntsBizApiClient.parseValidateOk(validateRaw);
+		// res.setVerified(ok);
+		// res.setStatus(ok ? "ACTIVE" : "ACTIVE");
+		// res.setMessage(ok ? "사업자 진위확인 성공" : "사업자 정보가 일치하지 않습니다.");
 
 		return res;
 	}
