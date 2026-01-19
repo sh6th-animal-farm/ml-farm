@@ -1,8 +1,9 @@
 <%@ tag language="java" pageEncoding="UTF-8" body-content="empty" %>
 <%@ attribute name="label" required="true" %>
 <%@ attribute name="active" required="false" type="java.lang.Boolean" %>
+<%@ attribute name="onClick" required="false" %>
 
-<button class="menu-btn ${active ? 'active' : ''}">
+<button class="menu-btn ${active ? 'active' : ''}" onClick="${onClick}">
     ${label}
 </button>
 
