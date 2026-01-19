@@ -1,45 +1,82 @@
 package com.animalfarm.mlf.domain.user.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.animalfarm.mlf.common.RedisUtil;
+import com.animalfarm.mlf.domain.user.dto.SignUpRequestDTO;
 import com.animalfarm.mlf.domain.user.dto.UserDTO;
 import com.animalfarm.mlf.domain.user.repository.UserRepository;
 
-/**
- * [회원 관리 서비스]
- * - 회원 정보 수정, 탈퇴 등 '데이터' 중심의 로직을 담당합니다.
- * - 스프링 시큐리티의 UserDetailsService를 구현하여 인증 데이터를 공급합니다.
- */
 @Service
-public class UserService implements UserDetailsService {
+public class UserService {
+
+	private final UserRepository userRepository;
+	private final PasswordEncoder passwordEncoder;
+	private final RedisUtil redisUtil;
 
 	@Autowired
-	private UserRepository userRepository;
-
-	/**
-	 * [시큐리티 전용: 유저 정보 조회]
-	 * - JwtProvider가 인증 객체를 만들 때 DB에서 유저 정보를 가져오는 통로입니다.
-	 */
-	@Override
-	public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-
-		UserDTO user = userRepository.findByEmail(email);
-
-		if (user == null) {
-			throw new UsernameNotFoundException("해당 이메일의 유저를 찾을 수 없습니다.");
-		}
-
-		// 스프링 시큐리티 규격 객체(UserDetails)로 변환
-		return org.springframework.security.core.userdetails.User.builder()
-			.username(user.getEmail())
-			.password(user.getPassword())
-			.roles(user.getRole()) // DB에 저장된 ROLE (개인/기업 등)
-			.build();
-
+	public UserService(UserRepository userRepository,
+		PasswordEncoder passwordEncoder,
+		RedisUtil redisUtil) {
+		this.userRepository = userRepository;
+		this.passwordEncoder = passwordEncoder;
+		this.redisUtil = redisUtil;
 	}
 
+	@Transactional
+	public void signUp(SignUpRequestDTO req) {
+
+		if (isBlank(req.getEmail())) {
+			throw new IllegalArgumentException("이메일이 필요합니다.");
+		}
+		if (isBlank(req.getPassword())) {
+			throw new IllegalArgumentException("비밀번호가 필요합니다.");
+		}
+		if (isBlank(req.getUserName())) {
+			throw new IllegalArgumentException("이름이 필요합니다.");
+		}
+
+		// 1) 이메일 중복 체크
+		if (userRepository.findByEmail(req.getEmail()) != null) {
+			throw new IllegalArgumentException("이미 가입된 이메일입니다.");
+		}
+
+		// 2) 이메일 인증 여부 체크
+		String verified = redisUtil.getData(emailVerifiedKey(req.getEmail()));
+		if (verified == null) {
+			throw new IllegalStateException("이메일 인증이 완료되지 않았습니다.");
+		}
+
+		// 3) 저장 객체 구성
+		UserDTO user = new UserDTO();
+		user.setEmail(req.getEmail());
+		user.setUserName(req.getUserName());
+		user.setPassword(passwordEncoder.encode(req.getPassword())); // BCrypt
+		user.setPhoneNumber(req.getPhoneNumber());
+
+		// 4) 기업 / 개인 판별
+		if (!isBlank(req.getBrn())) {
+			user.setBrn(req.getBrn());
+			user.setRole("ENTERPRISE");
+		} else {
+			user.setRole("USER");
+		}
+
+		// 5) 사용자 저장
+		userRepository.insertUser(user);
+
+		// 6) 이메일 인증 플래그 정리
+		redisUtil.deleteData(emailVerifiedKey(req.getEmail()));
+	}
+
+	private String emailVerifiedKey(String email) {
+		return "EMAIL_VERIFIED:" + email;
+	}
+
+	private boolean isBlank(String s) {
+		return s == null || s.isBlank();
+	}
 }
