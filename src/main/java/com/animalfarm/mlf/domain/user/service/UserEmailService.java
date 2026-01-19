@@ -1,4 +1,4 @@
-package com.animalfarm.mlf.domain.user;
+package com.animalfarm.mlf.domain.user.service;
 
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -8,17 +8,26 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import com.animalfarm.mlf.common.MailService;
+import com.animalfarm.mlf.domain.user.repository.UserRepository;
 
 @Service
 public class UserEmailService {
 
 	private static final long EXPIRE_MIN = 5;
+	private static final long VERIFIED_EXPIRE_MIN = 30;
 
 	@Autowired
 	private RedisTemplate<String, Object> redisTemplate;
 
 	@Autowired
 	private MailService mailService;
+
+	@Autowired
+	private UserRepository userRepository;
+
+	public boolean isDuplicateEmail(String email) {
+		return userRepository.existsByEmail(email);
+	}
 
 	public void sendCode(String email) {
 		String code = createCode();
@@ -41,6 +50,9 @@ public class UserEmailService {
 		boolean success = savedCode.toString().equals(inputCode);
 		if (success) {
 			redisTemplate.delete(key);
+			String verifiedKey = "EMAIL_VERIFIED:" + email;
+			redisTemplate.opsForValue()
+				.set(verifiedKey, "Y", VERIFIED_EXPIRE_MIN, TimeUnit.MINUTES);
 		}
 
 		return success;

@@ -6,6 +6,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -50,7 +52,7 @@ public class SecurityConfig {
 			// 2. [CSRF 방어 해제] 세션/쿠키를 사용하지 않으므로 CSRF 공격으로부터 자유로움 (REST API 최적화)
 			.csrf().disable()
 
-			// 3. [무상태성(Stateless) 강제] 가장 핵심 설정! 
+			// 3. [무상태성(Stateless) 강제] 가장 핵심 설정!
 			// 서버는 세션을 생성하지도 않고, 이미 존재하는 세션을 사용하지도 않음
 			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
@@ -89,5 +91,11 @@ public class SecurityConfig {
 				UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
+	}
+
+	// 회원 가입시 비밀번호 암호화 하는 코드
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
 	}
 }
