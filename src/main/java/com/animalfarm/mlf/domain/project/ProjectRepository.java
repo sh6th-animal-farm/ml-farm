@@ -2,22 +2,37 @@ package com.animalfarm.mlf.domain.project;
 
 import java.util.List;
 
-import org.apache.ibatis.session.SqlSession;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.apache.ibatis.annotations.Mapper;
 
+import com.animalfarm.mlf.domain.project.dto.FarmDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectDTO;
+import com.animalfarm.mlf.domain.project.dto.ProjectDetailDTO;
+import com.animalfarm.mlf.domain.project.dto.ProjectInsertDTO;
+import com.animalfarm.mlf.domain.project.dto.ProjectListDTO;
+import com.animalfarm.mlf.domain.project.dto.ProjectPictureDTO;
+import com.animalfarm.mlf.domain.project.dto.ProjectSearchReqDTO;
 
-@Repository
-public class ProjectRepository implements ProjectInterface {
+@Mapper
+public interface ProjectRepository {
 
-	@Autowired
-	SqlSession sqlSession;
+	public abstract List<ProjectDTO> selectAll();
 
-	String namespace = "com.animalfarm.mlf.project.";
+	public abstract List<ProjectListDTO> selectByCondition(ProjectSearchReqDTO projectSearchDTO);
 
-	@Override
-	public List<ProjectDTO> selectAll() {
-		return sqlSession.selectList(namespace+"selectAll");
-	}
+	public abstract ProjectDetailDTO selectDetail(Long projectId);
+
+	public abstract void insertProject(ProjectInsertDTO projectInsertDTO);
+
+	public abstract List<FarmDTO> selectAllFarm();
+
+	public abstract void insertToken(ProjectInsertDTO projectInsertDTO);
+
+	public abstract void updateProject(ProjectDTO projectDTO);
+
+	public abstract List<ProjectPictureDTO> selectPictures(Long projectId);
+
+	public abstract void insertPictureList(List<ProjectPictureDTO> newPictureDTOs);
+
+	public abstract void deletePictureList(List<Long> deletedPictureIds);
+
 }
