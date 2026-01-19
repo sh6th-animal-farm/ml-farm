@@ -16,7 +16,7 @@
 </script>
 </head>
 <body>
-	<jsp:include page="../../includes/admin_sidebar.jsp" />
+	<jsp:include page="../common/admin_sidebar.jsp" />
 
 	<main class="main-content">
 		<div class="container-1200">
