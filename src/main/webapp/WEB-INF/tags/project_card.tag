@@ -3,6 +3,8 @@
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
 <%@ attribute name="status" type="com.animalfarm.mlf.constants.ProjectStatus" required="true" %> <%-- 청약중, 공고중, 진행중 --%>
 <%@ attribute name="title" required="true" %>
+<%@ attribute name="id" required="true"%>
+<%@ attribute name="endTime" required="true" %>
 <%@ attribute name="upperDate" required="true" %>
 <%@ attribute name="lowerDate" required="true" %>
 <%@ attribute name="percent" required="false" %>
@@ -26,10 +28,10 @@
 		            <span class="card-date">${upperDate}</span>
 		            <c:choose>
 		            <c:when test="${status.name() == 'SUBSCRIPTION'}">
-		                <span class="card-dday text-error">마감까지 46:07:20</span>
+		                <span class="card-dday text-error timer-display" data-end-time="${endTime}" data-status="${status.name()}" >마감까지</span>
 		            </c:when>
 		            <c:when test="${status.name() == 'ANNOUNCEMENT'}">
-		                <span class="card-dday text-error">D-5</span>
+		                <span class="card-dday text-error timer-display" data-end-time="${endTime}" data-status="${status.name()}" >시작까지</span>
 		            </c:when>
 		            </c:choose>
 	        	</div>
@@ -61,9 +63,9 @@
             <%-- 버튼 클래스도 Enum에서 가져옴 --%>
             <button class="btn-action ${status.btnClass}">
                 <c:choose>
-                    <c:when test="${status.name() == 'SUBSCRIPTION'}">청약하기</c:when>
-                    <c:when test="${status.name() == 'ANNOUNCEMENT'}">공고보기</c:when>
-                    <c:otherwise>토큰구매</c:otherwise>
+                    <c:when test="${status.name() == 'SUBSCRIPTION'}">청약 하기</c:when>
+                    <c:when test="${status.name() == 'ANNOUNCEMENT'}">공고 보기</c:when>
+                    <c:otherwise>토큰 구매</c:otherwise>
                 </c:choose>
             </button>
         </div>
@@ -71,7 +73,7 @@
 </div>
 
 <style>
-.project-card { background: white; border-radius: var(--radius-l); overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 24px; }
+.project-card { background: white; border-radius: var(--radius-l); overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 24px; cursor:pointer; }
 .card-image { height: 200px; background: #e5e5e5; position: relative; }
 .badge { position: absolute; top: 16px; left: 16px;}
 .interest-btn {position: absolute; top: 18px; right: 16px; border:none; background-color: transparent; cursor:pointer;} 

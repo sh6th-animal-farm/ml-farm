@@ -27,4 +27,11 @@ public class ProjectViewController {
 		model.addAttribute("projectList", projectService.selectByCondition(searchReqDTO));
 		return "layout"; // 항상 layout.jsp를 리턴
 	}
+
+	@GetMapping("/list/fragment")
+	public String projectListFragment(Model model, ProjectSearchReqDTO searchReqDTO) {
+		System.out.println(searchReqDTO);
+		model.addAttribute("projectList", projectService.selectByCondition(searchReqDTO));
+		return "project/project_card_list";
+	}
 }

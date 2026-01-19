@@ -5,6 +5,8 @@
 
 <link rel="stylesheet"
 	href="${pageContext.request.contextPath}/resources/css/project_list.css">
+<script src="${pageContext.request.contextPath}/resources/js/domain/project/project_list.js"> </script>
+<script src="${pageContext.request.contextPath}/resources/js/util/timer.js"></script>
 
 <div class="project-list-container">
     <div class="section-header">
@@ -25,50 +27,23 @@
     <div class="list-controls">
         <div class="filter-group">
             <t:menu_button label="전체보기" 
-                       active="${empty param.category}" 
-                       onClick="filterCategory('')"/>
+                       active="${empty param.projectStatus}" 
+                       onClick="filterCategory('', this)"/>
         	<t:menu_button label="청약중" 
-                       active="${param.category == 'SUBSCRIPTION'}" 
-                       onClick="filterCategory('SUBSCRIPTION')"/>
+                       active="${param.projectStatus == 'SUBSCRIPTION'}" 
+                       onClick="filterCategory('SUBSCRIPTION', this)"/>
         	<t:menu_button label="공고중" 
-                       active="${param.category == 'ANNOUNCEMENT'}" 
-                       onClick="filterCategory('ANNOUNCEMENT')"/>
+                       active="${param.projectStatus == 'ANNOUNCEMENT'}" 
+                       onClick="filterCategory('ANNOUNCEMENT', this)"/>
         	<t:menu_button label="진행중" 
-                       active="${param.category == 'INPROGRESS'}" 
-                       onClick="filterCategory('INPROGRESS')"/>
+                       active="${param.projectStatus == 'INPROGRESS'}" 
+                       onClick="filterCategory('INPROGRESS', this)"/>
         </div>
         <t:search_bar />
     </div>
 
-    <div class="row">
-    <c:forEach var="project" items="${projectList}">
-        <div class="col-4">
-            <%-- 1. status 변환 로직: DTO의 String 상태값을 Enum 객체로 변환 --%>
-            <c:set var="statusEnum" value="${ProjectStatus.valueOf(project.projectStatus)}" />
-            
-            <%-- 2. upperDate 처리 (청약중일 때만 청약기간, 공고중일 때만 공고기간) --%>
-	        <c:set var="upperDate" value="${statusEnum.name() == 'SUBSCRIPTION' 
-	                                        ? String.format('%tF ~ %tF', project.subscriptionStartDate, project.subscriptionEndDate) 
-	                                        : (statusEnum.name() == 'ANNOUNCEMENT' 
-	                                            ? String.format('%tF ~ %tF', project.announcementStartDate, project.announcementEndDate) 
-	                                            : '')}" />
-	
-	        <%-- 3. lowerDate 처리 (공고중일 때 청약예정일, 진행중일 때 운영기간) --%>
-	        <c:set var="lowerDate" value="${statusEnum.name() == 'ANNOUNCEMENT' 
-	                                        ? String.format('%tF ~ %tF', project.subscriptionStartDate, project.subscriptionEndDate) 
-	                                        : (statusEnum.name() == 'INPROGRESS' 
-	                                            ? String.format('%tF ~ %tF', project.projectStartDate, project.projectEndDate) 
-	                                            : '')}" />
-            <%-- 3. 태그 호출 --%>
-            <t:project_card 
-                status="${statusEnum}" 
-                title="${project.projectName} ${project.projectRound}호" 
-                upperDate="${upperDate}"
-                lowerDate="${lowerDate}" 
-                percent="${project.subscriptionRate}" 
-            />
-        </div>
-    </c:forEach>
+    <div class="row" id="projectCardContainer">
+    <jsp:include page="/WEB-INF/views/project/project_card_list.jsp" />
     
     <%-- 검색 결과가 없을 때 처리 --%>
     <c:if test="${empty projectList}">
@@ -78,23 +53,3 @@
     </c:if>
 </div>
 </div>
-<script>
-/**
- * 카테고리 필터링 함수
- * @param {string} category - Enum 명칭 (SUBSCRIPTION, ANNOUNCEMENT 등)
- */
-function filterCategory(category) {
-    // 기존의 다른 검색 조건(키워드 등)이 있다면 유지하고 category만 바꿀 수 있도록 구성
-    const url = new URL(window.location.href);
-    
-    if (category) {
-        url.searchParams.set('category', category);
-    } else {
-        // 전체보기 클릭 시 category 파라미터 삭제
-        url.searchParams.delete('category');
-    }
-    
-    // 페이지 이동
-    location.href = url.pathname + url.search;
-}
- </script>

@@ -2,8 +2,8 @@
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
 <div class="search-container col-4">
-    <input type="text" placeholder="검색어를 입력해주세요" class="search-input">
-    <button class="search-icon-btn">
+    <input type="text" placeholder="검색어를 입력해주세요" onkeyup="if(window.event.keyCode==13){searchKeyword()}" class="search-input">
+    <button class="search-icon-btn" onclick="searchKeyword()">
         <t:icon name="search" size="20" color="var(--gray-900)"/>
     </button>
 </div>
