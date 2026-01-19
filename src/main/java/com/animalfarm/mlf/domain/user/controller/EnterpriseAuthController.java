@@ -1,4 +1,4 @@
-package com.animalfarm.mlf.domain.user;
+package com.animalfarm.mlf.domain.user.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.animalfarm.mlf.domain.user.dto.EnterpriseVerifyRequestDTO;
 import com.animalfarm.mlf.domain.user.dto.EnterpriseVerifyResponseDTO;
+import com.animalfarm.mlf.domain.user.service.EnterpriseAuthService;
 
 @RestController
 @RequestMapping("/api/auth/enterprise")

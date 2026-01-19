@@ -18,4 +18,7 @@ public interface UserRepository {
 	 */
 	UserDTO findByEmail(String email);
 
+	int insertUser(UserDTO user);
+
+	boolean existsByEmail(String email);
 }

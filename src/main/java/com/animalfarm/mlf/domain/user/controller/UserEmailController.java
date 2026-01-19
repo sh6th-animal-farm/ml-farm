@@ -1,4 +1,4 @@
-package com.animalfarm.mlf.domain.user;
+package com.animalfarm.mlf.domain.user.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.animalfarm.mlf.domain.user.dto.EmailSendRequestDTO;
 import com.animalfarm.mlf.domain.user.dto.EmailVerifyRequestDTO;
+import com.animalfarm.mlf.domain.user.service.UserEmailService;
 
 @RestController
 @RequestMapping("/api/auth/email")
@@ -19,7 +20,13 @@ public class UserEmailController {
 	@PostMapping(value = "/verification", produces = "text/plain; charset=UTF-8")
 	public String sendVerificationCode(@RequestBody
 	EmailSendRequestDTO request) {
-		userEmailService.sendCode(request.getEmail());
+		String email = request.getEmail();
+
+		if (userEmailService.isDuplicateEmail(email)) {
+			return "이미 가입된 이메일입니다.";
+		}
+
+		userEmailService.sendCode(email);
 		return "이메일 코드 발송 완료";
 	}
 
