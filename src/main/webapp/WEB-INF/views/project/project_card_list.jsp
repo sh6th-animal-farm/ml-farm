@@ -29,6 +29,8 @@
                 status="${statusEnum}" 
                 title="${project.projectName} ${project.projectRound}회차"
                 id="${project.projectId}"
+                isStarred="${project.isStarred}"
+                thumbnailUrl="${project.thumbnailUrl}"
                 endTime="${endTime}"
                 upperDate="${upperDate}"
                 lowerDate="${lowerDate}" 

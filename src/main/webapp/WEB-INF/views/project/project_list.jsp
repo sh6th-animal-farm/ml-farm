@@ -5,7 +5,7 @@
 
 <link rel="stylesheet"
 	href="${pageContext.request.contextPath}/resources/css/project_list.css">
-<script src="${pageContext.request.contextPath}/resources/js/domain/project/project_list.js"> </script>
+<script type="module" src="${pageContext.request.contextPath}/resources/js/domain/project/project_list.js"> </script>
 <script src="${pageContext.request.contextPath}/resources/js/util/timer.js"></script>
 
 <div class="project-list-container">
@@ -43,13 +43,13 @@
     </div>
 
     <div class="row" id="projectCardContainer">
-    <jsp:include page="/WEB-INF/views/project/project_card_list.jsp" />
-    
-    <%-- 검색 결과가 없을 때 처리 --%>
-    <c:if test="${empty projectList}">
-        <div class="col-12" style="text-align: center; padding: 100px 0;">
-            <p style="color: var(--gray-400);">조건에 맞는 프로젝트가 없습니다.</p>
-        </div>
-    </c:if>
-</div>
+	    <jsp:include page="/WEB-INF/views/project/project_card_list.jsp" />
+	    
+	    <%-- 검색 결과가 없을 때 처리 --%>
+	    <c:if test="${empty projectList}">
+	        <div class="col-12" style="text-align: center; padding: 100px 0;">
+	            <p style="color: var(--gray-400);">조건에 맞는 프로젝트가 없습니다.</p>
+	        </div>
+	    </c:if>
+	</div>
 </div>

@@ -74,6 +74,7 @@ public class ProjectController {
 		}
 		return message;
 	}
+	
 	@PostMapping("/api/projects/insert")
 	public ResponseEntity<String> insertProject(@RequestBody
 	ProjectInsertDTO projectInsertDTO) {

@@ -4,6 +4,8 @@
 <%@ attribute name="status" type="com.animalfarm.mlf.constants.ProjectStatus" required="true" %> <%-- 청약중, 공고중, 진행중 --%>
 <%@ attribute name="title" required="true" %>
 <%@ attribute name="id" required="true"%>
+<%@ attribute name="isStarred" required="true" type="java.lang.Boolean" %>
+<%@ attribute name="thumbnailUrl" required="false" %>
 <%@ attribute name="endTime" required="true" %>
 <%@ attribute name="upperDate" required="true" %>
 <%@ attribute name="lowerDate" required="true" %>
@@ -14,9 +16,10 @@
 
 <div class="project-card">
     <div class="card-image">
+    	<img class="thumbnail" src="${thumbnailUrl}" alt="project thumnail" />
         <t:status_badge className="badge" label="${label}" status="${status.badgeStatus}"/>
-        <button class="interest-btn">
-        	<t:icon name="seedling"/>
+        <button class="interest-btn" onclick="starProject('2', '${id}', this)">
+        	<t:icon name="seedling" color="${isStarred ? 'var(--green-600)' : 'var(--gray-900)'}" />
         </button>
     </div>
     
@@ -74,7 +77,14 @@
 
 <style>
 .project-card { background: white; border-radius: var(--radius-l); overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 24px; cursor:pointer; }
-.card-image { height: 200px; background: #e5e5e5; position: relative; }
+.card-image { height: 220px; background: #e5e5e5; position: relative; }
+.card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; 
+    
+    object-position: center; 
+}
 .badge { position: absolute; top: 16px; left: 16px;}
 .interest-btn {position: absolute; top: 18px; right: 16px; border:none; background-color: transparent; cursor:pointer;} 
 .card-content { display: flex; flex-direction:column; padding: 24px; }
