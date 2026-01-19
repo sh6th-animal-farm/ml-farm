@@ -48,5 +48,7 @@ public class ProjectDetailDTO {
 
 	private String crop; // Cultivations 테이블 연관
 	private String method;
+
 	private String tickerSymbol; //Tokens 테이블 연관
+	private BigDecimal totalSupply;
 }

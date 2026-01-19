@@ -33,8 +33,11 @@
 
   /* --- 3. Semantic Colors --- */
   --info: #1976d2;
+  --info-light: #E8F1FA;
   --warning: #ffa000;
+  --warning-light: #FFF8E1;
   --error: #d32f2f;
+  --error-light: #FFEBEE;
   --success: #388e3c;
 
   /* --- 4. Layout & Grid System --- */
