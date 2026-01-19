@@ -2,6 +2,7 @@ package com.animalfarm.mlf.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -50,7 +51,7 @@ public class SecurityConfig {
 			// 2. [CSRF 방어 해제] 세션/쿠키를 사용하지 않으므로 CSRF 공격으로부터 자유로움 (REST API 최적화)
 			.csrf().disable()
 
-			// 3. [무상태성(Stateless) 강제] 가장 핵심 설정! 
+			// 3. [무상태성(Stateless) 강제] 가장 핵심 설정!
 			// 서버는 세션을 생성하지도 않고, 이미 존재하는 세션을 사용하지도 않음
 			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
@@ -72,8 +73,19 @@ public class SecurityConfig {
 		} else {
 			// 3-B. [실전 모드] 실제 서비스 운영을 위한 엄격한 권한 설정
 			http.authorizeRequests()
-				.antMatchers("/api/carbon/**").hasRole("ENTERPRISE")
-				.antMatchers("/api/admin/**").hasRole("ADMIN")
+				// 1. 누구나 접근 가능한 경로 (로그인, 회원가입, 단순 조회)
+				.antMatchers("/api/auth/**").permitAll()
+				.antMatchers(HttpMethod.GET, "/api/carbon/**", "/api/project/**", "/api/token/**").permitAll()
+
+				// 2. 관리자 전용 (이미지의 admin 태그 반영)
+				.antMatchers("/api/project/insert", "/api/project/update").hasRole("ADMIN")
+
+				// 3. 기업 회원 전용 (탄소 배출권 마켓 관련)
+				.antMatchers("/api/carbon/order/**", "/api/carbon/order-verification").hasRole("ENTERPRISE")
+
+				// 4. 로그인한 유저 공통 (토큰 거래, 마이페이지, 청약)
+				.antMatchers("/api/token/order/**", "/api/my/**", "/api/project/subscription").authenticated()
+
 				.anyRequest().authenticated();
 		}
 

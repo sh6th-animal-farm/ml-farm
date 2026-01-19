@@ -15,7 +15,7 @@ import com.animalfarm.mlf.domain.user.repository.UserRepository;
  * - 스프링 시큐리티의 UserDetailsService를 구현하여 인증 데이터를 공급합니다.
  */
 @Service
-public class UserService implements UserDetailsService {
+public class SecurityService implements UserDetailsService {
 
 	@Autowired
 	private UserRepository userRepository;
