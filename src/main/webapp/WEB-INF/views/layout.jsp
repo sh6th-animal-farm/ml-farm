@@ -21,6 +21,18 @@
     </main>
 
     <jsp:include page="/WEB-INF/views/common/footer.jsp" />
-
+	
+    <%-- 인증 관리 매니저 스크립트 로드 --%>
+    <script src="${pageContext.request.contextPath}/resources/js/domain/auth/auth_manager.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            console.log("AuthManager: ", AuthManager);
+            // 모든 페이지에서 AuthManager를 초기화합니다.
+            if (typeof AuthManager !== 'undefined') {
+                AuthManager.init("${pageContext.request.contextPath}");
+            }
+        });
+    </script>
+    
 </body>
 </html>
