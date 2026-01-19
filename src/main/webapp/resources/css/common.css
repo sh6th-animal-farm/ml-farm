@@ -10,7 +10,8 @@
   --green-900: #225223;
   --green-800: #2e7127;
   --green-700: #3f8f2d;
-  --green-500: #6cc32d; /* Main Brand Color */
+  --green-600: #4a9f2e; /* Main Brand Color */
+  --green-500: #6cc32d;
   --green-400: #85d84d;
   --green-300: #97e267;
   --green-200: #aaea81;
@@ -48,6 +49,35 @@
     sans-serif;
   --letter-spacing: -0.02em;
   --line-height-std: 1.4;
+
+  /* --- 굵기 크기/줄높이 글꼴 --- */
+  --font-header-01: 700 32px/1.4 var(--font-main);
+  --font-header-02: 600 24px/1.4 var(--font-main);
+  --font-header-03: 700 22px/1.4 var(--font-main);
+  --font-header-04: 600 20px/1.4 var(--font-main);
+
+  --font-subtitle-01: 600 18px/1.4 var(--font-main);
+  --font-subtitle-02: 500 18px/1.4 var(--font-main);
+  --font-subtitle-03: 400 18px/1.4 var(--font-main);
+
+  --font-body-01: 400 16px/1.4 var(--font-main);
+  --font-body-02: 500 16px/1.4 var(--font-main);
+  --font-body-03: 600 16px/1.4 var(--font-main);
+  --font-body-04: 700 16px/1.4 var(--font-main);
+
+  --font-caption-01: 400 14px/1.4 var(--font-main);
+  --font-caption-02: 500 14px/1.4 var(--font-main);
+  --font-caption-03: 700 14px/1.4 var(--font-main);
+
+  --font-button-01: 600 16px/1.4 var(--font-main);
+  --font-button-02: 600 14px/1.4 var(--font-main);
+
+  /* ---- 6. Border Radius --- */
+  --radius-xs: 4px;
+  --radius-s: 8px;
+  --radius-m: 12px;
+  --radius-l: 16px;
+  --radius-xl: 999px;
 }
 
 /* Base Reset */
@@ -72,14 +102,14 @@ body {
 
 /* 본문 영역 */
 .content-wrapper {
-    flex: 1; /* 남은 여백을 본문이 다 차지해서 푸터를 아래로 밀어냄 */
-    width: 100%;
+  flex: 1; /* 남은 여백을 본문이 다 차지해서 푸터를 아래로 밀어냄 */
+  width: 100%;
 }
 
 /* 푸터 영역 */
 .main-footer {
-    width: 100%;
-    /* 푸터의 높이는 내용물에 따라 자동으로 결정됨 */
+  width: 100%;
+  /* 푸터의 높이는 내용물에 따라 자동으로 결정됨 */
 }
 
 /* --- Grid System Implementation --- */
@@ -126,61 +156,23 @@ body {
   width: 100%;
 }
 
-/* --- Typography Hierarchy (가이드 준수) --- */
-h1,
-.h1 {
-  font-size: 32px;
-  font-weight: 700;
-  line-height: 1.4;
-  color: var(--gray-900);
-}
-
-h2,
-.h2 {
-  font-size: 24px;
-  font-weight: 700;
-  line-height: 1.4;
-  color: var(--gray-900);
-}
-
-h3,
-.h3 {
-  font-size: 20px;
-  font-weight: 600;
-  line-height: 1.4;
-  color: var(--gray-800);
-}
-
-.body-large {
-  font-size: 18px;
-  font-weight: 500;
-}
-.body-medium {
-  font-size: 16px;
-  font-weight: 400;
-}
-.body-small {
-  font-size: 14px;
-  font-weight: 400;
-  color: var(--gray-500);
-}
-
 /* --- UI Components --- */
 
-/* common.css 추가 및 수정 */
+/* Header */
 
-.logo-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+header {
   height: var(--header-height);
-  background-color: #fff; /* 배경은 흰색일 때 그린이 가장 돋보임 */
+  background: #fff;
+  border-bottom: 1px solid var(--gray-100);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
 }
 
 .logo-text {
-  font-family: var(--font-main);
-  font-weight: 800; /* 조금 더 두껍게(800) 해야 애니메이션 후에도 존재감이 있음 */
-  font-size: 32px;
+  font: var(--font-subtitle-01);
   display: flex;
   align-items: center;
   overflow: hidden;
@@ -190,42 +182,10 @@ h3,
   cursor: default;
 }
 
-a{
+a {
+  cursor: pointer;
   text-decoration: none;
-    color: inherit; /* 부모의 글자색을 그대로 따라가게 함 */
-}
-
-/* 남겨질 핵심 글자 (마, 리, 팜) */
-.keep {
-  color: var(--green-500);
-  transition: color 0.5s ease;
-}
-
-/* 사라질 글자 그룹 */
-.fade-out {
-  display: inline-block;
-  max-width: 150px;
-  opacity: 1;
-  filter: blur(0px);
-  transition:
-    max-width 1.2s cubic-bezier(0.4, 0, 0.2, 1),
-    opacity 1s cubic-bezier(0.4, 0, 0.2, 1),
-    filter 1s ease,
-    margin 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* 애니메이션 트리거 상태 */
-.logo-text.is-animated .fade-out {
-  max-width: 0;
-  opacity: 0;
-  margin-right: -2px; /* 글자 사이 간격 미세 조정 */
-  filter: blur(8px); /* 흐려짐 강도를 높여 더 몽환적으로 */
-  pointer-events: none;
-}
-
-/* 마리팜이 강조되는 효과 */
-.logo-text.is-animated .keep {
-  text-shadow: 0 0 15px rgba(108, 195, 45, 0.2);
+  color: inherit; /* 부모의 글자색을 그대로 따라가게 함 */
 }
 
 .header-inner {
@@ -239,19 +199,31 @@ a{
 .nav-list {
   display: flex;
   list-style: none;
-  gap: 48px; /* 이미지 기반 넓은 간격 */
+  gap: 4px;
 }
 
 .nav-item {
   position: relative;
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--gray-800);
+  display: inline-flex; /* 내부 텍스트 정렬을 위해 플렉스 적용 */
+  flex-direction: column; /* 텍스트와 점을 세로로 배치 */
+  align-items: center; /* 가로축 가운데 정렬 */
+  font: var(--font-body-03);
+  padding: 4px 20px;
+  color: var(--gray-600);
   text-decoration: none;
-  padding: 8px 0;
+  transition: all 0.2s ease; /* 부드러운 움직임 추가 */
 }
 
-/* 활성화 표시 (그린 닷) */
+.nav-item.active,
+.nav-item:hover {
+  color: var(--gray-900);
+}
+
+.nav-item.active {
+  transform: translateY(-2px); /* 위로 2px 살짝 올라감 */
+}
+
+/* 활성화 표시 (초록 점) */
 .nav-item.active::after {
   content: "";
   position: absolute;
@@ -261,7 +233,7 @@ a{
   width: 4px;
   height: 4px;
   background-color: var(--green-600);
-  border-radius: 50%;
+  border-radius: var(--radius-xl);
 }
 
 /* 우측 유틸리티 영역 */
@@ -272,19 +244,17 @@ a{
 }
 
 .btn-login {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--gray-800);
+  font: var(--font-button-02);
+  color: var(--gray-900);
   text-decoration: none;
 }
 
 .btn-signup {
   background-color: var(--green-600);
   color: #fff;
-  padding: 8px 20px;
-  border-radius: var(--radius-m); /* 가이드 8px 준수 */
-  font-size: 14px;
-  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: var(--radius-s); /* 가이드 8px 준수 */
+  font: var(--font-button-02);
   text-decoration: none;
   transition: background 0.2s;
 }
@@ -312,7 +282,7 @@ a{
 .card {
   background: var(--gray-0);
   border: 1px solid var(--gray-100);
-  border-radius: 12px;
+  border-radius: var(--radius-l);
   padding: 32px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
 }
@@ -323,7 +293,7 @@ a{
   align-items: center;
   justify-content: center;
   padding: 12px 24px;
-  border-radius: 8px;
+  border-radius: var(--radius-s);
   font-weight: 600;
   cursor: pointer;
   transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -370,7 +340,7 @@ textarea {
   width: 100%;
   padding: 14px;
   border: 1px solid var(--gray-200);
-  border-radius: 8px;
+  border-radius: var(--radius-s);
   font-size: 16px;
   transition: border-color 0.2s;
 }
@@ -383,53 +353,53 @@ input:focus {
 
 /* --- Footer Custom Styles --- */
 .main-footer {
-    padding: 80px 0; /* 상하 여백 조정 */
-    background-color: #fff; /* 푸터 배경색 */
-    border-top: 1px solid var(--gray-100);
+  padding: 80px 0; /* 상하 여백 조정 */
+  background-color: #fff; /* 푸터 배경색 */
+  border-top: 1px solid var(--gray-100);
 }
 
 .footer-top-menu {
-    display: flex;
-    gap: 44px;
-    margin-bottom: 24px;
+  display: flex;
+  gap: 44px;
+  margin-bottom: 24px;
 }
 
 .footer-top-menu a {
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--gray-900);
-    text-decoration: none;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--gray-900);
+  text-decoration: none;
 }
 
 .footer-info-text {
-    font-size: 14px;
-    line-height: 1.6;
-    color: var(--gray-400);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--gray-400);
 }
 
 .footer-right {
-    text-align: right;
-    display: flex;
-    flex-direction: column;
-    align-items: end;
-    justify-content: end;
-    gap: 2px;
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  justify-content: end;
+  gap: 2px;
 }
 
 .footer-logo {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--gray-900);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--gray-900);
 }
 
 .footer-logo span {
-    color: var(--green-600);
+  color: var(--green-600);
 }
 
 .sns-group {
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
 }
 
 .sns-group a {
@@ -437,21 +407,21 @@ input:focus {
 }
 
 .sns-icon {
-    width: 24px;
-    height: 24px;
-    filter: grayscale(1); /* 아이콘 기본 회색 처리 */
-    opacity: 0.6;
-    transition: 0.2s;
+  width: 24px;
+  height: 24px;
+  filter: grayscale(1); /* 아이콘 기본 회색 처리 */
+  opacity: 0.6;
+  transition: 0.2s;
 }
 
 .sns-icon:hover {
-    filter: grayscale(0);
-    opacity: 1;
+  filter: grayscale(0);
+  opacity: 1;
 }
 
 .copyright {
-    font-size: 14px;
-    color: var(--gray-400);
+  font-size: 14px;
+  color: var(--gray-400);
 }
 
 /* Utility Classes */
