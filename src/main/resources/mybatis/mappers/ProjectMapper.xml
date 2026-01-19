@@ -25,6 +25,7 @@
 
 	<select id="selectAll" resultType="projectDTO">
 		select * from projects
+		order by created_at
 	</select>
 
 	<select id="selectDetail" parameterType="long"
@@ -98,6 +99,122 @@
 		AND project_id = #{projectId}
 		)
 	</select>
+
+	<select id="selectAllFarm" resultType="farmDTO">
+		select * from farms
+	</select>
+
+	<insert id="insertProject" parameterType="projectInsertDTO"
+		useGeneratedKeys="true" keyProperty="projectId" keyColumn="project_id">
+		INSERT INTO
+		projects (
+		farm_id,
+		project_name,
+		project_description,
+		project_round,
+		target_amount,
+		min_amount_per_investor,
+		actual_amount,
+		subscription_rate,
+		project_status,
+		announcement_start_date,
+		announcement_end_date,
+		subscription_start_date,
+		subscription_end_date,
+		result_announcement_date,
+		project_start_date,
+		project_end_date,
+		expected_return,
+		manager_count)
+		VALUES (
+		#{farmId},
+		#{projectName},
+		#{projectDescription},
+		#{projectRound},
+		#{targetAmount},
+		#{minAmountPerInvestor},
+		#{actualAmount},
+		#{subscriptionRate},
+		'PREPARING', -- 초기 상태값 고정 시
+		#{announcementStartDate},
+		#{announcementEndDate},
+		#{subscriptionStartDate},
+		#{subscriptionEndDate},
+		#{resultAnnouncementDate},
+		#{projectStartDate},
+		#{projectEndDate},
+		#{expectedReturn},
+		#{managerCount})
+	</insert>
+
+	<insert id="insertToken" parameterType="projectInsertDTO">
+		INSERT INTO tokens (project_id, token_name, ticker_symbol, total_supply)
+		Values (
+		#{projectId},
+		#{tokenName},
+		#{tickerSymbol},
+		#{totalSupply}
+		)
+	</insert>
+
+	
+	<update id="updateProject" parameterType="com.animalfarm.mlf.domain.project.dto.ProjectDTO">
+        UPDATE projects
+        <set>
+            <if test="farmId != null">farm_id = #{farmId},</if>
+            <if test="projectName != null">project_name = #{projectName},</if>
+            <if test="projectDescription != null">project_description = #{projectDescription},</if>
+            <if test="projectRound != null">project_round = #{projectRound},</if>
+            <if test="targetAmount != null">target_amount = #{targetAmount},</if>
+            <if test="minAmountPerInvestor != null">min_amount_per_investor = #{minAmountPerInvestor},</if>
+            
+            <if test="actualAmount != null">actual_amount = #{actualAmount},</if>
+            <if test="subscriptionRate != null">subscription_rate = #{subscriptionRate},</if>
+            
+            <if test="projectStatus != null">project_status = #{projectStatus},</if>
+            
+            <if test="announcementStartDate != null">announcement_start_date = #{announcementStartDate},</if>
+            <if test="announcementEndDate != null">announcement_end_date = #{announcementEndDate},</if>
+            <if test="subscriptionStartDate != null">subscription_start_date = #{subscriptionStartDate},</if>
+            <if test="subscriptionEndDate != null">subscription_end_date = #{subscriptionEndDate},</if>
+            <if test="resultAnnouncementDate != null">result_announcement_date = #{resultAnnouncementDate},</if>
+            <if test="projectStartDate != null">project_start_date = #{projectStartDate},</if>
+            <if test="projectEndDate != null">project_end_date = #{projectEndDate},</if>
+            
+            <if test="expectedReturn != null">expected_return = #{expectedReturn},</if>
+            <if test="managerCount != null">manager_count = #{managerCount},</if>
+            
+            updated_at = NOW()
+        </set>
+        WHERE project_id = #{projectId}
+    </update>
+    
+    <select id="selectPictures" parameterType="long" resultType="projectPictureDTO">
+    	SELECT * from project_images
+    	WHERE project_id = #{projectId}
+    </select>
+    
+    <insert id="insertPictureList" parameterType="java.util.List">
+    	INSERT INTO project_images (
+	    	project_id,
+	        image_url
+        )
+    	VALUES
+    	<foreach collection="list" item="item" separator=",">
+    	(
+	        #{item.projectId},
+	        #{item.imageUrl}
+    	)
+    	</foreach>
+    </insert>
+    
+    <delete id="deletePictureList" parameterType="java.util.List">
+    	DELETE FROM project_images 
+    	WHERE project_picture_id IN
+    	<foreach collection="list" item="projectPictureId" open="(" separator="," close=")">
+    		 #{projectPictureId}
+   		</foreach>
+    </delete>
 	
 	<!-- 관심프로젝트 추가 -->
 	<insert id="insertStrarredProject"

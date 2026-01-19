@@ -1,0 +1,436 @@
+/* * Project: My Little Smart Farm (MLF) 
+ * Design System: 1440px Standard Guide Implementation
+ */
+
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css");
+
+:root {
+  /* --- 1. Primary Colors (Green System) --- */
+  --green-950: #163b16; /* Deep Green, 텍스트용 */
+  --green-900: #225223;
+  --green-800: #2e7127;
+  --green-700: #3f8f2d;
+  --green-600: #4a9f2e; /* Main Brand Color */
+  --green-500: #6cc32d;
+  --green-400: #85d84d;
+  --green-300: #97e267;
+  --green-200: #aaea81;
+  --green-100: #bef09e;
+  --green-0: #d3f5bb;
+
+  /* --- 2. Greyscale (Neutral System) --- */
+  --gray-900: #191919; /* Title Text */
+  --gray-800: #262626;
+  --gray-700: #313131;
+  --gray-600: #404040; /* Body Text */
+  --gray-500: #565656;
+  --gray-400: #707070;
+  --gray-300: #c6c6c6;
+  --gray-200: #e1e1e1;
+  --gray-100: #f2f2f2;
+  --gray-50: #f8fafb; /* Section Background */
+  --gray-0: #fcfcfc; /* Card Background */
+
+  /* --- 3. Semantic Colors --- */
+  --info: #1976d2;
+  --warning: #ffa000;
+  --error: #d32f2f;
+  --success: #388e3c;
+
+  /* --- 4. Layout & Grid System --- */
+  --container-max: 1296px;
+  --gutter: 24px;
+  --side-margin: 72px;
+  --header-height: 72px;
+
+  /* --- 5. Typography Defaults --- */
+  --font-main:
+    "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, Roboto,
+    sans-serif;
+  --letter-spacing: -0.02em;
+  --line-height-std: 1.4;
+
+  /* --- 굵기 크기/줄높이 글꼴 --- */
+  --font-header-01: 700 32px/1.4 var(--font-main);
+  --font-header-02: 600 24px/1.4 var(--font-main);
+  --font-header-03: 700 22px/1.4 var(--font-main);
+  --font-header-04: 600 20px/1.4 var(--font-main);
+
+  --font-subtitle-01: 600 18px/1.4 var(--font-main);
+  --font-subtitle-02: 500 18px/1.4 var(--font-main);
+  --font-subtitle-03: 400 18px/1.4 var(--font-main);
+
+  --font-body-01: 400 16px/1.4 var(--font-main);
+  --font-body-02: 500 16px/1.4 var(--font-main);
+  --font-body-03: 600 16px/1.4 var(--font-main);
+  --font-body-04: 700 16px/1.4 var(--font-main);
+
+  --font-caption-01: 400 14px/1.4 var(--font-main);
+  --font-caption-02: 500 14px/1.4 var(--font-main);
+  --font-caption-03: 700 14px/1.4 var(--font-main);
+
+  --font-button-01: 600 16px/1.4 var(--font-main);
+  --font-button-02: 600 14px/1.4 var(--font-main);
+
+  /* ---- 6. Border Radius --- */
+  --radius-xs: 4px;
+  --radius-s: 8px;
+  --radius-m: 12px;
+  --radius-l: 16px;
+  --radius-xl: 999px;
+}
+
+/* Base Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  letter-spacing: var(--letter-spacing);
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--gray-50);
+  color: var(--gray-600);
+  line-height: var(--line-height-std);
+  -webkit-font-smoothing: antialiased;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* 화면 높이 전체를 차지하도록 설정 */
+  margin: 0;
+}
+
+/* 본문 영역 */
+.content-wrapper {
+  flex: 1; /* 남은 여백을 본문이 다 차지해서 푸터를 아래로 밀어냄 */
+  width: 100%;
+}
+
+/* 푸터 영역 */
+.main-footer {
+  width: 100%;
+  /* 푸터의 높이는 내용물에 따라 자동으로 결정됨 */
+}
+
+/* --- Grid System Implementation --- */
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding-left: var(--gutter);
+  padding-right: var(--gutter);
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: calc(var(--gutter) / -2);
+  margin-right: calc(var(--gutter) / -2);
+}
+
+[class*="col-"] {
+  padding-left: calc(var(--gutter) / 2);
+  padding-right: calc(var(--gutter) / 2);
+}
+
+/* 12 Columns Grid */
+.col-1 {
+  width: 8.333%;
+}
+.col-2 {
+  width: 16.666%;
+}
+.col-3 {
+  width: 25%;
+}
+.col-4 {
+  width: 33.333%;
+}
+.col-6 {
+  width: 50%;
+}
+.col-8 {
+  width: 66.666%;
+}
+.col-12 {
+  width: 100%;
+}
+
+/* --- UI Components --- */
+
+/* Header */
+
+header {
+  height: var(--header-height);
+  background: #fff;
+  border-bottom: 1px solid var(--gray-100);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+}
+
+.logo-text {
+  font: var(--font-subtitle-01);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  white-space: nowrap;
+  letter-spacing: -0.02em;
+  color: var(--gray-900); /* 기본색 */
+  cursor: default;
+}
+
+a {
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit; /* 부모의 글자색을 그대로 따라가게 함 */
+}
+
+.header-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+/* 메뉴 스타일 */
+.nav-list {
+  display: flex;
+  list-style: none;
+  gap: 4px;
+}
+
+.nav-item {
+  position: relative;
+  display: inline-flex; /* 내부 텍스트 정렬을 위해 플렉스 적용 */
+  flex-direction: column; /* 텍스트와 점을 세로로 배치 */
+  align-items: center; /* 가로축 가운데 정렬 */
+  font: var(--font-body-03);
+  padding: 4px 20px;
+  color: var(--gray-600);
+  text-decoration: none;
+  transition: all 0.2s ease; /* 부드러운 움직임 추가 */
+}
+
+.nav-item.active,
+.nav-item:hover {
+  color: var(--gray-900);
+}
+
+.nav-item.active {
+  transform: translateY(-2px); /* 위로 2px 살짝 올라감 */
+}
+
+/* 활성화 표시 (초록 점) */
+.nav-item.active::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  background-color: var(--green-600);
+  border-radius: var(--radius-xl);
+}
+
+/* 우측 유틸리티 영역 */
+.auth-group {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.btn-login {
+  font: var(--font-button-02);
+  color: var(--gray-900);
+  text-decoration: none;
+}
+
+.btn-signup {
+  background-color: var(--green-600);
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: var(--radius-s); /* 가이드 8px 준수 */
+  font: var(--font-button-02);
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.btn-signup:hover {
+  background-color: var(--green-700);
+}
+
+/* 사용자 정보 (로그인 후) */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 600;
+  color: var(--gray-900);
+}
+
+.icon-group {
+  display: flex;
+  gap: 16px;
+  margin-right: 8px;
+}
+
+/* Cards */
+.card {
+  background: var(--gray-0);
+  border: 1px solid var(--gray-100);
+  border-radius: var(--radius-l);
+  padding: 32px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px;
+  border-radius: var(--radius-s);
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border: none;
+  font-family: var(--font-main);
+}
+
+.btn-primary {
+  background-color: var(--green-500);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background-color: var(--green-400);
+}
+
+.btn-outline {
+  background-color: transparent;
+  border: 1px solid var(--gray-200);
+  color: var(--gray-700);
+}
+
+.btn-outline:hover {
+  background-color: var(--gray-50);
+}
+
+/* Form Controls */
+.form-group {
+  margin-bottom: 24px;
+}
+
+label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--gray-800);
+}
+
+input[type="text"],
+input[type="number"],
+select,
+textarea {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-s);
+  font-size: 16px;
+  transition: border-color 0.2s;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--green-500);
+  box-shadow: 0 0 0 4px var(--green-0);
+}
+
+/* --- Footer Custom Styles --- */
+.main-footer {
+  padding: 80px 0; /* 상하 여백 조정 */
+  background-color: #fff; /* 푸터 배경색 */
+  border-top: 1px solid var(--gray-100);
+}
+
+.footer-top-menu {
+  display: flex;
+  gap: 44px;
+  margin-bottom: 24px;
+}
+
+.footer-top-menu a {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--gray-900);
+  text-decoration: none;
+}
+
+.footer-info-text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--gray-400);
+}
+
+.footer-right {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  justify-content: end;
+  gap: 2px;
+}
+
+.footer-logo {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+.footer-logo span {
+  color: var(--green-600);
+}
+
+.sns-group {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.sns-group a {
+  height: 24px;
+}
+
+.sns-icon {
+  width: 24px;
+  height: 24px;
+  filter: grayscale(1); /* 아이콘 기본 회색 처리 */
+  opacity: 0.6;
+  transition: 0.2s;
+}
+
+.sns-icon:hover {
+  filter: grayscale(0);
+  opacity: 1;
+}
+
+.copyright {
+  font-size: 14px;
+  color: var(--gray-400);
+}
+
+/* Utility Classes */
+.text-green {
+  color: var(--green-500);
+}
+.text-error {
+  color: var(--error);
+}
+.bg-section {
+  background-color: var(--gray-50);
+}
