@@ -43,8 +43,13 @@ public class JwtProvider {
 	 * Access Token: 60분 (요구사항 반영)
 	 * Refresh Token: 30일 (Redis 보관 기간과 동일하게 설정)
 	 */
-	private final long accessTokenExp = 60 * 60 * 1000L; //1시간
-	private final long refreshTokenExp = 30L * 24 * 60 * 60 * 1000L; //30일
+	/*private final long accessTokenExp = 60 * 60 * 1000L; //1시간
+	private final long refreshTokenExp = 14L * 24 * 60 * 60 * 1000L; //14일
+	*/
+
+	// [테스트용 설정] JwtProvider.java
+	private final long accessTokenExp = 60 * 1000L; // 1분 (금방 만료되게 설정)
+	private final long refreshTokenExp = 120 * 1000L; // 2분 (90초 테스트 동안은 살아있어야 함)
 
 	@PostConstruct
 	protected void init() {
