@@ -57,7 +57,8 @@
 .slide img {
 	width: 100%;
 	height: 100%;
-	object-fit: cover;
+	/* 사진이 짤리지 않게 cover 대신 contain 사용  */
+	object-fit: contain;
 }
 
 /* 캐러셀 컨트롤 (화살표와 점들을 한 줄로) */
@@ -223,7 +224,7 @@ to {
 						<div class="slider" id="slider">
 							<c:forEach items="${projectData.images}" var="imgUrl">
 								<div class="slide">
-									<img src="${imgUrl}" alt="이미지">
+									<img src="${pageContext.request.contextPath}/uploads/projects/${imgUrl}" alt="이미지">
 								</div>
 							</c:forEach>
 						</div>

@@ -87,7 +87,7 @@
 
                 <%-- 진행중(INPROGRESS) 일 때 --%>
                 <c:when test="${projectData.projectStatus eq 'INPROGRESS'}">
-                    <div style="background: var(--gray-50); padding: 24px; border-radius: var(--radius-m); margin-bottom: 24px;">
+                    <div style="background: var(--gray-100); padding: 24px; border-radius: var(--radius-m); margin-bottom: 24px;">
                         <span style="font: var(--font-caption-01); color: var(--gray-500); display: block; margin-bottom: 8px;">현재 토큰가 (Market Price)</span>
                         <div style="display: flex; align-items: baseline; gap: 8px;">
                             <strong style="font: var(--font-header-02); color: var(--gray-900);">358,200 원</strong>
@@ -95,6 +95,16 @@
                         </div>
                     </div>
                     <button class="btn" style="width: 100%; background: var(--gray-900); color: #fff; font: var(--font-button-01); padding: 20px; border-radius: var(--radius-m); border:none; cursor:pointer;">토큰 거래소 바로가기</button>
+                </c:when>
+                <%-- 완료('COMPLETED'), 취소('CANCELED') 일 때 --%>
+                <c:when test="${projectData.projectStatus eq 'COMPLETED' || projectData.projectStatus eq 'CANCELED'}">
+                	<div style="background: var(--gray-100); padding: 24px; border-radius: var(--radius-m); margin-bottom: 24px;">
+                        <span style="font: var(--font-caption-01); color: var(--gray-500); display: block; margin-bottom: 8px;">최종 토큰가 (Market Price)</span>
+                        <div style="display: flex; align-items: baseline; gap: 8px;">
+                            <strong style="font: var(--font-header-02); color: var(--gray-900);">358,200 원</strong>
+                        </div>
+                    </div>
+                    <button class="btn" style="width: 100%; background: #757575; color: #fff; font: var(--font-button-01); padding: 24px 0; border-radius: var(--radius-m); cursor: not-allowed; border:none;" disabled>종료된 프로젝트입니다.</button>
                 </c:when>
                 <c:otherwise>
                 	
