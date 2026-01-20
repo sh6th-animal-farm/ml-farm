@@ -20,6 +20,7 @@ import com.animalfarm.mlf.domain.project.dto.ProjectInsertDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectListDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectPictureDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectSearchReqDTO;
+import com.animalfarm.mlf.domain.project.dto.ProjectStarredDTO;
 
 @RestController
 public class ProjectController {
@@ -59,6 +60,24 @@ public class ProjectController {
 	public List<ProjectListDTO> selectByCondition(@ModelAttribute
 	ProjectSearchReqDTO searchDTO) {
 		return projectService.selectByCondition(searchDTO);
+	}
+
+	//관심 프로젝트인지 조회
+	@GetMapping("/api/projects/starred")
+	public boolean getStarredStatus(@ModelAttribute
+	ProjectStarredDTO projectStarredDTO) {
+		return projectService.getStarredStatus(projectStarredDTO);
+	}
+
+	//관심 프로젝트 신규 등록
+	@PostMapping("/api/projects/starred")
+	public Boolean upsertStrarredProject(@RequestBody
+	ProjectStarredDTO projectStarredDTO) {
+		Boolean curStatus = null;
+		if (projectService.upsertStrarredProject(projectStarredDTO)) {
+			curStatus = projectService.getStarredStatus(projectStarredDTO);
+		}
+		return curStatus;
 	}
 
 	@PostMapping("/api/projects/insert")
