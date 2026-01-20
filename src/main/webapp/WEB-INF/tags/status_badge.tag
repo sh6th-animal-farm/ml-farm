@@ -14,12 +14,12 @@
 	font: var(--font-button-02); 
 }
 
-.onNotifying {
+.announcement {
 	background-color: var(--info-light);
 	color : var(--info);
 }
 
-.onSubscription {
+.subscription {
 	background-color: var(--warning-light);
 	color : var(--warning);
 }
