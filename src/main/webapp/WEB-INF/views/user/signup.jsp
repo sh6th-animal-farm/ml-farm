@@ -47,7 +47,7 @@
     *{margin:0;padding:0;box-sizing:border-box;font-family:'Pretendard',sans-serif;letter-spacing:-0.02em;-webkit-font-smoothing:antialiased;}
     body{background-color:var(--gray-50);color:var(--gray-600);line-height:1.4;display:flex;flex-direction:column;min-height:100vh;}
 
-    main{flex:1;display:flex;flex-direction:column;align-items:center;padding:calc(var(--header-height) + 40px) 24px 80px;}
+    main{flex:1;display:flex;flex-direction:column;align-items:center; padding-bottom:40px; padding-top:40px;}
     .auth-wrapper{width:100%;max-width:520px;}
 
     .step-dots{display:flex;justify-content:center;gap:12px;margin-bottom:32px;}
@@ -136,7 +136,7 @@
         </div>
 
         <div class="footer-info" style="text-align:center;margin-top:24px;">
-          이미 회원이신가요? <a href="<%=request.getContextPath()%>/users/login">로그인</a>
+          이미 회원이신가요? <a href="<%=request.getContextPath()%>/auth/login">로그인</a>
         </div>
       </div>
 
