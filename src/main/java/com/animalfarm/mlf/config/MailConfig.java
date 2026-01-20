@@ -14,6 +14,18 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 @PropertySource("classpath:config/mail.properties")
 public class MailConfig {
 
+	@Value("${mail.host}")
+	private String host;
+
+	@Value("${mail.port}")
+	private int port;
+
+	@Value("${mail.username}")
+	private String username;
+
+	@Value("${mail.password}")
+	private String password;
+
 	@Bean
 	public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
 		return new PropertySourcesPlaceholderConfigurer();
