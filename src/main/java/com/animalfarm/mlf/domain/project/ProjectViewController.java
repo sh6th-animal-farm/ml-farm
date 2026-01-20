@@ -16,15 +16,17 @@ public class ProjectViewController {
 	@Autowired
 	ProjectService projectService;
 
-	@GetMapping("/project/{id}")
+	@GetMapping({"", "/"})
+	public String index() {
+		return "redirect:/project/list";
+	}
+
+	@GetMapping("/{id}")
 	public String selectDetail(@PathVariable
 	Long id, Model model) {
 		model.addAttribute("projectData", projectService.selectDetail(id));
 		model.addAttribute("contentPage", "/WEB-INF/views/project/project_detail.jsp");
 		return "layout";
-	@GetMapping({"", "/"})
-	public String index() {
-		return "redirect:/project/list";
 	}
 
 	@GetMapping("/list")
