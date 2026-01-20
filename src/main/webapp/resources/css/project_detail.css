@@ -1,0 +1,200 @@
+@charset "UTF-8";
+/* 페이지 전용 레이아웃 */
+.grid-layout {
+	display: grid;
+	grid-template-columns: repeat(12, 1fr);
+	gap: var(--gutter);
+	margin-top: 40px;
+	margin-bottom: 80px;
+}
+
+.content-main {
+	grid-column: span 8;
+}
+
+.content-side {
+	grid-column: span 4;
+}
+
+/* 캐러셀 */
+.carousel-container {
+	position: relative;
+	margin-bottom: 40px;
+}
+
+.slider-wrapper {
+	border-radius: var(--radius-m);
+	overflow: hidden;
+	height: 420px;
+	background: var(--gray-100);
+}
+
+.slider {
+	display: flex;
+	transition: transform 0.4s ease-in-out;
+	height: 100%;
+}
+
+.slide {
+	min-width: 100%;
+	height: 100%;
+}
+
+.slide img {
+	width: 100%;
+	height: 100%;
+	/* 사진이 짤리지 않게 cover 대신 contain 사용  */
+	object-fit: contain;
+}
+
+/* 캐러셀 컨트롤 (화살표와 점들을 한 줄로) */
+.carousel-control { 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    gap: 12px; /* 요소들 사이의 간격 */
+    margin-top: 24px; 
+}
+
+/* 점들을 감싸는 박스 */
+.dots { 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; /* 점들 사이의 간격 */
+}
+
+/* 개별 점 스타일 */
+.dot { 
+    width: 8px; 
+    height: 8px; 
+    border-radius: 50%; /* 완벽한 원형 */
+    background: var(--gray-200); 
+    cursor: pointer; 
+    transition: all 0.2s ease; 
+    flex-shrink: 0; 
+}
+
+/* 활성화된 점 */
+.dot.active { 
+    background: var(--green-600); 
+    width: 20px; 
+    border-radius: var(--radius-xl); 
+}
+
+/* 화살표 버튼 미세 조정 */
+.nav-arrow { 
+    background: none; 
+    border: 1px solid var(--gray-200); 
+    width: 32px; 
+    height: 32px; 
+    border-radius: 50%; 
+    cursor: pointer; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    color: var(--gray-500); 
+    line-height: 1;
+}
+
+/* 탭 */
+.tab-nav {
+	display: flex;
+	gap: 32px;
+	border-bottom: 2px solid var(--gray-100);
+	margin-bottom: 32px;
+}
+
+.tab-btn {
+	padding: 16px 4px;
+	font: var(--font-subtitle-01);
+	color: var(--gray-400);
+	cursor: pointer;
+	border: none;
+	background: none;
+	position: relative;
+}
+
+.tab-btn.active {
+	color: var(--green-600);
+}
+
+.tab-btn.active::after {
+	content: '';
+	position: absolute;
+	bottom: -2px;
+	left: 0;
+	width: 100%;
+	height: 2px;
+	background: var(--green-600);
+}
+
+.tab-panel {
+	display: none;
+	animation: fadeIn 0.4s ease;
+}
+
+.tab-panel.active {
+	display: block;
+}
+
+/* [수정 포인트] 섹션 카드 스타일 - 선택자 강화로 font: var() 적용 보장 */
+.info-section {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 16px;
+}
+
+.info-section .info-item {
+	padding: 24px;
+	background: #FFFFFF;
+	border: 1px solid var(--gray-100);
+	border-radius: var(--radius-m);
+}
+
+/* label 변수 적용 */
+.info-section .info-item label {
+	font: var(--font-caption-01) !important;
+	color: var(--gray-500);
+	display: block;
+	margin-bottom: 8px;
+}
+
+/* p 태그 font-header-02 변수 적용 */
+.info-section .info-item p {
+	font: var(--font-subtitle-01) !important;
+	color: var(--gray-900);
+	margin: 0;
+}
+
+.sticky-side {
+	position: sticky;
+	top: 96px;
+}
+
+.invest-card {
+	padding: 32px;
+	border-radius: var(--radius-m);
+	background: #fff;
+	border: 1px solid var(--gray-100);
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+	position: relative;
+}
+
+.chart-container {
+	margin-top: 4px;
+	padding: 24px;
+	background: var(--gray-0);
+	border: 1px solid var(--gray-100);
+	border-radius: var(--radius-m);
+}
+
+@
+keyframes fadeIn {from { opacity:0;
+	transform: translateY(10px);
+}
+
+to {
+	opacity: 1;
+	transform: translateY(0);
+}
+}
