@@ -37,11 +37,15 @@ public class ProjectService {
 		return projectRepository.selectByCondition(searchDTO);
 	}
 
+	public boolean getStarredStatus(ProjectStarredDTO projectStarredDTO) {
+		return projectRepository.getStarredStatus(projectStarredDTO);
+	}
+
 	//select하여 있다면 관심 프로젝트 등록/해제 없다면 관심 프로젝트 신규 생성
 	public boolean upsertStrarredProject(ProjectStarredDTO projectStarredDTO) {
 		try {
 			boolean isExist = projectRepository.selectStarredProject(projectStarredDTO);
-			if(isExist) {
+			if (isExist) {
 				projectRepository.updateStarred(projectStarredDTO);
 				return true;
 			} else {
@@ -53,6 +57,7 @@ public class ProjectService {
 			return false;
 		}
 	}
+
 	@Transactional
 	public boolean insertProject(ProjectInsertDTO projectInsertDTO) {
 		try {

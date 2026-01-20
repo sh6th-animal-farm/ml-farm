@@ -14,12 +14,12 @@
 <c:set var="label" value="${status.label}" />
 <c:set var="contentGap" value="${status.name() == 'SUBSCRIPTION' ? '24px' : (status.name() == 'ANNOUNCEMENT' ? '20px' : '32px')}" />
 
-<div class="project-card">
+<div class="project-card" onclick="location.href='${pageContext.request.contextPath}/project/${id}'">
     <div class="card-image">
     	<img class="thumbnail" src="${thumbnailUrl}" alt="project thumnail" />
         <t:status_badge className="badge" label="${label}" status="${status.badgeStatus}"/>
-        <button class="interest-btn" onclick="starProject('2', '${id}', this)">
-        	<t:icon name="seedling" color="${isStarred ? 'var(--green-600)' : 'var(--gray-900)'}" />
+        <button class="interest-btn" onclick="event.stopPropagation(); toggleStarred(this,${!isStarred}); starProject('2', '${id}', this);">
+        	<t:icon name="heart_filled" size="26" color="${isStarred ? 'var(--green-600)' : 'var(--gray-900)'}" />
         </button>
     </div>
     
@@ -86,7 +86,7 @@
     object-position: center; 
 }
 .badge { position: absolute; top: 16px; left: 16px;}
-.interest-btn {position: absolute; top: 18px; right: 16px; border:none; background-color: transparent; cursor:pointer;} 
+.interest-btn {position: absolute; top: 18px; right: 16px; border:none; background-color: transparent; cursor:pointer; filter: drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.5));}
 .card-content { display: flex; flex-direction:column; padding: 24px; }
 .card-title { font: var(--font-subtitle-01); color: var(--gray-900);}
 .card-info { display:flex; flex-direction:column; gap:4px}
@@ -101,6 +101,9 @@
 .info-list {display:flex; flex-direction:column; gap:4px;}
 .info-list p { display: flex; justify-content: space-between; font: var(--font-caption-01); }
 .btn-action { width: 100%; padding: 12px; border: none; border-radius: var(--radius-s); background-color:var(--gray-900); color: white; font: var(--font-button-01); cursor: pointer; transition: background-color 0.3s ease, transform 0.2s ease; }
+.project-card:hover .bg-warning { background-color: var(--warning); }
+.project-card:hover .bg-info { background-color: var(--info); }
+.project-card:hover .bg-primary { background-color: var(--green-600); }
 .bg-warning:hover { background: var(--warning); }
 .bg-info:hover { background: var(--info); }
 .bg-primary:hover { background: var(--green-600); }
