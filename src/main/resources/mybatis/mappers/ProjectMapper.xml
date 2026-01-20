@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!DOCTYPE mapper
     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
@@ -11,14 +10,24 @@
 	<resultMap id="ProjectDetailMap"
 		type="com.animalfarm.mlf.domain.project.dto.ProjectDetailDTO"
 		autoMapping="true">
+
 		<id column="project_id" property="projectId" />
+
+		<result property="projectName" column="project_name" />
+
+		<association property="farm"
+			javaType="com.animalfarm.mlf.domain.project.dto.FarmDTO">
+			<id property="farmId" column="farm_id" />
+			<result property="addressSido" column="address_sido" />
+			<result property="area" column="area" />
+		</association>
 
 		<collection property="images" ofType="string">
 			<result column="image_url" />
 		</collection>
 
 		<collection property="temperatureInside"
-			ofType="BigDecimal">
+			ofType="java.math.BigDecimal">
 			<result column="temperature_inside" />
 		</collection>
 	</resultMap>
@@ -36,30 +45,39 @@
 		c.crop,
 		c.method,
 		t.ticker_symbol,
+		t.total_supply,
 		UNNEST(img.image_list) AS image_url,
-		UNNEST(fed.temp_list) AS temperature_inside 
+		UNNEST(fed.temp_list) AS
+		temperature_inside
 		FROM projects p
-		LEFT JOIN farms f ON p.farm_id = f.farm_id
 		LEFT JOIN
-		cultivations c ON p.project_id = c.project_id
+		farms f ON p.farm_id = f.farm_id
+		LEFT JOIN
+		cultivations c ON
+		p.project_id = c.project_id
 		LEFT JOIN tokens t ON
-		p.project_id = t.project_id
-		-- 이미지 서브쿼리: 조인 전 미리 그룹화하여 데이터 중복 생성 방지
+		p.project_id =
+		t.project_id
+		<!-- 이미지 서브쿼리 조인 전 미리 그룹화하여 데이터 중복 생성 방지 -->
 		LEFT JOIN (
-		SELECT project_id, ARRAY_AGG(image_url) AS image_list
+		SELECT
+		project_id, ARRAY_AGG(image_url) AS image_list
 		FROM
 		project_images
-		GROUP BY project_id
+		GROUP
+		BY project_id
 		) img ON p.project_id =
 		img.project_id
-		-- 환경 데이터 서브쿼리: 조인 전 미리 그룹화
+		<!-- 환경 데이터 서브쿼리: 조인 전 미리 그룹화-->
 		LEFT JOIN (
 		SELECT farm_id,
-		ARRAY_AGG(temperature_inside) AS temp_list
+		ARRAY_AGG(temperature_inside) AS
+		temp_list
 		FROM farm_env_data
 		GROUP BY
 		farm_id
-		) fed ON f.farm_id = fed.farm_id
+		) fed ON f.farm_id =
+		fed.farm_id
 		WHERE p.project_id =
 		#{projectId};
 	</select>
@@ -74,10 +92,12 @@
 		FROM starred_projects s
 		WHERE s.project_id = p.project_id
 		AND s.user_id = #{userId}
-		AND s.is_starred = true
+		AND
+		s.is_starred = true
 		) AS is_starred
 		FROM projects p
-		JOIN farms f on p.farm_id = f.farm_id
+		JOIN farms f on
+		p.farm_id = f.farm_id
 		<where>
 			AND p.project_status NOT IN ('PREPARING', 'CANCELED', 'COMPLETED')
 			<if test="keyword != null and keyword != ''">
@@ -91,7 +111,7 @@
 
 	<!-- 관심프로젝트 조회 -->
 	<select id="selectStarredProject"
-		parameterType="ProjectStarredDTO" resultType="boolean">
+		parameterType="projectStarredDTO" resultType="boolean">
 		SELECT EXISTS (
 		SELECT 1
 		FROM starred_projects
@@ -135,7 +155,7 @@
 		#{minAmountPerInvestor},
 		#{actualAmount},
 		#{subscriptionRate},
-		'PREPARING', -- 초기 상태값 고정 시
+		'PREPARING', <!-- 초기 상태값 고정 시 -->
 		#{announcementStartDate},
 		#{announcementEndDate},
 		#{subscriptionStartDate},
@@ -157,71 +177,69 @@
 		)
 	</insert>
 
-	
-	<update id="updateProject" parameterType="com.animalfarm.mlf.domain.project.dto.ProjectDTO">
-        UPDATE projects
-        <set>
-            <if test="farmId != null">farm_id = #{farmId},</if>
-            <if test="projectName != null">project_name = #{projectName},</if>
-            <if test="projectDescription != null">project_description = #{projectDescription},</if>
-            <if test="projectRound != null">project_round = #{projectRound},</if>
-            <if test="targetAmount != null">target_amount = #{targetAmount},</if>
-            <if test="minAmountPerInvestor != null">min_amount_per_investor = #{minAmountPerInvestor},</if>
-            
-            <if test="actualAmount != null">actual_amount = #{actualAmount},</if>
-            <if test="subscriptionRate != null">subscription_rate = #{subscriptionRate},</if>
-            
-            <if test="projectStatus != null">project_status = #{projectStatus},</if>
-            
-            <if test="announcementStartDate != null">announcement_start_date = #{announcementStartDate},</if>
-            <if test="announcementEndDate != null">announcement_end_date = #{announcementEndDate},</if>
-            <if test="subscriptionStartDate != null">subscription_start_date = #{subscriptionStartDate},</if>
-            <if test="subscriptionEndDate != null">subscription_end_date = #{subscriptionEndDate},</if>
-            <if test="resultAnnouncementDate != null">result_announcement_date = #{resultAnnouncementDate},</if>
-            <if test="projectStartDate != null">project_start_date = #{projectStartDate},</if>
-            <if test="projectEndDate != null">project_end_date = #{projectEndDate},</if>
-            
-            <if test="expectedReturn != null">expected_return = #{expectedReturn},</if>
-            <if test="managerCount != null">manager_count = #{managerCount},</if>
-            
-            updated_at = NOW()
-        </set>
-        WHERE project_id = #{projectId}
-    </update>
-    
-    <select id="selectPictures" parameterType="long" resultType="projectPictureDTO">
-    	SELECT * from project_images
-    	WHERE project_id = #{projectId}
-    </select>
-    
-    <insert id="insertPictureList" parameterType="java.util.List">
-    	INSERT INTO project_images (
-	    	project_id,
-	        image_url
-        )
-    	VALUES
-    	<foreach collection="list" item="item" separator=",">
-    	(
-	        #{item.projectId},
-	        #{item.imageUrl}
-    	)
-    	</foreach>
-    </insert>
-    
-    <delete id="deletePictureList" parameterType="java.util.List">
-    	DELETE FROM project_images 
-    	WHERE project_picture_id IN
-    	<foreach collection="list" item="projectPictureId" open="(" separator="," close=")">
-    		 #{projectPictureId}
-   		</foreach>
-    </delete>
-    
-    <select id="getStarredStatus" parameterType="ProjectStarredDTO" resultType="boolean">
-    	select is_starred
-    	from starred_projects
-    	where user_id = #{userId} and project_id = #{projectId}
-    </select>
-	
+
+	<update id="updateProject"
+		parameterType="com.animalfarm.mlf.domain.project.dto.ProjectDTO">
+		UPDATE projects
+		<set>
+			<if test="farmId != null">farm_id = #{farmId},</if>
+			<if test="projectName != null">project_name = #{projectName},</if>
+			<if test="projectDescription != null">project_description = #{projectDescription},</if>
+			<if test="projectRound != null">project_round = #{projectRound},</if>
+			<if test="targetAmount != null">target_amount = #{targetAmount},</if>
+			<if test="minAmountPerInvestor != null">min_amount_per_investor = #{minAmountPerInvestor},</if>
+
+			<if test="actualAmount != null">actual_amount = #{actualAmount},</if>
+			<if test="subscriptionRate != null">subscription_rate = #{subscriptionRate},</if>
+
+			<if test="projectStatus != null">project_status = #{projectStatus},</if>
+
+			<if test="announcementStartDate != null">announcement_start_date = #{announcementStartDate},</if>
+			<if test="announcementEndDate != null">announcement_end_date = #{announcementEndDate},</if>
+			<if test="subscriptionStartDate != null">subscription_start_date = #{subscriptionStartDate},</if>
+			<if test="subscriptionEndDate != null">subscription_end_date = #{subscriptionEndDate},</if>
+			<if test="resultAnnouncementDate != null">result_announcement_date = #{resultAnnouncementDate},
+			</if>
+			<if test="projectStartDate != null">project_start_date = #{projectStartDate},</if>
+			<if test="projectEndDate != null">project_end_date = #{projectEndDate},</if>
+
+			<if test="expectedReturn != null">expected_return = #{expectedReturn},</if>
+			<if test="managerCount != null">manager_count = #{managerCount},</if>
+
+			updated_at = NOW()
+		</set>
+		WHERE project_id = #{projectId}
+	</update>
+
+	<select id="selectPictures" parameterType="long"
+		resultType="projectPictureDTO">
+		SELECT * from project_images
+		WHERE project_id = #{projectId}
+	</select>
+
+	<insert id="insertPictureList" parameterType="java.util.List">
+		INSERT INTO project_images (
+		project_id,
+		image_url
+		)
+		VALUES
+		<foreach collection="list" item="item" separator=",">
+			(
+			#{item.projectId},
+			#{item.imageUrl}
+			)
+		</foreach>
+	</insert>
+
+	<delete id="deletePictureList" parameterType="java.util.List">
+		DELETE FROM project_images
+		WHERE project_picture_id IN
+		<foreach collection="list" item="projectPictureId" open="("
+			separator="," close=")">
+			#{projectPictureId}
+		</foreach>
+	</delete>
+
 	<!-- 관심프로젝트 추가 -->
 	<insert id="insertStrarredProject"
 		parameterType="ProjectStarredDTO">
