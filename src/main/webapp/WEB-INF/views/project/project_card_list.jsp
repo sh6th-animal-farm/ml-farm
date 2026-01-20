@@ -38,3 +38,9 @@
             />
     </div>
 </c:forEach>
+<%-- 검색 결과가 없을 때 처리 --%>
+<c:if test="${empty projectList}">
+    <div class="col-12" style="text-align: center; padding: 100px 0;">
+        <p style="color: var(--gray-400);">조건에 맞는 프로젝트가 없습니다.</p>
+    </div>
+</c:if>
