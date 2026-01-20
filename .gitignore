@@ -31,6 +31,9 @@ Thumbs.db       # Windows
 src/main/resources/config/database.properties
 src/main/resources/config/db.properties
 
+# smtp 이메일
+src/main/resources/config/mail.properties
+
 # 사업자 등록 api 설정 파일
 src/main/resources/config/enterprise.properties
 
