@@ -62,18 +62,24 @@ public class ProjectController {
 		return projectService.selectByCondition(searchDTO);
 	}
 
-	//관심 프로젝트 신규 등록
-	@PostMapping("/api/projects/starred/interest")
-	public String upsertStrarredProject(@ModelAttribute
+	//관심 프로젝트인지 조회
+	@GetMapping("/api/projects/starred")
+	public boolean getStarredStatus(@ModelAttribute
 	ProjectStarredDTO projectStarredDTO) {
-		String message = null;
-		if (projectService.upsertStrarredProject(projectStarredDTO)) {
-			message = "success";
-		} else {
-			message = "fail";
-		}
-		return message;
+		return projectService.getStarredStatus(projectStarredDTO);
 	}
+
+	//관심 프로젝트 신규 등록
+	@PostMapping("/api/projects/starred")
+	public Boolean upsertStrarredProject(@RequestBody
+	ProjectStarredDTO projectStarredDTO) {
+		Boolean curStatus = null;
+		if (projectService.upsertStrarredProject(projectStarredDTO)) {
+			curStatus = projectService.getStarredStatus(projectStarredDTO);
+		}
+		return curStatus;
+	}
+
 	@PostMapping("/api/projects/insert")
 	public ResponseEntity<String> insertProject(@RequestBody
 	ProjectInsertDTO projectInsertDTO) {
