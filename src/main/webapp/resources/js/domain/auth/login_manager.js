@@ -1,6 +1,6 @@
 /* js/domain/auth/login_manager.js */
 
-async function login(event, ctx) {
+async function login(event) {
     event.preventDefault(); // 폼 제출 방지
     
     const email = document.getElementById("email").value;

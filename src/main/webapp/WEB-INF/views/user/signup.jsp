@@ -324,7 +324,6 @@
   </main>
 
   <script>
-    const ctx = "<%=request.getContextPath()%>";
 
     let signUpType = null; // 'PERSONAL' | 'ENTERPRISE'
     let step = 1;

@@ -31,18 +31,6 @@ public class MailConfig {
 		return new PropertySourcesPlaceholderConfigurer();
 	}
 
-	@Value("${mail.host}")
-	private String host;
-
-	@Value("${mail.port}")
-	private int port;
-
-	@Value("${mail.username}")
-	private String username;
-
-	@Value("${mail.password}")
-	private String password;
-
 	@Bean
 	public JavaMailSender javaMailSender() {
 		JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
