@@ -17,7 +17,7 @@
             <%-- 상태 배지 영역 --%>
             <div style="position: absolute; top: 32px; right: 32px;">
                 <c:choose>
-                    <c:when test="${projectData.projectStatus eq 'PREPARING'}">
+                    <c:when test="${projectData.projectStatus eq 'ANNOUNCEMENT'}">
                         <%-- 이미지 참고: 공고중 배지 스타일 --%>
                         <span style="display: inline-block; padding: 6px 14px; background: #EBF5FF; color: #4FAAFF; border-radius: var(--radius-m); font: var(--font-button-02); font-weight: 600;">공고중</span>
                     </c:when>
@@ -40,8 +40,8 @@
             <h1 style="font: var(--font-header-02); color: var(--gray-900); margin-bottom: 20px;">${projectData.projectName}</h1>
 
             <c:choose>
-                <%-- 공고중(PREPARING) 또는 청약중(SUBSCRIPTION) 일 때 --%>
-                <c:when test="${projectData.projectStatus eq 'PREPARING' || projectData.projectStatus eq 'SUBSCRIPTION'}">
+                <%-- 공고중(ANNOUNCEMENT) 또는 청약중(SUBSCRIPTION) 일 때 --%>
+                <c:when test="${projectData.projectStatus eq 'ANNOUNCEMENT' || projectData.projectStatus eq 'SUBSCRIPTION'}">
                     <div style="margin-bottom: 32px;">
                         <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px;">
                             <span style="font: var(--font-caption-01); color: var(--gray-900); font-weight: 500;">${projectData.subscriptionRate}% 모집됨</span>
@@ -74,7 +74,7 @@
 
                     <%-- 버튼 분기: 공고중일 때는 회색 비활성화 버튼 --%>
                     <c:choose>
-                        <c:when test="${projectData.projectStatus eq 'PREPARING'}">
+                        <c:when test="${projectData.projectStatus eq 'ANNOUNCEMENT'}">
                             <button class="btn" style="width: 100%; background: #757575; color: #fff; font: var(--font-button-01); padding: 24px 0; border-radius: var(--radius-m); cursor: not-allowed; border:none;" disabled>청약 신청하기</button>
                         </c:when>
                         <c:otherwise>
