@@ -11,6 +11,7 @@ import com.animalfarm.mlf.domain.project.dto.ProjectInsertDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectListDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectPictureDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectSearchReqDTO;
+import com.animalfarm.mlf.domain.project.dto.ProjectStarredDTO;
 
 @Mapper
 public interface ProjectRepository {
@@ -20,6 +21,14 @@ public interface ProjectRepository {
 	public abstract List<ProjectListDTO> selectByCondition(ProjectSearchReqDTO projectSearchDTO);
 
 	public abstract ProjectDetailDTO selectDetail(Long projectId);
+
+	public abstract boolean selectStarredProject(ProjectStarredDTO projectStarredDTO);
+
+	public abstract boolean getStarredStatus(ProjectStarredDTO projectStarredDTO);
+
+	public abstract void insertStrarredProject(ProjectStarredDTO projectStarredDTO);
+
+	public abstract void updateStarred(ProjectStarredDTO projectStarredDTO);
 
 	public abstract void insertProject(ProjectInsertDTO projectInsertDTO);
 
