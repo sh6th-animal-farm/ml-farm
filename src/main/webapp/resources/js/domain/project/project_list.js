@@ -56,13 +56,18 @@ async function starProject(userId, projectId, element) {
   }
 }
 
-function toggleStarred(element, isStarred) {
-  console.log(element, isStarred);
+function toggleStarred(element, curStarredStatus) {
   const icon = element.querySelector("svg path");
-  if (isStarred) {
-    icon.style.fill = "var(--green-300)";
-  } else {
-    icon.style.fill = "var(--gray-900)";
+  const isStarred = element.getAttribute("data-starred") === "true";
+
+  if (curStarredStatus === null || curStarredStatus != isStarred) {
+    if (!isStarred) {
+      icon.style.fill = "var(--green-300)";
+      element.setAttribute("data-starred", "true");
+    } else {
+      icon.style.fill = "var(--gray-900)";
+      element.setAttribute("data-starred", "false");
+    }
   }
 }
 
