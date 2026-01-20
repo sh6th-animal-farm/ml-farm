@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +36,9 @@ public class AuthService {
 	@Autowired
 	private RedisUtil redisUtil;
 
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+
 	/**
 	 * [1. 로그인 처리 로직]
 	 * - DB에서 사용자를 확인하고, 성공 시 JWT 토큰 세트를 발급합니다.
@@ -49,7 +53,7 @@ public class AuthService {
 
 		// 1-2. 사용자 존재 여부 및 비밀번호 일치 확인
 		// (참고: 보안을 위해 실무에서는 BCryptPasswordEncoder로 암호화된 비밀번호를 비교해야 합니다.)
-		if (user == null || !user.getPassword().equals(request.getPassword())) {
+		if (user == null || !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
 			throw new RuntimeException("이메일 또는 비밀번호가 틀렸습니다.");
 		}
 
