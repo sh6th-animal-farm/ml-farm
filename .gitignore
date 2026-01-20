@@ -34,6 +34,10 @@ src/main/resources/config/db.properties
 # 사업자 등록 api 설정 파일
 src/main/resources/config/enterprise.properties
 
+# redis
+src/main/resources/config/redis.properties
+
+
 # 서버 설정 관련
 .recommenders/
 servers/
