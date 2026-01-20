@@ -1,7 +1,9 @@
 package com.animalfarm.mlf.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -13,7 +15,19 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
  * Spring Legacy 환경에서는 @Configuration을 통해 자바 설정으로 빈(Bean)을 등록합니다.
  */
 @Configuration
+//1. 별도로 만든 프로퍼티 파일의 경로를 지정합니다.
+@PropertySource("classpath:config/redis.properties")
 public class RedisConfig {
+
+	// application.properties에서 값을 읽어옵니다.
+	@Value("${spring.data.redis.host}")
+	private String redisHost;
+
+	@Value("${spring.data.redis.port}")
+	private int redisPort;
+
+	@Value("${spring.data.redis.password:}") // 비밀번호가 없을 경우를 대비해 기본값을 비워둠
+	private String redisPassword;
 
 	/**
 	 * Redis 서버와의 물리적인 연결을 생성하는 공장(Factory) 설정입니다.
@@ -23,9 +37,11 @@ public class RedisConfig {
 	@Bean
 	public JedisConnectionFactory jedisConnectionFactory() {
 		//1. Redis 서버 정보 설정 (기본값: localhost, 6379)
-		RedisStandaloneConfiguration config = new RedisStandaloneConfiguration("localhost", 6379);
-		//만약 redis에 비밀번호가 설정되어 있다면 아래 주석을 해제하고 설정
-		//config.setPassword("your_password");
+		RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(redisHost, redisPort);
+		// 비밀번호가 설정되어 있다면 적용
+		if (redisPassword != null && !redisPassword.isEmpty()) {
+			config.setPassword(redisPassword);
+		}
 
 		//2. Jedis 커넥션 팩토리 생성
 		JedisConnectionFactory factory = new JedisConnectionFactory(config);
