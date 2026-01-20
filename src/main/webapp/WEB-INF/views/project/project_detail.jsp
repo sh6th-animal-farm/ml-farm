@@ -5,6 +5,7 @@
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="${pageContext.request.contextPath}/resources/js/domain/project/project_detail.js"> </script>
 <link rel="stylesheet"
 	href="${pageContext.request.contextPath}/resources/css/project_detail.css">
 
@@ -121,6 +122,14 @@
 				</div>
 			</div>
 		</main>
+		<t:subscription_modal 
+		    id="mySubModal"
+		    title="팜조각 스마트팜 1호 공모"
+		    price="345000"
+		    thumbnail="${pageContext.request.contextPath}/resources/img/sample.jpg"
+		    userLimit="40000000"
+		    walletBalance="100000000"
+		/>
 		<t:project_detail_side projectData="${projectData}" />
 	</div>
 </div>

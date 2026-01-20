@@ -5,7 +5,7 @@
 <%-- 전달받을 속성 정의 --%>
 <%@ attribute name="projectData" type="java.lang.Object" required="true" %>
 
-<%-- [로직] 날짜 계산 --%>
+<%-- 날짜 계산 --%>
 <jsp:useBean id="now" class="java.util.Date" />
 <fmt:parseDate value="${projectData.announcementEndDate}" var="endDate" pattern="yyyy-MM-dd" />
 <c:set var="diff" value="${endDate.time - now.time}" />
@@ -78,7 +78,7 @@
                             <button class="btn" style="width: 100%; background: #757575; color: #fff; font: var(--font-button-01); padding: 24px 0; border-radius: var(--radius-m); cursor: not-allowed; border:none;" disabled>청약 신청하기</button>
                         </c:when>
                         <c:otherwise>
-                            <button class="btn" style="width: 100%; background: var(--green-600); color: #fff; font: var(--font-button-01); padding: 24px 0; border-radius: var(--radius-m); cursor: pointer; border:none;">청약 신청하기</button>
+                            <button class="btn" style="width: 100%; background: var(--green-600); color: #fff; font: var(--font-button-01); padding: 24px 0; border-radius: var(--radius-m); cursor: pointer; border:none;" onclick="openSubscriptionModal('mySubModal')">청약 신청하기</button>
                         </c:otherwise>
                     </c:choose>
                     
