@@ -16,7 +16,9 @@
 					<div class="slider" id="slider">
 						<c:forEach items="${projectData.images}" var="imgUrl">
 							<div class="slide">
-								<img src="${pageContext.request.contextPath}/uploads/projects/${imgUrl}" alt="이미지">
+								<img
+									src="${pageContext.request.contextPath}/uploads/projects/${imgUrl}"
+									alt="이미지">
 							</div>
 						</c:forEach>
 					</div>
@@ -41,7 +43,8 @@
 			<div class="tab-nav">
 				<button class="tab-btn active"
 					onclick="openTab(event, 'invest-info')">투자 정보</button>
-				<button class="tab-btn" onclick="openTab(event, 'farm-info')">농장 정보</button>
+				<button class="tab-btn" onclick="openTab(event, 'farm-info')">농장
+					정보</button>
 			</div>
 
 			<div id="invest-info" class="tab-panel active">
@@ -121,6 +124,12 @@
 				</div>
 			</div>
 		</main>
+		<%-- 계좌 연동이 없을 때 나오는 모달 --%>
+		<%-- 태그 사이에 넣는 내용이 <jsp:doBody /> 위치로 쏙 들어갑니다 --%>
+		<t:modal id="accountModal" title="연동된 계좌 없음">
+   			현재 팜조각에 연동된 <strong>증권사 계좌</strong>가 없습니다.<br> 
+			청약 참여를 위해 계좌를 먼저 연동해 주세요.
+		</t:modal>
 		<t:project_detail_side projectData="${projectData}" />
 	</div>
 </div>
