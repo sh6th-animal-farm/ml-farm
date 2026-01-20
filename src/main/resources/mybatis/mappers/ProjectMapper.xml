@@ -215,6 +215,12 @@
     		 #{projectPictureId}
    		</foreach>
     </delete>
+    
+    <select id="getStarredStatus" parameterType="ProjectStarredDTO" resultType="boolean">
+    	select is_starred
+    	from starred_projects
+    	where user_id = #{userId} and project_id = #{projectId}
+    </select>
 	
 	<!-- 관심프로젝트 추가 -->
 	<insert id="insertStrarredProject"
