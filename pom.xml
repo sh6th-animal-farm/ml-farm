@@ -59,7 +59,6 @@
 			<version>1.16</version>
 		</dependency>
 
-
 		<!-- mybatis-spring -->
 		<dependency>
 			<groupId>org.mybatis</groupId>
@@ -89,7 +88,6 @@
 			<scope>compile</scope>
 		</dependency>
 
-
 		<!-- Swagger -->
 		<dependency>
 			<groupId>io.springfox</groupId>
@@ -101,7 +99,6 @@
 			<artifactId>springfox-swagger-ui</artifactId>
 			<version>2.9.2</version>
 		</dependency>
-
 
 		<!-- Jackson -->
 		<dependency>
@@ -125,8 +122,8 @@
 			<version>${org.jackson-version}</version>
 		</dependency>
 
-
 		<!-- Spring JDBC -->
+		<!-- https://mvnrepository.com/artifact/org.springframework/spring-jdbc -->
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-jdbc</artifactId>
