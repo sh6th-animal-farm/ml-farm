@@ -78,7 +78,7 @@
 					<div class="info-item">
 						<label>진행 상태</label>
 						<p>
-							<c:if test="${projectData.projectStatus eq 'PREPARING'}">공모중</c:if>
+							<c:if test="${projectData.projectStatus eq 'ANNOUNCEMENT'}">공고중</c:if>
 							<c:if test="${projectData.projectStatus eq 'SUBSCRIPTION'}">청약중</c:if>
 							<c:if test="${projectData.projectStatus eq 'INPROGRESS'}">진행중</c:if>
 							<c:if test="${projectData.projectStatus eq 'CANCELED'}">취소</c:if>
