@@ -1,0 +1,39 @@
+@charset "UTF-8";
+
+.project-list-container {
+  padding-block: 40px;
+}
+
+.section-header {
+  margin-bottom: 24px;
+}
+
+.section-header h2 {
+  font: var(--font-header-01);
+  color: var(--gray-900);
+}
+
+.section-header p {
+  font: var(--font-body-01);
+  color: var(--gray-500);
+}
+
+.map-area {
+  display: flex;
+  width: 100%;
+  height: 400px;
+  margin-bottom: 48px;
+  gap: 24px;
+}
+
+.list-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.filter-group {
+  display: flex;
+  gap: 6px;
+}
