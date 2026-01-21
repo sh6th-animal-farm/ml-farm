@@ -5,11 +5,9 @@ const AuthManager = {
     refreshInterval: 40 * 1000, 
     logoutTime: 120 * 1000,
     lastRefreshTime: Date.now(),
-    ctx: "",
 
     // 초기화 함수: JSP에서 ctx를 전달받아 실행
-    init: function(contextPath) {
-        this.ctx = contextPath;
+    init: function() {
         
         const token = localStorage.getItem("accessToken");
         const isLoginPage = window.location.pathname.includes("/auth/login") || 
@@ -66,7 +64,7 @@ const AuthManager = {
         if (!rt) return;
 
         try {
-            const res = await fetch(this.ctx + "/api/auth/refresh", {
+            const res = await fetch(ctx + "/api/auth/refresh", {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify({refreshToken: rt})
@@ -89,7 +87,7 @@ const AuthManager = {
         const at = localStorage.getItem("accessToken");
         if (at) {
             try {
-                await fetch(this.ctx + "/api/auth/logout", {
+                await fetch(ctx + "/api/auth/logout", {
                     method: "POST",
                     headers: { "Authorization": "Bearer " + at }
                 });
@@ -100,6 +98,6 @@ const AuthManager = {
 		localStorage.removeItem("loginStartTime");
 		localStorage.removeItem("lastActivityTime");
 		
-        location.href = this.ctx + "/auth/login"; // 로그인 페이지 경로 확인 필요
+        location.href = ctx + "/auth/login"; // 로그인 페이지 경로 확인 필요
     }
 };
