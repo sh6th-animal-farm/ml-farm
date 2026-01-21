@@ -30,10 +30,8 @@ public class FileUploadController {
 			if (file.isEmpty()) {
 				return ResponseEntity.badRequest().body("파일이 비어있습니다.");
 			}
-			uploadDir += "/projects";
-
 			// 1. 저장 디렉토리 생성
-			File directory = new File(uploadDir);
+			File directory = new File(uploadDir + "/projects");
 			if (!directory.exists()) {
 				directory.mkdirs(); // 폴더가 없으면 생성
 			}
@@ -44,7 +42,7 @@ public class FileUploadController {
 			String savedFileName = uuid + "_" + originalFileName;
 
 			// 3. 파일 저장
-			File destination = new File(uploadDir + "/" + savedFileName);
+			File destination = new File(uploadDir + "/projects/" + savedFileName);
 			file.transferTo(destination);
 
 			// 4. 클라이언트에 반환할 정보 (DB 저장용 파일명 또는 접근 URL)

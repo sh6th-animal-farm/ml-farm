@@ -30,6 +30,10 @@ Thumbs.db       # Windows
 # DB 설정 파일
 src/main/resources/config/database.properties
 src/main/resources/config/db.properties
+src/main/resources/config/redis.properties
+
+# smtp 이메일 발급 키
+src/main/resources/config/mail.properties
 
 # 사업자 등록 api 설정 파일
 src/main/resources/config/enterprise.properties
