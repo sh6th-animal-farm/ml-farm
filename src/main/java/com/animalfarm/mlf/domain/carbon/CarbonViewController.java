@@ -22,4 +22,11 @@ public class CarbonViewController {
 		model.addAttribute("activeMenu", "carbon");
 		return "layout";
 	}
+	@GetMapping("/list")
+	public String carbonListPage(Model model) {
+		model.addAttribute("contentPage", "/WEB-INF/views/carbon/carbon_list.jsp");
+		model.addAttribute("activeMenu", "carbon-market");
+		return "layout";
+	}
+
 }
