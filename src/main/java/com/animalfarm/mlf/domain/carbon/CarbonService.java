@@ -29,4 +29,11 @@ public class CarbonService {
 
 	}
 
+	public List<CarbonListDTO> selectAll() {
+		return carbonRepository.selectAll();
+	}
+
+	public List<CarbonListDTO> selectByCategory(String category) {
+		return carbonRepository.selectByCategory(category);
+	}
 }

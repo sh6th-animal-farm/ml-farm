@@ -17,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 
 //탄소 마켓 상세 조회 및 권한 제어 컨트롤러
 
-@Slf4j
 @RestController
 @RequestMapping("/api/carbon")
 public class CarbonController {
@@ -51,4 +50,17 @@ public class CarbonController {
 		}
 	}
 
+	// 전체 조회
+	@GetMapping("/api/carbon")
+	public List<CarbonListDTO> selectAll() {
+		return carbonService.selectAll();
+	}
+
+	// category 조건 조회
+	@GetMapping("/api/carbon/category")
+	public List<CarbonListDTO> selectByCategory(
+		@RequestParam(value = "category", required = false, defaultValue = "ALL")
+		String category) {
+		return carbonService.selectByCategory(category);
+	}
 }
