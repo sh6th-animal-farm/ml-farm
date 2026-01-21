@@ -45,5 +45,23 @@
 
     ORDER BY cp_id DESC
   </select>
+  
+  <!-- 상세 조회 (해당 탄소 상품 정보)-->
+  <select id="selectDetail" resultType="com.animalfarm.mlf.domain.carbon.dto.CarbonDTO">
+        SELECT * FROM marifarm.carbon_products WHERE cp_id = #{cpId}
+  </select>
+   
+  <!-- 현재 유저의 지분율이 할인율 정책에 어디 구간인지  -->
+  <select id="getDiscountRate" resultType="java.math.BigDecimal">
+    SELECT 
+        discount_rate_pct 
+    FROM 
+        marifarm.reduction_sale_policy
+    WHERE 
+        /* 현재 유저의 지분율이 정책상의 [최소 ~ 최대] 구간 사이에 있는지 확인 */
+        #{sharePercent} >= min_ratio_pct 
+        AND #{sharePercent} &lt; max_ratio_pct
+        /* < 기호 처리 (&lt;): XML 안에서 < 기호를 그대로 쓰면 태그로 오해해서 에러 */
+  </select>
 
 </mapper>

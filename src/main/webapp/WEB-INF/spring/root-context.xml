@@ -16,4 +16,7 @@
 		<property name="basePackage" value="com.animalfarm.mlf.domain.user.repository" />
 	</bean>
 	
+	<!-- restTemplate 등록 (강황증권에 API쏘기) -->
+	<bean id="restTemplate" class="org.springframework.web.client.RestTemplate"></bean>
+	
 </beans>

@@ -1,9 +1,11 @@
 package com.animalfarm.mlf.domain.carbon;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
 
+import com.animalfarm.mlf.domain.carbon.dto.CarbonDTO;
 import com.animalfarm.mlf.domain.carbon.dto.CarbonListDTO;
 
 public interface CarbonRepository {
@@ -12,4 +14,9 @@ public interface CarbonRepository {
 
 	List<CarbonListDTO> selectByCategory(@Param("category")
 	String category);
+
+	CarbonDTO selectDetail(Long cpId);
+
+	BigDecimal getDiscountRate(@Param("sharePercent")
+	BigDecimal sharePercent); //할인율
 }
