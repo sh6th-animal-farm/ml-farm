@@ -1,0 +1,51 @@
+name: MLFarm Deploy
+
+on:
+  push:
+    branches: [ "develop" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 11 # 프로젝트 자바 버전
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Create Properties Files
+        run: |
+          mkdir -p src/main/resources/config
+          echo "${{ secrets.DB_PROPERTIES_CONTENT }}" > src/main/resources/config/db.properties
+          echo "${{ secrets.ENTERPRISE_PROPERTIES_CONTENT }}" > src/main/resources/config/enterprise.properties
+          echo "${{ secrets.MAIL_PROPERTIES_CONTENT }}" > src/main/resources/config/mail.properties
+          echo "${{ secrets.REDIS_PROPERTIES_CONTENT }}" > src/main/resources/config/redis.properties
+
+      - name: Build with Maven
+        run: mvn clean package -DskipTests
+
+      - name: Copy WAR to Server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.REMOTE_IP }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "target/*.war"
+          target: "/opt/tomcat/webapps"
+          strip_components: 1
+
+      - name: Restart Tomcat & Path Setup
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.REMOTE_IP }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            # 리눅스 업로드 디렉토리 권한 설정
+            sudo mkdir -p /mlfarm-data/uploads
+            sudo chown -R tomcat:tomcat /mlfarm-data/uploads
+            sudo systemctl restart tomcat
