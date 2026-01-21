@@ -1,4 +1,4 @@
-package com.animalfarm.mlf.domain.user.service;
+package com.animalfarm.mlf.common.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -34,11 +34,8 @@ public class SecurityService implements UserDetailsService {
 		}
 
 		// 스프링 시큐리티 규격 객체(UserDetails)로 변환
-		return org.springframework.security.core.userdetails.User.builder()
-			.username(user.getEmail())
-			.password(user.getPassword())
-			.roles(user.getRole()) // DB에 저장된 ROLE (개인/기업 등)
-			.build();
+		// 이제 기본 User가 아닌, 우리가 만든 CustomUser를 반환합니다.
+		return new CustomUser(user);
 
 	}
 
