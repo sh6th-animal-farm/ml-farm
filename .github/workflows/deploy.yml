@@ -43,7 +43,7 @@ jobs:
       - name: Change Profile to Prod
         run: |
           # application.properties 파일 내의 local을 prod로 문자열 치환
-          sed -i 's/spring.profiles.active=local/spring.profiles.active=prod/g' src/main/resources/application.properties
+          sed -i 's/spring.profiles.active=local/spring.profiles.active=prod/g' src/main/resources/config/application.properties
 
           # 확인용 로그 (파일 내용 출력)
           cat src/main/resources/application.properties
