@@ -65,6 +65,7 @@ jobs:
           host: ${{ secrets.REMOTE_IP }}
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.REMOTE_PORT }}
           # 빌드 결과물인 target 폴더 안의 war 파일만 보냅니다.
           source: "target/*.war"
           # 서버의 톰캣 배포 경로로 전송합니다.
