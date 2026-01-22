@@ -46,7 +46,7 @@ jobs:
           sed -i 's/spring.profiles.active=local/spring.profiles.active=prod/g' src/main/resources/config/application.properties
 
           # 확인용 로그 (파일 내용 출력)
-          cat src/main/resources/application.properties
+          cat src/main/resources/config/application.properties
 
       # 4. 메이븐(Maven)을 사용하여 프로젝트를 빌드합니다.
       # clean: 이전 빌드 잔여물 삭제 / package: .war 파일 생성 / -DskipTests: 테스트 코드는 생략
