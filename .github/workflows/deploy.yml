@@ -54,7 +54,7 @@ jobs:
           # 빌드 결과물인 target 폴더 안의 war 파일만 보냅니다.
           source: "target/*.war"
           # 서버의 톰캣 배포 경로로 전송합니다.
-          target: "/opt/tomcat/webapps"
+          target: "/opt/tomcat10/webapps"
           # 전송 시 'target/' 이라는 폴더 구조는 떼고 파일만 보냅니다.
           strip_components: 1
 
