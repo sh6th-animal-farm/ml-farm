@@ -1,18 +1,28 @@
 package com.animalfarm.mlf.domain.carbon;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping("/carbon")
 public class CarbonViewController {
 
+	@Autowired
+	private CarbonService carbonService;
+
 	@GetMapping("/list")
-	public String carbonListPage(Model model) {
+	public String carbonListPage(
+		@RequestParam(value = "category", required = false)
+		String category,
+		Model model) {
 		model.addAttribute("contentPage", "/WEB-INF/views/carbon/carbon_list.jsp");
 		model.addAttribute("activeMenu", "carbon-market");
+		model.addAttribute("carbonList", carbonService.selectByCondition(category));
+
 		return "layout";
 	}
 
