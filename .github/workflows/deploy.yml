@@ -65,9 +65,9 @@ jobs:
       - name: Cleanup & Prepare on Server
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.KEY }}
+          host: ${{ secrets.REMOTE_IP }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             # 기존 ROOT 폴더와 war 파일 삭제 (깔끔한 재배포를 위해)
             sudo rm -rf /opt/apache-tomcat-9.0.113/webapps/ROOT
