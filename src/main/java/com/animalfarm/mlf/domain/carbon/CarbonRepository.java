@@ -10,6 +10,7 @@ public interface CarbonRepository {
 
 	List<CarbonListDTO> selectAll();
 
-	List<CarbonListDTO> selectByCategory(@Param("category")
+	List<CarbonListDTO> selectByCondition(@Param("category")
 	String category);
+
 }

@@ -18,6 +18,7 @@ public class CarbonListDTO {
 	private Long cpId;
 	private Long projectId;
 
+	private String cpTitle;
 	private String category; // <= cp_type과 매핑 (제거형/감축형)
 
 	private BigDecimal cpPrice;

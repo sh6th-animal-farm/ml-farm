@@ -17,7 +17,7 @@ public class CarbonService {
 		return carbonRepository.selectAll();
 	}
 
-	public List<CarbonListDTO> selectByCategory(String category) {
-		return carbonRepository.selectByCategory(category);
+	public List<CarbonListDTO> selectByCondition(String category) {
+		return carbonRepository.selectByCondition(category);
 	}
 }
