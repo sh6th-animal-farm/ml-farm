@@ -58,6 +58,21 @@ jobs:
       - name: Build with Maven
         run: mvn clean package -DskipTests
 
+      # war 파일 이름 ROOT로 변경
+      - name: Rename war file
+        run: mv target/mlf-*.war target/ROOT.war
+
+      - name: Cleanup & Prepare on Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
+          script: |
+            # 기존 ROOT 폴더와 war 파일 삭제 (깔끔한 재배포를 위해)
+            sudo rm -rf /opt/apache-tomcat-9.0.113/webapps/ROOT
+            sudo rm -f /opt/apache-tomcat-9.0.113/webapps/ROOT.war
+
       # 5. 빌드된 .war 파일을 우리 실제 운영 서버로 전송합니다. (SCP 프로토콜 사용)
       - name: Copy WAR to Server
         uses: appleboy/scp-action@master
@@ -85,6 +100,7 @@ jobs:
             # 유저가 업로드할 파일들이 저장될 리눅스 경로를 생성합니다. (-p: 부모 폴더까지 한 번에)
             sudo mkdir -p /mlfarm-data/uploads
             # 톰캣 프로그램이 이 폴더에 파일을 쓰고 읽을 수 있도록 권한(소유자)을 변경합니다.
-            sudo chown -R tomcat:tomcat /mlfarm-data/uploads
+            sudo chown -R mlfarm:mlfarm /mlfarm-data/uploads
+            sudo chown mlfarm:mlfarm /opt/apache-tomcat-9.0.113/webapps/ROOT.war
             # 새로운 .war 파일이 반영되도록 톰캣 서비스를 재시작합니다.
             sudo systemctl restart tomcat
