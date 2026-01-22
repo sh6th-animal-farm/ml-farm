@@ -20,13 +20,13 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 public class RedisConfig {
 
 	// application.properties에서 값을 읽어옵니다.
-	@Value("${spring.data.redis.host}")
+	@Value("${redis.host}")
 	private String redisHost;
 
-	@Value("${spring.data.redis.port}")
+	@Value("${redis.port}")
 	private int redisPort;
 
-	@Value("${spring.data.redis.password:}") // 비밀번호가 없을 경우를 대비해 기본값을 비워둠
+	@Value("${redis.password:}") // 비밀번호가 없을 경우를 대비해 기본값을 비워둠
 	private String redisPassword;
 
 	/**

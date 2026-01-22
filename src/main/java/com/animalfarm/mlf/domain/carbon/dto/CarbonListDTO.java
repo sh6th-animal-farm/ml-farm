@@ -1,7 +1,6 @@
 package com.animalfarm.mlf.domain.carbon.dto;
 
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,17 +13,18 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CarbonDTO {
+public class CarbonListDTO {
 
 	private Long cpId;
 	private Long projectId;
-	private OffsetDateTime createAt;
-	private String productCertificate;
-	private BigDecimal cpAmount;
-	private String cpType; // ENUM: REMOVAL, REDUCTION
-	private String cpDetail;
-	private BigDecimal cpPrice;
-	private BigDecimal initAmount;
-	private String vintageYear;
+
 	private String cpTitle;
+	private String category; // <= cp_type과 매핑 (제거형/감축형)
+
+	private BigDecimal cpPrice;
+	private BigDecimal cpAmount;
+
+	private String productCertificate;
+	private String vintageYear;
+	private String cpDetail;
 }
