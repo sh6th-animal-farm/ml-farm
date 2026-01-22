@@ -121,17 +121,22 @@ public class CarbonService {
 	public CarbonDetailDTO selectDetail(Long cpId) {
 		Long userId = getLoginUserId();
 
-		// 1. 마리팜 DB에서 상품 정보만 가져옴
-		CarbonDTO carbon = carbonRepository.selectDetail(cpId);
+		// 1. 매퍼에서 상품 정보 + 농장 주소 정보가 담긴 DTO를 통째로 가져옴
+		CarbonDetailDTO detail = carbonRepository.selectDetail(cpId);
 
-		// 2. API 기반 계산기 실행
-		UserBenefitDTO benefit = calculateBenefit(carbon.getProjectId(), carbon.getCpAmount(), carbon.getCpPrice(),
+		// 2. 계산기에 필요한 데이터는 detail 내부의 carbonInfo에서 꺼냄
+		CarbonDTO info = detail.getCarbonInfo();
+
+		// 3. API 기반 계산기 실행
+		UserBenefitDTO benefit = calculateBenefit(
+			info.getProjectId(),
+			info.getCpAmount(),
+			info.getCpPrice(),
 			userId);
 
-		// 상세 페이지용 가방에 합쳐서 리턴
-		return CarbonDetailDTO.builder()
-			.carbonInfo(carbon)
-			.userBenefit(benefit)
-			.build();
+		// 4. 계산된 혜택 정보를 detail 객체에 세팅
+		detail.setUserBenefit(benefit);
+
+		return detail;
 	}
 }

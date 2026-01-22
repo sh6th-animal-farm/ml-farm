@@ -26,4 +26,5 @@ public class CarbonDTO {
 	private BigDecimal cpPrice;
 	private BigDecimal initAmount;
 	private String vintageYear;
+	private String cpTitle;
 }
