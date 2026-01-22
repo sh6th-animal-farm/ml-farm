@@ -270,18 +270,94 @@ a {
 }
 
 /* 사용자 정보 (로그인 후) */
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-weight: 600;
-  color: var(--gray-900);
+#user-group {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    position: relative;
 }
 
-.icon-group {
-  display: flex;
-  gap: 16px;
-  margin-right: 8px;
+.dropdown-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+
+/* 공통 드롭다운 스타일 */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    background-color: white;
+    min-width: 180px;
+    box-shadow: var(--shadow);
+    border-radius: 8px;
+    z-index: 1000;
+    padding: 8px 0;
+}
+
+/* 말풍선 꼬리표 */
+.dropdown-content::after {
+    content: '';
+    position: absolute;
+    top: -8px;
+    right: 12px;
+    box-shadow: var(--shadow);
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid white;
+}
+
+/* 프로필 메뉴 항목 */
+.profile-menu a {
+    color: var(--gray-700);
+    padding: 10px 16px;
+    text-decoration: none;
+    display: block;
+    font:var(--font-caption-01);
+    transition: background 0.2s;
+}
+
+.profile-menu a:hover {
+    background-color: var(--gray-50);
+    color: var(--green-600);
+}
+
+.profile-menu .logout-text {
+    color: var(--error) !important; /* 이미지의 빨간색 텍스트 반영 */
+}
+
+/* 알림함 스타일 */
+#noti-dropdown {
+    min-width: 320px;
+}
+
+.msg-box {
+    width: 200px;
+    text-align: center;
+    padding: 20px 0;
+}
+
+.empty-msg {
+    color: #999;
+    font-size: 14px;
+    margin: 0;
+}
+
+/* 활성화 상태 */
+.show { display: block !important; }
+
+.name-text{
+  font: var(--font-button-01);
 }
 
 /* Cards */

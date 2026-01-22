@@ -48,10 +48,50 @@ pageEncoding="UTF-8"%> <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
       </div>
 
       <div id="user-group" style="display: none;">
-        <button onclick="AuthManager.forceLogout()" class="btn-outline" style="padding: 4px 12px; font-size: 14px;">
-          로그아웃
-        </button>
+      	<div class="dropdown-wrapper">
+	        <button type="button" class="icon-btn" onclick="toggleDropdown('noti-dropdown')">
+	            <t:icon name="bell_on"/>
+	        </button>
+	        <div id="noti-dropdown" class="dropdown-content msg-box">
+	            <p class="empty-msg">알림이 없습니다.</p>
+	        </div>
+	    </div>
+      	<div class="dropdown-wrapper">
+	        <button type="button" class="icon-btn" onclick="toggleDropdown('profile-dropdown')">
+	            <t:icon name="profile"/>
+	        </button>
+	        <div id="profile-dropdown" class="dropdown-content profile-menu">
+	            <a href="${pageContext.request.contextPath}/mypage/profile">내 정보</a>
+	            <a href="${pageContext.request.contextPath}/mypage/project-history">나의 프로젝트</a>
+	            <a href="${pageContext.request.contextPath}/mypage/wallet">나의 전자지갑</a>
+	            <a href="${pageContext.request.contextPath}/mypage/transaction-history">거래 내역</a>
+	            <a href="javascript:void(0)" onclick="AuthManager.forceLogout()" class="logout-text">로그아웃</a>
+	        </div>
+	    </div>
+        <div class="name-text">
+        	${name}마리팜 님
+        </div>
       </div>
     </div>
   </div>
 </header>
+<script>
+function toggleDropdown(id) {
+    // 다른 드롭다운 닫기
+    document.querySelectorAll('.dropdown-content').forEach(dropdown => {
+        if (dropdown.id !== id) dropdown.classList.remove('show');
+    });
+    
+    // 클릭한 드롭다운 토글
+    document.getElementById(id).classList.toggle('show');
+}
+
+// 메뉴 외부 클릭 시 닫기
+window.onclick = function(event) {
+    if (!event.target.closest('.dropdown-wrapper')) {
+        document.querySelectorAll('.dropdown-content').forEach(dropdown => {
+            dropdown.classList.remove('show');
+        });
+    }
+}
+</script>
