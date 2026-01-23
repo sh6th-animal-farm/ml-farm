@@ -241,11 +241,11 @@
 	</delete>
 
     <select id="getStarredStatus" parameterType="ProjectStarredDTO" resultType="boolean">
-    	select is_starred
-    	from starred_projects
-    	where user_id = #{userId} and project_id = #{projectId}
-    </select>
-    
+		select is_starred
+		from starred_projects
+		where user_id = #{userId} and project_id = #{projectId}
+	</select>
+
 	<!-- 관심프로젝트 추가 -->
 	<insert id="insertStrarredProject"
 		parameterType="ProjectStarredDTO">
@@ -256,7 +256,7 @@
 		#{userId},
 		#{projectId})
 	</insert>
-	
+
 	<!-- 관심프로젝트 update -->
 	<update id="updateStarred" parameterType="ProjectStarredDTO">
 		UPDATE starred_projects
@@ -268,4 +268,30 @@
 		AND project_id = #{projectId};
 	</update>
 
+	<select id="selectStatus" resultType="projectStatusDTO">
+		<![CDATA[
+			SELECT 
+			project_id,
+			project_name,
+			project_status,
+			announcement_start_date,
+			announcement_end_date,
+			subscription_start_date,
+			subscription_end_date,
+			result_announcement_date,
+			project_start_date,
+			project_end_date
+			FROM projects
+			WHERE (project_status = 'PREPARING' AND announcement_start_date <= CURRENT_DATE)
+			OR (project_status = 'ANNOUNCEMENT' AND subscription_start_date <= CURRENT_DATE)
+			OR (project_status = 'SUBSCRIPTION' AND subscription_end_date < CURRENT_DATE)
+		]]>
+	</select>
+	
+	<update id="updateProjectStatus" parameterType="projectStatusDTO">
+		UPDATE Projects 
+		SET project_status = #{nextStatus}, 
+   		updated_at = NOW()
+		WHERE project_id = #{projectId} AND project_status = #{projectStatus};
+	</update>
 </mapper>

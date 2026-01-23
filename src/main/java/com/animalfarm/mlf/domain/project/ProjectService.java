@@ -19,6 +19,7 @@ import com.animalfarm.mlf.domain.project.dto.ProjectListDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectPictureDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectSearchReqDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectStarredDTO;
+import com.animalfarm.mlf.domain.project.dto.ProjectStatusDTO;
 
 @Service
 public class ProjectService {
@@ -113,6 +114,34 @@ public class ProjectService {
 			newPictureDTOList.add(newPicture);
 		}
 		return newPictureDTOList;
+	}
+
+	public List<ProjectStatusDTO> selectStatus() {
+		List<ProjectStatusDTO> dto = projectRepository.selectStatus();
+		for (ProjectStatusDTO projectStatusDTO : dto) {
+			String current = projectStatusDTO.getProjectStatus();
+			String next = "";
+
+			switch (current) {
+				case "PREPARING": {
+					next = "ANNOUNCEMENT";
+					projectStatusDTO.setNextStatus(next);
+					break;
+				}
+				case "ANNOUNCEMENT": {
+					next = "SUBSCRIPTION";
+					projectStatusDTO.setNextStatus(next);
+					break;
+				}
+				case "SUBSCRIPTION": {
+					next = "SUBSCRIPTION";
+					projectStatusDTO.setNextStatus(next);
+					break;
+				}
+			}
+			projectRepository.updateProjectStatus(projectStatusDTO);
+		}
+		return projectRepository.selectStatus();
 	}
 
 }
