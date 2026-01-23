@@ -19,7 +19,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 
 import com.animalfarm.mlf.common.security.CustomUser;
 import com.animalfarm.mlf.domain.carbon.dto.CarbonDetailDTO;
-import com.animalfarm.mlf.domain.carbon.dto.GanghwangBalanceDTO;
+import com.animalfarm.mlf.domain.carbon.dto.CarbonDiscountDTO;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -58,9 +58,9 @@ public class CarbonApiTest {
 		BigDecimal actualAmount = carbonRepository.getActualAmount(detail.getCarbonInfo().getProjectId());
 
 		// 중간 계산값 도출 (리포트용)
-		List<GanghwangBalanceDTO> holdings = carbonService.fetchAllHoldings(walletId);
-		GanghwangBalanceDTO myBal = holdings.stream()
-			.filter(h -> h.getTokenId().equals(tokenId)).findFirst().orElse(new GanghwangBalanceDTO());
+		List<CarbonDiscountDTO> holdings = carbonService.fetchAllHoldings(walletId);
+		CarbonDiscountDTO myBal = holdings.stream()
+			.filter(h -> h.getTokenId().equals(tokenId)).findFirst().orElse(new CarbonDiscountDTO());
 
 		// 2. 출력 시작
 		System.out.println("\n===============================================");
