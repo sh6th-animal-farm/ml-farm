@@ -68,35 +68,55 @@ public class CarbonService {
 	 * 2. 구매한도: $maxLimit = cpAmount \times shareRatio$
 	 * 3. 최종단가: $currentPrice = cpPrice \times (1 - \frac{discountRate}{100})$
 	 */
-	private UserBenefitDTO processCalculation(BigDecimal cpAmount, BigDecimal cpPrice, GanghwangBalanceDTO balance) {
+	/**
+	 * [최종 수정된 계산기]
+	 * 1. maxLimit: 기존 로직 유지 (증권사 토큰 총량 대비 지분율)
+	 * 2. discountRate: 신규 로직 적용 (프로젝트 총 투자액 대비 내 투자액)
+	 */
+	private UserBenefitDTO processCalculation(BigDecimal cpAmount, BigDecimal cpPrice, BigDecimal actualAmount,
+		GanghwangBalanceDTO balance) {
+		// 기초 데이터 (API에서 온 값)
 		BigDecimal myBal = (balance != null) ? balance.getMyBalance() : BigDecimal.ZERO;
-		BigDecimal totalCorp = (balance != null) ? balance.getEnterpriseTotal() : BigDecimal.ONE;
+		BigDecimal totalCorpTokens = (balance != null) ? balance.getEnterpriseTotal() : BigDecimal.ONE;
 
-		// 0 나누기 방어
-		if (totalCorp.compareTo(BigDecimal.ZERO) == 0) {
-			totalCorp = BigDecimal.ONE;
+		// 0 나누기 방어 로직
+		if (totalCorpTokens.compareTo(BigDecimal.ZERO) == 0) {
+			totalCorpTokens = BigDecimal.ONE;
+		}
+		if (actualAmount == null || actualAmount.compareTo(BigDecimal.ZERO) == 0) {
+			actualAmount = BigDecimal.ONE;
 		}
 
-		// 지분율 계산 (10자리 정밀도)
-		BigDecimal shareRatio = myBal.divide(totalCorp, 10, RoundingMode.HALF_UP);
+		// ---------------------------------------------------------
+		// 1. 최대 구매 가능 수량 (maxLimit) - 기존 로직 100% 유지
+		// 수식: cpAmount * (내 토큰 잔고 / 증권사 총 토큰량)
+		// ---------------------------------------------------------
+		BigDecimal limitShareRatio = myBal.divide(totalCorpTokens, 10, RoundingMode.HALF_UP);
+		BigDecimal maxLimit = cpAmount.multiply(limitShareRatio).setScale(4, RoundingMode.HALF_UP);
 
-		// 최대 구매 가능 수량 계산
-		BigDecimal maxLimit = cpAmount.multiply(shareRatio).setScale(4, RoundingMode.HALF_UP);
+		// ---------------------------------------------------------
+		// 2. 할인율 계산 (discountRate) - 새로운 기준 적용
+		// 수식: (내 토큰 잔고 / 프로젝트 총 투자금액 actual_amount) * 100
+		// ---------------------------------------------------------
+		BigDecimal discountShareRatio = myBal.divide(actualAmount, 10, RoundingMode.HALF_UP);
+		BigDecimal discountSharePercent = discountShareRatio.multiply(new BigDecimal("100"));
 
-		// 할인 정책 조회 (마리팜 DB)
-		BigDecimal discountRate = carbonRepository.getDiscountRate(shareRatio.multiply(new BigDecimal("100")));
+		// DB에서 해당 퍼센트 구간의 할인율 조회
+		BigDecimal discountRate = carbonRepository.getDiscountRate(discountSharePercent);
 		if (discountRate == null) {
 			discountRate = BigDecimal.ZERO;
 		}
 
-		// 최종 할인 적용 단가 계산
-		BigDecimal curPrice = cpPrice
-			.multiply(BigDecimal.ONE.subtract(discountRate.divide(new BigDecimal("100"), 10, RoundingMode.HALF_UP)));
+		// ---------------------------------------------------------
+		// 3. 최종 가격 계산
+		// ---------------------------------------------------------
+		BigDecimal curPrice = cpPrice.multiply(
+			BigDecimal.ONE.subtract(discountRate.divide(new BigDecimal("100"), 10, RoundingMode.HALF_UP)));
 
 		return UserBenefitDTO.builder()
 			.userMaxLimit(maxLimit)
 			.discountRate(discountRate)
-			.currentPrice(curPrice.setScale(0, RoundingMode.FLOOR)) // 가격은 소수점 절사
+			.currentPrice(curPrice.setScale(0, RoundingMode.FLOOR)) // 가격 소수점 절사
 			.myTokenBalance(myBal)
 			.build();
 	}
@@ -125,6 +145,8 @@ public class CarbonService {
 		// 1. 마리팜 상품 정보 조회 (여기엔 projectId가 들어있음)
 		CarbonDetailDTO detail = carbonRepository.selectDetail(cpId);
 		Long currentProjectId = detail.getCarbonInfo().getProjectId();
+		Long projectId = detail.getCarbonInfo().getProjectId();
+		BigDecimal actualAmount = carbonRepository.getActualAmount(projectId);
 
 		// 2. [핵심] ID 번역: 프로젝트 ID -> 실제 증권사 토큰 ID
 		Long targetTokenId = carbonRepository.getTokenIdByProjectId(currentProjectId);
@@ -142,7 +164,7 @@ public class CarbonService {
 		detail.setUserBenefit(processCalculation(
 			detail.getCarbonInfo().getCpAmount(),
 			detail.getCarbonInfo().getCpPrice(),
-			myHolding));
+			actualAmount, myHolding));
 
 		return detail;
 	}
