@@ -5,7 +5,66 @@
 
 <mapper
 	namespace="com.animalfarm.mlf.domain.carbon.CarbonRepository">
+	
+	<resultMap id="CarbonDetailMap" type="com.animalfarm.mlf.domain.carbon.dto.CarbonDetailDTO">
+        <result property="addressSido" column="address_sido"/>
+        <result property="addressSigungu" column="address_sigungu"/>
+        <result property="addressStreet" column="address_street"/>
+        <result property="addressDetails" column="address_details"/>
+        <result property="farmName" column="farm_name"/>
 
+        <association property="carbonInfo" javaType="com.animalfarm.mlf.domain.carbon.dto.CarbonDTO">
+            <id property="cpId" column="cp_id"/>
+            <result property="projectId" column="project_id"/>
+            <result property="cpTitle" column="cp_title"/>
+            <result property="cpType" column="cp_type"/>
+            <result property="cpPrice" column="cp_price"/>
+            <result property="cpAmount" column="cp_amount"/>
+            <result property="vintageYear" column="vintage_year"/>
+            <result property="cpDetail" column="cp_detail"/>
+            <result property="productCertificate" column="product_certificate"/>
+        </association>
+    </resultMap>
+
+    <select id="selectProductsByTokenIds" resultMap="CarbonDetailMap">
+        SELECT 
+            P.*, F.address_sido, F.address_sigungu, F.farm_name
+        FROM marifarm.carbon_products P
+        JOIN marifarm.projects PJ ON P.project_id = PJ.project_id
+        JOIN marifarm.farms F ON PJ.farm_id = F.farm_id
+        WHERE P.project_id IN 
+        <foreach item="id" collection="tokenIds" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        ORDER BY P.cp_id DESC
+    </select>
+
+    <select id="selectDetail" resultMap="CarbonDetailMap">
+        SELECT 
+            P.*, F.address_sido, F.address_sigungu, F.address_street, F.address_details, F.farm_name
+        FROM marifarm.carbon_products P
+        JOIN marifarm.projects PJ ON P.project_id = PJ.project_id
+        JOIN marifarm.farms F ON PJ.farm_id = F.farm_id
+        WHERE P.cp_id = #{cpId}
+    </select>
+
+    <select id="getWalletIdByUserId" resultType="long">
+        SELECT ucl_id FROM marifarm.user_certificate_links WHERE user_id = #{userId}
+    </select>
+
+    <select id="getDiscountRate" resultType="java.math.BigDecimal">
+        SELECT discount_rate_pct 
+        FROM marifarm.reduction_sale_policy
+        WHERE #{sharePercent} >= min_ratio_pct AND #{sharePercent} &lt; max_ratio_pct
+    </select>
+	
+	<select id="getTokenIdByProjectId" resultType="long">
+	    SELECT token_id 
+	    FROM marifarm.carbon_products 
+	    WHERE project_id = #{projectId}
+	</select>
+	
+	
   	<!-- 전체 조회 -->
 	<select id="selectAll"
 	        resultType="com.animalfarm.mlf.domain.carbon.dto.CarbonListDTO">
