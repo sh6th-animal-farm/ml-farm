@@ -16,15 +16,20 @@ import com.animalfarm.mlf.domain.project.dto.ProjectDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectDetailDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectInsertDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectListDTO;
+import com.animalfarm.mlf.domain.project.dto.ProjectNewTokenDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectPictureDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectSearchReqDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectStarredDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectStatusDTO;
+import com.animalfarm.mlf.domain.token.TokenRepository;
 
 @Service
 public class ProjectService {
 	@Autowired
 	ProjectRepository projectRepository;
+
+	@Autowired
+	TokenRepository tokenReopsitory;
 
 	public List<ProjectDTO> selectAll() {
 		return projectRepository.selectAll();
@@ -59,7 +64,7 @@ public class ProjectService {
 		}
 	}
 
-	@Transactional
+	@Transactional(rollbackFor = Exception.class) // 모든 예외에 대해 롤백 보장
 	public boolean insertProject(ProjectInsertDTO projectInsertDTO) {
 		try {
 			BigDecimal subscriptionRate = projectInsertDTO.getActualAmount()
@@ -70,23 +75,61 @@ public class ProjectService {
 				projectRepository.insertPictureList(extractPictureDTO(projectInsertDTO));
 			}
 			projectRepository.insertToken(projectInsertDTO);
+
+			//토큰 원장에 넣기
+
+			// 1. 거래 고유 식별 번호 생성 (예: ISS_프로젝트ID_타임스탬프)
+			Long tokenId = projectInsertDTO.getTokenId();
+			Long projectId = projectInsertDTO.getProjectId();
+			BigDecimal totalSupply = projectInsertDTO.getTotalSupply();
+
+			String timePart = String.valueOf(System.currentTimeMillis());
+			String shortTime = timePart.substring(timePart.length() - 6);
+			String txId = "ISS_" + projectId + "_" + shortTime;
+
+			ProjectNewTokenDTO projectNewTokenDTO = ProjectNewTokenDTO.builder()
+				.tokenId(tokenId) // 토큰 번호
+				.fromUserId(null) // [요구사항 1-3] 보낸 사용자 null
+				.toUserId(1L) // [요구사항 1-2] 시스템 관리자(1)에게 배정
+				.transactionId(txId) // 거래 고유 식별 번호
+				.externalRefId(txId) // 증권사 참조 ID (일단 동일하게 세팅)
+				.orderAmount(totalSupply) // [요구사항 1-1] 전체 토큰 지분
+				.contractAmount(totalSupply) // 발행 시 체결 수량은 전체 수량과 동일
+				.status("COMPLETED") // 발행 완료 상태
+				.fee(BigDecimal.ZERO) // 최초 발행 수수료 0
+				.transactionType("ISSUE") // 거래 종류: 발행
+				.from_balanceAfter(BigDecimal.ZERO) // 송금 후 잔액 변동 없음 변경 필수
+				.to_balanceAfter(totalSupply) // 수금 후 잔액 변동 없음 변경 필수
+				.prevHashValue("0") // 이전 해시가 없으므로 "0"
+				.hashValue(calculateHash("0", tokenId, totalSupply)) // 해시 계산
+				.build();
+
+			tokenReopsitory.insertTokenLedger(projectNewTokenDTO);
+
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new RuntimeException("프로젝트 등록 중 오류 발생: " + e.getMessage());
+			throw new RuntimeException("프로젝트 등록 중 오류 발생: " + e.getMessage(), e);
 		}
+	}
+
+	// 간단한 해시 계산 예시 메서드
+	private String calculateHash(String prevHash, Long projectId, BigDecimal amount) {
+		return org.springframework.util.DigestUtils.md5DigestAsHex(
+			(prevHash + projectId + amount.toString()).getBytes());
 	}
 
 	public List<FarmDTO> selectAllFarm() {
 		return projectRepository.selectAllFarm();
 	}
 
-	@Transactional
+	@Transactional(rollbackFor = Exception.class) // 모든 예외에 대해 롤백 보장
 	public boolean updateProject(ProjectDTO projectDTO) {
 		try {
 			projectRepository.updateProject(projectDTO);
 			if (projectDTO.getProjectImageNames() != null && !projectDTO.getProjectImageNames().isEmpty()) {
 				projectRepository.insertPictureList(extractPictureDTO(projectDTO));
+
 			}
 			if (projectDTO.getDeletedPictureIds() != null && !projectDTO.getDeletedPictureIds().isEmpty()) {
 				projectRepository.deletePictureList(projectDTO.getDeletedPictureIds());

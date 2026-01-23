@@ -10,4 +10,38 @@
 		select * from tokens
 		where project_id = #{projectId}
 	</select>
+
+	<insert id="insertTokenLedger" parameterType="projectNewTokenDTO">
+		INSERT INTO token_ledger (
+		token_id,
+		from_user_id,
+		to_user_id,
+		transaction_id,
+		external_ref_id,
+		order_amount,
+		contract_amount,
+		status,
+		fee,
+		transaction_type,
+		from_balance_after,
+		to_balance_after,
+		hash_value,
+		prev_hash_value
+		)
+		VALUES (
+		#{tokenId},
+		#{fromUserId}, 
+		#{toUserId}, 
+		#{transactionId},
+		#{externalRefId},
+		#{orderAmount},
+		#{contractAmount},
+		#{status},
+		#{fee},
+		#{transactionType},
+		#{from_balanceAfter},
+		#{to_balanceAfter},
+		#{hashValue},
+		#{prevHashValue} )
+	</insert>
 </mapper>

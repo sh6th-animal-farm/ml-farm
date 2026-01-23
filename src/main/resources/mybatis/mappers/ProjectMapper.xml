@@ -167,7 +167,7 @@
 		#{managerCount})
 	</insert>
 
-	<insert id="insertToken" parameterType="projectInsertDTO">
+	<insert id="insertToken" parameterType="projectInsertDTO" useGeneratedKeys="true" keyProperty="tokenId" keyColumn="token_id">		
 		INSERT INTO tokens (project_id, token_name, ticker_symbol, total_supply)
 		Values (
 		#{projectId},
