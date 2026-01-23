@@ -27,6 +27,7 @@ public class FileUploadController {
 	@PostMapping("/project-image")
 	public ResponseEntity<?> uploadProjectImage(@RequestParam("file")
 	MultipartFile file) {
+		System.out.println("현재 설정된 업로드 경로: " + uploadDir);
 		try {
 			if (file.isEmpty()) {
 				return ResponseEntity.badRequest().body("파일이 비어있습니다.");
