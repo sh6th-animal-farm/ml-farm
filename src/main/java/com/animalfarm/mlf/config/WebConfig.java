@@ -25,7 +25,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
  */
 @Configuration
 @EnableWebMvc
-@PropertySource("classpath:config/application.properties")
+@PropertySource("classpath:config/application-${spring.profiles.active:prod}.properties")
 public class WebConfig implements WebMvcConfigurer {
 
 	@Value("${file.upload.path}")
