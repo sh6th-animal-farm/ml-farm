@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
@@ -25,7 +24,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
  */
 @Configuration
 @EnableWebMvc
-@PropertySource("classpath:config/application-${spring.profiles.active:prod}.properties")
 public class WebConfig implements WebMvcConfigurer {
 
 	@Value("${file.upload.path}")
