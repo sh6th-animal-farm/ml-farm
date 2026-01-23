@@ -1,16 +1,19 @@
 package com.animalfarm.mlf.domain.carbon;
 
-import java.util.ArrayList;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Collections;
 import java.util.List;
 
-// [수정] JUnit 4가 아닌 JUnit 5(Jupiter)용 Test를 임포트해야 합니다.
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 
@@ -18,14 +21,10 @@ import com.animalfarm.mlf.common.security.CustomUser;
 import com.animalfarm.mlf.domain.carbon.dto.CarbonDetailDTO;
 import com.animalfarm.mlf.domain.carbon.dto.GanghwangBalanceDTO;
 
-@ExtendWith(SpringExtension.class) // JUnit 5용 스프링 연결 다리
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
-	"file:src/main/webapp/WEB-INF/spring/root-context.xml", // 서비스/빈 스캔 설정
-	"file:src/main/webapp/WEB-INF/spring/context-datasource.xml" // DB 설정
-})
-@TestPropertySource(properties = {
-	"nts.serviceKey=test_key",
-	"nts.baseUrl=http://localhost:8080"
+	"file:src/main/webapp/WEB-INF/spring/root-context.xml",
+	"file:src/main/webapp/WEB-INF/spring/context-datasource.xml"
 })
 @WebAppConfiguration
 public class CarbonApiTest {
@@ -33,84 +32,100 @@ public class CarbonApiTest {
 	@Autowired
 	private CarbonService carbonService;
 
-	@Test
-	public void verifyCarbonDetail() {
-		// 1. 시큐리티 가짜 로그인 설정 (5개의 인자를 정확히 전달)
-		// 인자 순서: username, password, authorities, userId, userRole
-		CustomUser mockUser = new CustomUser(
-			"tester", // username
-			"1234", // password
-			new ArrayList<>(), // authorities
-			8888L, // userId (지갑 번호와 매칭될 ID)
-			"ENTERPRISE" // userRole (추가된 인자: "USER" 또는 "ENTERPRISE")
-		);
+	@Autowired
+	private CarbonRepository carbonRepository;
+
+	@BeforeEach
+	void setup() {
+		// [필수] SecurityContext에 가짜 유저(ID: 1) 심기 (Service의 getLoginUserId 방어)
+		CustomUser mockUser = new CustomUser("test@marifarm.com", "1234",
+			Collections.singletonList(new SimpleGrantedAuthority("ROLE_ENTERPRISE")), 415L, "ENTERPRISE");
 
 		UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(mockUser, null,
 			mockUser.getAuthorities());
 		SecurityContextHolder.getContext().setAuthentication(auth);
-		// 2. 테스트할 상품 ID (마리팜 DB에 존재하는 cpId)
-		Long cpId = 1L;
+	}
 
+	@Test
+	@DisplayName("CarbonDetailDTO 최종 객체 검증 및 리포트 출력")
+	void carbonDetailFinalTest() {
+		Long cpId = 1L; // 테스트할 상품 번호
+
+		// 1. 데이터 조회
+		CarbonDetailDTO detail = carbonService.selectDetail(cpId);
+		Long walletId = carbonRepository.getWalletIdByUserId(415L);
+		Long tokenId = carbonRepository.getTokenIdByProjectId(detail.getCarbonInfo().getProjectId());
+		BigDecimal actualAmount = carbonRepository.getActualAmount(detail.getCarbonInfo().getProjectId());
+
+		// 중간 계산값 도출 (리포트용)
+		List<GanghwangBalanceDTO> holdings = carbonService.fetchAllHoldings(walletId);
+		GanghwangBalanceDTO myBal = holdings.stream()
+			.filter(h -> h.getTokenId().equals(tokenId)).findFirst().orElse(new GanghwangBalanceDTO());
+
+		// 2. 출력 시작
 		System.out.println("\n===============================================");
 		System.out.println(">>> [CarbonDetailDTO 최종 객체 검증] CP_ID: " + cpId);
 		System.out.println("===============================================");
 
-		try {
-			// 3. 서비스 호출 (내부에서 강황증권 API 호출 및 혜택 계산이 진행됨)
-			CarbonDetailDTO detail = carbonService.selectDetail(cpId);
+		System.out.println("\n|-------|");
+		System.out.println("|ucl_id |");
+		System.out.println("|-------|");
+		System.out.printf("|%-7d|\n", walletId);
+		System.out.println("|-------|");
 
-			if (detail != null && detail.getCarbonInfo() != null) {
-				// [A] 마리팜 상품 기본 정보
-				System.out.println("[1. 상품 기본 정보]");
-				System.out.println(" - 상품 번호: " + detail.getCarbonInfo().getCpId());
-				System.out.println(" - 총 발행량: " + detail.getCarbonInfo().getCpAmount());
-				System.out.println(" - 기본 단가: " + detail.getCarbonInfo().getCpPrice() + "원");
+		System.out.println(
+			"\n|------|-----------|----------|--------------------|-----------------|--------|--------------|---------|------------|-------------|--------------------------|--------------|-------------|----------------|---------------|----------------|----------|");
+		System.out.println(
+			"|cp_id |project_id |create_at |product_certificate |cp_amount        |cp_type |cp_detail     |cp_price |init_amount |vintage_year |cp_title                  |thumbnail_url |address_sido |address_sigungu |address_street |address_details |farm_name |");
+		System.out.println(
+			"|------|-----------|----------|--------------------|-----------------|--------|--------------|---------|------------|-------------|--------------------------|--------------|-------------|----------------|---------------|----------------|----------|");
+		System.out.printf(
+			"|%-6d|%-11d|%-10s|%-20s|%-17.6f|%-8s|%-14s|%-9.2f|%-12s|%-13s|%-26s|%-14s|%-13s|%-16s|%-15s|%-16s|%-10s|\n",
+			detail.getCarbonInfo().getCpId(), detail.getCarbonInfo().getProjectId(), "[unread]",
+			detail.getCarbonInfo().getProductCertificate(), detail.getCarbonInfo().getCpAmount(),
+			detail.getCarbonInfo().getCpType(), "인증 데이터", detail.getCarbonInfo().getCpPrice(),
+			"[unread]", detail.getCarbonInfo().getVintageYear(), detail.getCarbonInfo().getCpTitle(),
+			"[unread]", detail.getAddressSido(), detail.getAddressSigungu(), "null", "null", detail.getFarmName());
+		System.out.println(
+			"|------|-----------|----------|--------------------|-----------------|--------|--------------|---------|------------|-------------|--------------------------|--------------|-------------|----------------|---------------|----------------|----------|");
 
-				// [B] 유저 혜택 정보 (UserBenefitDTO)
-				System.out.println("\n[2. 유저 맞춤 혜택 (계산 결과)]");
-				System.out.println(" - 내 토큰 잔고: " + detail.getUserBenefit().getMyTokenBalance());
-				System.out.println(" - 나의 지분율 기반 할인율: " + detail.getUserBenefit().getDiscountRate() + "%");
-				System.out.println(" - 최대 구매 가능 수량: " + detail.getUserBenefit().getUserMaxLimit());
-				System.out.println(" - 할인 적용된 최종 단가: " + detail.getUserBenefit().getCurrentPrice() + "원");
-			}
-		} catch (Exception e) {
-			System.err.println(">>> [에러] 상세 조회 실패: " + e.getMessage());
-			e.printStackTrace();
-		}
-		System.out.println("===============================================\n");
-	}
+		System.out.println("\n|---------|");
+		System.out.println("|token_id |");
+		System.out.println("|---------|");
+		System.out.printf("|%-9d|\n", tokenId);
+		System.out.println("|---------|");
 
-	//@Test // 이제 JUnit 5 엔진이 이 메서드를 인식합니다.
-	public void verifyApiData() {
-		// [Parameter] 지갑 번호
-		Long walletId = 8888L;
+		System.out.println("\n|------------------|");
+		System.out.println("|discount_rate_pct |");
+		System.out.println("|------------------|");
+		System.out.printf("|%-18.2f|\n", detail.getUserBenefit().getDiscountRate());
+		System.out.println("|------------------|");
 
-		System.out.println("\n===============================================");
-		System.out.println(">>> [API 호출 테스트 시작] Wallet ID: " + walletId);
-		System.out.println("===============================================");
+		System.out.println("\n[1. 상품 기본 정보]");
+		System.out.println(" - 상품 번호: " + detail.getCarbonInfo().getCpId());
+		System.out.println(" - 총 발행량: " + detail.getCarbonInfo().getCpAmount());
+		System.out.println(" - 기본 단가: " + detail.getCarbonInfo().getCpPrice() + "원");
 
-		try {
-			// [주의] CarbonService의 fetchAllHoldings가 'public'으로 되어 있어야 호출 가능합니다!
-			List<GanghwangBalanceDTO> results = carbonService.fetchAllHoldings(walletId);
+		// 중간 계산 과정 수식 재현
+		BigDecimal totalCorpTokens = (myBal.getEnterpriseTotal() == null) ? BigDecimal.ONE : myBal.getEnterpriseTotal();
+		BigDecimal limitShareRatio = myBal.getMyBalance().divide(totalCorpTokens, 10, RoundingMode.HALF_UP);
+		BigDecimal discountShareRatio = myBal.getMyBalance().divide(actualAmount, 10, RoundingMode.HALF_UP);
 
-			if (results != null && !results.isEmpty()) {
-				System.out.println(">>> [Response Body 수신 성공]");
+		System.out.println("\n[2. 계산에 필요한 애들]");
+		System.out.println(" - actualAmount (프로젝트 총투자금): " + actualAmount);
+		System.out.println(" - totalCorpTokens (증권사 총토큰): " + totalCorpTokens);
+		System.out.println(" - limitShareRatio (한도용 지분율): " + limitShareRatio);
+		System.out.println(" - maxLimit (계산된 수량한도): " + detail.getUserBenefit().getUserMaxLimit());
+		System.out.println(" - discountShareRatio (할인용 지분율): " + discountShareRatio);
+		System.out
+			.println(" - discountSharePercent (할인용 %): " + discountShareRatio.multiply(new BigDecimal("100")) + "%");
 
-				for (GanghwangBalanceDTO data : results) {
-					System.out.println("-----------------------------------------------");
-					System.out.println("토큰 번호 (Token ID) : " + data.getTokenId());
-					System.out.println("기업 총 보유량 (Enterprise Total) : " + data.getEnterpriseTotal());
-					System.out.println("내 보유량 (My Balance) : " + data.getMyBalance());
-				}
-			} else {
-				System.out.println(">>> [결과] 응답 데이터가 비어있습니다. 지갑 번호를 확인하세요.");
-			}
+		System.out.println("\n[3. 유저 맞춤 혜택 (계산 결과)]");
+		System.out.println(" - 내 토큰 잔고: " + detail.getUserBenefit().getMyTokenBalance());
+		System.out.println(" - 나의 지분율 기반 할인율: " + detail.getUserBenefit().getDiscountRate() + "%");
+		System.out.println(" - 최대 구매 가능 수량: " + detail.getUserBenefit().getUserMaxLimit());
+		System.out.println(" - 할인 적용된 최종 단가: " + detail.getUserBenefit().getCurrentPrice() + "원");
 
-		} catch (Exception e) {
-			System.err.println(">>> [에러] 통신 중 예외 발생: " + e.getMessage());
-			e.printStackTrace(); // 상세 에러 추적을 위해 추가
-		}
-
-		System.out.println("===============================================\n");
+		System.out.println("\n===============================================\n");
 	}
 }
