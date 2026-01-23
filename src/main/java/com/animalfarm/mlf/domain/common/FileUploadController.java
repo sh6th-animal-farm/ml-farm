@@ -2,6 +2,7 @@ package com.animalfarm.mlf.domain.common;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -37,7 +38,7 @@ public class FileUploadController {
 			}
 
 			// 2. 파일명 중복 방지 (UUID + 원본파일명)
-			String originalFileName = file.getOriginalFilename();
+			String originalFileName = Paths.get(file.getOriginalFilename()).getFileName().toString();
 			String uuid = UUID.randomUUID().toString();
 			String savedFileName = uuid + "_" + originalFileName;
 
