@@ -26,7 +26,7 @@ pageEncoding="UTF-8"%> <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
         </li>
         <li>
           <a
-            href="${pageContext.request.contextPath}/carbon-market"
+            href="${pageContext.request.contextPath}/carbon/list"
             class="nav-item ${activeMenu == 'carbon-market' ? 'active' : ''}"
             >탄소 마켓</a
           >
@@ -41,9 +41,17 @@ pageEncoding="UTF-8"%> <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
       </ul>
     </nav>
 
-    <div class="auth-group">
-      <a href="${contextPath}/login" class="btn-login">로그인</a>
-      <a href="${contextPath}/signup" class="btn-signup">회원가입</a>
+  <div class="auth-group">
+      <div id="guest-group" style="display: flex; align-items: center; gap: 24px;">
+        <a href="${pageContext.request.contextPath}/auth/login" class="btn-login">로그인</a>
+        <a href="${pageContext.request.contextPath}/auth/signup" class="btn-signup">회원가입</a>
+      </div>
+
+      <div id="user-group" style="display: none;">
+        <button onclick="AuthManager.forceLogout()" class="btn-outline" style="padding: 4px 12px; font-size: 14px;">
+          로그아웃
+        </button>
+      </div>
     </div>
   </div>
 </header>
