@@ -16,4 +16,7 @@
 		<property name="basePackage" value="com.animalfarm.mlf.domain.user.repository" />
 	</bean>
 	
+	<!-- restTemplate추가 API 쏠 떄 -->
+	<bean id="restTemplate" class="org.springframework.web.client.RestTemplate" />
+	
 </beans>
