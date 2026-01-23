@@ -39,7 +39,7 @@ public class ApiRetryService {
 	 * REQUIRES_NEW: 메인 트랜잭션이 롤백되어도 재시도 기록은 DB에 남아야 함
 	 */
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public void registerRetry(String apiType, Object payloadObj) {
+	public void registerRetry(ApiType apiType, Object payloadObj) {
 		String payload = "";
 		try {
 			payload = objectMapper.writeValueAsString(payloadObj);
@@ -50,7 +50,7 @@ public class ApiRetryService {
 
 		ApiRetryQueueDTO retryQueue = new ApiRetryQueueDTO();
 		retryQueue.setIdempotencyKey(UUID.randomUUID().toString());
-		retryQueue.setApiType(apiType);
+		retryQueue.setApiType(apiType.name());
 		retryQueue.setPayload(payload);
 		retryQueue.setRetryCount(1);
 		retryQueue.setNextRetryAt(LocalDateTime.now().plusMinutes(2)); // 첫 재시도는 2분 뒤
@@ -113,8 +113,11 @@ public class ApiRetryService {
 		apiRetryQueueMapper.updateStatus(retry);
 
 		try {
+			// DB의 문자열 타입을 다시 Enum 타입으로 복구
+			ApiType type = ApiType.valueOf(retry.getApiType());
+
 			// 외부 API 호출 (멱등성 키 포함)
-			externalApiService.execute(retry.getApiType(), retry.getPayload(), retry.getIdempotencyKey());
+			externalApiService.execute(type, retry.getPayload(), retry.getIdempotencyKey());
 
 			// 성공 시 완료 처리
 			retry.setStatus("COMPLETED");
