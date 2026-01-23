@@ -20,7 +20,7 @@
 	<tx:annotation-driven
 		transaction-manager="transactionManager" />
 		
-	<context:property-placeholder location="classpath:/config/db.properties, classpath:config/application-${spring.profiles.active}.properties" />
+	<context:property-placeholder location="classpath:config/db.properties, classpath:config/application-${spring.profiles.active}.properties" />
 	
 	<bean id="dataSourceOrigin" destroy-method="close"
 		class="org.apache.commons.dbcp2.BasicDataSource">

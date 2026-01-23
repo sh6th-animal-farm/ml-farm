@@ -88,10 +88,16 @@ jobs:
           script: |
             # 기존 ROOT 폴더와 war 파일 삭제 (깔끔한 재배포를 위해)
             sudo rm -rf /opt/apache-tomcat-9.0.113/webapps/ROOT
+
             # 유저가 업로드할 파일들이 저장될 리눅스 경로를 생성합니다. (-p: 부모 폴더까지 한 번에)
             sudo mkdir -p /mlfarm-data/uploads
+
             # 톰캣 프로그램이 이 폴더에 파일을 쓰고 읽을 수 있도록 권한(소유자)을 변경합니다.
             sudo chown -R mlfarm:mlfarm /mlfarm-data/uploads
             sudo chown mlfarm:mlfarm /opt/apache-tomcat-9.0.113/webapps/ROOT.war
-            # 새로운 .war 파일이 반영되도록 톰캣 서비스를 재시작합니다.
+
+            # 톰캣 환경변수 설정 파일(setenv.sh)에 프로파일 주입
+            echo 'export JAVA_OPTS="$JAVA_OPTS -Dspring.profiles.active=prod"' | sudo tee /opt/apache-tomcat-9.0.113/bin/setenv.sh
+            sudo chmod +x /opt/apache-tomcat-9.0.113/bin/setenv.sh
+
             sudo systemctl restart tomcat
