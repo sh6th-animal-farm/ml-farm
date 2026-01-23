@@ -24,8 +24,7 @@
               classpath:config/application-${spring.profiles.active}.properties,
               classpath:config/enterprise.properties,
               classpath:config/mail.properties,
-              classpath:config/redis.properties"
-    ignore-unresolvable="true" />
+              classpath:config/redis.properties"/>
 	
 	<bean id="dataSourceOrigin" destroy-method="close"
 		class="org.apache.commons.dbcp2.BasicDataSource">

@@ -31,8 +31,7 @@
 	<!-- component-scan -->
 	<context:component-scan base-package="com.animalfarm.mlf" />
 	<context:property-placeholder 
-	    location="classpath:config/application-${spring.profiles.active}.properties" 
-	    ignore-unresolvable="true" />
+	    location="classpath:config/application-${spring.profiles.active:prod}.properties" />
 	<mvc:annotation-driven />
 	
 	<!-- 스웨거 스캔 -->
