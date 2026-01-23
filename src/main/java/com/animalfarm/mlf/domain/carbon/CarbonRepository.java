@@ -30,6 +30,10 @@ public interface CarbonRepository {
 	Long getTokenIdByProjectId(@Param("projectId")
 	Long projectId);
 
+	// 프로젝트 ID로 총 투자금액(actual_amount)만 따로 가져오는 메서드
+	BigDecimal getActualAmount(@Param("projectId")
+	Long projectId);
+
 	//할인율
 	BigDecimal getDiscountRate(@Param("sharePercent")
 	BigDecimal sharePercent);
