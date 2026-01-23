@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper
+	namespace="com.animalfarm.mlf.domain.carbon.CarbonRepository">
+	
+	<resultMap id="CarbonDetailMap" type="com.animalfarm.mlf.domain.carbon.dto.CarbonDetailDTO">
+        <result property="addressSido" column="address_sido"/>
+        <result property="addressSigungu" column="address_sigungu"/>
+        <result property="addressStreet" column="address_street"/>
+        <result property="addressDetails" column="address_details"/>
+        <result property="farmName" column="farm_name"/>
+
+        <association property="carbonInfo" javaType="com.animalfarm.mlf.domain.carbon.dto.CarbonDTO">
+            <id property="cpId" column="cp_id"/>
+            <result property="projectId" column="project_id"/>
+            <result property="cpTitle" column="cp_title"/>
+            <result property="cpType" column="cp_type"/>
+            <result property="cpPrice" column="cp_price"/>
+            <result property="cpAmount" column="cp_amount"/>
+            <result property="vintageYear" column="vintage_year"/>
+            <result property="cpDetail" column="cp_detail"/>
+            <result property="productCertificate" column="product_certificate"/>
+        </association>
+    </resultMap>
+
+    <select id="selectProductsByTokenIds" resultMap="CarbonDetailMap">
+        SELECT 
+            P.*, F.address_sido, F.address_sigungu, F.farm_name
+        FROM carbon_products P
+        JOIN projects PJ ON P.project_id = PJ.project_id
+        JOIN farms F ON PJ.farm_id = F.farm_id
+        WHERE P.project_id IN 
+        <foreach item="id" collection="tokenIds" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        ORDER BY P.cp_id DESC
+    </select>
+
+    <select id="selectDetail" resultMap="CarbonDetailMap">
+        SELECT 
+            P.*, F.address_sido, F.address_sigungu, F.address_street, F.address_details, F.farm_name
+        FROM carbon_products P
+        JOIN projects PJ ON P.project_id = PJ.project_id
+        JOIN farms F ON PJ.farm_id = F.farm_id
+        WHERE P.cp_id = #{cpId}
+    </select>
+
+    <select id="getWalletIdByUserId" resultType="long">
+        SELECT ucl_id FROM user_certificate_links WHERE user_id = #{userId}
+    </select>
+
+    <select id="getDiscountRate" resultType="java.math.BigDecimal">
+        SELECT discount_rate_pct 
+        FROM reduction_sale_policy
+        WHERE #{sharePercent} >= min_ratio_pct AND #{sharePercent} &lt; max_ratio_pct
+    </select>
+	
+	<select id="getTokenIdByProjectId" resultType="long">
+	    SELECT token_id 
+	    FROM tokens
+	    WHERE project_id = #{projectId}
+	</select>
+	
+	<select id="getActualAmount" resultType="java.math.BigDecimal">
+	    SELECT actual_amount 
+	    FROM projects 
+	    WHERE project_id = #{projectId}
+	</select>
+	
+  	<!-- 전체 조회 -->
+	<select id="selectAll"
+	        resultType="com.animalfarm.mlf.domain.carbon.dto.CarbonListDTO">
+	  SELECT
+	    cp.cp_id               AS cpId,
+	    cp.project_id          AS projectId,
+	    cp.cp_title            AS cpTitle,
+	    cp.cp_type             AS category,
+	    cp.cp_price            AS cpPrice,
+	    cp.cp_amount           AS cpAmount,
+	    cp.product_certificate AS productCertificate,
+	    cp.vintage_year        AS vintageYear,
+	    cp.cp_detail           AS cpDetail,
+	    pi.image_url           AS thumbnailUrl
+	  FROM carbon_products cp
+	  LEFT JOIN projects p
+	         ON cp.project_id = p.project_id
+	  LEFT JOIN project_images pi
+	         ON pi.project_id = p.project_id
+	        AND pi.is_thumbnail = true
+	  ORDER BY cp.cp_id DESC
+	</select>
+	
+	<!-- 조건 조회 -->
+	<select id="selectByCondition"
+	        parameterType="string"
+	        resultType="com.animalfarm.mlf.domain.carbon.dto.CarbonListDTO">
+	
+	  SELECT
+	    cp.cp_id               AS cpId,
+	    cp.project_id          AS projectId,
+	    cp.cp_title            AS cpTitle,
+	    cp.cp_type             AS category,
+	    cp.cp_price            AS cpPrice,
+	    cp.cp_amount           AS cpAmount,
+	    cp.product_certificate AS productCertificate,
+	    cp.vintage_year        AS vintageYear,
+	    cp.cp_detail           AS cpDetail,
+	    pi.image_url           AS thumbnailUrl
+	  FROM carbon_products cp
+	  LEFT JOIN projects p
+	         ON cp.project_id = p.project_id
+	  LEFT JOIN project_images pi
+	         ON pi.project_id = p.project_id
+	        AND pi.is_thumbnail = true
+	
+	  <where>
+	    <if test="category != null and category != ''">
+	      AND cp.cp_type = #{category}
+	    </if>
+	  </where>
+	
+	  ORDER BY cp.cp_id DESC
+	</select>
+</mapper>
