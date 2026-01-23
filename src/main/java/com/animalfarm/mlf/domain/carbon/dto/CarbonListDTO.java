@@ -27,4 +27,5 @@ public class CarbonListDTO {
 	private String productCertificate;
 	private String vintageYear;
 	private String cpDetail;
+	private String thumbnailUrl;
 }

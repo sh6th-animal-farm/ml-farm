@@ -121,6 +121,12 @@
 				</div>
 			</div>
 		</main>
+		<%-- 계좌 연동이 없을 때 나오는 모달 --%>
+		<%-- 태그 사이에 넣는 내용이 <jsp:doBody /> 위치로 쏙 들어갑니다 --%>
+		<t:warning_card id="accountModal" title="연동된 계좌 없음">
+   			현재 팜조각에 연동된 <strong>증권사 계좌</strong>가 없습니다.<br> 
+			청약 참여를 위해 계좌를 먼저 연동해 주세요.
+		</t:warning_card>
 		<t:project_detail_side projectData="${projectData}" />
 	</div>
 </div>
