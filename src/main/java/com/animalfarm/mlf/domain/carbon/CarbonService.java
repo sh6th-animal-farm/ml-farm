@@ -15,7 +15,7 @@ import org.springframework.web.client.RestTemplate;
 import com.animalfarm.mlf.common.security.CustomUser;
 import com.animalfarm.mlf.domain.carbon.dto.CarbonDetailDTO;
 import com.animalfarm.mlf.domain.carbon.dto.CarbonListDTO;
-import com.animalfarm.mlf.domain.carbon.dto.GanghwangBalanceDTO;
+import com.animalfarm.mlf.domain.carbon.dto.CarbonDiscountDTO;
 import com.animalfarm.mlf.domain.carbon.dto.UserBenefitDTO;
 
 @Service
@@ -50,10 +50,10 @@ public class CarbonService {
 	 * [API 호출] 강황증권으로부터 유저의 전체 지분 리스트를 가져옵니다.
 	 * 엔드포인트: /api/carbon/{walletId}
 	 */
-	public List<GanghwangBalanceDTO> fetchAllHoldings(Long walletId) {
+	public List<CarbonDiscountDTO> fetchAllHoldings(Long walletId) {
 		try {
 			String url = GANGHWANG_API_URL + "/api/carbon/" + walletId;
-			GanghwangBalanceDTO[] response = restTemplate.getForObject(url, GanghwangBalanceDTO[].class);
+			CarbonDiscountDTO[] response = restTemplate.getForObject(url, CarbonDiscountDTO[].class);
 			return (response != null) ? Arrays.asList(response) : new ArrayList<>();
 		} catch (Exception e) {
 			System.out.println("[ERROR] 강황증권 API 통신 실패: " + e.getMessage());
@@ -74,7 +74,7 @@ public class CarbonService {
 	 * 2. discountRate: 신규 로직 적용 (프로젝트 총 투자액 대비 내 투자액)
 	 */
 	private UserBenefitDTO processCalculation(BigDecimal cpAmount, BigDecimal cpPrice, BigDecimal actualAmount,
-		GanghwangBalanceDTO balance) {
+		CarbonDiscountDTO balance) {
 		// 기초 데이터 (API에서 온 값)
 		BigDecimal myBal = (balance != null) ? balance.getMyBalance() : BigDecimal.ZERO;
 		BigDecimal totalCorpTokens = (balance != null) ? balance.getEnterpriseTotal() : BigDecimal.ONE;
@@ -152,10 +152,10 @@ public class CarbonService {
 		Long targetTokenId = carbonRepository.getTokenIdByProjectId(currentProjectId);
 
 		// 3. 강황증권 전체 지분 리스트 가져오기
-		List<GanghwangBalanceDTO> holdings = fetchAllHoldings(walletId);
+		List<CarbonDiscountDTO> holdings = fetchAllHoldings(walletId);
 
 		// 4. [수정 완료] 번역된 'targetTokenId'로 API 결과 내 지분 필터링
-		GanghwangBalanceDTO myHolding = holdings.stream()
+		CarbonDiscountDTO myHolding = holdings.stream()
 			.filter(h -> h.getTokenId().equals(targetTokenId)) // 이제 정확히 일치함!
 			.findFirst()
 			.orElse(null);

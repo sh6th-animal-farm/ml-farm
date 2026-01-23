@@ -6,7 +6,7 @@ import lombok.Data;
 
 //강황증권 API 응답 전용 DTO
 @Data
-public class GanghwangBalanceDTO {
+public class CarbonDiscountDTO {
 
 	private Long tokenId; // 토큰(프로젝트) 번호
 	private BigDecimal myBalance; // 내(기업) 보유량
