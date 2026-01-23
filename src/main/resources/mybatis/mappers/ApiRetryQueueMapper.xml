@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.animalfarm.mlf.domain.retry.ApiRetryQueueRepository">
+
+    <insert id="insert" parameterType="apiRetryQueueDTO" useGeneratedKeys="true" keyProperty="seq">
+        INSERT INTO api_retry_queue (
+            idempotency_key,
+            api_type,
+            payload,
+            status,
+            retry_count,
+            next_retry_at,
+            created_at,
+            updated_at
+        ) VALUES (
+            #{idempotencyKey},
+            #{apiType},
+            #{payload},
+            'PENDING',
+            #{retryCount},
+            #{nextRetryAt},
+            NOW(),
+            NOW()
+        )
+    </insert>
+
+    <select id="selectPendingRetries" resultType="apiRetryQueueDTO">
+        SELECT *
+        FROM api_retry_queue
+        WHERE status = 'PENDING'
+          AND next_retry_at &lt;= NOW()
+        ORDER BY next_retry_at ASC
+        LIMIT 100
+    </select>
+
+    <update id="updateStatusAndNextRetry" parameterType="apiRetryQueueDTO">
+        UPDATE api_retry_queue
+        SET status = #{status},
+            retry_count = #{retryCount},
+            next_retry_at = #{nextRetryAt},
+            updated_at = NOW()
+        WHERE seq = #{seq}
+    </update>
+
+    <update id="updateStatus" parameterType="apiRetryQueueDTO">
+        UPDATE api_retry_queue
+        SET status = #{status},
+            updated_at = NOW()
+        WHERE seq = #{seq}
+    </update>
+    
+    <select id="selectByIdempotencyKey" resultType="apiRetryQueueDTO">
+        SELECT * 
+        FROM api_retry_queue 
+        WHERE idempotency_key = #{idempotencyKey}
+    </select>
+
+</mapper>

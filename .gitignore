@@ -62,3 +62,5 @@ node_modules/
 dist/
 .env.local
 .env.development.local
+
+ANTIGRAVITY.md

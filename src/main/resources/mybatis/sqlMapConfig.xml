@@ -31,6 +31,8 @@
 			alias="projectInsertDTO" />
 		<typeAlias type="com.animalfarm.mlf.domain.token.dto.TokenDTO"
 			alias="tokenDTO" />
+		<typeAlias type="com.animalfarm.mlf.domain.retry.ApiRetryQueueDTO"
+			alias="apiRetryQueueDTO" />
 	</typeAliases>
 	
 </configuration>
