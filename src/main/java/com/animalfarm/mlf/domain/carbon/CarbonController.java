@@ -30,7 +30,7 @@ public class CarbonController {
 	public List<CarbonListDTO> selectByCategory(
 		@RequestParam(value = "category", required = false, defaultValue = "ALL")
 		String category) {
-		return carbonService.selectByCategory(category);
+		return carbonService.selectByCondition(category);
 	}
 
 	// 상세 페이지 조회

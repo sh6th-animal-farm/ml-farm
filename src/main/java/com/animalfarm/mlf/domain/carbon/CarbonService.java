@@ -111,8 +111,8 @@ public class CarbonService {
 	}
 
 	// [카테고리 조회]
-	public List<CarbonListDTO> selectByCategory(String category) {
-		return carbonRepository.selectByCategory(category);
+	public List<CarbonListDTO> selectByCondition(String category) {
+		return carbonRepository.selectByCondition(category);
 	}
 
 	/**

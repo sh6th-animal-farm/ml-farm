@@ -22,7 +22,7 @@ public class CarbonViewController {
 		Model model) {
 		model.addAttribute("contentPage", "/WEB-INF/views/carbon/carbon_list.jsp");
 		model.addAttribute("activeMenu", "carbon-market");
-		model.addAttribute("carbonList", carbonService.selectByCategory(category));
+		model.addAttribute("carbonList", carbonService.selectByCondition(category));
 
 		return "layout";
 	}
