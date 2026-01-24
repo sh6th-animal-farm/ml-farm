@@ -1,9 +1,10 @@
+@charset "UTF-8";
+
 .mypage-container {
-    max-width: 1200px;
+    max-width: 1296px;
     margin: 60px auto;
     display: flex;
-    gap: 40px;
-    padding: 0 20px;
+    gap: 24px;
 }
 
 /* 왼쪽 사이드바 영역 */
@@ -61,3 +62,9 @@
 .delete-info .d-title { font: var(--font-caption-02); margin-bottom: 4px; }
 .delete-info .d-desc { font: var(--font-caption-01); color: var(--gray-400); }
 .btn-withdraw { color: var(--gray-400); font: var(--font-caption-02); font-weight: 700; text-decoration: underline; background: none; border: none; cursor: pointer; }
+
+/* 더보기 버튼 */
+.btn-more { 
+    width: 100%; padding: 12px; background: #fff; box-shadow: var(--shadow); border:none;
+    border-radius: 12px; color: var(--gray-900); font-weight: 600; margin-top: 24px; cursor: pointer;
+}

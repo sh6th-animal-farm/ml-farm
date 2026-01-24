@@ -7,8 +7,9 @@
 <%@ attribute name="endDate" required="true" %>
 <%@ attribute name="status1" required="true" %>
 <%@ attribute name="status2" required="false" %>
+<%@ attribute name="onclick" required="true" %>
 
-<div class="project-item">
+<div class="project-item" onclick=${onclick}>
     <div class="project-info">
         <p class="p-title">${name}</p>
         <p class="p-date">${startDate} - ${endDate}</p>
@@ -19,25 +20,20 @@
         	<t:status_badge status="inProgress" label="${status2}"/>
         </c:if>
     </div>
-    <button class="btn-trade">토큰 거래</button>
+    <button class="detail-btn">
+        <t:icon name="chevron_right" color="var(--gray-400)" size="20"/>
+    </button>
 </div>
 
 <style>
 .project-item { 
     display: flex; align-items: center; gap:24px;
-    padding-block: 24px; background: #fff; 
+    padding-block: 24px; background: #fff; cursor:pointer;
 }
 .project-info { width:100%; flex:1; }
 .project-info .p-title { font:var(--font-body-03); margin-bottom: 2px;}
 .project-info .p-date { font:var(--font-caption-01); color: var(--gray-400); }
 .status-group { width:150px; display: flex; align-items: center; justify-content:center; gap: 12px; }
 
-.btn-trade { 
-    background: #1A1D23; color: #fff; border: none; padding: 10px 24px; 
-    border-radius: var(--radius-m); font-size: 14px; font-weight: 600; cursor: pointer;
-}
-.btn-more { 
-    width: 100%; padding: 12px; background: #fff; box-shadow: var(--shadow); border:none;
-    border-radius: 12px; color: var(--gray-900); font-weight: 600; margin-top: 24px; cursor: pointer;
-}
+.detail-btn { background:transparent; border:none; display:flex; align-items: center}
 </style>

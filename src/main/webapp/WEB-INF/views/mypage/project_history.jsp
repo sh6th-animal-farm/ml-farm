@@ -26,6 +26,7 @@
     
     .filter-group { display: flex; gap: 4px; margin-bottom: 24px; }
     .project-list { background: #fff; display: flex; flex-direction: column; padding-inline: 24px; border-radius: var(--radius-l); box-shadow: var(--shadow);  }
+	
 
 </style>
 
@@ -59,10 +60,10 @@
 
         <div class="project-list">
         	
-        	<t:project_history_list_item startDate="2026.04.10" name="연천 킹스베리 딸기 01호" status1="공고중" endDate="2026.04.12"/>
-        	<t:project_history_list_item startDate="2026.04.10" name="연천 킹스베리 딸기 01호" status1="공고중" endDate="2026.04.12"/>
-        	<t:project_history_list_item startDate="2026.04.10" name="연천 킹스베리 딸기 01호" status1="진행중" status2="낙첨" endDate="2026.04.12"/>
-        	<t:project_history_list_item startDate="2026.04.10" name="연천 킹스베리 딸기 01호" status1="종료됨" endDate="2026.04.12"/>
+        	<t:project_history_list_item startDate="2026.04.10" name="연천 킹스베리 딸기 01호" status1="공고중" endDate="2026.04.12" onclick=""/>
+        	<t:project_history_list_item startDate="2026.04.10" name="연천 킹스베리 딸기 01호" status1="공고중" endDate="2026.04.12"  onclick=""/>
+        	<t:project_history_list_item startDate="2026.04.10" name="연천 킹스베리 딸기 01호" status1="진행중" status2="낙첨" endDate="2026.04.12"  onclick=""/>
+        	<t:project_history_list_item startDate="2026.04.10" name="연천 킹스베리 딸기 01호" status1="종료됨" endDate="2026.04.12"  onclick=""/>
         	
         </div>
 

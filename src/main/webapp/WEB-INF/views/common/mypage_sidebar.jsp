@@ -5,13 +5,46 @@
 <%-- 현재 요청된 URI를 가져와서 active 메뉴를 판단합니다 --%>
 <c:set var="currentUri" value="${pageContext.request.requestURI}" />
 
+<div class="mypage-sidebar">
+    <a href="${pageContext.request.contextPath}/mypage/profile" 
+       class="sidebar-menu-item ${menu eq 'profile' ? 'active' : ''}">
+        <span>내 정보 관리</span>
+        <t:icon name="chevron_right" size="14" color="var(--gray-500)"/>
+    </a>
+
+    <a href="${pageContext.request.contextPath}/mypage/project-history" 
+       class="sidebar-menu-item ${menu eq 'project' ? 'active' : ''}">
+        <span>나의 프로젝트</span>
+        <t:icon name="chevron_right" size="14" color="var(--gray-500)"/>
+    </a>
+
+    <a href="${pageContext.request.contextPath}/mypage/wallet" 
+       class="sidebar-menu-item ${menu eq 'wallet' ? 'active' : ''}">
+        <span>나의 전자지갑</span>
+        <t:icon name="chevron_right" size="14" color="var(--gray-500)"/>
+    </a>
+
+    <a href="${pageContext.request.contextPath}/mypage/transaction-history" 
+       class="sidebar-menu-item ${menu eq 'transaction' ? 'active' : ''}">
+        <span>거래 내역</span>
+        <t:icon name="chevron_right" size="14" color="var(--gray-500)"/>
+    </a>
+
+    <a href="${pageContext.request.contextPath}/mypage/carbon-history" 
+       class="sidebar-menu-item ${menu eq 'carbon' ? 'active' : ''}">
+        <span>탄소 배출권 구매 내역</span>
+        <t:icon name="chevron_right" size="14" color="var(--gray-500)"/>
+    </a>
+</div>
+
+
+
 <style>
     .mypage-sidebar {
         width: 100%;
         max-width: 280px;
         background: #F8FAFB;
         border-radius: 16px;
-        padding: 12px;
         display: flex;
         flex-direction: column;
         gap: 4px;
@@ -58,35 +91,3 @@
         display: block; /* active일 때만 화살표 표시 */
     }
 </style>
-
-<div class="mypage-sidebar">
-    <a href="${pageContext.request.contextPath}/mypage/profile" 
-       class="sidebar-menu-item ${menu eq 'profile' ? 'active' : ''}">
-        <span>내 정보 관리</span>
-        <t:icon name="chevron_right" size="14" color="var(--gray-500)"/>
-    </a>
-
-    <a href="${pageContext.request.contextPath}/mypage/project-history" 
-       class="sidebar-menu-item ${menu eq 'project' ? 'active' : ''}">
-        <span>나의 프로젝트</span>
-        <t:icon name="chevron_right" size="14" color="var(--gray-500)"/>
-    </a>
-
-    <a href="${pageContext.request.contextPath}/mypage/wallet" 
-       class="sidebar-menu-item ${menu eq 'wallet' ? 'active' : ''}">
-        <span>나의 전자지갑</span>
-        <t:icon name="chevron_right" size="14" color="var(--gray-500)"/>
-    </a>
-
-    <a href="${pageContext.request.contextPath}/mypage/transaction-history" 
-       class="sidebar-menu-item ${menu eq 'transaction' ? 'active' : ''}">
-        <span>거래 내역</span>
-        <t:icon name="chevron_right" size="14" color="var(--gray-500)"/>
-    </a>
-
-    <a href="${pageContext.request.contextPath}/mypage/carbon-history" 
-       class="sidebar-menu-item ${menu eq 'carbon' ? 'active' : ''}">
-        <span>탄소 배출권 구매 내역</span>
-        <t:icon name="chevron_right" size="14" color="var(--gray-500)"/>
-    </a>
-</div>
