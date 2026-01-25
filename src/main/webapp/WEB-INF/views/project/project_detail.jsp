@@ -127,9 +127,9 @@
 		
 		<t:subscription_modal 
 		    id="mySubModal"
-		    title="팜조각 스마트팜 1호 공모"
+		    title="${projectData.projectName} 공모"
 		    price="345000"
-		    thumbnail="${pageContext.request.contextPath}/resources/img/sample.jpg"
+		    thumbnail="${pageContext.request.contextPath}/uploads/projects/${projectData.images[0]}"
 		    userLimit="40000000"
 		    walletBalance="100000000"
 		/>

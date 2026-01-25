@@ -221,4 +221,30 @@ public class ProjectService {
             return false;
         }
 	}
+	
+	public ApiResponse selectMyWallet() {
+		// 1. 목적지 주소 생성 (외부 IP + 상세 경로)
+        String targetUrl = khUrl + "api/my/wallet/1";
+        try {
+        	// 2. GET 방식으로 데이터 요청 (응답은 String으로 받는 예시)
+        	ResponseEntity<ApiResponse> responseEntity = restTemplate.getForEntity(targetUrl, ApiResponse.class);
+        	int status = responseEntity.getStatusCodeValue();
+            System.out.println("응답 결과: " + status);
+            if(status == 200) {
+            	ApiResponse response = responseEntity.getBody();
+            	System.out.println("response : " + response.getPayload());
+            	if(response.getPayload() != null) {
+            		System.out.println(response.getMessage());
+            		return response;
+            	} else {
+            		System.out.println(response.getMessage());
+            	}
+            }
+    		return null;
+        } catch (Exception e) {
+        	// 3. 외부 서버 연결 실패 시 예외 처리 (재시도 테이블 insert 등)
+            System.err.println("외부 서버 통신 실패: " + e.getMessage());
+            return null;
+        }
+	}
 }

@@ -26,6 +26,7 @@ public class ProjectViewController {
 	Long id, Model model) {
 		model.addAttribute("projectData", projectService.selectDetail(id));
 		model.addAttribute("contentPage", "/WEB-INF/views/project/project_detail.jsp");
+		model.addAttribute("myWallet", projectService.selectMyWallet());
 		return "layout";
 	}
 
