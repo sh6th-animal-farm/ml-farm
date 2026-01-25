@@ -27,7 +27,7 @@ public class CarbonViewController {
 		return "layout";
 	}
 
-	@GetMapping("/detail/{id}")
+	@GetMapping("/{id}")
 	public String carbonDetailPage(@PathVariable
 	Long id, Model model) {
 		model.addAttribute("cpId", id); // JS에서 API 호출할 때 쓰라고 넘겨줌

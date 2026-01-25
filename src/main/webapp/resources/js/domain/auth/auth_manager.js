@@ -1,9 +1,12 @@
 /* js/domain/auth/auth_manager.js */
 
 const AuthManager = {
-    // 초기 설정값
-    refreshInterval: 40 * 1000, 
-    logoutTime: 120 * 1000,
+    // 토큰 갱신 주기: Access Token이 1시간(60분)이므로, 50~55분마다 갱신 권장
+    refreshInterval: 55 * 60 * 1000, // 55분 (운영 환경에 맞춰 상향)
+
+    // 자동 로그아웃 시간: 사용자가 아무 활동이 없을 때 로그아웃시킬 시간 (보통 30분~1시간)
+    logoutTime: 30 * 60 * 1000, // 30분 (미활동 시 세션 만료)
+
     lastRefreshTime: Date.now(),
 
     // 초기화 함수: JSP에서 ctx를 전달받아 실행
