@@ -5,6 +5,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags"%>
+<%@ taglib prefix="mp" tagdir="/WEB-INF/tags/mypage"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <%
@@ -69,12 +70,14 @@
             <div class="total-amount">${totalAmount }12,450,000<div class="amount-unit">원</div></div>
         </div>
 
-        <t:investment_grid totalAsset="62,520,000" deposit="12,450,000" purchaseAmount="46,500,000" marketValue="50,070,000" unrealizedGain="+3,570,000" returnPct="+7.67%"/>
+        <mp:investment_grid totalAsset="62,520,000" deposit="12,450,000" purchaseAmount="46,500,000" marketValue="50,070,000" unrealizedGain="+3,570,000" returnPct="+7.67%"/>
 
 		<t:category_tab items="${tokenTabs}" activeValue="TOKEN_TYPES" />
         
-        <t:token_wallet_table tokenList="${tokenList}"/>
+        <mp:token_wallet_table tokenList="${tokenList}"/>
 
-        <button class="btn-more" onclick="">+ 더보기</button>
+		<c:if test="${tokenList.length>0}">
+        	<button class="btn-more"  onclick="">+ 더보기</button>
+		</c:if>
     </div>
 </div>

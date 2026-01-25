@@ -9,7 +9,7 @@
 <%@ attribute name="status2" required="false" %>
 <%@ attribute name="onclick" required="true" %>
 
-<div class="project-item" onclick=${onclick}>
+<div class="project-item" onclick="${onclick}">
     <div class="project-info">
         <p class="p-title">${name}</p>
         <p class="p-date">${startDate} - ${endDate}</p>

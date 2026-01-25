@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags"%>
+<%@ taglib prefix="mp" tagdir="/WEB-INF/tags/mypage"%>
 <%@ page import="java.util.*" %>
 <%
 	/* 상단 참여한 프로젝트, 관심 프로젝트 탭에 들어갈 숫자 가져와서 List 생성 */
@@ -57,16 +58,11 @@
                        active="${param.projectStatus == 'COMPLETED'}" 
                        onClick=""/>
         </div>
+		
+		<mp:project_history_list projectList="${projectList }"/>
 
-        <div class="project-list">
-        	
-        	<t:project_history_list_item startDate="2026.04.10" name="연천 킹스베리 딸기 01호" status1="공고중" endDate="2026.04.12" onclick=""/>
-        	<t:project_history_list_item startDate="2026.04.10" name="연천 킹스베리 딸기 01호" status1="공고중" endDate="2026.04.12"  onclick=""/>
-        	<t:project_history_list_item startDate="2026.04.10" name="연천 킹스베리 딸기 01호" status1="진행중" status2="낙첨" endDate="2026.04.12"  onclick=""/>
-        	<t:project_history_list_item startDate="2026.04.10" name="연천 킹스베리 딸기 01호" status1="종료됨" endDate="2026.04.12"  onclick=""/>
-        	
-        </div>
-
-        <button class="btn-more" onclick="">+ 더보기</button>
+		<c:if test="${projectList.length>0}">
+        	<button class="btn-more"  onclick="">+ 더보기</button>
+		</c:if>
     </div>
 </div>

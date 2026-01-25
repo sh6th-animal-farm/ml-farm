@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags"%>
+<%@ taglib prefix="mp" tagdir="/WEB-INF/tags/mypage"%>
 
 <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/mypage.css">
 <style>
@@ -28,8 +29,10 @@
             <button class="btn-market" onclick="location.href='${pageContext.request.contextPath}/market'">마켓으로 이동 ❯</button>
     	</div>
     	
-        <t:carbon_hitory_table carbonList="${carbonList}"/>
+        <mp:carbon_history_table carbonList="${carbonList}"/>
 
-        <button class="btn-more" onclick="">+ 더보기</button>
+		<c:if test="${carbonList.length>0}">
+        	<button class="btn-more"  onclick="">+ 더보기</button>
+		</c:if>
     </div>
 </div>
