@@ -6,10 +6,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
+import com.animalfarm.mlf.domain.common.ApiResponse;
 import com.animalfarm.mlf.domain.project.dto.FarmDTO;
 import com.animalfarm.mlf.domain.project.dto.ImgEditable;
 import com.animalfarm.mlf.domain.project.dto.ProjectDTO;
@@ -30,6 +34,13 @@ public class ProjectService {
 
 	@Autowired
 	TokenRepository tokenReopsitory;
+	
+	// 강황증권 API 서버 주소
+	@Value("${api.kh-stock.url}")
+	private String khUrl;
+	
+	@Autowired
+    private RestTemplate restTemplate;
 
 	public List<ProjectDTO> selectAll() {
 		return projectRepository.selectAll();
@@ -186,5 +197,28 @@ public class ProjectService {
 		}
 		return projectRepository.selectStatus();
 	}
-
+	
+	public boolean checkAccount() {
+		// 1. 목적지 주소 생성 (외부 IP + 상세 경로)
+        String targetUrl = khUrl + "api/my/account/1";
+        try {
+            // 2. GET 방식으로 데이터 요청 (응답은 String으로 받는 예시)
+        	ResponseEntity<ApiResponse> responseEntity = restTemplate.getForEntity(targetUrl, ApiResponse.class);
+        	int status = responseEntity.getStatusCodeValue();
+            System.out.println("응답 결과: " + status);
+            if(status == 200) {
+            	ApiResponse response = responseEntity.getBody();
+                System.out.println("response: " + response.getMessage());
+                if(response.getPayload() != null) {
+                	return true;
+                }
+            }
+            System.out.println("연동되어 있지 않습니다.");
+            return false;
+        } catch (Exception e) {
+            // 3. 외부 서버 연결 실패 시 예외 처리 (재시도 테이블 insert 등)
+            System.err.println("외부 서버 통신 실패: " + e.getMessage());
+            return false;
+        }
+	}
 }

@@ -46,40 +46,16 @@
 		c.method,
 		t.ticker_symbol,
 		t.total_supply,
-		UNNEST(img.image_list) AS image_url,
-		UNNEST(fed.temp_list) AS
-		temperature_inside
+		img.image_url, -- 직접 조인 (중복 행 발생하지만 MyBatis가 처리함)
+		fed.temperature_inside -- 직접 조인
 		FROM projects p
-		LEFT JOIN
-		farms f ON p.farm_id = f.farm_id
-		LEFT JOIN
-		cultivations c ON
-		p.project_id = c.project_id
-		LEFT JOIN tokens t ON
-		p.project_id =
-		t.project_id
-		<!-- 이미지 서브쿼리 조인 전 미리 그룹화하여 데이터 중복 생성 방지 -->
-		LEFT JOIN (
-		SELECT
-		project_id, ARRAY_AGG(image_url) AS image_list
-		FROM
-		project_images
-		GROUP
-		BY project_id
-		) img ON p.project_id =
-		img.project_id
-		<!-- 환경 데이터 서브쿼리: 조인 전 미리 그룹화-->
-		LEFT JOIN (
-		SELECT farm_id,
-		ARRAY_AGG(temperature_inside) AS
-		temp_list
-		FROM farm_env_data
-		GROUP BY
-		farm_id
-		) fed ON f.farm_id =
-		fed.farm_id
-		WHERE p.project_id =
-		#{projectId};
+		LEFT JOIN farms f ON p.farm_id = f.farm_id
+		LEFT JOIN cultivations c ON p.project_id = c.project_id
+		LEFT JOIN tokens t ON p.project_id = t.project_id
+		-- 서브쿼리 그룹화 대신 원본 테이블과 직접 조인
+		LEFT JOIN project_images img ON p.project_id = img.project_id
+		LEFT JOIN farm_env_data fed ON f.farm_id = fed.farm_id
+		WHERE p.project_id = #{projectId}
 	</select>
 
 	<select id="selectByCondition"
@@ -287,11 +263,11 @@
 			OR (project_status = 'SUBSCRIPTION' AND subscription_end_date < CURRENT_DATE)
 		]]>
 	</select>
-	
+
 	<update id="updateProjectStatus" parameterType="projectStatusDTO">
-		UPDATE Projects 
-		SET project_status = #{nextStatus}, 
-   		updated_at = NOW()
+		UPDATE Projects
+		SET project_status = #{nextStatus},
+		updated_at = NOW()
 		WHERE project_id = #{projectId} AND project_status = #{projectStatus};
 	</update>
 </mapper>
