@@ -1,9 +1,13 @@
 package com.animalfarm.mlf.common.security;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
+
+import com.animalfarm.mlf.domain.user.dto.UserDTO;
 
 import lombok.Getter;
 
@@ -25,5 +29,17 @@ public class CustomUser extends User {
 		super(username, password, authorities);
 		this.userId = userId;
 		this.userRole = userRole;
+	}
+
+	/**
+	 * UserDTO를 직접 받는 생성자 추가
+	 */
+	public CustomUser(UserDTO dto) {
+		// 부모 클래스(User) 생성자 호출: email, password, authorities
+		super(dto.getEmail(), dto.getPassword(),
+			Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + dto.getRole())));
+
+		this.userId = dto.getUserId(); // DTO에서 PK 추출
+		this.userRole = dto.getRole(); // DTO에서 권한 추출
 	}
 }

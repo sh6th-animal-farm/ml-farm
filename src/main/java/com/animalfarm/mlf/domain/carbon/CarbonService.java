@@ -3,19 +3,22 @@ package com.animalfarm.mlf.domain.carbon;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.animalfarm.mlf.common.ApiResponseDTO;
 import com.animalfarm.mlf.common.security.CustomUser;
 import com.animalfarm.mlf.domain.carbon.dto.CarbonDetailDTO;
+import com.animalfarm.mlf.domain.carbon.dto.CarbonDiscountDTO;
 import com.animalfarm.mlf.domain.carbon.dto.CarbonListDTO;
-import com.animalfarm.mlf.domain.carbon.dto.GanghwangBalanceDTO;
 import com.animalfarm.mlf.domain.carbon.dto.UserBenefitDTO;
 
 @Service
@@ -27,8 +30,8 @@ public class CarbonService {
 	@Autowired
 	private RestTemplate restTemplate;
 
-	// 강황증권 API 서버 주소 (예시)
-	private final String GANGHWANG_API_URL = "http://192.168.0.156:9090/";
+	// 강황증권 API 서버 주소
+	private final String GANGHWANG_API_URL = "http://54.167.85.125:9090/";
 
 	// ---------------------------------------------------------
 	// 1. 공통 유틸리티 메서드 (내부 전용)
@@ -39,10 +42,12 @@ public class CarbonService {
 	 */
 	private Long getLoginUserId() {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
 		if (auth == null || !(auth.getPrincipal() instanceof CustomUser)) {
 			throw new RuntimeException("로그인 정보가 만료되었습니다. 다시 로그인해주세요.");
 		}
 		CustomUser user = (CustomUser)auth.getPrincipal();
+
 		return user.getUserId();
 	}
 
@@ -50,11 +55,24 @@ public class CarbonService {
 	 * [API 호출] 강황증권으로부터 유저의 전체 지분 리스트를 가져옵니다.
 	 * 엔드포인트: /api/carbon/{walletId}
 	 */
-	public List<GanghwangBalanceDTO> fetchAllHoldings(Long walletId) {
+	public List<CarbonDiscountDTO> fetchAllHoldings(Long walletId) {
 		try {
 			String url = GANGHWANG_API_URL + "/api/carbon/" + walletId;
-			GanghwangBalanceDTO[] response = restTemplate.getForObject(url, GanghwangBalanceDTO[].class);
-			return (response != null) ? Arrays.asList(response) : new ArrayList<>();
+
+			// ParameterizedTypeReference를 써야 제네릭(<T>)이 포함된 응답을 정확히 읽어옵니다.
+			ResponseEntity<ApiResponseDTO<List<CarbonDiscountDTO>>> responseEntity = restTemplate.exchange(
+				url,
+				HttpMethod.GET,
+				null,
+				new ParameterizedTypeReference<ApiResponseDTO<List<CarbonDiscountDTO>>>() {});
+
+			ApiResponseDTO<List<CarbonDiscountDTO>> response = responseEntity.getBody();
+
+			// 상자(ApiResponseDTO)를 열어 실제 내용물(payload)인 리스트를 꺼냅니다.
+			if (response != null && response.getPayload() != null) {
+				return response.getPayload();
+			}
+			return new ArrayList<>();
 		} catch (Exception e) {
 			System.out.println("[ERROR] 강황증권 API 통신 실패: " + e.getMessage());
 			return new ArrayList<>();
@@ -74,7 +92,7 @@ public class CarbonService {
 	 * 2. discountRate: 신규 로직 적용 (프로젝트 총 투자액 대비 내 투자액)
 	 */
 	private UserBenefitDTO processCalculation(BigDecimal cpAmount, BigDecimal cpPrice, BigDecimal actualAmount,
-		GanghwangBalanceDTO balance) {
+		CarbonDiscountDTO balance) {
 		// 기초 데이터 (API에서 온 값)
 		BigDecimal myBal = (balance != null) ? balance.getMyBalance() : BigDecimal.ZERO;
 		BigDecimal totalCorpTokens = (balance != null) ? balance.getEnterpriseTotal() : BigDecimal.ONE;
@@ -138,12 +156,18 @@ public class CarbonService {
 	/**
 	 * [상세 조회] 특정 상품 정보와 유저의 실시간 혜택 계산
 	 */
-	public CarbonDetailDTO selectDetail(Long cpId) {
+	public ApiResponseDTO<CarbonDetailDTO> selectDetail(Long cpId) {
 		Long userId = getLoginUserId();
 		Long walletId = carbonRepository.getWalletIdByUserId(userId);
 
 		// 1. 마리팜 상품 정보 조회 (여기엔 projectId가 들어있음)
 		CarbonDetailDTO detail = carbonRepository.selectDetail(cpId);
+
+		// [테스트 방어 코드 1] DB에 상품이 없으면 바로 에러를 내지 말고 리턴하거나 예외 처리
+		if (detail == null || detail.getCarbonInfo() == null) {
+			throw new RuntimeException("해당 상품 정보를 찾을 수 없습니다. (ID: " + cpId + ")");
+		}
+
 		Long currentProjectId = detail.getCarbonInfo().getProjectId();
 		Long projectId = detail.getCarbonInfo().getProjectId();
 		BigDecimal actualAmount = carbonRepository.getActualAmount(projectId);
@@ -152,10 +176,10 @@ public class CarbonService {
 		Long targetTokenId = carbonRepository.getTokenIdByProjectId(currentProjectId);
 
 		// 3. 강황증권 전체 지분 리스트 가져오기
-		List<GanghwangBalanceDTO> holdings = fetchAllHoldings(walletId);
+		List<CarbonDiscountDTO> holdings = fetchAllHoldings(walletId);
 
-		// 4. [수정 완료] 번역된 'targetTokenId'로 API 결과 내 지분 필터링
-		GanghwangBalanceDTO myHolding = holdings.stream()
+		// 4.  번역된 'targetTokenId'로 API 결과 내 지분 필터링
+		CarbonDiscountDTO myHolding = holdings.stream()
 			.filter(h -> h.getTokenId().equals(targetTokenId)) // 이제 정확히 일치함!
 			.findFirst()
 			.orElse(null);
@@ -166,6 +190,6 @@ public class CarbonService {
 			detail.getCarbonInfo().getCpPrice(),
 			actualAmount, myHolding));
 
-		return detail;
+		return new ApiResponseDTO<CarbonDetailDTO>("상품 상세 정보 조회에 성공했습니다.", detail);
 	}
 }

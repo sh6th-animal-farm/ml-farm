@@ -1,0 +1,78 @@
+/* 탄소마켓 상세 페이지 메인 레이아웃 */
+.content-side {
+    width: 340px;
+}
+
+.sticky-side {
+    position: sticky;
+    top: 100px;
+}
+
+/* 팀장님의 invest-card 스타일 그대로 적용 */
+.invest-card {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-l);
+    padding: 32px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    position: relative;
+}
+
+/* 이미지에 나온 주요 정보 그리드 스타일 */
+.info-section {
+    background: var(--gray-50); /* 전체 배경은 연회색 */
+    padding: 40px;
+    border-radius: var(--radius-l);
+    margin-top: 48px;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-top: 24px;
+}
+
+.info-card {
+    background: #fff; /* 개별 카드는 흰색 */
+    padding: 24px;
+    border-radius: var(--radius-m);
+    border: 1px solid var(--gray-100);
+}
+
+.info-card label {
+    display: block;
+    font: var(--font-caption-02);
+    color: var(--gray-500);
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.info-card p {
+    font: var(--font-subtitle-01);
+    color: var(--gray-900);
+    margin: 0;
+    font-weight: 600;
+}
+
+.info-card.full {
+    grid-column: span 2;
+}
+
+/* 이미지 속 녹색 버튼 스타일 */
+.btn-view-project {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 480px;
+    margin: 40px auto 0;
+    padding: 16px;
+    border: 1px solid var(--green-600);
+    background: #fff;
+    color: var(--green-600);
+    border-radius: var(--radius-s);
+    font: var(--font-button-01);
+    cursor: pointer;
+    text-decoration: none;
+}
