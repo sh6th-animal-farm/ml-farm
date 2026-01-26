@@ -10,6 +10,7 @@
 <%@ attribute name="thumbnail" required="false" %> <%-- 이미지 경로 --%>
 <%@ attribute name="userLimit" required="true" type="java.lang.Long" %> <%-- 투자 한도 잔여 --%>
 <%@ attribute name="walletBalance" required="true" type="java.lang.Long" %> <%-- 지갑 잔액 --%>
+<%@ attribute name="tokenId" required="true" type="java.lang.Long" %> <%-- 토큰Id --%>
 
 <div id="${id}" class="subscription-modal-overlay">
     <div class="subscription-modal-content" onclick="event.stopPropagation()">
@@ -163,11 +164,14 @@
         const totalPrice = quantity * unitPrice;
         
         const payload = {
-            projectId: projectId,         // 프로젝트 ID
-            subscriptionAmount: totalPrice, // 수량
-            userId: "${loginUser.id}"     // 세션에서 가져온 사용자 ID
+        	tokenId: ${projectData.tokenId},
+        	subscriptionId: 33,         // 프로젝트 ID
+            amount: totalPrice, // 수량
+            walletId: 2L,
+            projectId: projectId
+            
         };
-
+        
         fetch(ctx + "/api/subscription/application", {
             method: "POST",
             headers: { "Content-Type": "application/json" },

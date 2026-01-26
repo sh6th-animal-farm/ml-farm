@@ -131,6 +131,7 @@
 		    thumbnail="${pageContext.request.contextPath}/uploads/projects/${projectData.images[0]}"
 		    userLimit="40000000"
 		    walletBalance="${myCash}"
+		    tokenId="${tokenId}"
 		/>
 		<t:warning_card id="noAccountModal" title="연동된 계좌 없음">
    			현재 팜조각에 연동된 <strong>증권사 계좌</strong>가 없습니다.<br> 

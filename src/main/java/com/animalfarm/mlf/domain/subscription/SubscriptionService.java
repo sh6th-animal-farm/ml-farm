@@ -1,13 +1,18 @@
 package com.animalfarm.mlf.domain.subscription;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.animalfarm.mlf.common.http.ApiResponse;
 import com.animalfarm.mlf.common.http.ExternalApiUtil;
 import com.animalfarm.mlf.domain.subscription.dto.SubscriptionHistDTO;
 import com.animalfarm.mlf.domain.subscription.dto.SubscriptionInsertDTO;
 import com.animalfarm.mlf.domain.subscription.dto.SubscriptionSelectDTO;
+import com.animalfarm.mlf.domain.token.dto.TokenIssueDTO;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +27,11 @@ public class SubscriptionService {
 	private final ExternalApiUtil externalApiUtil;
 
 	private static final String BASE_URL = "http://54.167.85.125:9090/";
-
+	
+	// 강황증권 API 서버 주소
+	@Value("${api.kh-stock.url}")
+	private String khUrl;
+	
 	@Transactional
 	public boolean selectAndCancel(SubscriptionSelectDTO subscriptionSelectDTO) {
 		SubscriptionHistDTO subscriptionHistDTO = subscriptionRepository.select(subscriptionSelectDTO);
@@ -43,6 +52,19 @@ public class SubscriptionService {
 
 	public boolean subscriptionApplication(SubscriptionInsertDTO subscriptionInsertDTO) {
 		return subscriptionRepository.subscriptionApplication(subscriptionInsertDTO);
+	}
+	
+	public void postApplication(SubscriptionInsertDTO subscriptionInsertDTO) {
+		Long tokenId = subscriptionInsertDTO.getTokenId();
+		String targetUrl = khUrl + "api/project/application/" + tokenId;
+		try {
+			SubscriptionInsertDTO result = externalApiUtil.callApi(targetUrl, HttpMethod.POST, subscriptionInsertDTO,
+					new ParameterizedTypeReference<ApiResponse<SubscriptionInsertDTO>>() {});
+			log.info("증권사 정송 성공 : " + result);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error("실패!!! : " + e.getMessage());
+		}
 	}
 
 }

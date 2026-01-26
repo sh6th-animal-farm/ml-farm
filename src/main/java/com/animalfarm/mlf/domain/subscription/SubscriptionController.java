@@ -1,6 +1,7 @@
 package com.animalfarm.mlf.domain.subscription;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,6 +12,9 @@ import com.animalfarm.mlf.common.http.ApiResponse;
 import com.animalfarm.mlf.domain.subscription.dto.SubscriptionInsertDTO;
 import com.animalfarm.mlf.domain.subscription.dto.SubscriptionSelectDTO;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
 @RequestMapping("/api/subscription")
 public class SubscriptionController {
@@ -33,10 +37,20 @@ public class SubscriptionController {
 	}
 
 	@PostMapping("/application")
-	public ResponseEntity<ApiResponse<Object>> applicationSubscription(@RequestBody
+	public ResponseEntity<String> applicationSubscription(@RequestBody
 	SubscriptionInsertDTO subscriptionInsertDTO) {
-		subscriptionService.subscriptionApplication(subscriptionInsertDTO);
-		return ResponseEntity.ok(ApiResponse.message("청약 취소가 완료되었습니다."));
+		if(subscriptionService.subscriptionApplication(subscriptionInsertDTO)) {
+			try {
+				subscriptionService.postApplication(subscriptionInsertDTO);
+				log.info("여기 왔어");
+				return ResponseEntity.ok("success");
+			} catch (Exception e) {
+				log.error("증권사 전송 중 오류 발생: {}", e.getMessage());
+				return ResponseEntity.ok("api_fail");
+			}
+		} else {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("청약 신청 중 서버 오류가 발생했습니다.");
+		}
 	}
 
 }

@@ -19,8 +19,8 @@
 		payment_status)
 		values(
 		#{projectId}, 
-		415, 
-		#{subscriptionAmount}, 
+		2, 
+		#{amount}, 
 		'PENDING', 
 		'RESERVED')
 	</insert>

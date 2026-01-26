@@ -235,7 +235,7 @@ public class ProjectService {
 
 	public Double selectMyWallet() {
 		// 1. 목적지 주소 생성 (외부 IP + 상세 경로)
-		String targetUrl = khUrl + "api/my/wallet/1";
+		String targetUrl = khUrl + "api/my/wallet/2";
 		try {
 			// 2. GET 방식으로 데이터 요청 (응답은 String으로 받는 예시)
 			ResponseEntity<ApiResponse> responseEntity = restTemplate.getForEntity(targetUrl, ApiResponse.class);

@@ -19,7 +19,7 @@ public class SubscriptionInsertDTO {
 	private Long shId;
 	private Long projectId;
 	private Long userId;
-	private BigDecimal subscriptionAmount;
+	private BigDecimal amount;
 
 	// 청약 상태: PENDING, APPROVED, REJECTED, CANCELED
 	private String subscriptionStatus;
@@ -29,4 +29,5 @@ public class SubscriptionInsertDTO {
 
 	// kh증권의 wallet_id
 	private Long uclId;
+	private Long tokenId;
 }
