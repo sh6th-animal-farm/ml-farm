@@ -113,7 +113,7 @@ public class ProjectService {
 				.from_balanceAfter(BigDecimal.ZERO) // 송금 후 잔액 변동 없음 변경 필수
 				.to_balanceAfter(totalSupply) // 수금 후 잔액 변동 없음 변경 필수
 				.prevHashValue("0") // 이전 해시가 없으므로 "0"
-				.hashValue(calculateHash("0", tokenId, totalSupply)) // 해시 계산
+				.hashValue(createHash("0", tokenId, totalSupply)) // 해시 계산
 				.build();
 
 			tokenReopsitory.insertTokenLedger(projectNewTokenDTO);
@@ -126,7 +126,7 @@ public class ProjectService {
 	}
 
 	// 간단한 해시 계산 예시 메서드
-	private String calculateHash(String prevHash, Long projectId, BigDecimal amount) {
+	private String createHash(String prevHash, Long projectId, BigDecimal amount) {
 		return org.springframework.util.DigestUtils.md5DigestAsHex(
 			(prevHash + projectId + amount.toString()).getBytes());
 	}

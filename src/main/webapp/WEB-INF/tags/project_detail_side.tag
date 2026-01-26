@@ -127,10 +127,10 @@ function handleSubscriptionClick() {
 	        if (res === true) { 
 	            // 서버가 "응, 계좌 있어(true)"라고 대답하면
 	            // 서버가 "아니, 없어(false)"라고 대답하면
-	        	const modal = document.getElementById('mySubModal'); // 모달창 태그를 찾아서
+	        	const modal = document.getElementById('subscriptionModal'); // 모달창 태그를 찾아서
 	            modal.style.display = 'flex';
 	        } else {
-	            const modal = document.getElementById('accountModal'); // 모달창 태그를 찾아서
+	            const modal = document.getElementById('noAccountModal'); // 모달창 태그를 찾아서
 	            modal.style.display = 'flex'; // 눈에 보이게 만들어!
 	        }
 	    },
