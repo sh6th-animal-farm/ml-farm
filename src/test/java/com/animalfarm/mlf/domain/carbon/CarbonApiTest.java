@@ -17,9 +17,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+import com.animalfarm.mlf.common.ApiResponseDTO;
 import com.animalfarm.mlf.common.security.CustomUser;
 import com.animalfarm.mlf.domain.carbon.dto.CarbonDetailDTO;
-import com.animalfarm.mlf.domain.carbon.dto.GanghwangBalanceDTO;
+import com.animalfarm.mlf.domain.carbon.dto.CarbonDiscountDTO;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -51,16 +52,24 @@ public class CarbonApiTest {
 	void carbonDetailFinalTest() {
 		Long cpId = 1L; // 테스트할 상품 번호
 
-		// 1. 데이터 조회
-		CarbonDetailDTO detail = carbonService.selectDetail(cpId);
+		// 1. 데이터 조회 - 리턴 타입이 ApiResponseDTO로 변경됨
+		ApiResponseDTO<CarbonDetailDTO> response = carbonService.selectDetail(cpId);
+
+		// 상자에서 실제 내용물(CarbonDetailDTO)을 꺼냅니다.
+		CarbonDetailDTO detail = response.getPayload();
+
+		// [검증] 응답이 성공했는지, 데이터가 잘 들어있는지 확인
+		assert response != null;
+		assert detail != null;
+
 		Long walletId = carbonRepository.getWalletIdByUserId(415L);
 		Long tokenId = carbonRepository.getTokenIdByProjectId(detail.getCarbonInfo().getProjectId());
 		BigDecimal actualAmount = carbonRepository.getActualAmount(detail.getCarbonInfo().getProjectId());
 
 		// 중간 계산값 도출 (리포트용)
-		List<GanghwangBalanceDTO> holdings = carbonService.fetchAllHoldings(walletId);
-		GanghwangBalanceDTO myBal = holdings.stream()
-			.filter(h -> h.getTokenId().equals(tokenId)).findFirst().orElse(new GanghwangBalanceDTO());
+		List<CarbonDiscountDTO> holdings = carbonService.fetchAllHoldings(walletId);
+		CarbonDiscountDTO myBal = holdings.stream()
+			.filter(h -> h.getTokenId().equals(tokenId)).findFirst().orElse(new CarbonDiscountDTO());
 
 		// 2. 출력 시작
 		System.out.println("\n===============================================");
