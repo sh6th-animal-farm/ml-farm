@@ -126,14 +126,14 @@
 		<%-- 태그 사이에 넣는 내용이 <jsp:doBody /> 위치로 쏙 들어갑니다 --%>
 		
 		<t:subscription_modal 
-		    id="mySubModal"
+		    id="subscriptionModal"
 		    title="${projectData.projectName} 공모"
 		    price="345000"
 		    thumbnail="${pageContext.request.contextPath}/uploads/projects/${projectData.images[0]}"
 		    userLimit="40000000"
 		    walletBalance="${myCash}"
 		/>
-		<t:warning_card id="accountModal" title="연동된 계좌 없음">
+		<t:warning_card id="noAccountModal" title="연동된 계좌 없음">
    			현재 팜조각에 연동된 <strong>증권사 계좌</strong>가 없습니다.<br> 
 			청약 참여를 위해 계좌를 먼저 연동해 주세요.
 		</t:warning_card>
