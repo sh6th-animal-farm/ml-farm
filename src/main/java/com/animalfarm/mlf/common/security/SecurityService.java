@@ -1,4 +1,4 @@
-package com.animalfarm.mlf.domain.user.service;
+package com.animalfarm.mlf.common.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -33,12 +33,7 @@ public class SecurityService implements UserDetailsService {
 			throw new UsernameNotFoundException("해당 이메일의 유저를 찾을 수 없습니다.");
 		}
 
-		// 스프링 시큐리티 규격 객체(UserDetails)로 변환
-		return org.springframework.security.core.userdetails.User.builder()
-			.username(user.getEmail())
-			.password(user.getPassword())
-			.roles(user.getRole()) // DB에 저장된 ROLE (개인/기업 등)
-			.build();
+		return new CustomUser(user);
 
 	}
 

@@ -78,7 +78,7 @@
                             <button class="btn" style="width: 100%; background: #757575; color: #fff; font: var(--font-button-01); padding: 24px 0; border-radius: var(--radius-m); cursor: not-allowed; border:none;" disabled>청약 신청하기</button>
                         </c:when>
                         <c:otherwise>
-                            <button class="btn" style="width: 100%; background: var(--green-600); color: #fff; font: var(--font-button-01); padding: 24px 0; border-radius: var(--radius-m); cursor: pointer; border:none;">청약 신청하기</button>
+                            <button id="submitBtn" class="btn" onclick="handleSubscriptionClick()" style="width: 100%; background: var(--green-600); color: #fff; font: var(--font-button-01); padding: 24px 0; border-radius: var(--radius-m); cursor: pointer; border:none;">청약 신청하기</button>
                         </c:otherwise>
                     </c:choose>
                     
@@ -113,3 +113,12 @@
         </div>
     </div>
 </aside>
+<script>
+function handleSubscriptionClick() {
+    const modal = document.getElementById('accountModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden'; // 배경 스크롤 방지
+    }
+}
+</script>
