@@ -126,7 +126,8 @@
 		<t:subscription_modal 
 		    id="subscriptionModal"
 		    title="${projectData.projectName} 공모"
-		    price="345000"
+		    projectId="${projectData.projectId}"
+		    price="${projectData.totalSupply > 0 ? (projectData.targetAmount / projectData.totalSupply) : 0}"
 		    thumbnail="${pageContext.request.contextPath}/uploads/projects/${projectData.images[0]}"
 		    userLimit="40000000"
 		    walletBalance="${myCash}"

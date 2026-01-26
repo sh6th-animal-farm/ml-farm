@@ -10,5 +10,18 @@
 		where project_id=#{projectId} and user_id=#{userId}
 	</select>
 	
-
+	<insert id="subscriptionApplication" parameterType="subscriptionApplication">
+		insert into subscription_hists (
+		project_id, 
+		user_id, 
+		subscription_amount, 
+		subscription_status, 
+		payment_status)
+		values(
+		#{projectId}, 
+		415, 
+		#{subscriptionAmount}, 
+		'PENDING', 
+		'RESERVED')
+	</insert>
 </mapper>
