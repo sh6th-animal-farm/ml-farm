@@ -698,7 +698,7 @@
       }
 
       if (signUpType === 'ENTERPRISE') {
-        payload.bNo = (document.getElementById('bNo').value || '').replace(/\D/g,'');
+    	  payload.brn = (document.getElementById('bNo').value || '').replace(/\D/g,'');
       }
 
       setStatus('signupStatus', '처리 중...', null);

@@ -6,6 +6,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="${pageContext.request.contextPath}/resources/js/domain/project/project_detail.js"> </script>
 <link rel="stylesheet"
 	href="${pageContext.request.contextPath}/resources/css/project_detail.css">
 
@@ -121,10 +122,7 @@
 					<canvas id="tempBarChart"></canvas>
 				</div>
 			</div>
-		</main>
-		<%-- 계좌 연동이 없을 때 나오는 모달 --%>
-		<%-- 태그 사이에 넣는 내용이 <jsp:doBody /> 위치로 쏙 들어갑니다 --%>
-		
+		</main>		
 		<t:subscription_modal 
 		    id="subscriptionModal"
 		    title="${projectData.projectName} 공모"
