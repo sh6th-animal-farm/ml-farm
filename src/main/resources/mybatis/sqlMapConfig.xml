@@ -29,8 +29,12 @@
 			alias="projectStarredDTO" />
 		<typeAlias type="com.animalfarm.mlf.domain.project.dto.ProjectInsertDTO"
 			alias="projectInsertDTO" />
+		<typeAlias type="com.animalfarm.mlf.domain.project.dto.ProjectStatusDTO"
+			alias="projectStatusDTO" />
 		<typeAlias type="com.animalfarm.mlf.domain.token.dto.TokenDTO"
 			alias="tokenDTO" />
+		<typeAlias type="com.animalfarm.mlf.domain.project.dto.ProjectNewTokenDTO"
+			alias="projectNewTokenDTO" />
 	</typeAliases>
 	
 </configuration>

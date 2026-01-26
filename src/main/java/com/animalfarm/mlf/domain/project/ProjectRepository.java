@@ -12,6 +12,7 @@ import com.animalfarm.mlf.domain.project.dto.ProjectListDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectPictureDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectSearchReqDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectStarredDTO;
+import com.animalfarm.mlf.domain.project.dto.ProjectStatusDTO;
 
 @Mapper
 public interface ProjectRepository {
@@ -43,5 +44,9 @@ public interface ProjectRepository {
 	public abstract void insertPictureList(List<ProjectPictureDTO> newPictureDTOs);
 
 	public abstract void deletePictureList(List<Long> deletedPictureIds);
+
+	public abstract List<ProjectStatusDTO> selectStatus();
+
+	public abstract void updateProjectStatus(ProjectStatusDTO projectStatusDTO);
 
 }

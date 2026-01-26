@@ -107,4 +107,8 @@ public class ProjectController {
 		return projectService.selectPictures(projectId);
 	}
 
+	@GetMapping("/api/project/checkAccount")
+	public boolean checkAccount(Long userId) {
+		return projectService.checkAccount();
+	}
 }

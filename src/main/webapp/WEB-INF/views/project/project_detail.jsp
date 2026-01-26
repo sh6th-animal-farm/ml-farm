@@ -5,6 +5,7 @@
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link rel="stylesheet"
 	href="${pageContext.request.contextPath}/resources/css/project_detail.css">
 
@@ -123,6 +124,15 @@
 		</main>
 		<%-- 계좌 연동이 없을 때 나오는 모달 --%>
 		<%-- 태그 사이에 넣는 내용이 <jsp:doBody /> 위치로 쏙 들어갑니다 --%>
+		
+		<t:subscription_modal 
+		    id="mySubModal"
+		    title="${projectData.projectName} 공모"
+		    price="345000"
+		    thumbnail="${pageContext.request.contextPath}/uploads/projects/${projectData.images[0]}"
+		    userLimit="40000000"
+		    walletBalance="${myCash}"
+		/>
 		<t:warning_card id="accountModal" title="연동된 계좌 없음">
    			현재 팜조각에 연동된 <strong>증권사 계좌</strong>가 없습니다.<br> 
 			청약 참여를 위해 계좌를 먼저 연동해 주세요.
