@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
-import com.animalfarm.mlf.domain.common.ApiResponse;
+import com.animalfarm.mlf.common.http.ApiResponse;
 import com.animalfarm.mlf.domain.project.dto.FarmDTO;
 import com.animalfarm.mlf.domain.project.dto.ImgEditable;
 import com.animalfarm.mlf.domain.project.dto.ProjectDTO;
