@@ -19,7 +19,7 @@ pageEncoding="UTF-8"%> <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
         </li>
         <li>
           <a
-            href="${pageContext.request.contextPath}/token-market"
+            href="${pageContext.request.contextPath}/token/list"
             class="nav-item ${activeMenu == 'token-market' ? 'active' : ''}"
             >토큰 거래소</a
           >

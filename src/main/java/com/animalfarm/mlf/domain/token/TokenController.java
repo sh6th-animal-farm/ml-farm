@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.animalfarm.mlf.domain.token.dto.TokenDTO;
 
 @RestController
-public class TokenRestController {
+public class TokenController {
 	@Autowired
 	TokenService tokenService;
 

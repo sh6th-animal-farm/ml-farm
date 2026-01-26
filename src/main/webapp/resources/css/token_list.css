@@ -1,0 +1,43 @@
+@charset "UTF-8";
+
+body { font-family: 'Pretendard', sans-serif; background-color: #f5f7f9; margin: 0; padding: 20px; color: #333; }
+.container { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; max-width: 1200px; margin: 0 auto; }
+.card { background: white; border-radius: 12px; border: 1px solid #e1e4e8; padding: 20px; margin-bottom: 20px; }
+
+/* 상단 시세 정보 */
+.price-header { display: flex; align-items: baseline; gap: 10px; margin-bottom: 5px; }
+.current-price { font-size: 32px; font-weight: bold; }
+.change-rate { color: #f04438; font-weight: 600; }
+.info-row { font-size: 14px; color: #666; display: flex; gap: 15px; }
+.info-row span b { color: #333; }
+
+/* 주문 폼 (우측 상단) */
+.tab-menu { display: flex; background: #f2f4f7; border-radius: 8px; padding: 4px; margin-bottom: 20px; }
+.tab-btn { flex: 1; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: 600; color: #666; background: none; }
+.tab-btn.active { background: white; color: #333; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.tab-btn.buy.active { color: #f04438; }
+.tab-btn.sell.active { color: #0047bb; }
+
+.order-input-group { margin-bottom: 15px; }
+.order-input-group label { display: block; font-size: 13px; margin-bottom: 8px; color: #666; }
+.input-box { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; background: #f9fafb; }
+
+.percentage-group { display: flex; gap: 5px; margin: 15px 0; }
+.perc-btn { flex: 1; padding: 8px; border: 1px solid #eee; background: white; border-radius: 6px; font-size: 12px; cursor: pointer; }
+
+.summary-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; color: #666; }
+.btn-order { width: 100%; padding: 15px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; }
+.btn-buy { background-color: #f04438; }
+
+/* 하단 종목 리스트 및 호가/체결 */
+.token-list-table, .hoga-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.token-list-table th, .hoga-table th { text-align: left; color: #888; padding: 10px 5px; border-bottom: 1px solid #eee; }
+.token-list-table td, .hoga-table td { padding: 12px 5px; border-bottom: 1px solid #f9f9f9; }
+
+/* 호가 컬러 */
+.hoga-sell { color: #f04438; font-weight: 600; }
+.hoga-buy { color: #0047bb; font-weight: 600; }
+
+/* 탭 컨텐츠 영역 */
+.tab-content { display: none; }
+.tab-content.active { display: block; }
