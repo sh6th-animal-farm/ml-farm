@@ -78,7 +78,7 @@
                             <button class="btn" style="width: 100%; background: #757575; color: #fff; font: var(--font-button-01); padding: 24px 0; border-radius: var(--radius-m); cursor: not-allowed; border:none;" disabled>청약 신청하기</button>
                         </c:when>
                         <c:otherwise>
-                            <button class="btn" style="width: 100%; background: var(--green-600); color: #fff; font: var(--font-button-01); padding: 24px 0; border-radius: var(--radius-m); cursor: pointer; border:none;" onclick="openSubscriptionModal('mySubModal')">청약 신청하기</button>
+                            <button class="btn" style="width: 100%; background: var(--green-600); color: #fff; font: var(--font-button-01); padding: 24px 0; border-radius: var(--radius-m); cursor: pointer; border:none;" onclick="openSubscriptionModal('subscriptionModal')">청약 신청하기</button>
                         </c:otherwise>
                     </c:choose>
                     
@@ -115,10 +115,29 @@
 </aside>
 <script>
 function handleSubscriptionClick() {
-    const modal = document.getElementById('accountModal');
-    if (modal) {
-        modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden'; // 배경 스크롤 방지
-    }
+	$.ajax({
+	    // 1. [어디로?] 서버의 이 주소로 찾아갈게!
+	    url: '${pageContext.request.contextPath}/api/project/checkAccount', 
+	    
+	    // 2. [어떻게?] 단순히 데이터를 가져오는 거니까 GET 방식을 쓸게.
+	    type: 'GET',
+	    
+	    // 3. [성공하면?] 서버가 대답을 무사히 보내주면 실행되는 구간이야.
+	    success: function(res) {
+	        if (res === true) { 
+	            // 서버가 "응, 계좌 있어(true)"라고 대답하면
+	            // 서버가 "아니, 없어(false)"라고 대답하면
+	        	const modal = document.getElementById('subscriptionModal'); // 모달창 태그를 찾아서
+	            modal.style.display = 'flex';
+	        } else {
+	            const modal = document.getElementById('noAccountModal'); // 모달창 태그를 찾아서
+	            modal.style.display = 'flex'; // 눈에 보이게 만들어!
+	        }
+	    },
+	    // 4. [실패하면?] 인터넷이 끊겼거나 서버가 터졌을 때 실행돼.
+	    error: function() {
+	        alert("오류 발생!");
+	    }
+	});
 }
 </script>

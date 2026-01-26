@@ -5,6 +5,7 @@
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="${pageContext.request.contextPath}/resources/js/domain/project/project_detail.js"> </script>
 <link rel="stylesheet"
 	href="${pageContext.request.contextPath}/resources/css/project_detail.css">
@@ -121,16 +122,16 @@
 					<canvas id="tempBarChart"></canvas>
 				</div>
 			</div>
-		</main>
+		</main>		
 		<t:subscription_modal 
-		    id="mySubModal"
-		    title="팜조각 스마트팜 1호 공모"
+		    id="subscriptionModal"
+		    title="${projectData.projectName} 공모"
 		    price="345000"
-		    thumbnail="${pageContext.request.contextPath}/resources/img/sample.jpg"
+		    thumbnail="${pageContext.request.contextPath}/uploads/projects/${projectData.images[0]}"
 		    userLimit="40000000"
-		    walletBalance="100000000"
+		    walletBalance="${myCash}"
 		/>
-		<t:warning_card id="accountModal" title="연동된 계좌 없음">
+		<t:warning_card id="noAccountModal" title="연동된 계좌 없음">
    			현재 팜조각에 연동된 <strong>증권사 계좌</strong>가 없습니다.<br> 
 			청약 참여를 위해 계좌를 먼저 연동해 주세요.
 		</t:warning_card>
