@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,13 +35,13 @@ public class ProjectService {
 
 	@Autowired
 	TokenRepository tokenReopsitory;
-	
+
 	// 강황증권 API 서버 주소
 	@Value("${api.kh-stock.url}")
 	private String khUrl;
-	
+
 	@Autowired
-    private RestTemplate restTemplate;
+	private RestTemplate restTemplate;
 
 	public List<ProjectDTO> selectAll() {
 		return projectRepository.selectAll();
@@ -197,54 +198,58 @@ public class ProjectService {
 		}
 		return projectRepository.selectStatus();
 	}
-	
+
 	public boolean checkAccount() {
 		// 1. 목적지 주소 생성 (외부 IP + 상세 경로)
-        String targetUrl = khUrl + "api/my/account/1";
-        try {
-            // 2. GET 방식으로 데이터 요청 (응답은 String으로 받는 예시)
-        	ResponseEntity<ApiResponse> responseEntity = restTemplate.getForEntity(targetUrl, ApiResponse.class);
-        	int status = responseEntity.getStatusCodeValue();
-            System.out.println("응답 결과: " + status);
-            if(status == 200) {
-            	ApiResponse response = responseEntity.getBody();
-                System.out.println("response: " + response.getMessage());
-                if(response.getPayload() != null) {
-                	return true;
-                }
-            }
-            System.out.println("연동되어 있지 않습니다.");
-            return false;
-        } catch (Exception e) {
-            // 3. 외부 서버 연결 실패 시 예외 처리 (재시도 테이블 insert 등)
-            System.err.println("외부 서버 통신 실패: " + e.getMessage());
-            return false;
-        }
+		String targetUrl = khUrl + "api/my/account/1";
+		try {
+			// 2. GET 방식으로 데이터 요청 (응답은 String으로 받는 예시)
+			ResponseEntity<ApiResponse> responseEntity = restTemplate.getForEntity(targetUrl, ApiResponse.class);
+			int status = responseEntity.getStatusCodeValue();
+			System.out.println("응답 결과: " + status);
+			if (status == 200) {
+				ApiResponse response = responseEntity.getBody();
+				System.out.println("response: " + response.getMessage());
+				if (response.getPayload() != null) {
+					return true;
+				}
+			}
+			System.out.println("연동되어 있지 않습니다.");
+			return false;
+		} catch (Exception e) {
+			// 3. 외부 서버 연결 실패 시 예외 처리 (재시도 테이블 insert 등)
+			System.err.println("외부 서버 통신 실패: " + e.getMessage());
+			return false;
+		}
 	}
-	
-	public ApiResponse selectMyWallet() {
+
+	public Double selectMyWallet() {
 		// 1. 목적지 주소 생성 (외부 IP + 상세 경로)
-        String targetUrl = khUrl + "api/my/wallet/1";
-        try {
-        	// 2. GET 방식으로 데이터 요청 (응답은 String으로 받는 예시)
-        	ResponseEntity<ApiResponse> responseEntity = restTemplate.getForEntity(targetUrl, ApiResponse.class);
-        	int status = responseEntity.getStatusCodeValue();
-            System.out.println("응답 결과: " + status);
-            if(status == 200) {
-            	ApiResponse response = responseEntity.getBody();
-            	System.out.println("response : " + response.getPayload());
-            	if(response.getPayload() != null) {
-            		System.out.println(response.getMessage());
-            		return response;
-            	} else {
-            		System.out.println(response.getMessage());
-            	}
-            }
-    		return null;
-        } catch (Exception e) {
-        	// 3. 외부 서버 연결 실패 시 예외 처리 (재시도 테이블 insert 등)
-            System.err.println("외부 서버 통신 실패: " + e.getMessage());
-            return null;
-        }
+		String targetUrl = khUrl + "api/my/wallet/1";
+		try {
+			// 2. GET 방식으로 데이터 요청 (응답은 String으로 받는 예시)
+			ResponseEntity<ApiResponse> responseEntity = restTemplate.getForEntity(targetUrl, ApiResponse.class);
+			int status = responseEntity.getStatusCodeValue();
+			System.out.println("응답 결과: " + status);
+			if (status == 200) {
+				ApiResponse response = responseEntity.getBody();
+				System.out.println("response : " + response.getPayload());
+				List<Map<String, Object>> list = (List<Map<String, Object>>)response.getPayload();
+				System.out.println("list : " + list);
+				if (response.getPayload() != null) {
+					System.out.println(response.getMessage());
+					double result = (double)list.get(0).get("cashBalance");
+					System.out.println(list.get(0).get("cashBalance"));
+					return result;
+				} else {
+					System.out.println(response.getMessage());
+				}
+			}
+			return 0.0;
+		} catch (Exception e) {
+			// 3. 외부 서버 연결 실패 시 예외 처리 (재시도 테이블 insert 등)
+			System.err.println("외부 서버 통신 실패: " + e.getMessage());
+			return 0.0;
+		}
 	}
 }

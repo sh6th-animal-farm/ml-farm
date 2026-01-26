@@ -106,7 +106,7 @@ public class ProjectController {
 	Long projectId) {
 		return projectService.selectPictures(projectId);
 	}
-	
+
 	@GetMapping("/api/project/checkAccount")
 	public boolean checkAccount(Long userId) {
 		return projectService.checkAccount();
