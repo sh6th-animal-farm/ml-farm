@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+
+<mapper
+	namespace="com.animalfarm.mlf.domain.refund.RefundRepository">
+	
+	<insert id="insertRefund" parameterType="refundDTO">
+        INSERT INTO refunds (
+            user_id,
+            project_id,
+            sh_id,
+            ucl_id,
+            amount,
+            refund_type,
+            reason_code,
+            status,
+            external_ref_id,
+            created_at
+        ) VALUES (
+            #{userId},
+            #{projectId},
+            #{shId},
+            #{uclId},
+            #{amount},
+            #{refundType},
+            #{reasonCode},
+            #{status},
+            #{externalRefId},
+            NOW()
+        )
+	</insert>
+</mapper>

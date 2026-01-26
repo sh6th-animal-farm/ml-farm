@@ -1,12 +1,18 @@
 package com.animalfarm.mlf.domain.subscription;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import com.animalfarm.mlf.domain.subscription.dto.SubscriptionHistDTO;
-import com.animalfarm.mlf.domain.subscription.dto.SubscriptionSelectDTO;
 
 @Mapper
 public interface SubscriptionRepository {
-	
-	public abstract SubscriptionHistDTO select(SubscriptionSelectDTO subscriptionSelectDTO);
+
+	public abstract SubscriptionHistDTO select(
+		@Param("userId")
+		Long userId,
+		@Param("projectId")
+		Long projectId);
+
+	public abstract int update(SubscriptionHistDTO subscriptionHistDTO);
 }

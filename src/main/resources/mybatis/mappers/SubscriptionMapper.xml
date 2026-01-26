@@ -5,10 +5,31 @@
 
 <mapper	namespace="com.animalfarm.mlf.domain.subscription.SubscriptionRepository">
 	
-	<select id="select" parameterType="subscriptionSelectDTO" resultType="subscriptionHistDTO">
+	<select id="select" resultType="subscriptionHistDTO">
 		select * from subscription_hists
 		where project_id=#{projectId} and user_id=#{userId}
 	</select>
 	
+	<update id="update" parameterType="subscriptionHistDTO">
+		UPDATE subscription_hists
+	    <set>
+	        <if test="subscriptionStatus != null">
+	            subscription_status = #{subscriptionStatus},
+	        </if>
+	        <if test="paymentStatus != null">
+	            payment_status = #{paymentStatus},
+	        </if>
+	        <if test="externalRefId != null">
+	            external_ref_id = #{externalRefId},
+	        </if>
+	        <if test="canceledAt != null">
+	            canceled_at = #{canceledAt},
+	        </if>
+	        <if test="subscriptionAmount != null">
+	            subscription_amount = #{subscriptionAmount},
+	        </if>
+	    </set>
+	    WHERE sh_id = #{shId}
+	</update>
 
 </mapper>
