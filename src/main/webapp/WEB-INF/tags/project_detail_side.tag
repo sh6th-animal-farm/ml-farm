@@ -113,3 +113,12 @@
         </div>
     </div>
 </aside>
+<script>
+function handleSubscriptionClick() {
+    const modal = document.getElementById('accountModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden'; // 배경 스크롤 방지
+    }
+}
+</script>
