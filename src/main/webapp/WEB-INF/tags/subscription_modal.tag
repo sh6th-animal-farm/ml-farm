@@ -10,12 +10,12 @@
 <%@ attribute name="userLimit" required="true" type="java.lang.Long" %> <%-- 투자 한도 잔여 --%>
 <%@ attribute name="walletBalance" required="true" type="java.lang.Long" %> <%-- 지갑 잔액 --%>
 
-<div id="${id}" class="modal-overlay" onclick="closeSubscriptionModal('${id}')">
-    <div class="modal-content" onclick="event.stopPropagation()">
+<div id="${id}" class="subscription-modal-overlay">
+    <div class="subscription-modal-content" onclick="event.stopPropagation()">
         <%-- 헤더 --%>
-        <div class="modal-header">
+        <div class="subscription-modal-header">
             <h3>청약 신청하기</h3>
-            <button class="close-btn" onclick="closeSubscriptionModal('${id}')">&times;</button>
+            <button class="subscription-close-btn" onclick="closeSubscriptionModal('${id}')">&times;</button>
         </div>
 
         <%-- 프로젝트 요약 카드 --%>
@@ -170,11 +170,11 @@ input[type="number"] {
     -moz-appearance: textfield; /* Firefox 화살표 제거 */
 }
 
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; }
-.modal-content { background: white; width: 440px; border-radius: 20px; padding: 24px; box-sizing: border-box; }
-.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.modal-header h3 { font: var(--font-subtitle-01); }
-.close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--gray-900); }
+.subscription-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; }
+.subscription-modal-content { background: white; width: 440px; border-radius: 20px; padding: 24px; box-sizing: border-box; }
+.subscription-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.subscription-modal-header h3 { font: var(--font-subtitle-01); }
+.subscription-close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--gray-900); }
 
 .project-summary-card { display: flex; gap: 14px; background: #F8F9FA; border-radius: var(--radius-m); padding: 14px; margin-bottom: 20px; align-items: center; }
 .summary-img { width: 64px; height: 64px; border-radius: 8px; object-fit: cover; }
@@ -187,7 +187,7 @@ input[type="number"] {
 .progress-fill { height: 100%; background: var(--green-600); transition: width 0.3s ease-out; }
 .limit-value { text-align: right; margin-top: 8px; font: var(--font-caption-02); }
 
-.input-section label { display: block; font: var(--font-body-04); margin-bottom: 10px; }
+.input-section label { display: block; font: var(--font-body-04); margin-bottom: 10px; text-align:left; }
 .token-input-wrapper { border: 1.5px solid var(--gray-900); height: 60px; border-radius: var(--radius-m); padding: 0 16px; display: flex; align-items: center; gap: 8px; transition: all 0.2s ease;}
 .token-input-wrapper:focus-within {
     border-color: var(--gray-900) !important;
