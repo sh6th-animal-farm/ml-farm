@@ -11,7 +11,7 @@ public class TokenViewController {
 
 	@GetMapping("/detail")
 	public String tokenDetailPage(Model model) {
-		model.addAttribute("contentPage", "/WEB-INF/views/token/token_list.jsp");
+		model.addAttribute("contentPage", "/WEB-INF/views/token/token_detail.jsp");
 
 		return "layout";
 	}
