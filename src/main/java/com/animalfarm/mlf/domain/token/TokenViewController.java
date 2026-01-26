@@ -9,6 +9,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/token")
 public class TokenViewController {
 
+	@GetMapping("/list")
+	public String tokenListPage(Model model) {
+		model.addAttribute("contentPage", "/WEB-INF/views/token/token_list.jsp");
+
+		return "layout";
+	}
+
 	@GetMapping("/detail")
 	public String tokenDetailPage(Model model) {
 		model.addAttribute("contentPage", "/WEB-INF/views/token/token_detail.jsp");
