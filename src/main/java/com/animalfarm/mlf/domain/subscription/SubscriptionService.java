@@ -116,17 +116,22 @@ public class SubscriptionService {
 			BigDecimal rate = data.getSubscriptionRate();
 			Long tokenId = data.getTokenId();
 			Long subscriberCount = 50L;//subscriptionRepository.subscriberCount(data);
+			int extensionCount = data.getExtensionCount();
 			if (rate.compareTo(threshold70) < 0 || subscriberCount < 49) {
 				System.out.println(rate + " 프로젝트 폐기");
 				projectCanceled(data);
 			} else if (rate.compareTo(threshold70) >= 0 && rate.compareTo(threshold90) < 0) {
 				System.out.println(rate + " 프로젝트 종료일 +2일");
-				if (false) {
+				if (extensionCount == 0) {
 					subscriptionRepository.updateProjectTwoDay(projectId);
+					//여기에 사용자에게 이메일 보내는 것 추가하기
+				} else {
+					projectCanceled(data);
 				}
 			} else if (rate.compareTo(threshold90) >= 0 && rate.compareTo(threshold100) < 0) {
 				System.out.println(rate + " 마리팜 회사가 나머지 충당");
 			} else {
+				subscriptionRepository.updateProjectInProgress(projectId);
 				System.out.println(rate + " 그대로 진행");
 			}
 		}

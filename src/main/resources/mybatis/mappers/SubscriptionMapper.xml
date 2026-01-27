@@ -51,6 +51,7 @@
     		SELECT 
     		p.project_id AS project_id, 
     		p.subscription_rate AS subscription_rate, 
+    		p.extension_count,
     		t.token_id AS token_id, 
     		COUNT(DISTINCT sh.user_id) AS subscriber_count
 			FROM projects p 
@@ -79,13 +80,24 @@
 	<!-- 70-90이면 2일 늘리기 -->
 	<update id="updateProjectTwoDay">
 		UPDATE projects 
-    	SET subscription_end_date = subscription_end_date + INTERVAL '2 days'
-    	WHERE project_id = #{projectId}
-      	AND project_status = 'SUBSCRIPTION'
+		SET 
+    	subscription_end_date = subscription_end_date + INTERVAL '2 days',
+    	extension_count = 1
+		WHERE project_id = #{projectId}
+  		AND project_status = 'SUBSCRIPTION'
+  		AND extension_count = 0
 	</update>
 	
 	
 	<!-- 강황증권 api response 판단 후 -->
 	<!-- 청약 내역 업데이트 -->
 	<!-- 환불 테이블 업데이트 -->
+	
+	<!-- 프로젝트 진행 업데이트 -->
+	<update id="updateProjectInProgress">
+    	UPDATE projects 
+    	SET project_status = 'INPROGRESS' 
+    	WHERE project_id = #{projectId}
+      	AND project_status = 'SUBSCRIPTION'
+	</update>
 </mapper>

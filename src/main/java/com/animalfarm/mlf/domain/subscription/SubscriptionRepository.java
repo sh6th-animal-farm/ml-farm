@@ -29,4 +29,6 @@ public interface SubscriptionRepository {
 	public abstract boolean updateProjectCanceled(Long projectId);
 
 	public abstract boolean updateProjectTwoDay(Long projectId);
+	
+	public abstract boolean updateProjectInProgress(Long projectId);
 }
