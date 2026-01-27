@@ -22,16 +22,15 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 public class SubscriptionService {
-	@Autowired
-	SubscriptionRepository subscriptionRepository;
-	@Autowired
-	RefundRepository refundRepository;
-
+	private final SubscriptionRepository subscriptionRepository;
+	private final RefundRepository refundRepository;
 	private final ExternalApiUtil externalApiUtil;
+
+	@Autowired
+	private SubscriptionService self;
 
 	private static final String BASE_URL = "http://54.167.85.125:9090/";
 
-	@Transactional(rollbackFor = Exception.class)
 	public boolean selectAndCancel(Long projectId) throws Exception {
 		Long userId = SecurityUtil.getCurrentUserId();
 		SubscriptionHistDTO subscriptionHistDTO = subscriptionRepository.select(userId, projectId);
@@ -39,9 +38,7 @@ public class SubscriptionService {
 			throw new Exception("청약 내역이 존재하지 않습니다.");
 		}
 
-		subscriptionHistDTO.setSubscriptionStatus("CANCELED");
 		String url = BASE_URL + "/api/project/cancel/" + subscriptionHistDTO.getExternalRefId();
-
 		RefundDTO refundDTO = null;
 		try {
 			refundDTO = externalApiUtil.callApi(url, HttpMethod.POST, subscriptionHistDTO,
@@ -56,37 +53,47 @@ public class SubscriptionService {
 			throw e;
 		}
 
-		refundDTO = RefundDTO.builder()
-			.userId(userId)
-			.projectId(projectId)
-			.shId(subscriptionHistDTO.getShId()) // 원천 청약 PK
-			.uclId(31L)
-			.amount(subscriptionHistDTO.getSubscriptionAmount()) // 환불 금액 = 청약 금액
-			.refundType("ALL") // 환불 완료 상태
-			.reasonCode("USER_CANCEL") // 사유
-			.status("SUCCESS")
-			.externalRefId(subscriptionHistDTO.getExternalRefId()) // 증권사 거래 번호 그대로 인계 (Long)
-			.build();
+		//		refundDTO = RefundDTO.builder()
+		//			.userId(userId)
+		//			.projectId(projectId)
+		//			.shId(subscriptionHistDTO.getShId()) // 원천 청약 PK
+		//			.uclId(31L)
+		//			.amount(subscriptionHistDTO.getSubscriptionAmount()) // 환불 금액 = 청약 금액
+		//			.refundType("ALL") // 환불 완료 상태
+		//			.reasonCode("USER_CANCEL") // 사유
+		//			.status("SUCCESS")
+		//			.externalRefId(subscriptionHistDTO.getExternalRefId()) // 증권사 거래 번호 그대로 인계 (Long)
+		//			.build();
 
 		if (refundDTO == null) {
 			throw new Exception("환불 처리에 실패했습니다.");
 		}
 
-		refundDTO.setUserId(userId);
+		refundDTO.setShId(subscriptionHistDTO.getShId());
 		refundDTO.setProjectId(projectId);
+		refundDTO.setUserId(userId);
+		refundDTO.setRefundType("ALL"); // 환불 완료 상태
+		refundDTO.setReasonCode("USER_CANCEL"); // 사유
+		refundDTO.setStatus("SUCCESS"); // 처리 상태
 
-		// 환불 내역 저장
-		if (refundRepository.insertRefund(refundDTO) <= 0) {
-			throw new Exception("내부 환불 내역 기록 실패 (DB 오류)");
-		}
+		subscriptionHistDTO.setSubscriptionStatus("CANCELED");
 		subscriptionHistDTO.setPaymentStatus("REFUNDED");
 		subscriptionHistDTO.setCanceledAt(OffsetDateTime.now());
 
+		self.updateRefundAndSubscriptionHist(refundDTO, subscriptionHistDTO);
+
+		return true;
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public void updateRefundAndSubscriptionHist(RefundDTO refundDTO, SubscriptionHistDTO subscriptionHistDTO)
+		throws Exception {
+		if (refundRepository.insertRefund(refundDTO) <= 0) {
+			throw new Exception("내부 환불 내역 기록 실패 (DB 오류)");
+		}
 		if (subscriptionRepository.update(subscriptionHistDTO) <= 0) {
 			throw new Exception("청약 상태 변경 실패 (DB 오류)");
 		}
-
-		return true;
 	}
 
 }
