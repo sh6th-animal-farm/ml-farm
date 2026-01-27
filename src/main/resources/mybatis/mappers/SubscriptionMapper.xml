@@ -3,12 +3,44 @@
     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper	namespace="com.animalfarm.mlf.domain.subscription.SubscriptionRepository">
-	
+<mapper
+	namespace="com.animalfarm.mlf.domain.subscription.SubscriptionRepository">
+
 	<select id="select" parameterType="subscriptionSelectDTO" resultType="subscriptionHistDTO">
 		select * from subscription_hists
-		where project_id=#{projectId} and user_id=#{userId}
+		where
+		project_id=#{projectId} and user_id=#{userId}
 	</select>
-	
 
+	<insert id="subscriptionApplication" parameterType="subscriptionApplication" useGeneratedKeys="true"
+		keyProperty="shId" keyColumn="sh_id">
+		insert into subscription_hists (
+		project_id,
+		user_id,
+		subscription_amount,
+		subscription_status,
+		payment_status)
+		values(
+		#{projectId},
+		5,
+		#{subscriptionAmount},
+		'PENDING',
+		'RESERVED')
+	</insert>
+
+	<update id="subscriptionApplicationResponse"
+		parameterType="subscriptionApplication">
+		update subscription_hists set payment_status =
+		#{paymentStatus}, external_ref_id = #{externalRefId} where sh_id =
+		#{shId}
+	</update>
+	
+	<update id="updatePlusAmount" parameterType="subscriptionApplication">
+		update projects set actual_amount = actual_amount + #{subscriptionAmount} where project_id = #{projectId}
+	</update>
+	
+	<select id="selectUclId" resultType="Long">
+		select ucl.ucl_id  from users u join user_certificate_links ucl on u.user_id = ucl.user_id 
+		where u.user_id = #{userId};
+	</select>
 </mapper>

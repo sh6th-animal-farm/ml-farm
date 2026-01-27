@@ -16,10 +16,5 @@ public class ProjectBatchScheduler {
 	@Scheduled(cron = "0 * * * * *")
 	public void runBatch() {
 		List<ProjectStatusDTO> status = projectService.selectStatus();
-		System.out.println("#########결과########");
-		for (ProjectStatusDTO dto : status) {
-			System.out.println(dto);
-		}
-		System.out.println("\n\n\n");
 	}
 }

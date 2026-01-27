@@ -5,10 +5,12 @@
 <%-- 속성 정의 --%>
 <%@ attribute name="id" required="true" %> <%-- 모달 고유 ID --%>
 <%@ attribute name="title" required="true" %> <%-- 프로젝트 제목 --%>
+<%@ attribute name="projectId" required="true" %> <%-- 프로젝트 제목 --%>
 <%@ attribute name="price" required="true" type="java.lang.Long" %> <%-- 1토큰 당 가격 --%>
 <%@ attribute name="thumbnail" required="false" %> <%-- 이미지 경로 --%>
 <%@ attribute name="userLimit" required="true" type="java.lang.Long" %> <%-- 투자 한도 잔여 --%>
 <%@ attribute name="walletBalance" required="true" type="java.lang.Long" %> <%-- 지갑 잔액 --%>
+<%@ attribute name="tokenId" required="true" type="java.lang.Long" %> <%-- 토큰Id --%>
 
 <div id="${id}" class="subscription-modal-overlay">
     <div class="subscription-modal-content" onclick="event.stopPropagation()">
@@ -69,7 +71,7 @@
         </div>
 
         <%-- 신청 버튼 --%>
-        <button class="submit-btn" onclick="submitSubscription('${id}')">청약 신청 완료</button>
+        <button class="submit-btn" onclick="submitSubscription('${projectId}')">청약 신청 완료</button>
     </div>
 </div>
 
@@ -155,6 +157,53 @@
         alert(qty + "토큰 청약 신청이 완료되었습니다.");
         closeSubscriptionModal(id);
     }
+    
+ // '청약 신청 완료' 버튼을 눌렀을 때 실행되는 함수
+    function submitSubscription(projectId) {
+        const quantity = document.getElementById('sub-quantity').value; // 입력한 숫자
+        const totalPrice = quantity * unitPrice;
+        
+        const payload = {
+        	tokenId: ${projectData.tokenId},
+        	projectId: projectId,         // 프로젝트 ID
+        	subscriptionAmount: totalPrice, // 수량
+            walletId: 1,
+            projectId: projectId
+            
+        };
+        
+        fetch(ctx + "/api/subscription/application", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload) // 박스를 테이프로 감싸서 전송!
+        })
+        .then(response => {
+            // 서버가 200 OK를 던졌는지 확인
+            if (!response.ok) {
+                return response.text().then(err => { throw new Error(err) });
+            }
+            return response.text(); // 서버가 ResponseEntity<String>으로 주니까 text로 받기
+        })
+        .then(result => {
+            // 앞뒤 공백 제거 (혹시 모를 줄바꿈 방지)
+            const status = result.trim();
+            console.log("서버 응답 결과:", status);
+
+            if (status === "success") {
+                alert("✅ 청약 신청이 완료되었습니다!");
+                location.href = ctx + "/project/" + projectId;
+            } else if (status === "empty_payload") {
+                alert("❌ 청약 신청이 실패되었습니다!.");
+            } else {
+                alert("⚠️ 신청 실패: " + status);
+            }
+        })
+        .catch(error => {
+            console.error("Fetch 에러:", error);
+            alert("⚠️ 서버 연결 오류: " + error.message);
+        });
+    }
+    
     // 초기 실행
     window.onload = () => updateModalUI(1);
 </script>

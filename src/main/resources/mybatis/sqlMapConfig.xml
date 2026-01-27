@@ -39,6 +39,8 @@
 			alias="subscriptionSelectDTO" />
 		<typeAlias type="com.animalfarm.mlf.domain.subscription.dto.SubscriptionHistDTO"
 			alias="subscriptionHistDTO" />
+		<typeAlias type="com.animalfarm.mlf.domain.subscription.dto.SubscriptionInsertDTO"
+			alias="subscriptionApplication" />
 		<typeAlias type="com.animalfarm.mlf.domain.project.dto.ProjectNewTokenDTO"
 			alias="projectNewTokenDTO" />
 	</typeAliases>
