@@ -3,7 +3,7 @@ package com.animalfarm.mlf.domain.retry;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -72,7 +72,7 @@ public class ApiRetryService {
 			.query(queryParams)
 			.idempotencyKey(idempotencyKey)
 			.retryCount(1)
-			.nextRetryAt(LocalDateTime.now().plusMinutes(2))
+			.nextRetryAt(OffsetDateTime.now().plusMinutes(2))
 			.build();
 
 		try {
@@ -146,7 +146,7 @@ public class ApiRetryService {
 
 			// 지수 백오프 계산
 			long delayMinutes = (long)Math.pow(2, currentCount); // 1->2, 2->4, 3->8...
-			retry.setNextRetryAt(LocalDateTime.now().plusMinutes(delayMinutes));
+			retry.setNextRetryAt(OffsetDateTime.now().plusMinutes(delayMinutes));
 		}
 
 		apiRetryQueueMapper.updateStatusAndNextRetry(retry);

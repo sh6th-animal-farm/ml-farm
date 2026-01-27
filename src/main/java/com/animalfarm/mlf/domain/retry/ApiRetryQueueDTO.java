@@ -1,6 +1,8 @@
 package com.animalfarm.mlf.domain.retry;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,14 +16,18 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ApiRetryQueueDTO {
-	private Long seq;
+	private Long retryId;
 	private String idempotencyKey;
 	private String apiType; // e.g. "CANCEL_SUBSCRIPTION", "DIVIDEND"
 	private String payload; // JSON data
 	private String query; // String data
 	private String status; // PENDING, PROCESSING, COMPLETED, FAILED
 	private int retryCount;
-	private LocalDateTime nextRetryAt;
-	private LocalDateTime createdAt;
-	private LocalDateTime updatedAt;
+
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
+	private OffsetDateTime nextRetryAt;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
+	private OffsetDateTime createdAt;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")
+	private OffsetDateTime updatedAt;
 }

@@ -2,11 +2,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.animalfarm.mlf.domain.retry.ApiRetryQueueRepository">
 
-    <insert id="insert" parameterType="apiRetryQueueDTO" useGeneratedKeys="true" keyProperty="seq">
+    <insert id="insert" parameterType="apiRetryQueueDTO" useGeneratedKeys="true" keyProperty="retryId">
         INSERT INTO api_retry_queue (
             idempotency_key,
             api_type,
             payload,
+            query,
             status,
             retry_count,
             next_retry_at,
@@ -15,7 +16,8 @@
         ) VALUES (
             #{idempotencyKey},
             #{apiType},
-            #{payload},
+            #{payload}::jsonb,
+            #{query}::jsonb,
             'PENDING',
             #{retryCount},
             #{nextRetryAt},
@@ -39,14 +41,14 @@
             retry_count = #{retryCount},
             next_retry_at = #{nextRetryAt},
             updated_at = NOW()
-        WHERE seq = #{seq}
+        WHERE retry_id = #{retryId}
     </update>
 
     <update id="updateStatus" parameterType="apiRetryQueueDTO">
         UPDATE api_retry_queue
         SET status = #{status},
             updated_at = NOW()
-        WHERE seq = #{seq}
+        WHERE retry_id = #{retryId}
     </update>
     
     <select id="selectByIdempotencyKey" resultType="apiRetryQueueDTO">
