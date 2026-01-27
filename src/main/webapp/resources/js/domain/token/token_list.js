@@ -64,26 +64,6 @@ function renderTokenTable(tokens) {
     tbody.innerHTML = html;
 }
 
-
-function openTab(evt, tabName) {
-    var i, tabcontent, tablinks;
-    tabcontent = document.getElementsByClassName("tab-content");
-    for (i = 0; i < tabcontent.length; i++) {
-    tabcontent[i].style.display = "none";
-    tabcontent[i].classList.remove("active");
-}
-    tablinks = document.getElementsByClassName("tab-btn");
-    for (i = 0; i < tablinks.length; i++) {
-    tablinks[i].classList.remove("active");
-}
-    document.getElementById(tabName).style.display = "block";
-    document.getElementById(tabName).classList.add("active");
-    evt.currentTarget.classList.add("active");
-}
-// 제 파일이에요
-
-
-
 // 소켓 연결 설정
 function connectExchange(ec2Ip, tokenPath) {
     const socket = new SockJS('http://localhost:9090/ws-stomp');
