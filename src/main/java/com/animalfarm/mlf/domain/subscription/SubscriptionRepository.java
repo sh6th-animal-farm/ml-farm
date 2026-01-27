@@ -12,4 +12,8 @@ public interface SubscriptionRepository {
 	public abstract SubscriptionHistDTO select(SubscriptionSelectDTO subscriptionSelectDTO);
 
 	public abstract boolean subscriptionApplication(SubscriptionInsertDTO subscriptionInsertDTO);
+
+	public abstract boolean subscriptionApplicationResponse(SubscriptionInsertDTO subscriptionInsertDTO);
+
+	public abstract boolean updatePlusAmount(SubscriptionInsertDTO subscriptionInsertDTO);
 }

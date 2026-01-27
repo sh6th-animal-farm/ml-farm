@@ -165,9 +165,9 @@
         
         const payload = {
         	tokenId: ${projectData.tokenId},
-        	subscriptionId: 33,         // 프로젝트 ID
-            amount: totalPrice, // 수량
-            walletId: 2L,
+        	projectId: projectId,         // 프로젝트 ID
+        	subscriptionAmount: totalPrice, // 수량
+            walletId: 2,
             projectId: projectId
             
         };
@@ -176,6 +176,31 @@
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload) // 박스를 테이프로 감싸서 전송!
+        })
+        .then(response => {
+            // 서버가 200 OK를 던졌는지 확인
+            if (!response.ok) {
+                return response.text().then(err => { throw new Error(err) });
+            }
+            return response.text(); // 서버가 ResponseEntity<String>으로 주니까 text로 받기
+        })
+        .then(result => {
+            // 앞뒤 공백 제거 (혹시 모를 줄바꿈 방지)
+            const status = result.trim();
+            console.log("서버 응답 결과:", status);
+
+            if (status === "success") {
+                alert("✅ 청약 신청이 완료되었습니다!");
+                location.href = ctx + "/project/" + projectId;
+            } else if (status === "api_fail") {
+                alert("❌ 증권사 통신 중 오류가 발생했습니다.");
+            } else {
+                alert("⚠️ 신청 실패: " + status);
+            }
+        })
+        .catch(error => {
+            console.error("Fetch 에러:", error);
+            alert("⚠️ 서버 연결 오류: " + error.message);
         });
     }
     
