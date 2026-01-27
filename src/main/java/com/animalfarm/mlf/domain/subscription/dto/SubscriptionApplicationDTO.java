@@ -15,7 +15,7 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class SubscriptionInsertDTO {
+public class SubscriptionApplicationDTO {
 	private Long shId;
 	private Long projectId;
 	private Long userId;
