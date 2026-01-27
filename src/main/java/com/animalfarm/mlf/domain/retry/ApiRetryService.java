@@ -157,7 +157,7 @@ public class ApiRetryService {
 			ApiType type = ApiType.valueOf(retry.getApiType());
 
 			switch (type) {
-				case PROJECT_CANCEL:
+				case SUB_CANCEL:
 					RefundDTO refundDTO = objectMapper.convertValue(obj, RefundDTO.class);
 					SubscriptionService subscriptionService = applicationContext.getBean(SubscriptionService.class);
 					subscriptionService.afterSubsRefundRetry(retry, refundDTO);

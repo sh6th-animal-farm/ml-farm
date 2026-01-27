@@ -113,22 +113,11 @@ public class SubscriptionService {
 	}
 
 	// 증권사 환불 요청 "재시도" 성공 이후 작업
-	@Transactional(rollbackFor = Exception.class)
 	public void afterSubsRefundRetry(ApiRetryQueueDTO retry, RefundDTO refundDTO) throws Exception {
 		// 저장된 Payload(JSON)를 다시 DTO로 변환
 		SubscriptionHistDTO hist = objectMapper.readValue(retry.getPayload(), SubscriptionHistDTO.class);
 
-		refundDTO.setShId(hist.getShId());
-		refundDTO.setProjectId(hist.getProjectId());
-		refundDTO.setUclId(refundDTO.getWalletId());
-		refundDTO.setExternalRefId(refundDTO.getTransactionId());
-		refundDTO.setUserId(hist.getUserId());
-		refundDTO.setRefundType("ALL"); // 환불 완료 상태
-		refundDTO.setReasonCode("USER_CANCEL"); // 사유
-		refundDTO.setStatus("SUCCESS"); // 처리 상태
-
-		// 기존에 만들어둔 업데이트 메서드 재사용
-		self.updateRefundAndSubsTable(refundDTO, hist);
+		afterSubsRefundRequest(hist, refundDTO);
 	}
 
 	// 환불 내역, 청약 내역 DB 수정

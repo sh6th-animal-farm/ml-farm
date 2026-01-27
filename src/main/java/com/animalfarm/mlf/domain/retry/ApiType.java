@@ -41,7 +41,7 @@ public enum ApiType {
 	PROJECT_CLOSE("프로젝트 종료", "/api/project/close/%s", HttpMethod.POST),
 
 	// [SUB - 청약]
-	SUB_CANCEL("청약 취소", "/api/subscription/cancel/%s", HttpMethod.POST);
+	SUB_CANCEL("청약 취소", "/api/project/cancel/%s", HttpMethod.POST);
 
 	private final String description;
 	private final String uriTemplate;
