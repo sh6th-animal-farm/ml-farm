@@ -38,4 +38,11 @@ public interface CarbonRepository {
 	BigDecimal getDiscountRate(@Param("sharePercent")
 	BigDecimal sharePercent);
 
+	String selectCpTitle(@Param("cpId")
+	Long cpId);
+
+	// 상품 잔여 수량 조회
+	BigDecimal selectCpAmount(@Param("cpId")
+	Long cpId);
+
 }

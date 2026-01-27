@@ -47,7 +47,7 @@
                 </div>
 
                 <strong id="sideCurrentPrice" style="font: var(--font-header-01); color: var(--gray-900); display: block; margin-bottom: 8px; font-size: 32px;"></strong>
-                <p style="color: var(--gray-400); font: var(--font-caption-01); margin-bottom: 32px;">* 부가세(VAT) 별도 금액</p>
+                <p style="color: var(--gray-400); font: var(--font-caption-01); margin-bottom: 32px;">* 부가세(VAT) 포함 금액</p>
 
                 <button onclick="openOrderModal()" style="width: 100%; background: var(--green-600); color: #fff; font: var(--font-button-01); padding: 20px 0; border-radius: var(--radius-m); cursor: pointer; border: none; font-weight: 700;">
                     주문 신청하기
@@ -57,3 +57,5 @@
     </aside>
 
 </div>
+<jsp:include page="/WEB-INF/views/carbon/carbon_modal.jsp"/>
+<script src="https://cdn.iamport.kr/v1/iamport.js"></script>

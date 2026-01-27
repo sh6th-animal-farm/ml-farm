@@ -1,6 +1,7 @@
 package com.animalfarm.mlf.domain.carbon;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,10 +28,18 @@ public class CarbonViewController {
 		return "layout";
 	}
 
+	@Value("${portone.imp-code}")
+	private String portoneImpCode;
+
+	@Value("${portone.channel-key}")
+	private String portoneChannelKey;
+
 	@GetMapping("/{id}")
 	public String carbonDetailPage(@PathVariable
 	Long id, Model model) {
-		model.addAttribute("cpId", id); // JS에서 API 호출할 때 쓰라고 넘겨줌
+		model.addAttribute("cpId", id);
+		model.addAttribute("portoneImpCode", portoneImpCode);
+		model.addAttribute("portoneChannelKey", portoneChannelKey);
 		model.addAttribute("contentPage", "/WEB-INF/views/carbon/carbon_detail.jsp");
 		model.addAttribute("activeMenu", "carbon");
 		return "layout";
