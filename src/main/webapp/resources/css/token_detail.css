@@ -41,7 +41,7 @@
 .list-card { display: flex; flex-direction: column; height: 320px; }
 
 /* 주문 폼 (우측 상단) */
-.order-card { display: flex; flex-direction: column; gap: 20px; }
+.order-card { display: flex; flex-direction: column; gap: 20px; height: 434px; }
 
 /* 호가/체결 (우측 하단) */
 .trade-card { display: flex; flex-direction: column; gap: 8px; height: 414px; }
@@ -52,19 +52,52 @@
 .order-btn.active, .trade-btn.active { background: white; font: var(--font-caption-03); color: var(--green-600); }
 
 /* 탭 컨텐츠 */
-.tab-content { display: flex; flex-direction: column; gap: 12px; }
-.tab-content.active { display: block; }
+.tab-content-wrapper { display: none; flex-direction: column; height: calc(100% - 72px); gap: 12px; }
+.tab-content-wrapper.active { display: flex; }
+.tab-content { display: flex; flex-direction: column; height: 100%; gap: 12px; }
 
-.order-input-group { display: flex; flex-direction: column; gap: 4px; }
-.order-label { font: var(--font-caption-02); color: var(--gray-400); }
+/* 매수/매도 */
+.order-input-group { display: flex; gap: 4px; }
+.order-label { display: flex; align-items: center; width: 100px; font: var(--font-caption-02); color: var(--gray-400); }
 .input-box { width: 100%; padding: 12px; border: 1px solid var(--gray-200); border-radius: 6px; background: var(--gray-100); }
 
 .percentage-group { display: flex; gap: 8px; margin: 4px 0px; }
 .perc-btn { flex: 1; height: 38px; border: 1px solid var(--gray-200); background: white; border-radius: 6px; font: var(--font-caption-01); cursor: pointer; }
+.buy-perc:active { border: 1px solid var(--error); background: var(--error-light); }
+.sell-perc:active { border: 1px solid var(--info); background: var(--info-light); }
 
 .summary-row { display: flex; justify-content: space-between; font: var(--font-body-03); }
 .btn-order { width: 100%; padding: 12px; border: none; border-radius: 6px; font: var(--font-body-03); cursor: pointer; color: white; }
 .btn-buy { background-color: var(--error); }
+.btn-sell { background-color: var(--info); }
+
+/* 거래 내역 */
+/* 컨테이너 및 기본 설정 */
+.history-summary { display: flex; justify-content: space-between; padding: 4px; font: var(--font-caption-01); border-bottom: 1px solid var(--gray-200); }
+
+/* 리스트 스타일 초기화 */
+.transaction-list { list-style: none; margin-top: -12px; padding: 0; }
+.transaction-item { position: relative; display: flex; flex-direction: column; gap: 20px; padding: 16px 4px; background-color: white; border-bottom: 1px solid var(--gray-200); isolation: isolate; }
+
+/* 호버 시 블러 처리 */
+.item-hover-layer { position: absolute; inset: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; opacity: 0; background: rgba(255, 255, 255, 0.5); backdrop-filter: blur(4px); transition: opacity 0.2s ease-in-out; z-index: 10; cursor: pointer; }
+.transaction-item:hover .item-hover-layer { opacity: 1; }
+.trashcan-box { display: flex !important; align-items: center; justify-content: center; z-index: 11; }
+.trashcan { display: flex !important; align-items: center; justify-content: center; color: var(--gray-900) !important; fill: var(--gray-900) !important; }
+
+/* 제목 및 날짜 */
+.trade-title { display: flex; flex-direction: column; gap: 4px; }
+.item-header { display: flex; gap: 8px; align-items: center; }
+.asset-name { font: var(--font-body-04); }
+.trade-type.sell { font: var(--font-body-04); color: var(--info); }
+.trade-type.buy { font: var(--font-body-04); color: var(--error); }
+.trade-date { font: var(--font-caption-01); }
+
+/* 상세 데이터 행 */
+.trade-info { display: flex; flex-direction: column; gap: 8px; }
+.trade-info-row { display: flex; justify-content: space-between; align-items: center; }
+.label { font: var(--font-body-03); color: var(--gray-400); }
+.value { font: var(--font-body-04) }
 
 /* 하단 종목 및 호가/체결 테이블 */
 .token-list-table, .hoga-table { width: 100%; font: var(--font-body-03); border-collapse: collapse; }

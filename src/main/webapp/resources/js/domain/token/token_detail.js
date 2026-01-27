@@ -1,4 +1,4 @@
-// 틱 주기 토글
+/* 틱 주기 토글 */
 const periodBtns = document.querySelectorAll('.period-btn');
 
 periodBtns.forEach(btn => {
@@ -10,6 +10,7 @@ periodBtns.forEach(btn => {
     });
 });
 
+/* 매수/매도 탭 */
 const orderBtns = document.querySelectorAll('.order-btn');
 
 orderBtns.forEach(btn => {
@@ -21,6 +22,27 @@ orderBtns.forEach(btn => {
     });
 });
 
+/* 매수/매도 탭 전환 */
+document.querySelectorAll('.tab-menu').forEach(tabMenu => {
+    tabMenu.addEventListener('click', e => {
+        const btn = e.target.closest('.order-btn');
+        if (!btn) return;
+
+        const tabId = btn.dataset.tab;
+        if (!tabId) return;
+
+        // 버튼 active
+        tabMenu.querySelectorAll('.order-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        // 탭 내용 전환
+        const card = btn.closest('.order-card');
+        card.querySelectorAll('.tab-content-wrapper').forEach(tab => tab.classList.remove('active'));
+        card.querySelector(`#${tabId}`).classList.add('active');
+    });
+});
+
+/* 호가/체결 탭 */
 const tradeBtns = document.querySelectorAll('.trade-btn');
 
 tradeBtns.forEach(btn => {

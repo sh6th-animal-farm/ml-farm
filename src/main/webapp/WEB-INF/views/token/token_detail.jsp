@@ -5,16 +5,13 @@
 <script type="module" src="${pageContext.request.contextPath}/resources/js/domain/token/token_detail.js"></script>
 
 <div class="token-container">
-<%--  <div class="head-wrapper">--%>
-<%--    <t:section_header title="김포 스마트팜A" subtitle="HSSJ01"/>--%>
-<%--  </div>--%>
   <div class="content-wrapper">
     <div class="left-column">
       <div class="card chart-card">
         <div class="token-header">
           <div class="left-header">
             <div class="token-title">
-              <h2>김포 스마트팜A</h2>
+              <h2>설향 딸기 1호</h2>
               <p>HSSJ01</p>
             </div>
             <div class="token-summary">
@@ -106,43 +103,173 @@
     <div class="right-column">
       <div class="card order-card">
         <div class="tab-menu">
-          <button class="order-btn buy active" onclick="openTab(event, 'buy-tab')">매수</button>
-          <button class="order-btn sell" onclick="openTab(event, 'sell-tab')">매도</button>
-          <button class="order-btn" onclick="openTab(event, 'history-tab')">거래내역</button>
+          <button class="order-btn buy active" data-tab="buy-tab">매수</button>
+          <button class="order-btn sell" data-tab="sell-tab">매도</button>
+          <button class="order-btn" data-tab="history-tab">거래내역</button>
         </div>
 
-        <div id="buy-tab" class="tab-content">
-          <div class="order-input-group">
-            <span class="order-label">주문유형</span>
-            <select class="input-box">
-              <option>시장가</option>
-              <option>지정가</option>
-            </select>
+        <div id="buy-tab" class="tab-content-wrapper active">
+          <div class="tab-content">
+            <div class="order-input-group">
+              <span class="order-label">주문유형</span>
+              <select class="input-box">
+                <option>시장가</option>
+                <option>지정가</option>
+              </select>
+            </div>
+            <div class="order-input-group">
+              <span class="order-label">매수 가격</span>
+              <input type="text" class="input-box" placeholder="예: 128000 KRW">
+            </div>
+            <div class="order-input-group">
+              <span class="order-label">주문 수량</span>
+              <input type="text" class="input-box" placeholder="예: 1.3875 개">
+            </div>
+            <div class="percentage-group">
+              <button class="perc-btn buy-perc">25%</button>
+              <button class="perc-btn buy-perc">50%</button>
+              <button class="perc-btn buy-perc">75%</button>
+              <button class="perc-btn buy-perc">100%</button>
+            </div>
+            <div class="summary-row">
+              <span>총 주문 금액</span>
+              <span style="color:var(--error)">1,400,000원</span>
+            </div>
+            <button class="btn-order btn-buy">매수</button>
           </div>
-          <div class="order-input-group">
-            <span class="order-label">총액</span>
-            <input type="text" class="input-box" placeholder="예: 128000 KRW">
-          </div>
-          <div class="percentage-group">
-            <button class="perc-btn">25%</button>
-            <button class="perc-btn">50%</button>
-            <button class="perc-btn">75%</button>
-            <button class="perc-btn">100%</button>
-          </div>
-          <div class="summary-row">
-            <span>총 주문 금액</span>
-            <span style="color:#333; font-weight:600;">1,400,000원</span>
-          </div>
-          <button class="btn-order btn-buy">매수</button>
         </div>
 
-<%--        <div id="sell-tab" class="tab-content">--%>
-<%--          <p style="text-align:center; color:#888; padding: 40px 0;">준비중입니다.</p>--%>
-<%--        </div>--%>
+        <div id="sell-tab" class="tab-content-wrapper">
+          <div class="tab-content">
+            <div class="order-input-group">
+              <span class="order-label">주문유형</span>
+              <select class="input-box">
+                <option>시장가</option>
+                <option>지정가</option>
+              </select>
+            </div>
+            <div class="order-input-group">
+              <span class="order-label">매도 가격</span>
+              <input type="text" class="input-box" placeholder="예: 128000 KRW">
+            </div>
+            <div class="order-input-group">
+              <span class="order-label">주문 수량</span>
+              <input type="text" class="input-box" placeholder="예: 1.3875 개">
+            </div>
+            <div class="percentage-group">
+              <button class="perc-btn sell-perc">25%</button>
+              <button class="perc-btn sell-perc">50%</button>
+              <button class="perc-btn sell-perc">75%</button>
+              <button class="perc-btn sell-perc">100%</button>
+            </div>
+            <div class="summary-row">
+              <span>총 주문 금액</span>
+              <span style="color:var(--info)">1,400,000원</span>
+            </div>
+            <button class="btn-order btn-sell">매도</button>
+          </div>
+        </div>
 
-<%--        <div id="history-tab" class="tab-content">--%>
-<%--          <p style="text-align:center; color:#888; padding: 40px 0;">거래 내역이 없습니다.</p>--%>
-<%--        </div>--%>
+        <div id="history-tab" class="tab-content-wrapper">
+          <div class="history-summary">
+            <div>총 2건</div>
+            <div>최신순</div>
+          </div>
+          <div class="scroll">
+            <ul class="transaction-list">
+              <li class="transaction-item">
+                <div class="item-hover-layer">
+                  <div class="trashcan-box">
+                    <t:icon name="trashcan" size="48" className="trashcan"></t:icon>
+                  </div>
+                </div>
+
+                <div class="trade-title">
+                  <div class="item-header">
+                    <span class="asset-name">HSSJ01/KRW</span>
+                    <span class="trade-type sell">매도</span>
+                  </div>
+                  <div class="trade-date">2026-01-25 19:09:55</div>
+                </div>
+
+                <div class="trade-info">
+                  <div class="trade-info-row">
+                    <span class="label">주문가격</span>
+                    <span class="value">5,000.0</span>
+                  </div>
+                  <div class="trade-info-row">
+                    <span class="label">주문수량</span>
+                    <span class="value">1.00000</span>
+                  </div>
+                  <div class="trade-info-row">
+                    <span class="label">미체결량</span>
+                    <span class="value">0.4390</span>
+                  </div>
+                </div>
+              </li>
+              <li class="transaction-item">
+                <div class="item-hover-layer">
+                  <div class="trashcan-box">
+                    <t:icon name="trashcan" size="48" className="trashcan"></t:icon>
+                  </div>
+                </div>
+
+                <div class="trade-title">
+                  <div class="item-header">
+                    <span class="asset-name">HSSJ01/KRW</span>
+                    <span class="trade-type buy">매수</span>
+                  </div>
+                  <div class="trade-date">2026-01-25 19:09:55</div>
+                </div>
+
+                <div class="trade-info">
+                  <div class="trade-info-row">
+                    <span class="label">주문가격</span>
+                    <span class="value">5,000.0</span>
+                  </div>
+                  <div class="trade-info-row">
+                    <span class="label">주문수량</span>
+                    <span class="value">1.00000</span>
+                  </div>
+                  <div class="trade-info-row">
+                    <span class="label">미체결량</span>
+                    <span class="value">0.9021</span>
+                  </div>
+                </div>
+              </li>
+              <li class="transaction-item">
+                <div class="item-hover-layer">
+                  <div class="trashcan-box">
+                    <t:icon name="trashcan" size="48" className="trashcan"></t:icon>
+                  </div>
+                </div>
+
+                <div class="trade-title">
+                  <div class="item-header">
+                    <span class="asset-name">HSSJ01/KRW</span>
+                    <span class="trade-type sell">매도</span>
+                  </div>
+                  <div class="trade-date">2026-01-25 19:09:55</div>
+                </div>
+
+                <div class="trade-info">
+                  <div class="trade-info-row">
+                    <span class="label">주문가격</span>
+                    <span class="value">5,000.0</span>
+                  </div>
+                  <div class="trade-info-row">
+                    <span class="label">주문수량</span>
+                    <span class="value">1.0000</span>
+                  </div>
+                  <div class="trade-info-row">
+                    <span class="label">미체결량</span>
+                    <span class="value">0.3786</span>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
 
       <div class="card trade-card">
