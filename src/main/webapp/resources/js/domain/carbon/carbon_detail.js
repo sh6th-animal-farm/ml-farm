@@ -46,6 +46,7 @@ async function loadCarbonDetail(cpId) {
 }
 
 function renderPage(data) {
+
     // 데이터 구조 분해 할당 (데이터가 없을 경우를 대비해 기본값 설정)
     if (!data || !data.carbonInfo) {
         console.error("렌더링할 데이터가 유효하지 않습니다.");
@@ -54,6 +55,13 @@ function renderPage(data) {
 
     const info = data.carbonInfo;
     const benefit = data.userBenefit;
+
+    // info(CarbonDTO)가 아니라 data(CarbonDetailDTO)에서 직접 꺼냅니다.
+    const mainImg = document.getElementById("detailMainImg");
+    if (mainImg) {
+        mainImg.src = data.thumbnailUrl || (ctx + "/resources/img/carbon_sample.jpg");
+    }
+
 
     // 상단 태그 및 제목 바인딩
     document.getElementById("tagText").innerText = info.cpType + " 프로젝트 | " + info.vintageYear + " 빈티지";

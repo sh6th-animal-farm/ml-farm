@@ -12,6 +12,7 @@
         <result property="addressStreet" column="address_street"/>
         <result property="addressDetails" column="address_details"/>
         <result property="farmName" column="farm_name"/>
+        <result property="thumbnailUrl" column="thumbnailUrl"/>
 
         <association property="carbonInfo" javaType="com.animalfarm.mlf.domain.carbon.dto.CarbonDTO">
             <id property="cpId" column="cp_id"/>
@@ -42,11 +43,17 @@
 
     <select id="selectDetail" resultMap="CarbonDetailMap">
         SELECT 
-            P.*, F.address_sido, F.address_sigungu, F.address_street, F.address_details, F.farm_name
-        FROM carbon_products P
-        JOIN projects PJ ON P.project_id = PJ.project_id
-        JOIN farms F ON PJ.farm_id = F.farm_id
-        WHERE P.cp_id = #{cpId}
+            CP.*, 
+            F.address_sido, 
+            F.address_sigungu, 
+            F.address_street, 
+            F.address_details, 
+            F.farm_name,
+        	COALESCE(F.thumbnail_url, '/resources/img/carbon_sample.jpg') AS thumbnailUrl
+        FROM carbon_products CP
+        JOIN projects PJ ON CP.project_id = PJ.project_id
+        LEFT JOIN farms F ON PJ.farm_id = F.farm_id
+        WHERE CP.cp_id = #{cpId}
     </select>
 
     <select id="getWalletIdByUserId" resultType="long">
@@ -83,13 +90,18 @@
 	        cp.product_certificate AS productCertificate,
 	        cp.vintage_year       AS vintageYear,
 	        cp.cp_detail          AS cpDetail,
-	        pi.image_url          AS thumbnailUrl
-	    FROM carbon_products cp  INNER JOIN projects p ON cp.project_id = p.project_id LEFT JOIN project_images pi ON pi.project_id = p.project_id AND pi.is_thumbnail = true WHERE cp.project_id IN (
-	        SELECT project_id FROM tokens WHERE token_id IN 
-	        <foreach item="id" collection="tokenIds" open="(" separator="," close=")">
-	            #{id}
-	        </foreach>
-	    )
+	        COALESCE(f.thumbnail_url, '/resources/img/carbon_sample.jpg') AS thumbnailUrl
+	    FROM carbon_products cp
+	    INNER JOIN Projects p ON cp.project_id = p.project_id
+	    INNER JOIN Farms f ON p.farm_id = f.farm_id
+	    WHERE cp.project_id IN (
+            SELECT project_id 
+            FROM tokens 
+            WHERE token_id IN
+		    <foreach item="id" collection="tokenIds" open="(" separator="," close=")">
+		        #{id}
+		    </foreach>
+		)
 	    ORDER BY cp.cp_id DESC
 	</select>
 	
@@ -105,13 +117,18 @@
 	        cp.product_certificate AS productCertificate,
 	        cp.vintage_year       AS vintageYear,
 	        cp.cp_detail          AS cpDetail,
-	        pi.image_url          AS thumbnailUrl
-	    FROM carbon_products cp INNER JOIN projects p ON cp.project_id = p.project_id LEFT JOIN project_images pi ON pi.project_id = p.project_id AND pi.is_thumbnail = true <where>
+	        COALESCE(f.thumbnail_url, '/resources/img/carbon_sample.jpg') AS thumbnailUrl
+	    FROM carbon_products cp
+	    INNER JOIN projects p ON cp.project_id = p.project_id
+	    INNER JOIN farms f ON p.farm_id = f.farm_id
+	    <where>
 	        <if test="category != null and category != ''">
 	            AND cp.cp_type = #{category}
 	        </if>
 	        AND cp.project_id IN (
-	            SELECT project_id FROM tokens WHERE token_id IN 
+	            SELECT project_id 
+	            FROM tokens 
+	            WHERE token_id IN 
 	            <foreach item="id" collection="tokenIds" open="(" separator="," close=")">
 	                #{id}
 	            </foreach>
