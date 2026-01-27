@@ -12,8 +12,8 @@
     
     <main>
         <%-- 상단 메인 이미지: 너비 100%로 헤더 양 끝선에 맞춤 --%>
-        <div class="image-placeholder">
-            [전주 스마트팜 바이오차 프로젝트 메인 이미지]
+        <div class="main-image-wrapper" style="width:100%; height:420px; border-radius:12px; overflow:hidden; margin-bottom:24px;">
+            <img id="detailMainImg" src="" alt="프로젝트 이미지" style="width:100%; height:100%; object-fit:cover;">
         </div>
 
         <%-- 프로젝트 제목 영역 --%>

@@ -39,7 +39,7 @@
             <p>보유한 포인트를 사용하여 탄소 배출권을 구매하고 ESG 경영을 실천하세요.</p>
         </div>
 
-        <a href="${pageContext.request.contextPath}/carbon/history" class="btn-history">
+        <a href="${pageContext.request.contextPath}/mypage/carbon-history" class="btn-history">
             구매한 탄소 상품 보러가기 &gt;
         </a>
   	</div>
