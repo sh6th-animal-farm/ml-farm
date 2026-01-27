@@ -5,6 +5,7 @@ import java.time.OffsetDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -17,9 +18,12 @@ import com.animalfarm.mlf.common.http.ExternalApiUtil;
 import com.animalfarm.mlf.common.security.SecurityUtil;
 import com.animalfarm.mlf.domain.refund.RefundDTO;
 import com.animalfarm.mlf.domain.refund.RefundRepository;
+import com.animalfarm.mlf.domain.retry.ApiRetryQueueDTO;
+import com.animalfarm.mlf.domain.retry.ApiRetryService;
+import com.animalfarm.mlf.domain.retry.ApiType;
 import com.animalfarm.mlf.domain.subscription.dto.SubscriptionHistDTO;
 import com.animalfarm.mlf.domain.subscription.dto.SubscriptionInsertDTO;
-import com.animalfarm.mlf.domain.subscription.dto.SubscriptionSelectDTO;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,61 +32,75 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 public class SubscriptionService {
+	private final ApplicationContext applicationContext;
 	private final SubscriptionRepository subscriptionRepository;
 	private final RefundRepository refundRepository;
 	private final ExternalApiUtil externalApiUtil;
 	private final RestTemplate restTemplate;
+	private final ObjectMapper objectMapper;
 
 	@Autowired
 	private SubscriptionService self;
 
-	private static final String BASE_URL = "http://54.167.85.125:9090/";
-
 	// 강황증권 API 서버 주소
 	@Value("${api.kh-stock.url}")
-	private String khUrl;
+	private String KH_BASE_URL;
 
 	public boolean selectAndCancel(Long projectId) throws Exception {
 		Long userId = SecurityUtil.getCurrentUserId();
+
+		// 청약 내역 조회
 		SubscriptionHistDTO subscriptionHistDTO = subscriptionRepository.select(userId, projectId);
 		if (subscriptionHistDTO == null) {
 			throw new Exception("청약 내역이 존재하지 않습니다.");
 		}
 
-		String url = BASE_URL + "/api/project/cancel/" + subscriptionHistDTO.getExternalRefId();
+		// 멱등성 키 생성
+		String idempotencyKey = "SUB-CANCEL-" + subscriptionHistDTO.getShId();
+
+		// url 생성
+		String url = KH_BASE_URL + "/api/project/cancel/" + subscriptionHistDTO.getExternalRefId();
 		RefundDTO refundDTO = null;
 		try {
+			// 취소 및 환불 요청
 			refundDTO = externalApiUtil.callApi(url, HttpMethod.POST, subscriptionHistDTO,
-				new ParameterizedTypeReference<ApiResponse<RefundDTO>>() {});
+				new ParameterizedTypeReference<ApiResponse<RefundDTO>>() {}, idempotencyKey);
+
+			if (refundDTO == null) {
+				throw new Exception("환불 처리에 실패했습니다.");
+			}
 
 			log.info("[Service] 증권사 청약 취소 완료");
+
+			afterSubsRefundRequest(subscriptionHistDTO, refundDTO);
+
 		} catch (RuntimeException e) {
 			// 유틸리티에서 던진 구체적인 에러 메시지("잔액 부족" 등)가 이곳으로 전달됨
-			log.error("[Service] 청약 취소 실패 사유: {}", e.getMessage());
+			log.error("[Service] 청약 취소 실패. 재시도 큐에 등록합니다. 사유: {}", e.getMessage());
 
-			// 트랜잭션 롤백을 위해 예외를 다시 던지거나, 사용자 정의 예외로 변환
-			throw e;
+			Object[] params = new Object[] {subscriptionHistDTO.getExternalRefId()};
+
+			ApiRetryService apiRetryService = applicationContext.getBean(ApiRetryService.class);
+			apiRetryService.registerRetry(
+				ApiType.SUB_CANCEL,
+				subscriptionHistDTO,
+				params,
+				idempotencyKey);
+
+			return false;
 		}
 
-		//		refundDTO = RefundDTO.builder()
-		//			.userId(userId)
-		//			.projectId(projectId)
-		//			.shId(subscriptionHistDTO.getShId()) // 원천 청약 PK
-		//			.uclId(31L)
-		//			.amount(subscriptionHistDTO.getSubscriptionAmount()) // 환불 금액 = 청약 금액
-		//			.refundType("ALL") // 환불 완료 상태
-		//			.reasonCode("USER_CANCEL") // 사유
-		//			.status("SUCCESS")
-		//			.externalRefId(subscriptionHistDTO.getExternalRefId()) // 증권사 거래 번호 그대로 인계 (Long)
-		//			.build();
+		return true;
+	}
 
-		if (refundDTO == null) {
-			throw new Exception("환불 처리에 실패했습니다.");
-		}
-
+	// 증권사 환불 요청 성공 이후 작업
+	private void afterSubsRefundRequest(SubscriptionHistDTO subscriptionHistDTO,
+		RefundDTO refundDTO) throws Exception {
 		refundDTO.setShId(subscriptionHistDTO.getShId());
-		refundDTO.setProjectId(projectId);
-		refundDTO.setUserId(userId);
+		refundDTO.setProjectId(subscriptionHistDTO.getProjectId());
+		refundDTO.setUclId(refundDTO.getWalletId());
+		refundDTO.setExternalRefId(refundDTO.getTransactionId());
+		refundDTO.setUserId(subscriptionHistDTO.getUserId());
 		refundDTO.setRefundType("ALL"); // 환불 완료 상태
 		refundDTO.setReasonCode("USER_CANCEL"); // 사유
 		refundDTO.setStatus("SUCCESS"); // 처리 상태
@@ -91,13 +109,31 @@ public class SubscriptionService {
 		subscriptionHistDTO.setPaymentStatus("REFUNDED");
 		subscriptionHistDTO.setCanceledAt(OffsetDateTime.now());
 
-		self.updateRefundAndSubscriptionHist(refundDTO, subscriptionHistDTO);
-
-		return true;
+		self.updateRefundAndSubsTable(refundDTO, subscriptionHistDTO);
 	}
 
+	// 증권사 환불 요청 "재시도" 성공 이후 작업
 	@Transactional(rollbackFor = Exception.class)
-	public void updateRefundAndSubscriptionHist(RefundDTO refundDTO, SubscriptionHistDTO subscriptionHistDTO)
+	public void afterSubsRefundRetry(ApiRetryQueueDTO retry, RefundDTO refundDTO) throws Exception {
+		// 저장된 Payload(JSON)를 다시 DTO로 변환
+		SubscriptionHistDTO hist = objectMapper.readValue(retry.getPayload(), SubscriptionHistDTO.class);
+
+		refundDTO.setShId(hist.getShId());
+		refundDTO.setProjectId(hist.getProjectId());
+		refundDTO.setUclId(refundDTO.getWalletId());
+		refundDTO.setExternalRefId(refundDTO.getTransactionId());
+		refundDTO.setUserId(hist.getUserId());
+		refundDTO.setRefundType("ALL"); // 환불 완료 상태
+		refundDTO.setReasonCode("USER_CANCEL"); // 사유
+		refundDTO.setStatus("SUCCESS"); // 처리 상태
+
+		// 기존에 만들어둔 업데이트 메서드 재사용
+		self.updateRefundAndSubsTable(refundDTO, hist);
+	}
+
+	// 환불 내역, 청약 내역 DB 수정
+	@Transactional(rollbackFor = Exception.class)
+	public void updateRefundAndSubsTable(RefundDTO refundDTO, SubscriptionHistDTO subscriptionHistDTO)
 		throws Exception {
 		if (refundRepository.insertRefund(refundDTO) <= 0) {
 			throw new Exception("내부 환불 내역 기록 실패 (DB 오류)");
@@ -105,24 +141,6 @@ public class SubscriptionService {
 		if (subscriptionRepository.update(subscriptionHistDTO) <= 0) {
 			throw new Exception("청약 상태 변경 실패 (DB 오류)");
 		}
-	}
-
-	@Transactional
-	public boolean selectAndCancel(SubscriptionSelectDTO subscriptionSelectDTO) {
-		SubscriptionHistDTO subscriptionHistDTO = subscriptionRepository.select(subscriptionSelectDTO);
-		System.out.println(subscriptionHistDTO);
-		//		String url = BASE_URL + "/api/project/cancel/" + subscriptionHistDTO.getShId();
-		//		try {
-		//			externalApiUtil.callApi(url, HttpMethod.POST, subscriptionHistDTO, new ParameterizedTypeReference<ApiResponse<Void>>() {});
-		//			log.info("[Service] 증권사 청약 취소 완료");
-		//		} catch (RuntimeException e) {
-		//			// 유틸리티에서 던진 구체적인 에러 메시지("잔액 부족" 등)가 이곳으로 전달됨
-		//            log.error("[Service] 청약 취소 실패 사유: {}", e.getMessage());
-		//
-		//            // 트랜잭션 롤백을 위해 예외를 다시 던지거나, 사용자 정의 예외로 변환
-		//            throw e;
-		//		}
-		return true;
 	}
 
 	public boolean subscriptionApplication(SubscriptionInsertDTO subscriptionInsertDTO) {
@@ -141,7 +159,7 @@ public class SubscriptionService {
 		//System.out.println(userId);
 		//subscriptionInsertDTO.setUserId(userId);
 		// 1. 증권사 명세서 규격에 맞게 맵 구성
-		String targetUrl = khUrl + "api/project/application/" + tokenId
+		String targetUrl = KH_BASE_URL + "api/project/application/" + tokenId
 			+ "?subscriptionId=" + shId
 			+ "&walletId=" + 2 // 또는 dto.getUclId()
 			+ "&amount=" + amount;

@@ -8,12 +8,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 public class RefundDTO {
 
 	private Long refundId; // 환불 고유 ID
@@ -21,6 +23,7 @@ public class RefundDTO {
 	private Long projectId; // 관련 프로젝트 ID (필요 시)
 	private Long shId; // 원천 청약 이력 ID (SubscriptionHists 참조)
 	private Long uclId; // 증권사 연동 ID
+	private Long walletId;
 
 	// 환불 금액: numeric 대응을 위해 BigDecimal 사용
 	private BigDecimal amount;
@@ -33,6 +36,7 @@ public class RefundDTO {
 	private String status;
 
 	// 외부 거래 참조 ID: kh_holdings.transaction_hists의 PK와 매핑
+	private Long transactionId;
 	private Long externalRefId;
 
 	private OffsetDateTime createdAt; // 환불 발생 일시
