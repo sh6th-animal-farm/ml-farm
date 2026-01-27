@@ -1,20 +1,39 @@
 import { TokenApi } from "./token_api.js";
 
-async function fetchTokens() {
+/* 웹소켓 연결 및 구독 */
+WebSocketManager.connect('http://localhost:9090/ws-stomp', function () {
 
-    const url = new URL(window.location.href);
-    window.history.pushState({}, "", url);
+    // 2. 우측 패널용 캔들 토픽 구독
+    WebSocketManager.subscribe('trade', `/topic/candles/${tokenId}`, function(data) {
+        // 실시간 정보 업데이트
+        //updateTokenRow(data);
+        console.log('[WebSocket - 캔들]', data);
+    });
 
-    try {
-        const data = await TokenApi.getTokenList();
+    // 2. 캔들 토픽 구독
+    WebSocketManager.subscribe('trade', `/topic/candles/${tokenId}`, function(data) {
+        // 실시간 정보 업데이트(시가, 저가, 고가, 종가, 거래량)
+        // updateTokenRow(data);
+        console.log('[WebSocket - 캔들]', data);
+    });
+});
 
-        if(data && data.length > 0) {
-            renderTokenTable(data);
-        }
-    } catch (error) {
-        console.error("데이터 로드 실패: ", error);
-    }
-}
+
+// async function fetchTokens() {
+//
+//     const url = new URL(window.location.href);
+//     window.history.pushState({}, "", url);
+//
+//     try {
+//         const data = await TokenApi.getTokenList();
+//
+//         if(data && data.length > 0) {
+//             renderTokenTable(data);
+//         }
+//     } catch (error) {
+//         console.error("데이터 로드 실패: ", error);
+//     }
+// }
 
 // 일단 이렇게 그릴게요....
 function renderTokenTable(tokens) {
@@ -65,23 +84,23 @@ function renderTokenTable(tokens) {
 }
 
 // 소켓 연결 설정
-function connectExchange(ec2Ip, tokenPath) {
-    const socket = new SockJS('http://localhost:9090/ws-stomp');
-    const stompClient = Stomp.over(socket);
-
-    stompClient.connect({}, function (frame) {
-        console.log('Connected: ' + frame);
-
-        // 실시간 시세 채널 구독
-        stompClient.subscribe('/topic/trades/**', function (response) {
-            console.log('실시간 데이터 수신:', response.body);
-            const updatedData = JSON.parse(response.body);
-            updateTokenRow(updatedData);
-        });
-    }, function (error) {
-        console.error('STOMP Error: ' + error);
-    });
-}
+// function connectExchange(ec2Ip, tokenPath) {
+//     const socket = new SockJS('http://localhost:9090/ws-stomp');
+//     const stompClient = Stomp.over(socket);
+//
+//     stompClient.connect({}, function (frame) {
+//         console.log('Connected: ' + frame);
+//
+//         // 실시간 시세 채널 구독
+//         stompClient.subscribe('/topic/trades/**', function (response) {
+//             console.log('실시간 데이터 수신:', response.body);
+//             const updatedData = JSON.parse(response.body);
+//             updateTokenRow(updatedData);
+//         });
+//     }, function (error) {
+//         console.error('STOMP Error: ' + error);
+//     });
+// }
 
 // 특정 행(row)만 찾아서 업데이트
 function updateTokenRow(data) {
@@ -132,9 +151,9 @@ function updateTokenRow(data) {
 }
 
 // document.addEventListener('DOMContentLoaded', fetchStocks);
-window.fetchTokens = fetchTokens;
-// window.connectExchange = connectExchange;
-document.addEventListener('DOMContentLoaded', async () => {
-    await fetchTokens();
-    connectExchange();
-});
+// window.fetchTokens = fetchTokens;
+// // window.connectExchange = connectExchange;
+// document.addEventListener('DOMContentLoaded', async () => {
+//     await fetchTokens();
+//     connectExchange();
+// });

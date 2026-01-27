@@ -93,3 +93,11 @@
 }
 
 .row:hover { background-color: var(--gray-50); cursor: pointer; }
+
+.search-icon-btn {
+    right: 20px;
+    top: 50%;
+    background: none;
+    border: none;
+    cursor: pointer;
+}

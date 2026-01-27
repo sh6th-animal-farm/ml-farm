@@ -11,31 +11,31 @@
                 <th class="table-head-name">순위</th>
                 <th class="table-head-others">종목</th>
                 <th class="table-head-others">현재가(KRW)</th>
-                <th class="table-head-others">등락률 ${tokenList}</th>
+                <th class="table-head-others">등락률</th>
                 <th class="table-head-others table-head-last">거래대금</th>
             </tr>
         </thead>
         <tbody>
             <c:choose>
                 <c:when test="${not empty tokenList}">
-                    <c:forEach var="token" items="${tokenList}">
+                    <c:forEach var="token" items="${tokenList}" varStatus="status">
                         <tr>
+                            <td class="tx-center">
+                                ${status.count}
+                            </td>
                             <td>
                                 <div class="token-name">${token.tokenName}</div>
                                 <div class="token-code">${token.tickerSymbol}</div>
                             </td>
-                            <td style="text-align: right;">
+                            <td class="tx-right">
                                 <div class="token-name ${token.marketPrice >= 0 ? 'text-plus' : 'text-minus'}">
-                                    ${token.marketPrice >= 0 ? '+' : ''}<fmt:formatNumber value="${token.marketPrice}" type="number"/> 원
+                                    <fmt:formatNumber value="${token.marketPrice}" type="number"/> 원
                                 </div>
                             </td>
-                            <td style="text-align: right;">
-                                <div class="token-name"><fmt:formatNumber value="${token.marketValue}" type="number"/> 원</div>
+                            <td class="tx-right">
+                                <fmt:formatNumber value="${token.changeRate}" type="number"/> st
                             </td>
-                            <td class="">
-                                <fmt:formatNumber value="${token.quantity}" type="number"/> st
-                            </td>
-                            <td class="token-amount">
+                            <td class="token-amount tx-right">
                                 <fmt:formatNumber value="${token.dailyTradeVolume}" type="number"/> st
                             </td>
                         </tr>
@@ -77,9 +77,8 @@
 .token_table_main .token-code { font: var(--font-caption-01); color: var(--gray-400); }
 
 /* 정렬 관련 */
-.token_table_main td.td-rank { text-align: center; }
-.token_table_main td.td-price { text-align: right; }
-.token_table_main td.td-change { text-align: right; }
+.token_table_main td.tx-center { text-align: center; }
+.token_table_main td.tx-right { text-align: right; }
 
 /* 색상 관련 */
 .text-plus { color: var(--error); } /* 상승: 빨강 */

@@ -6,17 +6,7 @@
 
 <link rel="stylesheet"
       href="${pageContext.request.contextPath}/resources/css/token_list.css">
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
-
 <script type="module" src="${pageContext.request.contextPath}/resources/js/domain/token/token_list.js"></script>
-
-<%--<script>--%>
-<%--    window.onload = function() {--%>
-<%--        connectExchange('localhost', '/topic/ticker/777777');--%>
-<%--    };--%>
-<%--</script>--%>
 
 <div class="token-list-container">
     <div class="content-wrapper header-flex">
@@ -41,15 +31,3 @@
         </div>
     </div>
 </div>
-
-
-
-<style>
-    .search-icon-btn {
-        right: 20px;
-        top: 50%;
-        background: none;
-        border: none;
-        cursor: pointer;
-    }
-</style>
