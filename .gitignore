@@ -41,9 +41,11 @@ src/main/resources/config/enterprise.properties
 # redis
 src/main/resources/config/redis.properties
 
-#강황증권 설정 파일
+# 강황증권 설정 파일
 src/main/resources/config/kh-holding.properties
 
+# Slack 웹훅 설정 파일
+src/main/resources/config/slack.properties
 
 # 서버 설정 관련
 .recommenders/

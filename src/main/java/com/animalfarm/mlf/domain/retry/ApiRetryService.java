@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.animalfarm.mlf.common.SlackAlarmUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -32,7 +33,8 @@ public class ApiRetryService {
 	private final ApiRetryQueueRepository apiRetryQueueMapper;
 	private final ApiRetryProcessor apiRetryProcessor;
 	private final ObjectMapper objectMapper;
-	
+	private final SlackAlarmUtil slackAlarmUtil;
+
 	// 강황증권 API 서버 주소
 	@Value("${api.kh-stock.url}")
 	private String KH_BASE_URL;
@@ -129,6 +131,13 @@ public class ApiRetryService {
 
 		if (currentCount >= maxRetries) {
 			retry.setStatus("FAILED");
+
+			// 관리자 알림 발송
+			String alarmMsg = String.format(
+				"계정/키: %s\nAPI 타입: %s\n최종 시도 횟수: %d회\n상세 데이터: %s",
+				retry.getIdempotencyKey(), retry.getApiType(), currentCount, retry.getPayload());
+			slackAlarmUtil.sendAdminAlarm(alarmMsg);
+
 			log.error("최종 재시도에 실패 했습니다. Key: {}", retry.getIdempotencyKey());
 		} else {
 			retry.setStatus("PENDING");
