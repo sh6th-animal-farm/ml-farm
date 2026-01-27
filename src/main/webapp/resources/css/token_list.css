@@ -1,687 +1,95 @@
 /* ============================================================================
-   TOKEN LIST PAGE STYLES
-   This file contains only page-specific styles that cannot be expressed
-   using common.css variables and utilities.
+   TOKEN LIST PAGE STYLES - 최적화 버전
    ============================================================================ */
 
-/* Main container layout */
+/* 1. 기본 레이아웃 및 컨테이너 */
 .token-list-container {
     padding-block: 40px;
+    max-width: 1296px;
+    margin: 0 auto;
+    font-family: 'Pretendard', sans-serif;
 }
 
-.section-header {
+.content-wrapper {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+}
+
+/* 2. 상단 헤더 섹션 (제목 + 검색창) */
+.header-flex {
+    justify-content: space-between;
+    align-items: flex-end;
     margin-bottom: 24px;
 }
 
-.section {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 14px;
-    position: relative;
-    align-self: stretch;
-    width: 100%;
-    flex: 0 0 auto;
-}
-
-.container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: relative;
-    align-self: stretch;
-    width: 100%;
-    flex: 0 0 auto;
-    border-radius: 12px;
-}
-
-/* Search section */
-.heading-wrapper {
-    display: inline-flex;
-    min-width: 180px;
-    align-items: center;
-    padding: 0px 91.22px 0px 0px;
-    position: relative;
-    flex: 0 0 auto;
-}
-
-.div-2 {
-    display: inline-flex;
-    flex-direction: column;
-    align-items: flex-start;
-    position: relative;
-    flex: 0 0 auto;
-}
-
-.text-wrapper-5 {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: -1.00px;
-    font: var(--font-header-03);
+.section-header h2 {
+    font: var(--font-header-01);
+    font-weight: 600;
     color: var(--gray-900);
-    position: relative;
-    width: fit-content;
-    white-space: nowrap;
+    margin: 0;
 }
 
-.background-border-wrapper {
-    display: flex;
-    align-items: flex-start;
-    justify-content: flex-end;
-    position: relative;
+/* 3. 검색창 - 우측 차트 카드 너비(416px)에 고정 */
+.search_box {
     flex: 1;
-    flex-grow: 1;
-}
-
-.background-border {
     display: flex;
-    max-width: 520px;
-    width: 100%;
-    align-items: center;
-    gap: 8px;
-    padding: 11px 16px 12px;
-    position: relative;
-    align-self: stretch;
-    background-color: #ffffff;
-    border-radius: 999px;
-    border: 1px solid #00000014;
+    justify-content: flex-end;
 }
 
-.input {
-    position: relative;
+.search_box .background-border {
+    display: flex;
+    align-items: center;
+    background: #FFFFFF;
+    border: 1px solid var(--gray-100);
+    border-radius: 999px; /* Radius Full */
+    padding: 10px 24px;
     width: 100%;
-    min-height: 21px;
-    background-color: #ffffff;
+    max-width: 416px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.search_box .input {
+    flex: 1;
     border: none;
     outline: none;
-    font: var(--font-body-02);
+    font-size: 16px;
     color: var(--gray-900);
-    padding: 0;
+    background: transparent;
 }
 
-.input::placeholder {
-    color: var(--gray-400);
-}
+/* 4. 컬럼 배분 */
+.left-column { flex: 2; min-width: 0; }
+.right-column { flex: 1; min-width: 416px; }
 
-.icon-wrapper {
-    display: inline-flex;
-    flex-direction: column;
-    align-items: flex-start;
-    position: relative;
-    flex: 0 0 auto;
-    opacity: 0.7;
-    background: none;
+/* 5. 공통 카드 스타일 (리스트 & 차트) */
+.table-token-list-wrapper, .chart-view-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
     border: none;
-    padding: 0;
-    cursor: pointer;
 }
 
-.icon {
-    position: relative;
-    width: 18px;
-    height: 18px;
-}
-
-/* Token list and chart container */
-.container-2 {
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    gap: 14px;
-    position: relative;
-    align-self: stretch;
+/* 6. 테이블 요소 간소화 */
+.token_table_main {
     width: 100%;
-    flex: 0 0 auto;
+    border-collapse: collapse;
 }
 
-/* Token table */
-.table-token-list-wrapper {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    min-width: 0;
-    align-items: flex-start;
-    position: relative;
-    background-color: #fbfbfb;
-    border-radius: 12px;
-    overflow: hidden;
-    border: 1px solid #0000000f;
+.token_table_main th {
+    padding: 16px;
+    background-color: #FAFAFA;
+    color: var(--gray-400);
+    font-size: 14px;
+    font-weight: 500;
+    text-align: left;
+    border-bottom: 1px solid var(--gray-100);
 }
 
-.table-token-list {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    max-height: 247px;
-    align-items: flex-start;
-    position: relative;
-    overflow-y: auto;
-    overflow-x: hidden;
+.token_table_main td {
+    padding: 20px 16px;
+    border-bottom: 1px solid var(--gray-50);
+    vertical-align: middle;
 }
 
-.table-token-list::-webkit-scrollbar {
-    width: 0;
-    display: none;
-}
-
-.div-3 {
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    align-self: stretch;
-    width: 100%;
-    position: relative;
-    flex: 0 0 auto;
-}
-
-/* Table header cells */
-.cell {
-    display: flex;
-    flex-direction: column;
-    width: 56px;
-    align-items: center;
-    padding: 12px 14px;
-    position: relative;
-    background-color: #fafcfaeb;
-    border-bottom: 1px solid #0000000f;
-    backdrop-filter: blur(4px) brightness(100%);
-    -webkit-backdrop-filter: blur(4px) brightness(100%);
-}
-
-.text-wrapper-6 {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: -1.00px;
-    font: var(--font-caption-03);
-    color: var(--gray-600);
-    text-align: center;
-    position: relative;
-    width: fit-content;
-    white-space: nowrap;
-}
-
-.cell-2 {
-    flex: 1;
-    min-width: 0;
-    align-items: flex-start;
-    display: flex;
-    flex-direction: column;
-    padding: 12px 14px;
-    position: relative;
-    background-color: #fafcfaeb;
-    border-bottom: 1px solid #0000000f;
-    backdrop-filter: blur(4px) brightness(100%);
-    -webkit-backdrop-filter: blur(4px) brightness(100%);
-}
-
-.text-wrapper-7 {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: -1.00px;
-    font: var(--font-caption-03);
-    color: var(--gray-600);
-    position: relative;
-    width: fit-content;
-    white-space: nowrap;
-}
-
-.cell-3 {
-    width: 149.11px;
-    align-items: flex-end;
-    display: flex;
-    flex-direction: column;
-    padding: 12px 14px;
-    position: relative;
-    background-color: #fafcfaeb;
-    border-bottom: 1px solid #0000000f;
-    backdrop-filter: blur(4px) brightness(100%);
-    -webkit-backdrop-filter: blur(4px) brightness(100%);
-}
-
-.text-wrapper-8 {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: fit-content;
-    margin-top: -1.00px;
-    font: var(--font-caption-03);
-    color: var(--gray-600);
-    text-align: right;
-    white-space: nowrap;
-}
-
-.cell-4 {
-    width: 127.81px;
-    align-items: flex-end;
-    display: flex;
-    flex-direction: column;
-    padding: 12px 14px;
-    position: relative;
-    background-color: #fafcfaeb;
-    border-bottom: 1px solid #0000000f;
-    backdrop-filter: blur(4px) brightness(100%);
-    -webkit-backdrop-filter: blur(4px) brightness(100%);
-}
-
-.cell-5 {
-    width: 149.14px;
-    align-items: flex-end;
-    display: flex;
-    flex-direction: column;
-    padding: 12px 14px;
-    position: relative;
-    background-color: #fafcfaeb;
-    border-bottom: 1px solid #0000000f;
-    backdrop-filter: blur(4px) brightness(100%);
-    -webkit-backdrop-filter: blur(4px) brightness(100%);
-}
-
-/* Table body */
-.div-4 {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    position: relative;
-    flex: 1;
-    align-self: stretch;
-    width: 100%;
-    flex-grow: 1;
-}
-
-.row {
-    display: flex;
-    justify-content: center;
-    position: relative;
-    align-self: stretch;
-    width: 100%;
-    flex: 0 0 auto;
-}
-
-.row-2 {
-    margin-bottom: -2.00px;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    position: relative;
-    align-self: stretch;
-    width: 100%;
-    flex: 0 0 auto;
-}
-
-/* Table data cells */
-.data {
-    display: flex;
-    flex-direction: column;
-    width: 56px;
-    align-items: center;
-    padding: 22.5px 14px;
-    position: relative;
-    align-self: stretch;
-    border-bottom: 1px solid #0000000f;
-}
-
-.text-wrapper-9 {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 8px;
-    height: 20px;
-    margin-top: -1.00px;
-    font: var(--font-body-02);
-    color: var(--gray-900);
-    text-align: center;
-    white-space: nowrap;
-}
-
-.container-wrapper {
-    flex: 1;
-    min-width: 0;
-    align-items: flex-start;
-    padding: 14px;
-    align-self: stretch;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    border-bottom: 1px solid #0000000f;
-}
-
-.container-3 {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-    position: relative;
-    flex: 1;
-    align-self: stretch;
-    width: 100%;
-    flex-grow: 1;
-}
-
-.text-wrapper-10 {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    align-self: stretch;
-    min-height: 36px;
-    margin-top: -1.00px;
-    font: var(--font-body-03);
-    color: var(--gray-900);
-}
-
-.data-2 {
-    width: 149.11px;
-    align-items: flex-end;
-    padding: 22.5px 14px;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    border-bottom: 1px solid #0000000f;
-}
-
-.text-wrapper-11 {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: fit-content;
-    margin-top: -1.00px;
-    font: var(--font-body-02);
-    color: var(--gray-900);
-    text-align: right;
-    white-space: nowrap;
-}
-
-.data-3 {
-    width: 127.81px;
-    align-items: flex-end;
-    padding: 22.5px 14px;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    border-bottom: 1px solid #0000000f;
-}
-
-.text-wrapper-12 {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: -1.00px;
-    font: var(--font-body-02);
-    color: var(--error);
-    text-align: right;
-    position: relative;
-    width: fit-content;
-    white-space: nowrap;
-}
-
-.data-4 {
-    width: 149.14px;
-    align-items: flex-end;
-    padding: 22.5px 14px;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    border-bottom: 1px solid #0000000f;
-}
-
-.data-5 {
-    width: 56px;
-    align-items: center;
-    padding: 22.5px 14px;
-    align-self: stretch;
-    margin-left: -0.03px;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    border-bottom: 1px solid #0000000f;
-}
-
-.text-wrapper-13 {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 10px;
-    height: 20px;
-    margin-top: -1.00px;
-    font: var(--font-body-02);
-    color: var(--gray-900);
-    text-align: center;
-    white-space: nowrap;
-}
-
-.data-6 {
-    flex: 1;
-    min-width: 0;
-    align-items: flex-start;
-    padding: 14px;
-    align-self: stretch;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    border-bottom: 1px solid #0000000f;
-}
-
-.text-wrapper-14 {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: -1.00px;
-    font: var(--font-body-02);
-    color: var(--info);
-    text-align: right;
-    position: relative;
-    width: fit-content;
-    white-space: nowrap;
-}
-
-.data-7 {
-    width: 149.14px;
-    align-items: flex-end;
-    padding: 22.5px 14px;
-    margin-right: -0.03px;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    border-bottom: 1px solid #0000000f;
-}
-
-/* Chart preview sidebar */
-.aside-preview {
-    display: flex;
-    flex-direction: column;
-    width: 398.3px;
-    align-items: flex-start;
-    gap: 10.01px;
-    padding: 23px 24px 24px;
-    position: relative;
-    background-color: #fbfbfb;
-    border-radius: 12px;
-    border: 1px solid #0000000f;
-}
-
-.container-4 {
-    display: flex;
-    width: 100%;
-    align-items: flex-end;
-    justify-content: space-between;
-    position: relative;
-    flex: 0 0 auto;
-}
-
-.container-5 {
-    display: inline-flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 5px;
-    position: relative;
-    flex: 0 0 auto;
-}
-
-.container-6 {
-    display: flex;
-    align-items: center;
-    position: relative;
-    align-self: stretch;
-    width: 100%;
-    flex: 0 0 auto;
-}
-
-.text-wrapper-15 {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: fit-content;
-    margin-top: -1.00px;
-    font: var(--font-body-04);
-    color: var(--gray-900);
-    white-space: nowrap;
-}
-
-.container-7 {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 0px 0px 0.59px;
-    position: relative;
-    align-self: stretch;
-    width: 100%;
-    flex: 0 0 auto;
-}
-
-.text-wrapper-16 {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: fit-content;
-    margin-top: -1.00px;
-    font: var(--font-caption-01);
-    color: var(--gray-600);
-    white-space: nowrap;
-}
-
-.container-8 {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    position: relative;
-    align-self: stretch;
-    width: 100%;
-    flex: 0 0 auto;
-}
-
-.text-wrapper-17 {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: -1.00px;
-    font: var(--font-subtitle-01);
-    color: var(--gray-900);
-    text-align: right;
-    position: relative;
-    width: fit-content;
-    white-space: nowrap;
-}
-
-.container-9 {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    position: relative;
-    align-self: stretch;
-    width: 100%;
-    flex: 0 0 auto;
-    margin-top: -1px;
-}
-
-.text-wrapper-18 {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: -1.00px;
-    font: var(--font-body-01);
-    color: var(--error);
-    text-align: right;
-    position: relative;
-    width: fit-content;
-    white-space: nowrap;
-}
-
-.horizontal-border {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    align-items: flex-start;
-    gap: 8px;
-    padding: 21px 0px 0px;
-    position: relative;
-    flex: 0 0 auto;
-    border-top: 1px solid #0000000f;
-}
-
-.container-10 {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: relative;
-    align-self: stretch;
-    width: 100%;
-    flex: 0 0 auto;
-}
-
-.container-11 {
-    display: inline-flex;
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 0px 0px 0.59px;
-    position: relative;
-    flex: 0 0 auto;
-}
-
-.image {
-    position: relative;
-    align-self: stretch;
-    width: 100%;
-    min-height: 148.5px;
-    border-radius: 8px;
-    border: 1px solid #0000000f;
-    background: linear-gradient(0deg,
-    rgba(248, 250, 251, 1) 0%,
-    rgba(248, 250, 251, 1) 100%);
-}
-
-/* Accessibility */
-.visually-hidden {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border-width: 0;
-}
-
-/* 가격이 오를 때 반짝임 (연한 빨강) */
-@keyframes highlight-up {
-    0% { background-color: rgba(248, 68, 68, 0.3); }
-    100% { background-color: transparent; }
-}
-
-/* 가격이 내릴 때 반짝임 (연한 파랑) */
-@keyframes highlight-down {
-    0% { background-color: rgba(49, 130, 246, 0.3); }
-    100% { background-color: transparent; }
-}
-
-.up-flash { animation: highlight-up 0.8s ease-out; }
-.down-flash { animation: highlight-down 0.8s ease-out; }
+.row:hover { background-color: var(--gray-50); cursor: pointer; }

@@ -73,7 +73,7 @@
 .token-table td:last-child { padding-right: 24px; }
 
 .token_table_main td.token-amount { text-align: right; padding-right: 24px;}
-.token_table_main .token-name { font: var(--font-body-03); color: var(--gray-900); margin-bottom: 2px; }
+.token_table_main .token-name { font: var(--font-body-03); color: var(--gray-900); }
 .token_table_main .token-code { font: var(--font-caption-01); color: var(--gray-400); }
 
 /* 정렬 관련 */
@@ -87,7 +87,7 @@
 
 /* 1. 테이블 컨테이너: 높이 제한 및 스크롤 설정 */
 .token-table-scroll-container {
-    width: 100%;
+    flex: 1;
     max-height: 100vh;
     overflow-y: auto;
     border-radius: var(--radius-l);
