@@ -46,6 +46,8 @@ src/main/resources/config/redis.properties
 #강황증권 설정 파일
 src/main/resources/config/kh-holding.properties
 
+# 결제 api 설정 파일
+src/main/resources/config/payment.properties
 
 # 서버 설정 관련
 .recommenders/

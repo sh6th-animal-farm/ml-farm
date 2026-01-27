@@ -136,4 +136,19 @@
 	    </where>
 	    ORDER BY cp.cp_id DESC
 	</select>
+	
+	<!-- 상품명 조회 -->
+	<select id="selectCpTitle" resultType="string">
+	    SELECT cp_title
+	    FROM carbon_products
+	    WHERE cp_id = #{cpId}
+	</select>
+	
+	<!-- 상품 잔여 수량 조회 -->
+	<select id="selectCpAmount" resultType="java.math.BigDecimal">
+	    SELECT cp_amount
+	    FROM carbon_products
+	    WHERE cp_id = #{cpId}
+	</select>
+	
 </mapper>

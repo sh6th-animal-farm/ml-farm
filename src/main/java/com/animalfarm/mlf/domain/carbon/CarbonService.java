@@ -11,6 +11,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import com.animalfarm.mlf.common.ApiResponseDTO;
@@ -18,6 +19,8 @@ import com.animalfarm.mlf.common.security.SecurityUtil;
 import com.animalfarm.mlf.domain.carbon.dto.CarbonDetailDTO;
 import com.animalfarm.mlf.domain.carbon.dto.CarbonDiscountDTO;
 import com.animalfarm.mlf.domain.carbon.dto.CarbonListDTO;
+import com.animalfarm.mlf.domain.carbon.dto.CarbonOrderCompleteDTO;
+import com.animalfarm.mlf.domain.carbon.dto.CarbonOrderResponseDTO;
 import com.animalfarm.mlf.domain.carbon.dto.UserBenefitDTO;
 
 @Service
@@ -61,6 +64,33 @@ public class CarbonService {
 		} catch (Exception e) {
 			System.out.println("[ERROR] 강황증권 API 통신 실패: " + e.getMessage());
 			return new ArrayList<>();
+		}
+	}
+
+	/**
+	 * [API 호출] 강황증권으로부터 유저의 주문 가능 금액(available_balance)을 가져옵니다.
+	 * 엔드포인트: GET /api/order/balance?user_id=...
+	 */
+	public BigDecimal fetchAvailableBalance(Long walletId) {
+		try {
+			String url = GANGHWANG_API_URL + "api/order/balance/" + walletId;
+
+			ResponseEntity<String> responseEntity = restTemplate.exchange(
+				url,
+				HttpMethod.GET,
+				null,
+				String.class);
+
+			String body = responseEntity.getBody();
+			if (body == null || body.trim().isEmpty()) {
+				throw new RuntimeException("강황증권 주문 가능 금액 응답이 비어있습니다.");
+			}
+
+			return new BigDecimal(body.trim());
+
+		} catch (Exception e) {
+			throw new RuntimeException(
+				"강황증권 주문 가능 금액 조회 중 오류가 발생했습니다: " + e.getMessage(), e);
 		}
 	}
 
@@ -229,5 +259,98 @@ public class CarbonService {
 			actualAmount, myHolding));
 
 		return new ApiResponseDTO<CarbonDetailDTO>("상품 상세 정보 조회에 성공했습니다.", detail);
+	}
+
+	/**
+	 * [모달용] 주문 견적
+	 */
+	public ApiResponseDTO<CarbonOrderResponseDTO> quoteOrder(Long cpId, BigDecimal amount) {
+
+		if (cpId == null) {
+			throw new IllegalArgumentException("cpId가 필요합니다.");
+		}
+		if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+			throw new IllegalArgumentException("amount는 0보다 커야 합니다.");
+		}
+
+		Long userId = getLoginUserId();
+		Long walletId = carbonRepository.getWalletIdByUserId(userId);
+
+		// 1) 강황증권 주문 가능 금액
+		BigDecimal availableBalance = fetchAvailableBalance(walletId);
+
+		// 2) 상품/잔여 수량
+		CarbonDetailDTO detail = carbonRepository.selectDetail(cpId);
+		if (detail == null || detail.getCarbonInfo() == null) {
+			throw new RuntimeException("해당 상품 정보를 찾을 수 없습니다. (ID: " + cpId + ")");
+		}
+
+		BigDecimal remainAmount = carbonRepository.selectCpAmount(cpId);
+		if (remainAmount == null) {
+			remainAmount = BigDecimal.ZERO;
+		}
+
+		// 3) 혜택 계산(기존 로직 재활용)
+		Long projectId = detail.getCarbonInfo().getProjectId();
+		BigDecimal actualAmount = carbonRepository.getActualAmount(projectId);
+		Long tokenId = carbonRepository.getTokenIdByProjectId(projectId);
+
+		List<CarbonDiscountDTO> holdings = fetchAllHoldings(walletId);
+		CarbonDiscountDTO myHolding = holdings.stream()
+			.filter(h -> h.getTokenId() != null && h.getTokenId().equals(tokenId))
+			.findFirst()
+			.orElse(null);
+
+		UserBenefitDTO benefit = processCalculation(
+			detail.getCarbonInfo().getCpAmount(),
+			detail.getCarbonInfo().getCpPrice(),
+			actualAmount,
+			myHolding);
+
+		BigDecimal unitPrice = (benefit != null && benefit.getCurrentPrice() != null)
+			? benefit.getCurrentPrice()
+			: detail.getCarbonInfo().getCpPrice();
+
+		BigDecimal total = unitPrice.multiply(amount).setScale(0, RoundingMode.HALF_UP);
+		BigDecimal supply = total.divide(new BigDecimal("1.1"), 0, RoundingMode.FLOOR);
+		BigDecimal vat = total.subtract(supply);
+
+		String cpTitle = carbonRepository.selectCpTitle(cpId);
+
+		CarbonOrderResponseDTO resp = CarbonOrderResponseDTO.builder()
+			.cpId(cpId)
+			.cpTitle(cpTitle)
+			.orderAmount(amount)
+			.unitPrice(unitPrice)
+			.supplyAmount(supply)
+			.vatAmount(vat)
+			.totalAmount(total)
+			.userMaxLimit(benefit != null ? benefit.getUserMaxLimit() : null)
+			.remainAmount(remainAmount)
+			.availableBalance(availableBalance)
+			.build();
+
+		return new ApiResponseDTO<>("주문 견적 조회에 성공했습니다.", resp);
+
+	}
+
+	@Transactional
+	public void completeOrder(CarbonOrderCompleteDTO req) {
+		if (req == null) {
+			throw new IllegalArgumentException("요청값이 비었습니다.");
+		}
+		if (req.getCpId() == null) {
+			throw new IllegalArgumentException("cpId가 필요합니다.");
+		}
+		if (req.getImpUid() == null || req.getImpUid().isBlank()) {
+			throw new IllegalArgumentException("impUid가 필요합니다.");
+		}
+		if (req.getMerchantUid() == null || req.getMerchantUid().isBlank()) {
+			throw new IllegalArgumentException("merchantUid가 필요합니다.");
+		}
+		if (req.getAmount() == null) {
+			throw new IllegalArgumentException("amount가 필요합니다.");
+		}
+
 	}
 }
