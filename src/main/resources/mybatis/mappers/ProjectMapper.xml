@@ -46,40 +46,16 @@
 		c.method,
 		t.ticker_symbol,
 		t.total_supply,
-		UNNEST(img.image_list) AS image_url,
-		UNNEST(fed.temp_list) AS
-		temperature_inside
+		img.image_url, -- 직접 조인 (중복 행 발생하지만 MyBatis가 처리함)
+		fed.temperature_inside -- 직접 조인
 		FROM projects p
-		LEFT JOIN
-		farms f ON p.farm_id = f.farm_id
-		LEFT JOIN
-		cultivations c ON
-		p.project_id = c.project_id
-		LEFT JOIN tokens t ON
-		p.project_id =
-		t.project_id
-		<!-- 이미지 서브쿼리 조인 전 미리 그룹화하여 데이터 중복 생성 방지 -->
-		LEFT JOIN (
-		SELECT
-		project_id, ARRAY_AGG(image_url) AS image_list
-		FROM
-		project_images
-		GROUP
-		BY project_id
-		) img ON p.project_id =
-		img.project_id
-		<!-- 환경 데이터 서브쿼리: 조인 전 미리 그룹화-->
-		LEFT JOIN (
-		SELECT farm_id,
-		ARRAY_AGG(temperature_inside) AS
-		temp_list
-		FROM farm_env_data
-		GROUP BY
-		farm_id
-		) fed ON f.farm_id =
-		fed.farm_id
-		WHERE p.project_id =
-		#{projectId};
+		LEFT JOIN farms f ON p.farm_id = f.farm_id
+		LEFT JOIN cultivations c ON p.project_id = c.project_id
+		LEFT JOIN tokens t ON p.project_id = t.project_id
+		-- 서브쿼리 그룹화 대신 원본 테이블과 직접 조인
+		LEFT JOIN project_images img ON p.project_id = img.project_id
+		LEFT JOIN farm_env_data fed ON f.farm_id = fed.farm_id
+		WHERE p.project_id = #{projectId}
 	</select>
 
 	<select id="selectByCondition"
@@ -167,7 +143,7 @@
 		#{managerCount})
 	</insert>
 
-	<insert id="insertToken" parameterType="projectInsertDTO">
+	<insert id="insertToken" parameterType="projectInsertDTO" useGeneratedKeys="true" keyProperty="tokenId" keyColumn="token_id">		
 		INSERT INTO tokens (project_id, token_name, ticker_symbol, total_supply)
 		Values (
 		#{projectId},
@@ -241,11 +217,11 @@
 	</delete>
 
     <select id="getStarredStatus" parameterType="ProjectStarredDTO" resultType="boolean">
-    	select is_starred
-    	from starred_projects
-    	where user_id = #{userId} and project_id = #{projectId}
-    </select>
-    
+		select is_starred
+		from starred_projects
+		where user_id = #{userId} and project_id = #{projectId}
+	</select>
+
 	<!-- 관심프로젝트 추가 -->
 	<insert id="insertStrarredProject"
 		parameterType="ProjectStarredDTO">
@@ -256,7 +232,7 @@
 		#{userId},
 		#{projectId})
 	</insert>
-	
+
 	<!-- 관심프로젝트 update -->
 	<update id="updateStarred" parameterType="ProjectStarredDTO">
 		UPDATE starred_projects
@@ -268,4 +244,30 @@
 		AND project_id = #{projectId};
 	</update>
 
+	<select id="selectStatus" resultType="projectStatusDTO">
+		<![CDATA[
+			SELECT 
+			project_id,
+			project_name,
+			project_status,
+			announcement_start_date,
+			announcement_end_date,
+			subscription_start_date,
+			subscription_end_date,
+			result_announcement_date,
+			project_start_date,
+			project_end_date
+			FROM projects
+			WHERE (project_status = 'PREPARING' AND announcement_start_date <= CURRENT_DATE)
+			OR (project_status = 'ANNOUNCEMENT' AND subscription_start_date <= CURRENT_DATE)
+			OR (project_status = 'SUBSCRIPTION' AND subscription_end_date < CURRENT_DATE)
+		]]>
+	</select>
+
+	<update id="updateProjectStatus" parameterType="projectStatusDTO">
+		UPDATE Projects
+		SET project_status = #{nextStatus},
+		updated_at = NOW()
+		WHERE project_id = #{projectId} AND project_status = #{projectStatus};
+	</update>
 </mapper>
