@@ -39,13 +39,15 @@ public class SubscriptionController {
 	@PostMapping("/application")
 	public ResponseEntity<String> applicationSubscription(@RequestBody
 	SubscriptionInsertDTO subscriptionInsertDTO) {
-		if(subscriptionService.subscriptionApplication(subscriptionInsertDTO)) {
+		if (subscriptionService.subscriptionApplication(subscriptionInsertDTO)) {
 			try {
 				subscriptionService.postApplication(subscriptionInsertDTO);
-				log.info("여기 왔어");
 				return ResponseEntity.ok("success");
 			} catch (Exception e) {
 				log.error("증권사 전송 중 오류 발생: {}", e.getMessage());
+				if ("empty_payload".equals(e.getMessage())) {
+					return ResponseEntity.ok("empty_payload");
+				}
 				return ResponseEntity.ok("api_fail");
 			}
 		} else {

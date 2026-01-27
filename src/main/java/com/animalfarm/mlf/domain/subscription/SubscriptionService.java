@@ -89,7 +89,7 @@ public class SubscriptionService {
 				Long uclId = subscriptionRepository.selectUclId(subscriptionInsertDTO);
 
 				System.out.println("증권사 메시지: " + msg);
-				System.out.println("트랜잭션 ID: " + payload);
+				System.out.println("payload: " + payload);
 				if (payload != null) {
 					subscriptionInsertDTO.setPaymentStatus("PAID");
 					subscriptionInsertDTO.setExternalRefId((Long)payload);
@@ -98,10 +98,12 @@ public class SubscriptionService {
 				} else {
 					subscriptionInsertDTO.setPaymentStatus("FAILED");
 					subscriptionRepository.subscriptionApplicationResponse(subscriptionInsertDTO);
+					throw new RuntimeException("empty_payload");
 				}
 			}
 		} catch (Exception e) {
 			System.out.println("통신 실패: " + e.getMessage());
+			throw e;
 		}
 	}
 

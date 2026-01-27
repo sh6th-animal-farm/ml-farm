@@ -192,8 +192,8 @@
             if (status === "success") {
                 alert("✅ 청약 신청이 완료되었습니다!");
                 location.href = ctx + "/project/" + projectId;
-            } else if (status === "api_fail") {
-                alert("❌ 증권사 통신 중 오류가 발생했습니다.");
+            } else if (status === "empty_payload") {
+                alert("❌ 청약 신청이 실패되었습니다!.");
             } else {
                 alert("⚠️ 신청 실패: " + status);
             }
