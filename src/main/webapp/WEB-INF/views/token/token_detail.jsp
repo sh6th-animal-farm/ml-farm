@@ -105,13 +105,13 @@
         <div class="tab-menu">
           <button class="order-btn buy active" data-tab="buy-tab">매수</button>
           <button class="order-btn sell" data-tab="sell-tab">매도</button>
-          <button class="order-btn" data-tab="history-tab">거래내역</button>
+          <button class="order-btn" data-tab="history-tab">미체결</button>
         </div>
 
         <div id="buy-tab" class="tab-content-wrapper active">
           <div class="tab-content">
             <div class="order-input-group">
-              <span class="order-label">주문유형</span>
+              <span class="order-label">주문 유형</span>
               <select class="input-box">
                 <option>시장가</option>
                 <option>지정가</option>
@@ -142,7 +142,7 @@
         <div id="sell-tab" class="tab-content-wrapper">
           <div class="tab-content">
             <div class="order-input-group">
-              <span class="order-label">주문유형</span>
+              <span class="order-label">주문 유형</span>
               <select class="input-box">
                 <option>시장가</option>
                 <option>지정가</option>
