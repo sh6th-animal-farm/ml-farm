@@ -53,3 +53,10 @@ tradeBtns.forEach(btn => {
         btn.classList.add('active');
     });
 });
+
+// 체결 토픽 구독
+WebSocketManager.connect('http://localhost:9090/ws-stomp', function() {
+    WebSocketManager.subscribe('trade', '/topic/trades/**', function(data) {
+        console.log('체결:', data);
+    });
+});
