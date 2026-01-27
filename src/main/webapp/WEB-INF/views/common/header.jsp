@@ -26,7 +26,7 @@ pageEncoding="UTF-8"%> <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
         </li>
         <li>
           <a
-            href="${pageContext.request.contextPath}/carbon-market"
+            href="${pageContext.request.contextPath}/carbon/list"
             class="nav-item ${activeMenu == 'carbon-market' ? 'active' : ''}"
             >탄소 마켓</a
           >

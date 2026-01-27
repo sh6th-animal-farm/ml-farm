@@ -12,4 +12,5 @@ public class SignUpRequestDTO {
 	private String password;
 	private String phoneNumber;
 	private String brn;
+	private String role;
 }

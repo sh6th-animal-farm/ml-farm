@@ -1,0 +1,70 @@
+@charset "UTF-8";
+
+.mypage-container {
+    max-width: 1296px;
+    margin: 60px auto;
+    display: flex;
+    gap: 24px;
+}
+
+/* 왼쪽 사이드바 영역 */
+.sidebar-wrapper { width: 280px; flex-shrink: 0; }
+
+/* 오른쪽 본문 영역 */
+.content-wrapper { flex-grow: 1; }
+
+/* 카드 공통 스타일 */
+.info-card {
+    background: #fff;
+    border-radius: var(--radius-l);
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+}
+
+.card-title { font:var(--font-subtitle-01); margin-bottom: 24px; color: var(--gray-900); }
+
+/* 프로필 상단 요약 */
+.profile-summary { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.profile-summary .user-name { font: var(--font-header-03); }
+.badge-investor {
+    background: #E8F5E9; color: var(--green-600);
+    padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: 600;
+}
+.join-date { color: var(--gray-400); font:var(--font-caption-01); }
+
+/* 입력 그룹 스타일 */
+.input-group-column { display: flex; flex-direction: column; gap: 4px;}
+.input-group { margin-block: 20px; position: relative; }
+.input-group:last-child { margin-bottom: 0; }
+.input-label { display: block; font-size: 13px; color: var(--gray-400); margin-bottom: 8px; }
+.input-value { font-size: 16px; font-weight: 600; color: var(--gray-900); }
+
+/* 수정 버튼 */
+.btn-edit {
+    position: absolute; right: 0; top: 50%; transform: translateY(-50%); border: none;
+    border-radius: var(--radius-s); cursor: pointer;
+}
+
+/* 스위치 스타일 (알림 설정) */
+.noti-setting-row {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-block: 20px; 
+}
+.setting-info .s-title { font:var(--font-body-02); margin-bottom: 4px; }
+.setting-info .s-desc { font:var(--font-caption-01); color: var(--gray-400); }
+
+/* 탈퇴 영역 */
+.delete-account {
+    border: 1px dashed var(--gray-200); border-radius: var(--radius-l);
+    padding: 24px; display: flex; justify-content: space-between; align-items: center;
+}
+.delete-info .d-title { font: var(--font-caption-02); margin-bottom: 4px; }
+.delete-info .d-desc { font: var(--font-caption-01); color: var(--gray-400); }
+.btn-withdraw { color: var(--gray-400); font: var(--font-caption-02); font-weight: 700; text-decoration: underline; background: none; border: none; cursor: pointer; }
+
+/* 더보기 버튼 */
+.btn-more { 
+    width: 100%; padding: 12px; background: #fff; box-shadow: var(--shadow); border:none;
+    border-radius: 12px; color: var(--gray-900); font-weight: 600; margin-top: 24px; cursor: pointer;
+}
