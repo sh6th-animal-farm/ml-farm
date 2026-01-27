@@ -25,7 +25,7 @@ public class ProjectNewTokenDTO {
 
 	// 3. 거래 및 주문 정보
 	private String transactionId; // 거래 고유 식별 번호 (VARCHAR(20))
-	private String externalRefId; // 증권사 체결/주문 번호 (VARCHAR(20))
+	private Long externalRefId; // 증권사 체결/주문 번호 (VARCHAR(20))
 	private BigDecimal orderAmount; // 주문 수량 (DECIMAL(20,4))
 	private BigDecimal contractAmount;// 체결 수량 (DECIMAL(20,4))
 

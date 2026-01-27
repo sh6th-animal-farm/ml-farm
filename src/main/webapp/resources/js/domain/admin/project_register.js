@@ -167,7 +167,10 @@ function insertProject() {
     ProjectApi.insert(data)
     .then(text => {
         if(text === "success") {
-            alert("등록되었습니다.");
+            alert("프로젝트가 등록되고 증권사 API 성공하였습니다.");
+            window.location.href = `${ctx}/admin/project/new`;
+        } else if(text === "api_fail"){
+        	alert("프로젝트가 등록되고 증권사 API 실패하였습니다.");
             window.location.href = `${ctx}/admin/project/new`;
         } else {
             const errorMsg = text;

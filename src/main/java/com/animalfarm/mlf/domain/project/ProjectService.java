@@ -8,13 +8,16 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.dao.DataAccessException;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import com.animalfarm.mlf.common.http.ApiResponse;
+import com.animalfarm.mlf.common.http.ExternalApiUtil;
 import com.animalfarm.mlf.domain.project.dto.FarmDTO;
 import com.animalfarm.mlf.domain.project.dto.ImgEditable;
 import com.animalfarm.mlf.domain.project.dto.ProjectDTO;
@@ -27,8 +30,12 @@ import com.animalfarm.mlf.domain.project.dto.ProjectSearchReqDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectStarredDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectStatusDTO;
 import com.animalfarm.mlf.domain.token.TokenRepository;
+import com.animalfarm.mlf.domain.token.dto.TokenIssueDTO;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 public class ProjectService {
 	@Autowired
 	ProjectRepository projectRepository;
@@ -42,6 +49,9 @@ public class ProjectService {
 
 	@Autowired
 	private RestTemplate restTemplate;
+
+	@Autowired
+	ExternalApiUtil externalApiUtil;
 
 	public List<ProjectDTO> selectAll() {
 		return projectRepository.selectAll();
@@ -104,7 +114,7 @@ public class ProjectService {
 				.fromUserId(null) // [요구사항 1-3] 보낸 사용자 null
 				.toUserId(1L) // [요구사항 1-2] 시스템 관리자(1)에게 배정
 				.transactionId(txId) // 거래 고유 식별 번호
-				.externalRefId(txId) // 증권사 참조 ID (일단 동일하게 세팅)
+				.externalRefId(990803L) // 증권사 참조 ID (일단 동일하게 세팅)
 				.orderAmount(totalSupply) // [요구사항 1-1] 전체 토큰 지분
 				.contractAmount(totalSupply) // 발행 시 체결 수량은 전체 수량과 동일
 				.status("COMPLETED") // 발행 완료 상태
@@ -223,7 +233,7 @@ public class ProjectService {
 		}
 	}
 
-	public Double selectMyWallet() {
+	public Double selectMyWalletAmount() {
 		// 1. 목적지 주소 생성 (외부 IP + 상세 경로)
 		String targetUrl = khUrl + "api/my/wallet/1";
 		try {
@@ -250,6 +260,28 @@ public class ProjectService {
 			// 3. 외부 서버 연결 실패 시 예외 처리 (재시도 테이블 insert 등)
 			System.err.println("외부 서버 통신 실패: " + e.getMessage());
 			return 0.0;
+		}
+	}
+
+	public void postTokenIssue(ProjectInsertDTO projectInsertDTO) {
+		TokenIssueDTO tokenIssueDTO = TokenIssueDTO.builder()
+			.tokenName(projectInsertDTO.getProjectName())
+			.tickerSymbol(projectInsertDTO.getTickerSymbol())
+			.totalSupply(projectInsertDTO.getTotalSupply())
+			.projectId(projectInsertDTO.getProjectId())
+			.issuePrice(projectInsertDTO.getTargetAmount().divide(projectInsertDTO.getTotalSupply()))
+			.createdAt(projectInsertDTO.getCreatedAt())
+			.build();
+
+		String targetUrl = khUrl + "api/project/open";
+		try {
+			TokenIssueDTO result = externalApiUtil.callApi(targetUrl, HttpMethod.POST, tokenIssueDTO,
+				new ParameterizedTypeReference<ApiResponse<TokenIssueDTO>>() {});
+			log.info("증권사 정송 성공 : " + result);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			log.error("실패!!! : " + e.getMessage());
 		}
 	}
 }
