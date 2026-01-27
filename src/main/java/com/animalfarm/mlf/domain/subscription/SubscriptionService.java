@@ -1,5 +1,7 @@
 package com.animalfarm.mlf.domain.subscription;
 
+import java.math.BigDecimal;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -53,17 +55,25 @@ public class SubscriptionService {
 	}
 
 	public boolean subscriptionApplication(SubscriptionInsertDTO subscriptionInsertDTO) {
+		//Long userId = SecurityUtil.getCurrentUserId();
+		//subscriptionInsertDTO.setUserId(userId);
 		return subscriptionRepository.subscriptionApplication(subscriptionInsertDTO);
 	}
 
 	@Transactional
 	public void postApplication(SubscriptionInsertDTO subscriptionInsertDTO) {
 		Long tokenId = subscriptionInsertDTO.getTokenId();
+		Long shId = subscriptionInsertDTO.getShId();
+		BigDecimal amount = subscriptionInsertDTO.getSubscriptionAmount();
+		System.out.println(subscriptionInsertDTO);
+		//Long userId = SecurityUtil.getCurrentUserId();
+		//System.out.println(userId);
+		//subscriptionInsertDTO.setUserId(userId);
 		// 1. 증권사 명세서 규격에 맞게 맵 구성
 		String targetUrl = khUrl + "api/project/application/" + tokenId
-			+ "?subscriptionId=" + 3 // 또는 dto.getShId()
+			+ "?subscriptionId=" + shId
 			+ "&walletId=" + 2 // 또는 dto.getUclId()
-			+ "&amount=" + subscriptionInsertDTO.getSubscriptionAmount();
+			+ "&amount=" + amount;
 		try {
 			// 2. restTemplate으로 직접 호출 (껍데기 ApiResponse.class를 지정)
 			ResponseEntity<ApiResponse> responseEntity = restTemplate.postForEntity(targetUrl, null, ApiResponse.class);
@@ -75,6 +85,8 @@ public class SubscriptionService {
 				// 3. 드디어 message와 payload를 둘 다 꺼낼 수 있습니다!
 				String msg = response.getMessage(); // "청약 신청이 완료되었습니다."
 				Object payload = response.getPayload();
+
+				Long uclId = subscriptionRepository.selectUclId(subscriptionInsertDTO);
 
 				System.out.println("증권사 메시지: " + msg);
 				System.out.println("트랜잭션 ID: " + payload);

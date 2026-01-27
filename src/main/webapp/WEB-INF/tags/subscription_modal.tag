@@ -167,7 +167,7 @@
         	tokenId: ${projectData.tokenId},
         	projectId: projectId,         // 프로젝트 ID
         	subscriptionAmount: totalPrice, // 수량
-            walletId: 2,
+            walletId: 1,
             projectId: projectId
             
         };

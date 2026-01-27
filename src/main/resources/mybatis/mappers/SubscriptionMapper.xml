@@ -6,8 +6,7 @@
 <mapper
 	namespace="com.animalfarm.mlf.domain.subscription.SubscriptionRepository">
 
-	<select id="select" parameterType="subscriptionSelectDTO"
-		resultType="subscriptionHistDTO">
+	<select id="select" parameterType="subscriptionSelectDTO" resultType="subscriptionHistDTO">
 		select * from subscription_hists
 		where
 		project_id=#{projectId} and user_id=#{userId}
@@ -23,7 +22,7 @@
 		payment_status)
 		values(
 		#{projectId},
-		2,
+		5,
 		#{subscriptionAmount},
 		'PENDING',
 		'RESERVED')
@@ -39,4 +38,9 @@
 	<update id="updatePlusAmount" parameterType="subscriptionApplication">
 		update projects set actual_amount = actual_amount + #{subscriptionAmount} where project_id = #{projectId}
 	</update>
+	
+	<select id="selectUclId" resultType="Long">
+		select ucl.ucl_id  from users u join user_certificate_links ucl on u.user_id = ucl.user_id 
+		where u.user_id = #{userId};
+	</select>
 </mapper>

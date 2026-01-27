@@ -16,4 +16,6 @@ public interface SubscriptionRepository {
 	public abstract boolean subscriptionApplicationResponse(SubscriptionInsertDTO subscriptionInsertDTO);
 
 	public abstract boolean updatePlusAmount(SubscriptionInsertDTO subscriptionInsertDTO);
+
+	public abstract Long selectUclId(SubscriptionInsertDTO subscriptionInsertDTO);
 }
