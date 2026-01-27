@@ -19,7 +19,8 @@
 		<org.mybatis-version>3.5.6</org.mybatis-version>
 		<org.mybatis-spring-version>2.0.6</org.mybatis-spring-version>
 		<org.postgres-jdbc-version>42.7.8</org.postgres-jdbc-version>
-		<org.junit.version>5.10.2</org.junit.version>
+		<!-- 테스트 버전 충돌로 수정했어요 5.10.2 에서 5.8.2로 -->
+		<org.junit.version>5.8.2</org.junit.version>
 		<org.mockito.version>5.11.0</org.mockito.version>
 	</properties>
 	<dependencies>
