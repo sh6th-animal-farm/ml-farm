@@ -277,7 +277,7 @@ public class ProjectService {
 		try {
 			TokenIssueDTO result = externalApiUtil.callApi(targetUrl, HttpMethod.POST, tokenIssueDTO,
 				new ParameterizedTypeReference<ApiResponse<TokenIssueDTO>>() {});
-			log.info("증권사 정송 성공 : " + result);
+			log.info("증권사 전송 성공 : " + result);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

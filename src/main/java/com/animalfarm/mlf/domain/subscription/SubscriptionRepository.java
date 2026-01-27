@@ -4,7 +4,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import com.animalfarm.mlf.domain.subscription.dto.SubscriptionHistDTO;
-import com.animalfarm.mlf.domain.subscription.dto.SubscriptionInsertDTO;
+import com.animalfarm.mlf.domain.subscription.dto.SubscriptionApplicationDTO;
 
 @Mapper
 public interface SubscriptionRepository {
@@ -13,11 +13,11 @@ public interface SubscriptionRepository {
 
 	public abstract int update(SubscriptionHistDTO subscriptionHistDTO);
 
-	public abstract boolean subscriptionApplication(SubscriptionInsertDTO subscriptionInsertDTO);
+	public abstract boolean subscriptionApplication(SubscriptionApplicationDTO subscriptionInsertDTO);
 
-	public abstract boolean subscriptionApplicationResponse(SubscriptionInsertDTO subscriptionInsertDTO);
+	public abstract boolean updateSubscriptionStatus(SubscriptionApplicationDTO subscriptionInsertDTO);
 
-	public abstract boolean updatePlusAmount(SubscriptionInsertDTO subscriptionInsertDTO);
+	public abstract boolean updatePlusAmount(SubscriptionApplicationDTO subscriptionInsertDTO);
 
-	public abstract Long selectUclId(SubscriptionInsertDTO subscriptionInsertDTO);
+	public abstract Long selectUclId(SubscriptionApplicationDTO subscriptionInsertDTO);
 }
