@@ -41,6 +41,8 @@
 			alias="subscriptionApplicationDTO" />
 		<typeAlias type="com.animalfarm.mlf.domain.project.dto.ProjectNewTokenDTO"
 			alias="projectNewTokenDTO" />
+		<typeAlias type="com.animalfarm.mlf.domain.subscription.dto.ProjectStartCheckDTO"
+			alias="projectStartCheckDTO" />
 	</typeAliases>
 	
 </configuration>

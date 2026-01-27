@@ -1,9 +1,12 @@
 package com.animalfarm.mlf.domain.subscription;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 
-import com.animalfarm.mlf.domain.subscription.dto.SubscriptionHistDTO;
+import com.animalfarm.mlf.domain.subscription.dto.ProjectStartCheckDTO;
 import com.animalfarm.mlf.domain.subscription.dto.SubscriptionApplicationDTO;
+import com.animalfarm.mlf.domain.subscription.dto.SubscriptionHistDTO;
 import com.animalfarm.mlf.domain.subscription.dto.SubscriptionSelectDTO;
 
 @Mapper
@@ -18,4 +21,12 @@ public interface SubscriptionRepository {
 	public abstract boolean updatePlusAmount(SubscriptionApplicationDTO subscriptionInsertDTO);
 
 	public abstract Long selectUclId(SubscriptionApplicationDTO subscriptionInsertDTO);
+
+	public abstract List<ProjectStartCheckDTO> selectExpiredSubscriptions();
+
+	public abstract boolean updateTokenDelete(Long tokenId);
+
+	public abstract boolean updateProjectCanceled(Long projectId);
+
+	public abstract boolean updateProjectTwoDay(Long projectId);
 }

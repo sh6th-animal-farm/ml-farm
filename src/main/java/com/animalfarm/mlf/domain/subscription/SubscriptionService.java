@@ -1,5 +1,8 @@
 package com.animalfarm.mlf.domain.subscription;
 
+import java.math.BigDecimal;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -9,8 +12,9 @@ import org.springframework.web.client.RestTemplate;
 
 import com.animalfarm.mlf.common.http.ApiResponse;
 import com.animalfarm.mlf.common.http.ExternalApiUtil;
-import com.animalfarm.mlf.domain.subscription.dto.SubscriptionHistDTO;
+import com.animalfarm.mlf.domain.subscription.dto.ProjectStartCheckDTO;
 import com.animalfarm.mlf.domain.subscription.dto.SubscriptionApplicationDTO;
+import com.animalfarm.mlf.domain.subscription.dto.SubscriptionHistDTO;
 import com.animalfarm.mlf.domain.subscription.dto.SubscriptionSelectDTO;
 
 import lombok.RequiredArgsConstructor;
@@ -99,5 +103,42 @@ public class SubscriptionService {
 		if ("PAID".equals(dto.getPaymentStatus())) {
 			subscriptionRepository.updatePlusAmount(dto);
 		}
+	}
+
+	public void projectStartCheck() {
+		BigDecimal threshold70 = new BigDecimal("70");
+		BigDecimal threshold90 = new BigDecimal("90");
+		BigDecimal threshold100 = new BigDecimal("100");
+
+		List<ProjectStartCheckDTO> projectstartCheckList = subscriptionRepository.selectExpiredSubscriptions();
+		for (ProjectStartCheckDTO data : projectstartCheckList) {
+			Long projectId = data.getProjectId();
+			BigDecimal rate = data.getSubscriptionRate();
+			Long tokenId = data.getTokenId();
+			Long subscriberCount = 50L;//subscriptionRepository.subscriberCount(data);
+			if (rate.compareTo(threshold70) < 0 || subscriberCount < 49) {
+				System.out.println(rate + " 프로젝트 폐기");
+				projectCanceled(data);
+			} else if (rate.compareTo(threshold70) >= 0 && rate.compareTo(threshold90) < 0) {
+				System.out.println(rate + " 프로젝트 종료일 +2일");
+				if (false) {
+					subscriptionRepository.updateProjectTwoDay(projectId);
+				}
+			} else if (rate.compareTo(threshold90) >= 0 && rate.compareTo(threshold100) < 0) {
+				System.out.println(rate + " 마리팜 회사가 나머지 충당");
+			} else {
+				System.out.println(rate + " 그대로 진행");
+			}
+		}
+	}
+
+	public void projectCanceled(ProjectStartCheckDTO projectStartCheckDTO) {
+		Long projectId = projectStartCheckDTO.getProjectId();
+		Long tokenId = projectStartCheckDTO.getTokenId();
+
+		// DB 업데이트 (프로젝트 상태 변경 및 토큰 삭제)
+		subscriptionRepository.updateProjectCanceled(projectId);
+		subscriptionRepository.updateTokenDelete(tokenId);
+		System.out.println("ID: " + projectId + " 번 프로젝트 및 토큰(" + tokenId + ") 폐기 완료");
 	}
 }
