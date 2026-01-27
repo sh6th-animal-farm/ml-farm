@@ -43,6 +43,7 @@ jobs:
           echo "${{ secrets.ENTERPRISE_PROPERTIES_CONTENT }}" > src/main/resources/config/enterprise.properties
           echo "${{ secrets.MAIL_PROPERTIES_CONTENT }}" > src/main/resources/config/mail.properties
           echo "${{ secrets.REDIS_PROPERTIES_CONTENT }}" > src/main/resources/config/redis.properties
+          echo "${{ secrets.KH_HOLDINGS_PROPERTIES_CONTENT }}" > src/main/resources/config/kh-holding.properties
 
       # 스프링 프로파일 local을 prod로 변환
       - name: Change Profile to Prod

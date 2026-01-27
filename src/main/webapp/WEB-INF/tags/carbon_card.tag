@@ -37,8 +37,8 @@
 <!-- 탄소 카드안의 title-->
 <c:set var="title" value="${item.cpTitle}" />
 
-<!-- 이미지: 일단 고정(신경X) -->
-<c:set var="imgUrl" value="${ctx}/resources/img/carbon_sample.jpg" />
+<!-- 이미지 -->
+<c:set var="imgUrl" value="${not empty item.thumbnailUrl ? item.thumbnailUrl : ctx.concat('/resources/img/carbon_sample.jpg')}" />
 
 <article class="carbon-card">
   <div class="carbon-img">
