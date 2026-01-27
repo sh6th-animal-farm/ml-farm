@@ -30,6 +30,29 @@ const AuthManager = {
             // setTimeout은 한 번 실행되면 끝이지만, 활동에 따라 로그아웃은 미뤄져야 하기 때문입니다.
             setInterval(() => this.checkAutoLogout(), 1000);
         }
+        // 모든 fetch 응답을 감시하는 로직 (인터셉터 대용)
+        this.setupAjaxInterceptor();
+
+    },
+
+    setupAjaxInterceptor: function() {
+        const originalFetch = window.fetch;
+        window.fetch = async (...args) => {
+            const response = await originalFetch(...args);
+
+            // 서버의 JwtAuthenticationEntryPoint가 보낸 401 응답을 체크
+            if (response.status === 401) {
+                console.error("인증 실패: 로그인 페이지로 이동합니다.");
+                this.forceLogout(); // 세션 정리 및 리다이렉트
+            }
+            
+            // 서버의 JwtAccessDeniedHandler가 보낸 403 응답을 체크
+            if (response.status === 403) {
+                alert("권한이 부족합니다.");
+            }
+
+            return response;
+            };
     },
     
     // 로그인 상태에 따라 헤더 메뉴를 전환하는 함수
@@ -55,7 +78,7 @@ const AuthManager = {
         const now = Date.now();
         const lastActivity = parseInt(localStorage.getItem("lastActivityTime") || now);
         
-        // 마지막 활동으로부터 2분이 지났다면 강제 로그아웃
+        // 마지막 활동으로부터 3시간이 지났다면 강제 로그아웃
         if (now - lastActivity >= this.logoutTime) {
             console.log("세션 만료 로그아웃");
             this.forceLogout();
@@ -81,6 +104,7 @@ const AuthManager = {
                 this.lastRefreshTime = Date.now(); 
                 console.log("토큰 갱신 완료: " + new Date(this.lastRefreshTime).toLocaleTimeString());
             } else {
+                console.warn("❌ [실패] 리프레시 토큰이 만료되었거나 서버 응답이 없습니다.");
                 this.forceLogout();
             }
         } catch (e) { console.error("Refresh fail", e); }

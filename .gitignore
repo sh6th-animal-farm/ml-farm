@@ -27,6 +27,8 @@ Thumbs.db       # Windows
 *.log           # 로그 파일
 
 ### Security & Config ###
+*.properties
+
 # DB 설정 파일
 src/main/resources/config/database.properties
 src/main/resources/config/db.properties
