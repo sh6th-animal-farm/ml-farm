@@ -42,6 +42,8 @@ main {
     position: sticky;
     top: 100px;
 }
+
+/* ���옣�떂�쓽 invest-card �뒪���씪 洹몃�濡� �쟻�슜 */
 /* 우측 사이드바 안에 있는 실제 '흰색 카드박스'의 디자인 */
 .invest-card {
     background: #fff;
@@ -108,7 +110,7 @@ main {
 }
 
 .info-card {
-    background: #fff; /* 개별 카드는 흰색 */
+    background: #fff; /* 媛쒕퀎 移대뱶�뒗 �씛�깋 */
     padding: 24px;
     border-radius: var(--radius-m);
     border: 1px solid var(--gray-100);
@@ -154,4 +156,136 @@ main {
     color: var(--green-600);
     border-radius: var(--radius-s);
     font: var(--font-button-01);
+    cursor: pointer;
+    text-decoration: none;
+}
+/* ===== Carbon Order Modal ===== */
+.co-modal { display:none; position:fixed; inset:0; z-index:9999; }
+.co-modal.is-open { display:block; }
+
+.co-backdrop{
+  position:absolute; inset:0;
+  background:rgba(0,0,0,.45);
+}
+
+.co-dialog{
+  position:relative;
+  width:min(560px, calc(100vw - 32px));
+  margin:40px auto;
+  background:#fff;
+  border-radius:16px;
+  box-shadow:0 20px 60px rgba(0,0,0,.2);
+  overflow:hidden;
+}
+
+.co-header{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:18px 20px;
+  border-bottom:1px solid rgba(0,0,0,.08);
+}
+.co-title{ margin:0; font-size:18px; font-weight:800; }
+.co-close{
+  width:34px; height:34px; border:0; background:transparent;
+  font-size:24px; cursor:pointer; border-radius:10px;
+}
+.co-close:hover{ background:rgba(0,0,0,.06); }
+
+.co-body{ padding:18px 20px 20px; }
+
+.co-product{
+  display:flex; gap:14px; align-items:center;
+  padding:14px;
+  border-radius:14px;
+  background:#f7f8fa;
+}
+.co-badge{
+  width:62px; height:62px;
+  border-radius:12px;
+  background:#cfeec0;
+  display:flex; flex-direction:column; justify-content:center; align-items:center;
+  color:#1d6b2a;
+  font-weight:900;
+  line-height:1.05;
+}
+.co-badge-top{ font-size:12px; }
+.co-badge-bottom{ font-size:12px; }
+
+.co-product-name{ font-size:16px; font-weight:900; margin-bottom:4px; }
+.co-product-sub{ color:#444; font-size:14px; }
+.co-muted{ color:#8a8f98; }
+
+.co-row{
+  display:flex; justify-content:space-between; align-items:center;
+  padding:14px 2px 6px;
+}
+.co-row-left{ color:#666; font-size:13px; }
+.co-row-right{ font-size:16px; }
+.co-strong{ font-weight:900; color:#1d6b2a; }
+.co-unit{ color:#1d6b2a; font-weight:900; margin-left:4px; }
+
+.co-section-title{
+  margin-top:6px;
+  font-size:14px; font-weight:900;
+}
+
+.co-qty-wrap{
+  margin-top:10px;
+  position:relative;
+}
+.co-qty-input{
+  width:100%;
+  height:54px;
+  border-radius:14px;
+  border:1px solid rgba(0,0,0,.12);
+  padding:0 56px 0 14px;
+  font-size:16px;
+  outline:none;
+}
+.co-qty-input:focus{ border-color:rgba(29,107,42,.55); box-shadow:0 0 0 4px rgba(29,107,42,.12); }
+
+.co-qty-unit{
+  position:absolute; right:14px; top:50%;
+  transform:translateY(-50%);
+  color:#333;
+  font-weight:800;
+}
+
+.co-hint{ margin-top:8px; font-size:12px; color:#d23b3b; min-height:16px; }
+
+.co-summary{
+  margin-top:14px;
+  background:#f7f8fa;
+  border-radius:14px;
+  padding:14px;
+}
+.co-sum-row{ display:flex; justify-content:space-between; padding:6px 0; color:#333; }
+.co-sum-row b{ font-weight:900; }
+.co-divider{ height:1px; background:rgba(0,0,0,.08); margin:10px 0; }
+.co-total{ font-size:16px; }
+.co-total b{ color:#1d6b2a; font-size:20px; }
+
+.co-agree{
+  display:flex; gap:10px; align-items:flex-start;
+  margin-top:14px;
+  font-size:12px;
+  color:#444;
+}
+.co-agree input{ margin-top:2px; }
+
+.co-submit{
+  margin-top:14px;
+  width:100%;
+  height:54px;
+  border:0;
+  border-radius:14px;
+  font-size:16px;
+  font-weight:900;
+  cursor:pointer;
+  background:#3f3f3f;
+  color:#fff;
+  opacity:.55;
+}
+.co-submit:enabled{
+  background:#3f3f3f;
+  opacity:1;
 }
