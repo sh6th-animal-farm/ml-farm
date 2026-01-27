@@ -33,10 +33,14 @@
 			alias="projectStatusDTO" />
 		<typeAlias type="com.animalfarm.mlf.domain.token.dto.TokenDTO"
 			alias="tokenDTO" />
+		<typeAlias type="com.animalfarm.mlf.domain.retry.ApiRetryQueueDTO"
+			alias="apiRetryQueueDTO" />
 		<typeAlias type="com.animalfarm.mlf.domain.subscription.dto.SubscriptionSelectDTO"
 			alias="subscriptionSelectDTO" />
 		<typeAlias type="com.animalfarm.mlf.domain.subscription.dto.SubscriptionHistDTO"
 			alias="subscriptionHistDTO" />
+		<typeAlias type="com.animalfarm.mlf.domain.subscription.dto.SubscriptionInsertDTO"
+			alias="subscriptionApplication" />
 		<typeAlias type="com.animalfarm.mlf.domain.project.dto.ProjectNewTokenDTO"
 			alias="projectNewTokenDTO" />
 		<typeAlias type="com.animalfarm.mlf.domain.refund.RefundDTO"
