@@ -12,7 +12,7 @@
 		project_id=#{projectId} and user_id=#{userId}
 	</select>
 
-	<insert id="subscriptionApplication" parameterType="subscriptionApplication" useGeneratedKeys="true"
+	<insert id="subscriptionApplication" parameterType="subscriptionApplicationDTO" useGeneratedKeys="true"
 		keyProperty="shId" keyColumn="sh_id">
 		insert into subscription_hists (
 		project_id,
@@ -28,14 +28,14 @@
 		'RESERVED')
 	</insert>
 
-	<update id="subscriptionApplicationResponse"
-		parameterType="subscriptionApplication">
+	<update id="updateSubscriptionStatus"
+		parameterType="subscriptionApplicationDTO">
 		update subscription_hists set payment_status =
 		#{paymentStatus}, external_ref_id = #{externalRefId} where sh_id =
 		#{shId}
 	</update>
 	
-	<update id="updatePlusAmount" parameterType="subscriptionApplication">
+	<update id="updatePlusAmount" parameterType="subscriptionApplicationDTO">
 		update projects set actual_amount = actual_amount + #{subscriptionAmount} where project_id = #{projectId}
 	</update>
 	

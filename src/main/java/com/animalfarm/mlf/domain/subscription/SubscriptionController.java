@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.animalfarm.mlf.common.http.ApiResponse;
-import com.animalfarm.mlf.domain.subscription.dto.SubscriptionInsertDTO;
+import com.animalfarm.mlf.domain.subscription.dto.SubscriptionApplicationDTO;
 import com.animalfarm.mlf.domain.subscription.dto.SubscriptionSelectDTO;
 
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +38,7 @@ public class SubscriptionController {
 
 	@PostMapping("/application")
 	public ResponseEntity<String> applicationSubscription(@RequestBody
-	SubscriptionInsertDTO subscriptionInsertDTO) {
+	SubscriptionApplicationDTO subscriptionInsertDTO) {
 		if (subscriptionService.subscriptionApplication(subscriptionInsertDTO)) {
 			try {
 				subscriptionService.postApplication(subscriptionInsertDTO);

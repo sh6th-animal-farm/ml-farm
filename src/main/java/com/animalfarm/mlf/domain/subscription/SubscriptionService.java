@@ -1,7 +1,5 @@
 package com.animalfarm.mlf.domain.subscription;
 
-import java.math.BigDecimal;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +10,7 @@ import org.springframework.web.client.RestTemplate;
 import com.animalfarm.mlf.common.http.ApiResponse;
 import com.animalfarm.mlf.common.http.ExternalApiUtil;
 import com.animalfarm.mlf.domain.subscription.dto.SubscriptionHistDTO;
-import com.animalfarm.mlf.domain.subscription.dto.SubscriptionInsertDTO;
+import com.animalfarm.mlf.domain.subscription.dto.SubscriptionApplicationDTO;
 import com.animalfarm.mlf.domain.subscription.dto.SubscriptionSelectDTO;
 
 import lombok.RequiredArgsConstructor;
@@ -54,57 +52,52 @@ public class SubscriptionService {
 		return true;
 	}
 
-	public boolean subscriptionApplication(SubscriptionInsertDTO subscriptionInsertDTO) {
+	public boolean subscriptionApplication(SubscriptionApplicationDTO subscriptionInsertDTO) {
 		//Long userId = SecurityUtil.getCurrentUserId();
 		//subscriptionInsertDTO.setUserId(userId);
 		return subscriptionRepository.subscriptionApplication(subscriptionInsertDTO);
 	}
 
-	@Transactional
-	public void postApplication(SubscriptionInsertDTO subscriptionInsertDTO) {
-		Long tokenId = subscriptionInsertDTO.getTokenId();
-		Long shId = subscriptionInsertDTO.getShId();
-		BigDecimal amount = subscriptionInsertDTO.getSubscriptionAmount();
-		System.out.println(subscriptionInsertDTO);
-		//Long userId = SecurityUtil.getCurrentUserId();
-		//System.out.println(userId);
-		//subscriptionInsertDTO.setUserId(userId);
-		// 1. 증권사 명세서 규격에 맞게 맵 구성
-		String targetUrl = khUrl + "api/project/application/" + tokenId
-			+ "?subscriptionId=" + shId
-			+ "&walletId=" + 2 // 또는 dto.getUclId()
-			+ "&amount=" + amount;
+	// 1. 외부 API 호출 (트랜잭션 없음)
+	public void postApplication(SubscriptionApplicationDTO dto) {
+		String targetUrl = khUrl + "api/project/application/" + dto.getTokenId()
+			+ "?subscriptionId=" + dto.getShId()
+			+ "&walletId=" + 2
+			+ "&amount=" + dto.getSubscriptionAmount();
+
 		try {
-			// 2. restTemplate으로 직접 호출 (껍데기 ApiResponse.class를 지정)
+			// [API 호출 전] DB 커넥션 안 잡음
 			ResponseEntity<ApiResponse> responseEntity = restTemplate.postForEntity(targetUrl, null, ApiResponse.class);
 
-			int status = responseEntity.getStatusCodeValue();
-			if (status == 200) {
-				ApiResponse response = responseEntity.getBody();
+			if (responseEntity.getStatusCodeValue() == 200) {
+				Object payload = responseEntity.getBody().getPayload();
 
-				// 3. 드디어 message와 payload를 둘 다 꺼낼 수 있습니다!
-				String msg = response.getMessage(); // "청약 신청이 완료되었습니다."
-				Object payload = response.getPayload();
-
-				Long uclId = subscriptionRepository.selectUclId(subscriptionInsertDTO);
-
-				System.out.println("증권사 메시지: " + msg);
-				System.out.println("payload: " + payload);
 				if (payload != null) {
-					subscriptionInsertDTO.setPaymentStatus("PAID");
-					subscriptionInsertDTO.setExternalRefId((Long)payload);
-					subscriptionRepository.subscriptionApplicationResponse(subscriptionInsertDTO);
-					subscriptionRepository.updatePlusAmount(subscriptionInsertDTO);
+					dto.setPaymentStatus("PAID");
+					dto.setExternalRefId(Long.valueOf(String.valueOf(payload)));
+					// [성공 시 DB 처리 호출] 이 시점에만 트랜잭션 시작
+					updateDatabaseInfo(dto);
 				} else {
-					subscriptionInsertDTO.setPaymentStatus("FAILED");
-					subscriptionRepository.subscriptionApplicationResponse(subscriptionInsertDTO);
+					dto.setPaymentStatus("FAILED");
+					// [실패 시 DB 처리 호출]
+					updateDatabaseInfo(dto);
 					throw new RuntimeException("empty_payload");
 				}
 			}
 		} catch (Exception e) {
-			System.out.println("통신 실패: " + e.getMessage());
-			throw e;
+			log.error("통신 실패: {}", e.getMessage());
+			throw new RuntimeException(e.getMessage());
 		}
 	}
 
+	// 2. 내 DB 동작 (이 메서드만 트랜잭션 처리)
+	@Transactional
+	public void updateDatabaseInfo(SubscriptionApplicationDTO dto) {
+		// 여기서부터 DB 커넥션을 잡고 처리함
+		subscriptionRepository.updateSubscriptionStatus(dto);
+
+		if ("PAID".equals(dto.getPaymentStatus())) {
+			subscriptionRepository.updatePlusAmount(dto);
+		}
+	}
 }
