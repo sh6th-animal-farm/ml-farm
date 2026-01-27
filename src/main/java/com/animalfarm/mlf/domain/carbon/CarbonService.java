@@ -273,7 +273,7 @@ public class CarbonService {
 			throw new IllegalArgumentException("amount는 0보다 커야 합니다.");
 		}
 
-		Long userId = getLoginUserId();
+		Long userId = SecurityUtil.getCurrentUserId();
 		Long walletId = carbonRepository.getWalletIdByUserId(userId);
 
 		// 1) 강황증권 주문 가능 금액
