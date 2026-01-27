@@ -18,6 +18,7 @@ public class ApiRetryQueueDTO {
 	private String idempotencyKey;
 	private String apiType; // e.g. "CANCEL_SUBSCRIPTION", "DIVIDEND"
 	private String payload; // JSON data
+	private String query; // String data
 	private String status; // PENDING, PROCESSING, COMPLETED, FAILED
 	private int retryCount;
 	private LocalDateTime nextRetryAt;

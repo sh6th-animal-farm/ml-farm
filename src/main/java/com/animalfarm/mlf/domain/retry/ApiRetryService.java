@@ -4,10 +4,11 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
+import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -15,10 +16,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class ApiRetryService {
 
 	// 일반 로그는 @Slf4j 사용하면 됨
@@ -26,20 +29,20 @@ public class ApiRetryService {
 	// logback.xml 설정에 따라 log.error를 활용하는 방향으로 가야 함
 	private static final org.slf4j.Logger fileLogger = org.slf4j.LoggerFactory.getLogger("ApiFailedFileLogger");
 
-	@Autowired
-	private ApiRetryQueueRepository apiRetryQueueMapper;
-
-	@Autowired
-	private ExternalApiService externalApiService;
-
-	private final ObjectMapper objectMapper = new ObjectMapper();
+	private final ApiRetryQueueRepository apiRetryQueueMapper;
+	private final ApiRetryProcessor apiRetryProcessor;
+	private final ObjectMapper objectMapper;
+	
+	// 강황증권 API 서버 주소
+	@Value("${api.kh-stock.url}")
+	private String KH_BASE_URL;
 
 	/**
 	 * 최초 API 호출 실패 시 재시도 큐에 등록
 	 * REQUIRES_NEW: 메인 트랜잭션이 롤백되어도 재시도 기록은 DB에 남아야 함
 	 */
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
-	public void registerRetry(ApiType apiType, Object payloadObj) {
+	public void registerRetry(ApiType apiType, Object payloadObj, Object[] params, String idempotencyKey) {
 		String payload = "";
 		try {
 			payload = objectMapper.writeValueAsString(payloadObj);
@@ -48,12 +51,27 @@ public class ApiRetryService {
 			payload = String.valueOf(payloadObj);
 		}
 
-		ApiRetryQueueDTO retryQueue = new ApiRetryQueueDTO();
-		retryQueue.setIdempotencyKey(UUID.randomUUID().toString());
-		retryQueue.setApiType(apiType.name());
-		retryQueue.setPayload(payload);
-		retryQueue.setRetryCount(1);
-		retryQueue.setNextRetryAt(LocalDateTime.now().plusMinutes(2)); // 첫 재시도는 2분 뒤
+		// Object[]를 JSON으로 저장했다가 다시 읽으면, Long이 Integer로 바뀌는 등 형변환 에러 발생 가능
+		// STring[]으로 변환해서 저장
+		List<String> stringParams = Arrays.stream(params)
+			.map(String::valueOf)
+			.collect(Collectors.toList());
+		String queryParams = "";
+		try {
+			queryParams = objectMapper.writeValueAsString(stringParams);
+		} catch (Exception e) {
+			log.error("쿼리 파라미터 직렬화 실패", e);
+		}
+
+		ApiRetryQueueDTO retryQueue = ApiRetryQueueDTO.builder()
+			.idempotencyKey(idempotencyKey)
+			.apiType(apiType.name())
+			.payload(payload)
+			.query(queryParams)
+			.idempotencyKey(idempotencyKey)
+			.retryCount(1)
+			.nextRetryAt(LocalDateTime.now().plusMinutes(2))
+			.build();
 
 		try {
 			apiRetryQueueMapper.insert(retryQueue);
@@ -94,53 +112,23 @@ public class ApiRetryService {
 	@Scheduled(fixedDelay = 60000)
 	public void processRetries() {
 		List<ApiRetryQueueDTO> pendingRetries = apiRetryQueueMapper.selectPendingRetries();
-		System.out.println("배치 작업!!");
 
 		if (pendingRetries != null && !pendingRetries.isEmpty()) {
 			for (ApiRetryQueueDTO retry : pendingRetries) {
-				executeRetry(retry);
+				apiRetryProcessor.executeRetry(retry, this);
 			}
-		}
-	}
-
-	/**
-	 * 실제 API 재호출 실행
-	 */
-	private void executeRetry(ApiRetryQueueDTO retry) {
-		// 중복 실행 방지를 위해 상태를 PROCESSING으로 변경
-
-		retry.setStatus("PROCESSING");
-		apiRetryQueueMapper.updateStatus(retry);
-
-		try {
-			// DB의 문자열 타입을 다시 Enum 타입으로 복구
-			ApiType type = ApiType.valueOf(retry.getApiType());
-
-			// 외부 API 호출 (멱등성 키 포함)
-			externalApiService.execute(type, retry.getPayload(), retry.getIdempotencyKey());
-
-			// 성공 시 완료 처리
-			retry.setStatus("COMPLETED");
-			apiRetryQueueMapper.updateStatus(retry);
-			log.info("재시도 성공했습니다. Key: {}", retry.getIdempotencyKey());
-
-		} catch (Exception e) {
-			// 실패
-			log.warn("재시도 실패했습니다. Key: {}, 사유: {}", retry.getIdempotencyKey(), e.getMessage());
-			handleFailure(retry);
 		}
 	}
 
 	/**
 	 * 실패 관리 및 지수 백오프(Exponential Backoff) 계산
 	 */
-	private void handleFailure(ApiRetryQueueDTO retry) {
+	public void handleFailure(ApiRetryQueueDTO retry) {
 		int currentCount = retry.getRetryCount();
 		int maxRetries = 5; // 최대 재시도 횟수
 
 		if (currentCount >= maxRetries) {
 			retry.setStatus("FAILED");
-			// TODO: 관리자 알림
 			log.error("최종 재시도에 실패 했습니다. Key: {}", retry.getIdempotencyKey());
 		} else {
 			retry.setStatus("PENDING");
