@@ -1,6 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
+<script>const tokenId = ${tokenId};</script>
 <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/token_detail.css" />
 <script type="module" src="${pageContext.request.contextPath}/resources/js/domain/token/token_detail.js"></script>
 

@@ -1,3 +1,17 @@
+/* 웹소켓 연결 및 구독 */
+WebSocketManager.connect('http://localhost:9090/ws-stomp', function() {
+
+    // 1. 체결 토픽 구독
+    WebSocketManager.subscribe('trade', `/topic/trades/${tokenId}`, function(data) {
+        console.log('[WebSocket - 체결]', data);
+    });
+
+    // 2. 주문 토픽 구독
+    WebSocketManager.subscribe('order', `/topic/orders/${tokenId}`, function(data) {
+        console.log('[WebSocket - 호가]', data);
+    });
+});
+
 /* 틱 주기 토글 */
 const periodBtns = document.querySelectorAll('.period-btn');
 
@@ -51,12 +65,5 @@ tradeBtns.forEach(btn => {
         tradeBtns.forEach(b => b.classList.remove('active'));
         // 클릭한 버튼에 active 추가
         btn.classList.add('active');
-    });
-});
-
-// 체결 토픽 구독
-WebSocketManager.connect('http://localhost:9090/ws-stomp', function() {
-    WebSocketManager.subscribe('trade', '/topic/trades/**', function(data) {
-        console.log('체결:', data);
     });
 });
