@@ -13,9 +13,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/carbon")
 public class CarbonViewController {
 
-	@Autowired
-	private CarbonService carbonService;
-
 	@GetMapping("/list")
 	public String carbonListPage(
 		@RequestParam(value = "category", required = false)
@@ -23,7 +20,6 @@ public class CarbonViewController {
 		Model model) {
 		model.addAttribute("contentPage", "/WEB-INF/views/carbon/carbon_list.jsp");
 		model.addAttribute("activeMenu", "carbon-market");
-		model.addAttribute("carbonList", carbonService.selectByCondition(category));
 
 		return "layout";
 	}

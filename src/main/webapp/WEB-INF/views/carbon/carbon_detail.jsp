@@ -1,24 +1,31 @@
+<%-- carbon_detail.jsp --%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="t" tagdir="/WEB-INF/tags"%>
+
 <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/carbon_detail.css">
 <script src="${pageContext.request.contextPath}/resources/js/domain/carbon/carbon_detail.js" defer></script>
 
 <input type="hidden" id="targetCpId" value="${cpId}">
 
-<div class="container" style="display: flex; gap: var(--gutter); padding-top: 48px; padding-bottom: 100px;">
+<%-- padding-bottom: 48px이 버튼과 푸터 사이의 최종 간격을 만듭니다 --%>
+<div class="detail-layout-container">
     
-    <main style="flex: 1;">
-        <div class="image-placeholder" style="width: 100%; height: 500px; background: var(--green-0); border-radius: var(--radius-l); display: flex; align-items: center; justify-content: center; font: var(--font-header-02); color: var(--green-800);">
+    <main>
+        <%-- 상단 메인 이미지: 너비 100%로 헤더 양 끝선에 맞춤 --%>
+        <div class="image-placeholder">
             [전주 스마트팜 바이오차 프로젝트 메인 이미지]
         </div>
 
-        <div class="project-header" style="margin-top: 48px;">
-            <div id="tagText" style="color: var(--green-600); font: var(--font-caption-03); font-weight: 700; margin-bottom: 8px;"></div>
-            <h1 id="titleText" style="font: var(--font-header-01); color: var(--gray-900); margin-bottom: 12px; font-weight: 700;"></h1>
-            <p id="locationText" style="font: var(--font-subtitle-02); color: var(--gray-500);"></p>
+        <%-- 프로젝트 제목 영역 --%>
+        <div class="project-header">
+            <div id="tagText"></div>
+            <h1 id="titleText"></h1>
+            <p id="locationText"></p>
         </div>
 
+        <%-- 주요 정보 섹션: 상단 텍스트와 시작점이 정확히 일치하도록 수정 --%>
         <div class="info-section">
-            <h2 style="font: var(--font-header-02); color: var(--green-600); border-bottom: 2px solid var(--green-100); padding-bottom: 16px; margin: 0;">주요 정보 및 기대 효과</h2>
+            <h2>주요 정보 및 기대 효과</h2>
             <div class="info-grid">
                 <div class="info-card"><label>발급 주체</label><p>마이리틀 스마트팜 협회</p></div>
                 <div class="info-card"><label>인증기관</label><p id="valCertificate"></p></div>
@@ -33,6 +40,7 @@
             </div>
         </div>
 
+        <%-- 프로젝트 보러가기 버튼 --%>
         <a href="#" class="btn-view-project">프로젝트 보러가기</a>
     </main>
 
@@ -55,6 +63,7 @@
             </div>
         </div>
     </aside>
+</div>
 
 </div>
 <jsp:include page="/WEB-INF/views/carbon/carbon_modal.jsp"/>

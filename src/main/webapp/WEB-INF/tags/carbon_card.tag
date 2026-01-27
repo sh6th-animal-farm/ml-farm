@@ -40,16 +40,16 @@
 <!-- 이미지: 일단 고정(신경X) -->
 <c:set var="imgUrl" value="${ctx}/resources/img/carbon_sample.jpg" />
 
-<article class="carbon-card" data-category="${cat}">
+<article class="carbon-card">
   <div class="carbon-img">
-    <img src="${imgUrl}" alt="carbon" />
-    <span class="badge ${badgeCls}">
+    <img src="${imgUrl}"  class="js-img" alt="carbon" />
+    <span class="badge js-badge ${badgeCls}">
       <c:out value="${badgeText}"/>
     </span>
   </div>
 
   <div class="carbon-body">
-    <div class="carbon-title">
+    <div class="carbon-title js-title">
       <c:out value="${title}"/>
     </div>
 
@@ -57,7 +57,7 @@
 
     <div class="meta-row">
       <span>구매 가능 수량</span>
-      <span class="value">
+      <span class="value js-amount">
         <c:choose>
           <c:when test="${empty item.cpAmount}">-</c:when>
           <c:otherwise><fmt:formatNumber value="${item.cpAmount}" /></c:otherwise>
@@ -66,15 +66,11 @@
       </span>
     </div>
 
-    <div class="meta-row" style="margin-top:8px;">
-      <span>인증</span>
-      <span class="value">
-        <c:out value="${empty item.productCertificate ? '-' : item.productCertificate}" />
-      </span>
-    </div>
+   
 
     <div class="price-area">
-      <div class="price">
+      <div class="js-benefit-area" style="font-size: 13px; margin-bottom: 5px;"></div>
+      <div class="price js-price">
         <c:choose>
           <c:when test="${empty item.cpPrice}">-</c:when>
           <c:otherwise><fmt:formatNumber value="${item.cpPrice}" /></c:otherwise>
@@ -85,8 +81,7 @@
   </div>
 
   <div class="carbon-action">
-    <button class="btn-action ${btnCls}" type="button"
-      onclick="location.href='${ctx}/carbon/detail?cpId=${item.cpId}'">
+    <button class="btn-action js-btn ${btnCls}" type="button">
       상세 보기 및 주문
     </button>
   </div>
