@@ -4,7 +4,7 @@
 <mapper namespace="com.animalfarm.mlf.domain.accounting.RevenueRepository">
 	<update id="updateSummaryId">
 	    UPDATE revenues
-	    SET rs_id = #{summaryId}
+	    SET rs_id = #{rsId}
 	    WHERE project_id = #{projectId}
 	      AND rs_id IS NULL
 	</update>

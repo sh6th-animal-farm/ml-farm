@@ -13,6 +13,7 @@ import org.springframework.batch.core.configuration.annotation.StepBuilderFactor
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import com.animalfarm.mlf.batch.processor.SettlementProcessor;
 import com.animalfarm.mlf.batch.writer.SettlementWriter;
@@ -37,6 +38,9 @@ public class SettlementJobConfig {
 	@Autowired
 	private SettlementWriter settlementWriter;
 
+	@Autowired
+	private PlatformTransactionManager transactionManager; // 추가
+
 	// [JOB] 정산 작업의 시작점
 	@Bean
 	public Job settlementJob() {
@@ -44,6 +48,14 @@ public class SettlementJobConfig {
 			.start(createSummaryStep())
 			.build();
 	}
+
+	//	@Bean
+	//	public MyBatisBatchItemWriter<RevenueSummaryDTO> settlementWriter() {
+	//		return new MyBatisBatchItemWriterBuilder<RevenueSummaryDTO>()
+	//			.sqlSessionFactory(sqlSessionFactory)
+	//			.statementId("com.animalfarm.mlf.domain.accounting.RevenueSummaryRepository.insertSummary")
+	//			.build();
+	//	}
 
 	// [STEP] 실제 로직이 수행되는 단위
 	@Bean
@@ -53,6 +65,7 @@ public class SettlementJobConfig {
 			.reader(revenueExpenseReader()) // 읽기: 정산 안 된 데이터들
 			.processor(settlementProcessor) // 처리: 합산 및 순이익 계산
 			.writer(settlementWriter) // 쓰기: 요약 테이블 INSERT & 마킹
+			.transactionManager(transactionManager)
 			.build();
 	}
 
