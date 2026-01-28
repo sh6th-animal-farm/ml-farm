@@ -61,7 +61,7 @@ public class RedisConfig {
 	 * 이 객체를 통해 Redis의 String, Hash, List 등의 자료구조를 제어합니다.
 	 */
 	@Bean(name = "redisTemplate")
-	public RedisTemplate<String, Object> redisTemplate() {
+	public RedisTemplate<String, Object> redisTemplate(JedisConnectionFactory factory) {
 
 		RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
 
