@@ -20,6 +20,8 @@ public class ProjectStartCheckDTO {
 	private BigDecimal subscriptionRate;
 	private String projectStatus;
 	private int extensionCount;
+	private BigDecimal targetAmount;
+	private BigDecimal actualAmount;
 
 	private Long subscriberCount;
 	private Long userId;

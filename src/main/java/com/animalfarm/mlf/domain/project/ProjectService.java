@@ -18,6 +18,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.animalfarm.mlf.common.http.ApiResponse;
 import com.animalfarm.mlf.common.http.ExternalApiUtil;
+import com.animalfarm.mlf.common.security.SecurityUtil;
 import com.animalfarm.mlf.domain.project.dto.FarmDTO;
 import com.animalfarm.mlf.domain.project.dto.ImgEditable;
 import com.animalfarm.mlf.domain.project.dto.ProjectDTO;
@@ -234,8 +235,11 @@ public class ProjectService {
 	}
 
 	public Double selectMyWalletAmount() {
+		Long userId = SecurityUtil.getCurrentUserId();
+		System.out.println("userId " + userId);
+		Long uclId = projectRepository.selectMyWalletId(userId);
 		// 1. 목적지 주소 생성 (외부 IP + 상세 경로)
-		String targetUrl = khUrl + "api/my/wallet/1";
+		String targetUrl = khUrl + "api/my/wallet/" + uclId;
 		try {
 			// 2. GET 방식으로 데이터 요청 (응답은 String으로 받는 예시)
 			ResponseEntity<ApiResponse> responseEntity = restTemplate.getForEntity(targetUrl, ApiResponse.class);

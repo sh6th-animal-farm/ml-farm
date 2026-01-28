@@ -55,7 +55,7 @@
 
         <div class="wallet-info">
             <span>나의 지갑(Wallet) 잔액</span>
-            <strong><fmt:formatNumber value="${walletBalance}" pattern="#,###"/>원</strong>
+            <strong id="modal-wallet-balance"><fmt:formatNumber value="${walletBalance}" pattern="#,###"/>원</strong>
         </div>
 
         <%-- 최종 결제 정보 --%>
@@ -76,9 +76,9 @@
 </div>
 
 <script>
-    const unitPrice = ${price}; 
-    const myBalance = ${walletBalance}; 
-    const currentRemainLimit = ${userLimit}; // 서버에서 이미 계산된 잔여 한도
+	window.unitPrice = ${price}; 
+	window.myBalance = ${walletBalance}; // 처음엔 0
+	window.currentRemainLimit = ${userLimit};
     
     const myTotalLimit = 50000000; // 예시: 총 한도 5천만원
     const alreadyInvested = myTotalLimit - currentRemainLimit; // 이미 사용한 금액 계산
@@ -98,7 +98,10 @@
             submitBtn.disabled = true;
             return;
         }
-
+        
+        console.log("계산 시점 잔액:", myBalance);
+        console.log("계산 시점 한도:", currentRemainLimit);
+        
         // 최대 가능 수량 계산 (한도 vs 잔액 중 최소값 기준)
         const maxAvailableAmount = Math.min(currentRemainLimit, myBalance);
         const maxQuantity = Math.floor(maxAvailableAmount / unitPrice);
@@ -163,18 +166,24 @@
         const quantity = document.getElementById('sub-quantity').value; // 입력한 숫자
         const totalPrice = quantity * unitPrice;
         
+     	// 1. 로컬 스토리지에서 토큰을 가져옵니다.
+        const token = localStorage.getItem("accessToken");
+        
         const payload = {
         	tokenId: ${projectData.tokenId},
         	projectId: projectId,         // 프로젝트 ID
         	subscriptionAmount: totalPrice, // 수량
-            walletId: 1,
+            walletId: window.myWalletId,
             projectId: projectId
             
         };
         
         fetch(ctx + "/api/subscription/application", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { 
+            	"Content-Type": "application/json",
+            	"Authorization": token ? "Bearer " + token : ""
+            			},
             body: JSON.stringify(payload) // 박스를 테이프로 감싸서 전송!
         })
         .then(response => {

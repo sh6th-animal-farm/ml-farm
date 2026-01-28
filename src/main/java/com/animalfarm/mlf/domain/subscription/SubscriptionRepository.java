@@ -8,12 +8,17 @@ import org.apache.ibatis.annotations.Param;
 import com.animalfarm.mlf.domain.subscription.dto.ProjectStartCheckDTO;
 import com.animalfarm.mlf.domain.subscription.dto.SubscriptionApplicationDTO;
 import com.animalfarm.mlf.domain.subscription.dto.SubscriptionHistDTO;
-import com.animalfarm.mlf.domain.subscription.dto.SubscriptionSelectDTO;
 
 @Mapper
 public interface SubscriptionRepository {
-	
-	public abstract SubscriptionHistDTO select(@Param("userId") Long userId, @Param("projectId") Long projectId);
+
+	public abstract SubscriptionHistDTO select(@Param("userId")
+	Long userId, @Param("projectId")
+	Long projectId);
+
+	public abstract SubscriptionHistDTO selectPaid(@Param("userId")
+	Long userId, @Param("projectId")
+	Long projectId);
 
 	public abstract int update(SubscriptionHistDTO subscriptionHistDTO);
 
@@ -32,6 +37,12 @@ public interface SubscriptionRepository {
 	public abstract boolean updateProjectCanceled(Long projectId);
 
 	public abstract boolean updateProjectTwoDay(Long projectId);
-	
+
 	public abstract boolean updateProjectInProgress(Long projectId);
+
+	public abstract List<Long> selectSubscriberUserIds(Long projectId);
+
+	public abstract List<String> selectUserEmail(Long projectId);
+
+	public abstract Long selectUclId(Long userId);
 }
