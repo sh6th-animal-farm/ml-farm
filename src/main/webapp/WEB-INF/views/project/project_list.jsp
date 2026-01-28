@@ -7,6 +7,7 @@
 	href="${pageContext.request.contextPath}/resources/css/project_list.css">
 <script type="module" src="${pageContext.request.contextPath}/resources/js/domain/project/project_list.js"> </script>
 <script src="${pageContext.request.contextPath}/resources/js/util/timer.js"></script>
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoMapKey}"></script>
 
 <div class="project-list-container">
     <div class="section-header">
@@ -16,7 +17,7 @@
     
     <div class="map-area">
     	<t:region_accordian />
-        <div style="width: 100%; height:100%; background-color: var(--gray-100); border-radius: var(--radius-l)"></div>
+        <div id="map" style="width: 100%; height:100%; background-color: var(--gray-100); border-radius: var(--radius-l); box-shadow: var(--shadow)"></div>
     </div>
 
     <div class="section-header">
@@ -47,3 +48,5 @@
 	    
 	</div>
 </div>
+
+<script src="${pageContext.request.contextPath}/resources/js/util/kakao_map.js"></script>

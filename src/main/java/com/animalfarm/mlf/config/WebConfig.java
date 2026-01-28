@@ -27,6 +27,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 @EnableWebMvc
 @PropertySource("classpath:config/application.properties")
 @PropertySource("classpath:config/slack.properties")
+@PropertySource("classpath:config/kakao.properties")
 public class WebConfig implements WebMvcConfigurer {
 
 	// @Value를 해석하기 위해 반드시 필요한 빈입니다.

@@ -47,6 +47,9 @@ src/main/resources/config/kh-holding.properties
 # Slack 웹훅 설정 파일
 src/main/resources/config/slack.properties
 
+# 카카오 API 키
+src/main/resources/config/kakao.properties
+
 # 서버 설정 관련
 .recommenders/
 servers/
