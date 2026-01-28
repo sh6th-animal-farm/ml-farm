@@ -2,11 +2,9 @@
 
 const AuthManager = {
     // 토큰 갱신 주기: Access Token이 1시간(60분)이므로, 50~55분마다 갱신 권장
-    //refreshInterval: 55 * 60 * 1000, // 55분 (운영 환경에 맞춰 상향)
-    refreshInterval: 0.4 * 60 * 1000, // 0.4분 (운영 환경에 맞춰 상향)
+    refreshInterval: 55 * 60 * 1000, // 55분 (운영 환경에 맞춰 상향)
     // 자동 로그아웃 시간: 사용자가 아무 활동이 없을 때 로그아웃시킬 시간 
-    //logoutTime: 3 * 60 * 60 * 1000, // 3시간 (미활동 시 세션 만료)
-    logoutTime: 3  * 60 * 1000, // 3분 (미활동 시 세션 만료)
+    logoutTime: 3 * 60 * 60 * 1000, // 3시간 (미활동 시 세션 만료)
     lastRefreshTime: Date.now(),
 
     // 초기화 함수: JSP에서 ctx를 전달받아 실행
