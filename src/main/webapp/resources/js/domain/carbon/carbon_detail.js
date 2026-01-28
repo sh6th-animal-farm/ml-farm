@@ -198,7 +198,7 @@ async function refreshQuote() {
     document.getElementById("coSupply").innerText = fmtKRW(p.supplyAmount);
     document.getElementById("coVat").innerText = fmtKRW(p.vatAmount);
     document.getElementById("coTotal").innerText = fmtKRW(p.totalAmount);
-
+    
     validateAndToggle();
   } catch (e) {
     console.error(e);
@@ -287,7 +287,6 @@ async function submitCarbonOrder() {
     async function (rsp) {
       if (rsp.success) {
         try {
-          // 너가 만들 API 예: /api/carbon/orders/complete
           const token = localStorage.getItem("accessToken");
           const verifyRes = await fetch(`${ctx}/api/carbon/orders/complete`, {
             method: "POST",

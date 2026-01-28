@@ -26,6 +26,6 @@ public class CarbonOrderResponseDTO {
 
 	private BigDecimal userMaxLimit; // 최대 구매 가능 수량
 	private BigDecimal remainAmount; // 상품 잔여 수량
+	private BigDecimal discountRate;
 
-	private BigDecimal availableBalance; // ✅ 강황증권 주문 가능 금액
 }

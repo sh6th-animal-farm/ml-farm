@@ -89,7 +89,9 @@
     display: flex; 
     justify-content: space-between; 
     padding: 12px 0; 
+    padding-left: 10px;
     border: none;
+    width: 340px;
     font-size: 15px !important;
 }
 
@@ -100,10 +102,10 @@
     margin-top: 5px;
 }
 
-/* [수정] 나머지 데이터 줄들은 선 없이 간격만 유지 (필요시 아주 연하게) */
 .discount-info .row:not(:first-child) {
-    border-bottom: none; /* 아래쪽 모든 선 제거 */
-    padding: 8px 0;      /* 데이터 행 간격 살짝 조절 */
+    border-bottom: none;
+    padding: 8px 0;
+    padding-left: 10px;
 }
 
 /* 빨간색 할인율 강조 */
@@ -114,14 +116,13 @@
 
 .mt-20 { margin-top: 25px; }
 
-/* [왼쪽 텍스트 그룹] */
 .header-left {
     display: flex;
-    flex-direction: column;       /* 제목 아래에 설명이 오도록 세로 정렬 */
+    flex-direction: column;
 }
 
 .carbon-header h2 {
-    margin: 0 0 8px 0;            /* 불필요한 마진 제거 */
+    margin: 0 0 8px 0;
     font-size: 32px;
     letter-spacing: -0.5px;
 }
@@ -140,8 +141,8 @@
     padding: 10px 20px;
     border-radius: var(--radius-s);
     background: #fff;
-    white-space: nowrap;          /* 버튼 글자가 줄바꿈되지 않게 고정 */
-    margin-top: 5px;              /* 제목과 시각적인 높이를 맞춤 */
+    white-space: nowrap;
+    margin-top: 5px;
     transition: all 0.2s ease;
 }
 
@@ -149,7 +150,6 @@
     background-color: var(--green-50);
 }
 
-/* 카테고리 버튼 기본 스타일 */
 .filter-group .menu-btn {
     padding: 8px 18px;
     border-radius: var(--radius-xl);

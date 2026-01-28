@@ -74,7 +74,11 @@
       <!-- 동의 -->
       <label class="co-agree">
         <input id="coAgree" type="checkbox" />
-        <span>본 주문 건의 이용약관 및 탄소거래규정에 동의하며, 자산 매입 확약에 따른 결제를 진행합니다.</span>
+        <span class="co-agree-text">
+  			본 주문 건의 <a class="co-link" href="${pageContext.request.contextPath}/policy?tab=marifarm" target="_blank" rel="noopener noreferrer">이용약관</a>
+  			및 <a class="co-link" href="${pageContext.request.contextPath}/policy?tab=carbon" target="_blank" rel="noopener noreferrer">탄소거래규정</a>
+ 			에 동의하며, 자산 매입 확약에 따른 결제를 진행합니다.
+		</span>
       </label>
 
       <!-- 버튼 -->

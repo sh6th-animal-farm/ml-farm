@@ -77,6 +77,8 @@ function renderFilteredList(dataList) {
         // 1. [이미지 매핑] js-img 클래스를 찾아 src 주입
         const imgElement = card.querySelector(".js-img");
         if (imgElement) {
+        	imgElement.loading = "lazy";
+			imgElement.decoding = "async";
             imgElement.src = item.thumbnailUrl || (ctx + "/resources/img/carbon_sample.jpg");
         }
 

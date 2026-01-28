@@ -65,6 +65,5 @@
     </aside>
 </div>
 
-</div>
 <jsp:include page="/WEB-INF/views/carbon/carbon_modal.jsp"/>
 <script src="https://cdn.iamport.kr/v1/iamport.js"></script>

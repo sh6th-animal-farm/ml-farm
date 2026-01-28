@@ -7,7 +7,7 @@
                 <nav class="footer-top-menu">
                     <a href="#">회사 소개</a>
                     <a href="#">서비스 소개</a>
-                    <a href="#">서비스 약관</a>
+                    <a href="${pageContext.request.contextPath}/policy">서비스 약관</a>
                     <a href="#">Q&A</a>
                 </nav>
                 <div class="footer-info-text">
