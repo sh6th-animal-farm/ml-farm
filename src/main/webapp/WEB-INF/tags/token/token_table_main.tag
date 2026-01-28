@@ -19,8 +19,8 @@
             <c:choose>
                 <c:when test="${not empty tokenList}">
                     <c:forEach var="token" items="${tokenList}" varStatus="status">
-                        <tr>
-                            <td class="tx-center">
+                        <tr id="token-row-${token.tokenId}">
+                            <td class="tx-center ranking-num">
                                 ${status.count}
                             </td>
                             <td>
@@ -28,15 +28,15 @@
                                 <div class="token-code">${token.tickerSymbol}</div>
                             </td>
                             <td class="tx-right">
-                                <div class="token-name ${token.marketPrice >= 0 ? 'text-plus' : 'text-minus'}">
-                                    <fmt:formatNumber value="${token.marketPrice}" type="number"/> 원
+                                <div class="token-name market-price ${token.marketPrice >= 0 ? 'text-plus' : 'text-minus'}">
+                                    <fmt:formatNumber value="${token.marketPrice}" type="number"/>
                                 </div>
                             </td>
-                            <td class="tx-right">
-                                <fmt:formatNumber value="${token.changeRate}" type="number"/> st
+                            <td class="tx-right change-rate">
+                                <fmt:formatNumber value="${token.changeRate}" type="number"/>&#37;
                             </td>
-                            <td class="token-amount tx-right">
-                                <fmt:formatNumber value="${token.dailyTradeVolume}" type="number"/> st
+                            <td class="token-amount tx-right daily-volume" data-value="${token.dailyTradeVolume}">
+                                <fmt:formatNumber value="${token.dailyTradeVolume}" type="number"/>
                             </td>
                         </tr>
                     </c:forEach>
