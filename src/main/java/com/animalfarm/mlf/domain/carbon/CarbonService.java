@@ -276,10 +276,6 @@ public class CarbonService {
 		Long userId = SecurityUtil.getCurrentUserId();
 		Long walletId = carbonRepository.getWalletIdByUserId(userId);
 
-		// 1) 강황증권 주문 가능 금액
-		BigDecimal availableBalance = fetchAvailableBalance(walletId);
-
-		// 2) 상품/잔여 수량
 		CarbonDetailDTO detail = carbonRepository.selectDetail(cpId);
 		if (detail == null || detail.getCarbonInfo() == null) {
 			throw new RuntimeException("해당 상품 정보를 찾을 수 없습니다. (ID: " + cpId + ")");
@@ -290,7 +286,6 @@ public class CarbonService {
 			remainAmount = BigDecimal.ZERO;
 		}
 
-		// 3) 혜택 계산(기존 로직 재활용)
 		Long projectId = detail.getCarbonInfo().getProjectId();
 		BigDecimal actualAmount = carbonRepository.getActualAmount(projectId);
 		Long tokenId = carbonRepository.getTokenIdByProjectId(projectId);
@@ -311,6 +306,10 @@ public class CarbonService {
 			? benefit.getCurrentPrice()
 			: detail.getCarbonInfo().getCpPrice();
 
+		BigDecimal discountRate = (benefit != null && benefit.getDiscountRate() != null)
+			? benefit.getDiscountRate()
+			: BigDecimal.ZERO;
+
 		BigDecimal total = unitPrice.multiply(amount).setScale(0, RoundingMode.HALF_UP);
 		BigDecimal supply = total.divide(new BigDecimal("1.1"), 0, RoundingMode.FLOOR);
 		BigDecimal vat = total.subtract(supply);
@@ -327,29 +326,48 @@ public class CarbonService {
 			.totalAmount(total)
 			.userMaxLimit(benefit != null ? benefit.getUserMaxLimit() : null)
 			.remainAmount(remainAmount)
-			.availableBalance(availableBalance)
+			.discountRate(discountRate)
 			.build();
 
 		return new ApiResponseDTO<>("주문 견적 조회에 성공했습니다.", resp);
-
 	}
 
 	@Transactional
 	public void completeOrder(CarbonOrderCompleteDTO req) {
+		// 1) 기본 검증
 		if (req == null) {
-			throw new IllegalArgumentException("요청값이 비었습니다.");
+			throw new IllegalArgumentException("요청값이 없습니다.");
 		}
 		if (req.getCpId() == null) {
 			throw new IllegalArgumentException("cpId가 필요합니다.");
 		}
-		if (req.getImpUid() == null || req.getImpUid().isBlank()) {
-			throw new IllegalArgumentException("impUid가 필요합니다.");
+		if (req.getAmount() == null || req.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
+			throw new IllegalArgumentException("amount는 0보다 커야 합니다.");
 		}
-		if (req.getMerchantUid() == null || req.getMerchantUid().isBlank()) {
-			throw new IllegalArgumentException("merchantUid가 필요합니다.");
+
+		// 2) 로그인 유저
+		Long userId = SecurityUtil.getCurrentUserId();
+
+		// 3) 주문 견적 뽑아오기
+		ApiResponseDTO<CarbonOrderResponseDTO> quoteRes = quoteOrder(req.getCpId(), req.getAmount());
+		CarbonOrderResponseDTO quote = quoteRes.getPayload();
+		if (quote == null) {
+			throw new RuntimeException("주문 견적 payload가 없습니다.");
 		}
-		if (req.getAmount() == null) {
-			throw new IllegalArgumentException("amount가 필요합니다.");
+
+		BigDecimal discountedPrice = quote.getTotalAmount();
+		BigDecimal discountRate = quote.getDiscountRate();
+
+		// 4) 구매내역 insert
+		int inserted = carbonRepository.insertCarbonHist(
+			userId,
+			req.getCpId(),
+			req.getAmount(),
+			discountedPrice,
+			discountRate);
+
+		if (inserted != 1) {
+			throw new RuntimeException("구매내역 저장에 실패했습니다.");
 		}
 
 	}

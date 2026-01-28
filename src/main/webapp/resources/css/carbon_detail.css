@@ -1,20 +1,15 @@
-/* carbon_detail.css */
-
-/* 컨테이너 및 메인 레이아웃 보정 */
 .detail-layout-container {
     width: 100%;
     display: flex;
     gap: var(--gutter);
     padding-top: 48px;
-    padding-bottom: 48px; /* 푸터와의 간격 48px */
+    padding-bottom: 48px;
 }
 
-/* 메인 콘텐츠 영역 
-- 사이드바를 제외한 나머지 공간
-- 페이지의 핵심 정보(이미지, 제목, 설명 등)가 들어가는 가장 큰 영역 */
+/* 메인 콘텐츠 영역 */
 main {
     flex: 1;
-    min-width: 0; /* [추가] flex 내부에서 자식 요소가 부모를 뚫고 나가는 현상 방지 */
+    min-width: 0;
     padding: 0 !important;
     margin: 0
 }
@@ -35,32 +30,31 @@ main {
 /* 사이드바 영역 고정 */
 .content-side {
     width: 416px; 
-    flex-shrink: 0; /* [수정] 메인 영역이 넓어져도 사이드바가 416px 밑으로 좁아지지 않게 고정 */
+    flex-shrink: 0;
 }
-/* 스크롤을 내려도 사이드바가 화면에서 사라지지 않고 따라오게 만듭니다.*/
+/* 스크롤을 내려도 사이드바 고정*/
 .sticky-side {
     position: sticky;
     top: 100px;
 }
 
-/* ���옣�떂�쓽 invest-card �뒪���씪 洹몃�濡� �쟻�슜 */
 /* 우측 사이드바 안에 있는 실제 '흰색 카드박스'의 디자인 */
 .invest-card {
     background: #fff;
-    border: 1px solid var(--gray-0); [cite_start]/* 더 연한 테두리 반영 [cite: 14] */
+    border: 1px solid var(--gray-0); [cite_start]
     border-radius: var(--radius-m);
     padding: 32px;
-    box-shadow: var(--shadow); [cite_start]/* 공통 변수 shadow 사용 [cite: 14] */
+    box-shadow: var(--shadow); [cite_start]
     position: relative;
-    width: 416px; /* 고정 너비 */
+    width: 416px;
     min-height: 261px;
-    box-sizing: border-box; /* 패딩이 너비에 포함되도록 설정 */
+    box-sizing: border-box;
 }
 
 /* 프로젝트 헤더 */
 .project-header {
-    margin-top: 48px; /* 메인 이미지와 헤더 사이 간격 */
-    padding: 0; /* 좌측 들여쓰기 방지 */
+    margin-top: 48px;
+    padding: 0;
     margin-left: 0;
 }
 
@@ -88,8 +82,8 @@ main {
 .info-section {
     background: var(--gray-50); 
     border-radius: var(--radius-l);
-    margin-top: 48px; /* 위치 정보와 주요 정보 사이 거리 48px 적용 */
-    width: 100%; /* 부모 너비에 꽉 차게 설정하여 시작점 일치 */
+    margin-top: 48px;
+    width: 100%;
     box-sizing: border-box;
     margin-left: 0;
 }
@@ -110,7 +104,7 @@ main {
 }
 
 .info-card {
-    background: #fff; /* 媛쒕퀎 移대뱶�뒗 �씛�깋 */
+    background: #fff;
     padding: 24px;
     border-radius: var(--radius-m);
     border: 1px solid var(--gray-100);
@@ -135,11 +129,11 @@ main {
     grid-column: span 2;
 }
 
-/* [추가] Figma 이미지와 동일한 텍스트 색상 강조 */
+/* Figma 이미지와 동일한 텍스트 색상 강조 */
 #sideCurrentPrice {
     color: var(--gray-900);
     font: var(--font-header-01);
-    font-size: 32px; /* 디자인 가이드의 큰 숫자 크기 반영 */
+    font-size: 32px;
 }
 
 /* 페이지 맨 아래에 있는 [프로젝트 보러가기] 버튼 */
@@ -159,133 +153,253 @@ main {
     cursor: pointer;
     text-decoration: none;
 }
-/* ===== Carbon Order Modal ===== */
+/* ===== Carbon Order Modal ====== */
 .co-modal { display:none; position:fixed; inset:0; z-index:9999; }
 .co-modal.is-open { display:block; }
 
 .co-backdrop{
   position:absolute; inset:0;
-  background:rgba(0,0,0,.45);
+  background: rgba(0,0,0,0.45);
 }
 
 .co-dialog{
   position:relative;
-  width:min(560px, calc(100vw - 32px));
-  margin:40px auto;
-  background:#fff;
-  border-radius:16px;
-  box-shadow:0 20px 60px rgba(0,0,0,.2);
-  overflow:hidden;
+  width: min(520px, calc(100vw - 32px));
+  margin: 40px auto;
+  background: #fff;
+  border-radius: var(--radius-l);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+  overflow: hidden;
+  font-family: var(--font-main);
 }
 
+/* header */
 .co-header{
   display:flex; align-items:center; justify-content:space-between;
-  padding:18px 20px;
-  border-bottom:1px solid rgba(0,0,0,.08);
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--gray-100);
 }
-.co-title{ margin:0; font-size:18px; font-weight:800; }
+.co-title{
+  margin:0;
+  font: var(--font-subtitle-01);
+  color: var(--gray-900);
+}
 .co-close{
-  width:34px; height:34px; border:0; background:transparent;
-  font-size:24px; cursor:pointer; border-radius:10px;
+  width: 32px; height: 32px;
+  border: 0;
+  background: transparent;
+  color: var(--gray-500);
+  font-size: 22px;
+  cursor: pointer;
+  border-radius: var(--radius-s);
 }
-.co-close:hover{ background:rgba(0,0,0,.06); }
+.co-close:hover{ background: var(--gray-50); color: var(--gray-800); }
 
-.co-body{ padding:18px 20px 20px; }
+.co-body{ padding: 18px 20px 20px; }
 
+/* product summary card */
 .co-product{
-  display:flex; gap:14px; align-items:center;
-  padding:14px;
-  border-radius:14px;
-  background:#f7f8fa;
+  display:flex; gap: 14px; align-items:center;
+  padding: 14px;
+  border-radius: var(--radius-m);
+  background: var(--gray-50);
+  border: 1px solid var(--gray-100);
 }
-.co-badge{
-  width:62px; height:62px;
-  border-radius:12px;
-  background:#cfeec0;
-  display:flex; flex-direction:column; justify-content:center; align-items:center;
-  color:#1d6b2a;
-  font-weight:900;
-  line-height:1.05;
-}
-.co-badge-top{ font-size:12px; }
-.co-badge-bottom{ font-size:12px; }
 
-.co-product-name{ font-size:16px; font-weight:900; margin-bottom:4px; }
-.co-product-sub{ color:#444; font-size:14px; }
-.co-muted{ color:#8a8f98; }
+.co-badge{
+  width: 64px; height: 64px;
+  border-radius: var(--radius-m);
+  background: var(--green-50);
+  display:flex; flex-direction:column;
+  justify-content:center; align-items:center;
+  color: var(--green-700);
+  font-weight: 800;
+  line-height: 1.05;
+}
+.co-badge-top{ font: var(--font-caption-02); }
+.co-badge-bottom{ font: var(--font-caption-02); }
+
+.co-product-name{
+  font: var(--font-body-04);
+  color: var(--gray-900);
+  margin-bottom: 4px;
+}
+.co-product-sub{
+  font: var(--font-caption-01);
+  color: var(--green-600);
+  font-weight: 700;
+}
 
 .co-row{
   display:flex; justify-content:space-between; align-items:center;
-  padding:14px 2px 6px;
+  padding: 14px 2px 6px;
 }
-.co-row-left{ color:#666; font-size:13px; }
-.co-row-right{ font-size:16px; }
-.co-strong{ font-weight:900; color:#1d6b2a; }
-.co-unit{ color:#1d6b2a; font-weight:900; margin-left:4px; }
+.co-row-left{
+  font: var(--font-caption-01);
+  color: var(--gray-500);
+}
+.co-row-right{
+  font: var(--font-body-03);
+  color: var(--gray-900);
+}
+.co-strong{
+  color: var(--green-600);
+  font-weight: 800;
+}
+.co-unit{
+  color: var(--green-600);
+  font-weight: 800;
+  margin-left: 4px;
+}
 
 .co-section-title{
-  margin-top:6px;
-  font-size:14px; font-weight:900;
+  margin-top: 8px;
+  font: var(--font-caption-03);
+  color: var(--gray-900);
 }
 
+/* qty input */
 .co-qty-wrap{
-  margin-top:10px;
-  position:relative;
+  margin-top: 10px;
+  position: relative;
 }
+
+.co-qty-input::-webkit-outer-spin-button,
+.co-qty-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 .co-qty-input{
-  width:100%;
-  height:54px;
-  border-radius:14px;
-  border:1px solid rgba(0,0,0,.12);
-  padding:0 56px 0 14px;
-  font-size:16px;
-  outline:none;
+  width: 100%;
+  height: 56px;
+  border-radius: var(--radius-m);
+  border: 2px solid var(--gray-200);
+  padding: 0 72px 0 16px;
+  font: var(--font-body-03);
+  color: var(--gray-900);
+  outline: none;
+  background: #fff;
+  transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
 }
-.co-qty-input:focus{ border-color:rgba(29,107,42,.55); box-shadow:0 0 0 4px rgba(29,107,42,.12); }
+.co-qty-input::placeholder{
+  color: var(--gray-300);
+  font-weight: 600;
+}
 
+.co-qty-input:focus{
+  border-color: var(--green-600);
+  box-shadow: 0 0 0 4px rgba(74,159,46,0.18); /* green-600 느낌 */
+}
+
+/* error state (like screenshot red box) */
+.co-qty-wrap.is-error .co-qty-input{
+  border-color: var(--error);
+  background: var(--error-light);
+  box-shadow: none;
+}
 .co-qty-unit{
-  position:absolute; right:14px; top:50%;
-  transform:translateY(-50%);
-  color:#333;
-  font-weight:800;
+  position:absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font: var(--font-body-03);
+  color: var(--gray-700);
+  font-weight: 800;
 }
 
-.co-hint{ margin-top:8px; font-size:12px; color:#d23b3b; min-height:16px; }
+/* hint under input (right aligned like screenshot) */
+.co-hint{
+  margin-top: 8px;
+  min-height: 16px;
+  font: var(--font-caption-01);
+  color: var(--error);
+  text-align: right;
+}
 
+/* price summary */
 .co-summary{
-  margin-top:14px;
-  background:#f7f8fa;
-  border-radius:14px;
-  padding:14px;
+  margin-top: 14px;
+  background: var(--gray-50);
+  border-radius: var(--radius-m);
+  padding: 14px;
+  border: 1px solid var(--gray-100);
 }
-.co-sum-row{ display:flex; justify-content:space-between; padding:6px 0; color:#333; }
-.co-sum-row b{ font-weight:900; }
-.co-divider{ height:1px; background:rgba(0,0,0,.08); margin:10px 0; }
-.co-total{ font-size:16px; }
-.co-total b{ color:#1d6b2a; font-size:20px; }
+.co-sum-row{
+  display:flex;
+  justify-content:space-between;
+  padding: 6px 0;
+  font: var(--font-body-02);
+  color: var(--gray-700);
+}
+.co-sum-row b{ color: var(--gray-900); font-weight: 800; }
 
+.co-divider{
+  height: 1px;
+  background: var(--gray-100);
+  margin: 10px 0;
+}
+
+.co-total{
+  font: var(--font-body-03);
+  color: var(--gray-900);
+}
+.co-total b{
+  color: var(--green-600);
+  font-size: 20px;
+  font-weight: 900;
+}
+
+/* agree */
 .co-agree{
-  display:flex; gap:10px; align-items:flex-start;
-  margin-top:14px;
-  font-size:12px;
-  color:#444;
+  display:flex;
+  gap: 10px;
+  align-items:flex-start;
+  margin-top: 14px;
+  font: var(--font-caption-01);
+  color: var(--gray-600);
 }
-.co-agree input{ margin-top:2px; }
+.co-agree input{
+  margin-top: 2px;
+  accent-color: var(--green-600);
+}
 
-.co-submit{
-  margin-top:14px;
-  width:100%;
-  height:54px;
-  border:0;
-  border-radius:14px;
-  font-size:16px;
-  font-weight:900;
-  cursor:pointer;
-  background:#3f3f3f;
-  color:#fff;
-  opacity:.55;
+.co-link{
+  color: var(--green-600);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-weight: 700;
 }
+.co-link:hover{ color: var(--green-700); }
+
+/* submit button */
+.co-submit{
+  margin-top: 14px;
+  width: 100%;
+  height: 56px;
+  border: 0;
+  border-radius: var(--radius-m);
+  font: var(--font-button-01);
+  cursor: pointer;
+  transition: background .15s ease, opacity .15s ease, transform .05s ease;
+}
+
+/* disabled */
+.co-submit:disabled{
+  background: var(--gray-200);
+  color: var(--gray-400);
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+/* enabled = green full button (like screenshot) */
 .co-submit:enabled{
-  background:#3f3f3f;
-  opacity:1;
+  background: var(--green-600);
+  color: #fff;
+}
+.co-submit:enabled:hover{
+  background: var(--green-700);
+}
+.co-submit:enabled:active{
+  transform: translateY(1px);
 }

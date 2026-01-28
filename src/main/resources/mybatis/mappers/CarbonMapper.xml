@@ -81,15 +81,15 @@
   	<!-- 전체 조회 -->
 	<select id="selectAll" resultType="com.animalfarm.mlf.domain.carbon.dto.CarbonListDTO">
 	    SELECT 
-	        cp.cp_id              AS cpId,
-	        cp.project_id          AS projectId,
-	        cp.cp_title           AS cpTitle,
-	        cp.cp_type            AS category,
-	        cp.cp_price           AS cpPrice,
-	        cp.cp_amount          AS cpAmount,
-	        cp.product_certificate AS productCertificate,
-	        cp.vintage_year       AS vintageYear,
-	        cp.cp_detail          AS cpDetail,
+	        cp.cp_id,
+	        cp.project_id,
+	        cp.cp_title,
+	        cp.cp_type,
+	        cp.cp_price,
+	        cp.cp_amount,
+	        cp.product_certificate,
+	        cp.vintage_year,
+	        cp.cp_detail,
 	        COALESCE(f.thumbnail_url, '/resources/img/carbon_sample.jpg') AS thumbnailUrl
 	    FROM carbon_products cp
 	    INNER JOIN Projects p ON cp.project_id = p.project_id
@@ -108,15 +108,15 @@
 	<!-- 조건 조회 -->
 	<select id="selectByCondition" resultType="com.animalfarm.mlf.domain.carbon.dto.CarbonListDTO">
 	    SELECT 
-	        cp.cp_id              AS cpId,
-	        cp.project_id          AS projectId,
-	        cp.cp_title           AS cpTitle,
-	        cp.cp_type            AS category,
-	        cp.cp_price           AS cpPrice,
-	        cp.cp_amount          AS cpAmount,
-	        cp.product_certificate AS productCertificate,
-	        cp.vintage_year       AS vintageYear,
-	        cp.cp_detail          AS cpDetail,
+	        cp.cp_id,
+	        cp.project_id,
+	        cp.cp_title,
+	        cp.cp_type,
+	        cp.cp_price,
+	        cp.cp_amount,
+	        cp.product_certificate,
+	        cp.vintage_year,
+	        cp.cp_detail,
 	        COALESCE(f.thumbnail_url, '/resources/img/carbon_sample.jpg') AS thumbnailUrl
 	    FROM carbon_products cp
 	    INNER JOIN projects p ON cp.project_id = p.project_id
@@ -150,5 +150,14 @@
 	    FROM carbon_products
 	    WHERE cp_id = #{cpId}
 	</select>
+	
+	<!-- CarbonMapper.xml -->
+	<insert id="insertCarbonHist">
+	  INSERT INTO carbon_hists
+	    (user_id, cp_id, amount, discounted_price, discount_rate, date)
+	  VALUES
+	    (#{userId}, #{cpId}, #{amount}, #{discountedPrice}, #{discountRate}, NOW())
+	</insert>
+	
 	
 </mapper>
