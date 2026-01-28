@@ -17,6 +17,7 @@ import com.animalfarm.mlf.common.http.ApiResponse;
 import com.animalfarm.mlf.common.http.ExternalApiUtil;
 import com.animalfarm.mlf.domain.token.dto.TokenDTO;
 import com.animalfarm.mlf.domain.token.dto.TokenDetailDTO;
+import com.animalfarm.mlf.domain.token.dto.TokenPendingDTO;
 import com.animalfarm.mlf.domain.token.dto.TradePriceDTO;
 
 @Slf4j
@@ -117,12 +118,38 @@ public class TokenService {
 	}
 
 	// 주문 가능 금액 조회
-	public BigDecimal selectMyCash(Long userId) {
+	public BigDecimal selectCashBalance(Long userId) {
 		Long walletId = selectWalletId(userId);
 		if (walletId != null) {
-			String targetUrl = khUrl + "api/order/balance/" + walletId;
+			String targetUrl = khUrl + "/order/balance/" + walletId;
 			ParameterizedTypeReference<ApiResponse<BigDecimal>> responseType =
 				new ParameterizedTypeReference<ApiResponse<BigDecimal>>() {};
+
+			return externalApiUtil.callApi(targetUrl, HttpMethod.GET, null, responseType);
+		}
+		return null;
+	}
+
+	// 보유 토큰 수량 조회
+	public BigDecimal selectTokenBalance(Long tokenId, Long userId) {
+		Long walletId = selectWalletId(userId);
+		if (walletId != null) {
+			String targetUrl = khUrl + "/order/balance/" + walletId + "/" + tokenId;
+			ParameterizedTypeReference<ApiResponse<BigDecimal>> responseType =
+				new ParameterizedTypeReference<ApiResponse<BigDecimal>>() {};
+
+			return externalApiUtil.callApi(targetUrl, HttpMethod.GET, null, responseType);
+		}
+		return null;
+	}
+
+	// 미체결 내역 조회
+	public List<TokenPendingDTO> selectAllPending(Long tokenId, Long userId) {
+		Long walletId = selectWalletId(userId);
+		if (walletId != null) {
+			String targetUrl = khUrl + "/market/" + tokenId + "/pending/" + walletId;
+			ParameterizedTypeReference<ApiResponse<List<TokenPendingDTO>>> responseType =
+				new ParameterizedTypeReference<ApiResponse<List<TokenPendingDTO>>>() {};
 
 			return externalApiUtil.callApi(targetUrl, HttpMethod.GET, null, responseType);
 		}
@@ -132,7 +159,5 @@ public class TokenService {
 	public TokenDTO selectByProjectId(Long projectId) {
 		return tokenRepository.selectByProjectId(projectId);
 	}
-
-	// 보유 토큰 수량 조회
 
 }

@@ -1,3 +1,5 @@
+import {TokenApi} from "./token_api.js";
+
 // 초기 로딩 시, 호가창 렌더링
 if (window.orderSellList && window.orderBuyList) {
     renderOrderBook(window.orderSellList, window.orderBuyList);
@@ -36,19 +38,23 @@ periodBtns.forEach(btn => {
     });
 });
 
-/* 매수/매도 탭 */
+/* 매수, 매도, 미체결 탭 */
 const orderBtns = document.querySelectorAll('.order-btn');
 
 orderBtns.forEach(btn => {
     btn.addEventListener('click', () => {
-        // 기존 active 제거
         orderBtns.forEach(b => b.classList.remove('active'));
-        // 클릭한 버튼에 active 추가
         btn.classList.add('active');
+
+        const tabId = btn.dataset.tab;
+
+        if (tabId === 'history-tab') {
+            fetchPendingOrders(); // 미체결 내역 조회
+        }
     });
 });
 
-/* 매수/매도 탭 전환 */
+/* 매수, 매도, 미체결 탭 전환 */
 document.querySelectorAll('.tab-menu').forEach(tabMenu => {
     tabMenu.addEventListener('click', e => {
         const btn = e.target.closest('.order-btn');
@@ -68,7 +74,195 @@ document.querySelectorAll('.tab-menu').forEach(tabMenu => {
     });
 });
 
-/* 호가/체결 탭 */
+/* 미체결 내역 조회 */
+async function fetchPendingOrders() {
+    try {
+        const response = await TokenApi.getPendingList(window.tokenId);
+        const data = await response.json();
+        renderPendingOrders(data);
+    } catch (error) {
+        console.error("미체결 내역 조회 실패:", error);
+    }
+}
+
+function renderPendingOrders(pendingList) {
+    const listContainer = document.querySelector('.transaction-list');
+    const summaryCount = document.querySelector('.history-summary div:first-child');
+
+    if (!listContainer) return;
+
+    // 1. 총 건수 업데이트
+    if (summaryCount) {
+        summaryCount.innerText = `총 ${pendingList.length}건`;
+    }
+
+    // 2. 리스트가 비었을 경우 처리
+    if (!pendingList || pendingList.length === 0) {
+        listContainer.innerHTML = '<li class="transaction-item" style="justify-content:center;">미체결 내역이 없습니다.</li>';
+        return;
+    }
+
+    // 3. 리스트 생성
+    const html = pendingList.map(item => createPendingRowHtml(item)).join('');
+
+    listContainer.innerHTML = html;
+}
+
+function createPendingRowHtml(item) {
+    const isBuy = item.orderSide === 'BUY';
+    const sideText = isBuy ? '매수' : '매도';
+    const sideClass = isBuy ? 'buy' : 'sell';
+
+    // 날짜 포맷 (2026-01-25 19:09:55 형식)
+    const date = new Date(item.createdAt);
+    const formattedDate = date.getFullYear() + '-' +
+        String(date.getMonth() + 1).padStart(2, '0') + '-' +
+        String(date.getDate()).padStart(2, '0') + ' ' +
+        String(date.getHours()).padStart(2, '0') + ':' +
+        String(date.getMinutes()).padStart(2, '0') + ':' +
+        String(date.getSeconds()).padStart(2, '0');
+
+    return `
+            <li class="transaction-item" data-order-id="${item.orderId}">
+                <div class="item-hover-layer">
+                    <div class="trashcan-box" onclick="cancelOrder(${item.orderId})">
+                        <i class="icon-trashcan"></i> </div>
+                </div>
+
+                <div class="trade-title">
+                    <div class="item-header">
+                        <span class="asset-name">HSSJ01/KRW</span>
+                        <span class="trade-type ${sideClass}">${sideText}</span>
+                    </div>
+                    <div class="trade-date">${formattedDate}</div>
+                </div>
+
+                <div class="trade-info">
+                    <div class="trade-info-row">
+                        <span class="label">주문가격</span>
+                        <span class="value">${Number(item.orderPrice).toLocaleString()}</span>
+                    </div>
+                    <div class="trade-info-row">
+                        <span class="label">주문수량</span>
+                        <span class="value">${Number(item.orderVolume).toFixed(8)}</span>
+                    </div>
+                    <div class="trade-info-row">
+                        <span class="label">미체결량</span>
+                        <span class="value">${Number(item.remainingToken).toFixed(8)}</span>
+                    </div>
+                </div>
+            </li>
+        `;
+}
+
+/* 주문 취소 */
+// async function cancelOrder(orderId) {
+//     if(!confirm("주문을 취소하시겠습니까?")) return;
+//
+//     try {
+//         // DELETE 요청 혹은 취소 API 호출
+//         const response = await fetch(`/api/orders/${orderId}`, { method: 'DELETE' });
+//         if(response.ok) {
+//             alert("주문이 취소되었습니다.");
+//             fetchOpenOrders(); // 목록 새로고침
+//         }
+//     } catch (error) {
+//         console.error("취소 실패:", error);
+//     }
+// }
+
+/* 시장가, 지정가 입력값 */
+document.querySelectorAll('.order-type').forEach(select => {
+    select.addEventListener('change', function() {
+        const tabContent = this.closest('.tab-content');
+        const isBuyTab = this.closest('#buy-tab') !== null;
+        const orderType = this.value; // LIMIT 또는 MARKET
+
+        const priceGroup = tabContent.querySelector('.price-group');
+        const volumeGroup = tabContent.querySelector('.volume-group');
+        const amountGroup = tabContent.querySelector('.amount-group');
+
+        if (orderType === 'MARKET') {
+            if (isBuyTab) {
+                // 시장가 매수: 가격, 수량 X / 총액 O
+                priceGroup.style.display = 'none';
+                volumeGroup.style.display = 'none';
+                if(amountGroup) amountGroup.style.display = 'flex';
+            } else {
+                // 시장가 매도: 가격, 총액 X / 수량 O
+                priceGroup.style.display = 'none';
+                volumeGroup.style.display = 'flex';
+                if(amountGroup) amountGroup.style.display = 'none';
+            }
+        } else {
+            // 지정가: 가격, 수량 O / 총액 X
+            priceGroup.style.display = 'flex';
+            volumeGroup.style.display = 'flex';
+            amountGroup.style.display = 'none';
+        }
+    });
+});
+
+/* % 버튼 */
+document.querySelectorAll('.perc-btn').forEach(button => {
+    button.addEventListener('click', (e) => {
+        const percentage = parseInt(e.target.innerText); // 버튼에서 숫자만 추출 (예: "25%" -> 25)
+        fetchBalance(percentage);
+    });
+});
+
+async function fetchBalance(perc) {
+    try {
+        const activeTab = document.querySelector('.tab-content-wrapper.active');
+        const isBuyTab = activeTab.id === 'buy-tab';
+
+        if (isBuyTab) {
+            // 매수: 주문 가능 금액
+            const response = await TokenApi.getCashBalance();
+            const balance = await response.json();
+        } else {
+            // 매도: 보유 토큰 수량
+            const response = await TokenApi.getTokenBalance(window.tokenId);
+            const balance = await response.json();
+        }
+
+        const calculatedAmount = balance * (perc / 100);
+
+        const orderType = activeTab.querySelector('.order-type').value;
+
+        const priceInput = activeTab.querySelector('.price-group .input-box');
+        const volumeInput = activeTab.querySelector('.volume-group .input-box');
+        const amountInput = activeTab.querySelector('.amount-group .input-box');
+
+        if (orderType === 'MARKET') {
+            if (isBuyTab) {
+                // 시장가 매수: 주문 총액 초기화
+                amountInput.value = Math.floor(calculatedAmount);
+            } else {
+                // 시장가 매도: 주문 수량 초기화
+                volumeInput.value = calculatedAmount.toFixed(8);
+            }
+        } else {
+            const price = parseFloat(priceInput.value);
+
+            if (isBuyTab) {
+                // 지정가 매수: 주문 수량 초기화
+                if (price > 0) {
+                    volumeInput.value = (calculatedAmount / price).toFixed(8);
+                } else {
+                    console.log("가격을 먼저 입력해주세요.");
+                }
+            } else {
+                // 지정가 매도: 주문 수량 초기화
+                if (volumeInput) volumeInput.value = calculatedAmount;
+            }
+        }
+    } catch (error) {
+        console.error("잔액 조회 실패:", error);
+    }
+}
+
+/* 호가, 체결 탭 */
 const tradeBtns = document.querySelectorAll('.trade-btn');
 
 tradeBtns.forEach(btn => {

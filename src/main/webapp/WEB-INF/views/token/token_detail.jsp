@@ -124,18 +124,22 @@
           <div class="tab-content">
             <div class="order-input-group">
               <span class="order-label">주문 유형</span>
-              <select class="input-box">
-                <option>시장가</option>
-                <option>지정가</option>
+              <select class="input-box order-type">
+                <option value="LIMIT">지정가</option>
+                <option value="MARKET">시장가</option>
               </select>
             </div>
-            <div class="order-input-group">
+            <div class="order-input-group price-group">
               <span class="order-label">매수 가격</span>
-              <input type="text" class="input-box" placeholder="예: 128000 KRW">
+              <input type="text" class="input-box" placeholder="예: 128000">
             </div>
-            <div class="order-input-group">
+            <div class="order-input-group volume-group">
               <span class="order-label">주문 수량</span>
-              <input type="text" class="input-box" placeholder="예: 1.3875 개">
+              <input type="text" class="input-box" placeholder="예: 1.3875">
+            </div>
+            <div class="order-input-group amount-group" style="display: none;">
+              <span class="order-label">주문 총액</span>
+              <input type="text" class="input-box" placeholder="예: 473200">
             </div>
             <div class="percentage-group">
               <button class="perc-btn buy-perc">25%</button>
@@ -155,18 +159,18 @@
           <div class="tab-content">
             <div class="order-input-group">
               <span class="order-label">주문 유형</span>
-              <select class="input-box">
-                <option>시장가</option>
-                <option>지정가</option>
+              <select class="input-box order-type">
+                <option value="LIMIT">지정가</option>
+                <option value="MARKET">시장가</option>
               </select>
             </div>
-            <div class="order-input-group">
+            <div class="order-input-group price-group">
               <span class="order-label">매도 가격</span>
-              <input type="text" class="input-box" placeholder="예: 128000 KRW">
+              <input type="text" class="input-box" placeholder="예: 128000">
             </div>
-            <div class="order-input-group">
+            <div class="order-input-group volume-group">
               <span class="order-label">주문 수량</span>
-              <input type="text" class="input-box" placeholder="예: 1.3875 개">
+              <input type="text" class="input-box" placeholder="예: 1.3875">
             </div>
             <div class="percentage-group">
               <button class="perc-btn sell-perc">25%</button>
@@ -189,96 +193,96 @@
           </div>
           <div class="scroll active">
             <ul class="transaction-list">
-              <li class="transaction-item">
-                <div class="item-hover-layer">
-                  <div class="trashcan-box">
-                    <t:icon name="trashcan" size="48" className="trashcan"></t:icon>
-                  </div>
-                </div>
+<%--              <li class="transaction-item">--%>
+<%--                <div class="item-hover-layer">--%>
+<%--                  <div class="trashcan-box">--%>
+<%--                    <t:icon name="trashcan" size="48" className="trashcan"></t:icon>--%>
+<%--                  </div>--%>
+<%--                </div>--%>
 
-                <div class="trade-title">
-                  <div class="item-header">
-                    <span class="asset-name">HSSJ01/KRW</span>
-                    <span class="trade-type sell">매도</span>
-                  </div>
-                  <div class="trade-date">2026-01-25 19:09:55</div>
-                </div>
+<%--                <div class="trade-title">--%>
+<%--                  <div class="item-header">--%>
+<%--                    <span class="asset-name">HSSJ01/KRW</span>--%>
+<%--                    <span class="trade-type sell">매도</span>--%>
+<%--                  </div>--%>
+<%--                  <div class="trade-date">2026-01-25 19:09:55</div>--%>
+<%--                </div>--%>
 
-                <div class="trade-info">
-                  <div class="trade-info-row">
-                    <span class="label">주문가격</span>
-                    <span class="value">5,000.0</span>
-                  </div>
-                  <div class="trade-info-row">
-                    <span class="label">주문수량</span>
-                    <span class="value">1.00000</span>
-                  </div>
-                  <div class="trade-info-row">
-                    <span class="label">미체결량</span>
-                    <span class="value">0.4390</span>
-                  </div>
-                </div>
-              </li>
-              <li class="transaction-item">
-                <div class="item-hover-layer">
-                  <div class="trashcan-box">
-                    <t:icon name="trashcan" size="48" className="trashcan"></t:icon>
-                  </div>
-                </div>
+<%--                <div class="trade-info">--%>
+<%--                  <div class="trade-info-row">--%>
+<%--                    <span class="label">주문가격</span>--%>
+<%--                    <span class="value">5,000.0</span>--%>
+<%--                  </div>--%>
+<%--                  <div class="trade-info-row">--%>
+<%--                    <span class="label">주문수량</span>--%>
+<%--                    <span class="value">1.00000</span>--%>
+<%--                  </div>--%>
+<%--                  <div class="trade-info-row">--%>
+<%--                    <span class="label">미체결량</span>--%>
+<%--                    <span class="value">0.4390</span>--%>
+<%--                  </div>--%>
+<%--                </div>--%>
+<%--              </li>--%>
+<%--              <li class="transaction-item">--%>
+<%--                <div class="item-hover-layer">--%>
+<%--                  <div class="trashcan-box">--%>
+<%--                    <t:icon name="trashcan" size="48" className="trashcan"></t:icon>--%>
+<%--                  </div>--%>
+<%--                </div>--%>
 
-                <div class="trade-title">
-                  <div class="item-header">
-                    <span class="asset-name">HSSJ01/KRW</span>
-                    <span class="trade-type buy">매수</span>
-                  </div>
-                  <div class="trade-date">2026-01-25 19:09:55</div>
-                </div>
+<%--                <div class="trade-title">--%>
+<%--                  <div class="item-header">--%>
+<%--                    <span class="asset-name">HSSJ01/KRW</span>--%>
+<%--                    <span class="trade-type buy">매수</span>--%>
+<%--                  </div>--%>
+<%--                  <div class="trade-date">2026-01-25 19:09:55</div>--%>
+<%--                </div>--%>
 
-                <div class="trade-info">
-                  <div class="trade-info-row">
-                    <span class="label">주문가격</span>
-                    <span class="value">5,000.0</span>
-                  </div>
-                  <div class="trade-info-row">
-                    <span class="label">주문수량</span>
-                    <span class="value">1.00000</span>
-                  </div>
-                  <div class="trade-info-row">
-                    <span class="label">미체결량</span>
-                    <span class="value">0.9021</span>
-                  </div>
-                </div>
-              </li>
-              <li class="transaction-item">
-                <div class="item-hover-layer">
-                  <div class="trashcan-box">
-                    <t:icon name="trashcan" size="48" className="trashcan"></t:icon>
-                  </div>
-                </div>
+<%--                <div class="trade-info">--%>
+<%--                  <div class="trade-info-row">--%>
+<%--                    <span class="label">주문가격</span>--%>
+<%--                    <span class="value">5,000.0</span>--%>
+<%--                  </div>--%>
+<%--                  <div class="trade-info-row">--%>
+<%--                    <span class="label">주문수량</span>--%>
+<%--                    <span class="value">1.00000</span>--%>
+<%--                  </div>--%>
+<%--                  <div class="trade-info-row">--%>
+<%--                    <span class="label">미체결량</span>--%>
+<%--                    <span class="value">0.9021</span>--%>
+<%--                  </div>--%>
+<%--                </div>--%>
+<%--              </li>--%>
+<%--              <li class="transaction-item">--%>
+<%--                <div class="item-hover-layer">--%>
+<%--                  <div class="trashcan-box">--%>
+<%--                    <t:icon name="trashcan" size="48" className="trashcan"></t:icon>--%>
+<%--                  </div>--%>
+<%--                </div>--%>
 
-                <div class="trade-title">
-                  <div class="item-header">
-                    <span class="asset-name">HSSJ01/KRW</span>
-                    <span class="trade-type sell">매도</span>
-                  </div>
-                  <div class="trade-date">2026-01-25 19:09:55</div>
-                </div>
+<%--                <div class="trade-title">--%>
+<%--                  <div class="item-header">--%>
+<%--                    <span class="asset-name">HSSJ01/KRW</span>--%>
+<%--                    <span class="trade-type sell">매도</span>--%>
+<%--                  </div>--%>
+<%--                  <div class="trade-date">2026-01-25 19:09:55</div>--%>
+<%--                </div>--%>
 
-                <div class="trade-info">
-                  <div class="trade-info-row">
-                    <span class="label">주문가격</span>
-                    <span class="value">5,000.0</span>
-                  </div>
-                  <div class="trade-info-row">
-                    <span class="label">주문수량</span>
-                    <span class="value">1.0000</span>
-                  </div>
-                  <div class="trade-info-row">
-                    <span class="label">미체결량</span>
-                    <span class="value">0.3786</span>
-                  </div>
-                </div>
-              </li>
+<%--                <div class="trade-info">--%>
+<%--                  <div class="trade-info-row">--%>
+<%--                    <span class="label">주문가격</span>--%>
+<%--                    <span class="value">5,000.0</span>--%>
+<%--                  </div>--%>
+<%--                  <div class="trade-info-row">--%>
+<%--                    <span class="label">주문수량</span>--%>
+<%--                    <span class="value">1.0000</span>--%>
+<%--                  </div>--%>
+<%--                  <div class="trade-info-row">--%>
+<%--                    <span class="label">미체결량</span>--%>
+<%--                    <span class="value">0.3786</span>--%>
+<%--                  </div>--%>
+<%--                </div>--%>
+<%--              </li>--%>
             </ul>
           </div>
         </div>
