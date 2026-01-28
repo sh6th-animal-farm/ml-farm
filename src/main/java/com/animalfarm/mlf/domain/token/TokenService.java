@@ -1,19 +1,16 @@
 package com.animalfarm.mlf.domain.token;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.animalfarm.mlf.domain.token.dto.MarketDTO;
+import com.animalfarm.mlf.domain.token.dto.TokenListDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import com.animalfarm.mlf.common.http.ApiResponse;
 import com.animalfarm.mlf.common.http.ExternalApiUtil;
@@ -35,20 +32,19 @@ public class TokenService {
 	private String khUrl;
 
 	// 전체 토큰 시세 조회
-	public List<MarketDTO> selectAll() {
+	public List<TokenListDTO> selectAll() {
 		try {
-			List<MarketDTO> list = externalApiUtil.callApi(
+			List<TokenListDTO> list = externalApiUtil.callApi(
 					khUrl + "/market",
 					HttpMethod.GET,
 					null,
-					new ParameterizedTypeReference<ApiResponse<List<MarketDTO>>>() {}
+					new ParameterizedTypeReference<ApiResponse<List<TokenListDTO>>>() {}
 			);
 
 			list.forEach(dto -> {
 				if (dto.getMarketPrice() == null) dto.setMarketPrice(BigDecimal.ZERO);
 				if (dto.getDailyTradeVolume() == null) dto.setDailyTradeVolume(BigDecimal.ZERO);
-				// 등락률 계산 예정
-				 if (dto.getChangeRate() == null) dto.setChangeRate(BigDecimal.ZERO);
+				if (dto.getChangeRate() == null) dto.setChangeRate(BigDecimal.ZERO);
 			});
 
 			return list;

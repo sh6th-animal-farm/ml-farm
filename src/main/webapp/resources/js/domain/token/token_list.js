@@ -20,72 +20,74 @@ WebSocketManager.connect('http://localhost:9090/ws-stomp', function () {
 // 특정 행(row)만 찾아서 업데이트
 function updateTokenRow(row, data) {
 
-    //현재가 업데이트
-    const priceEl = row.querySelector('.market-price');
+    const priceEl = row.querySelector('.market-price');     // 현재가
+    const rateEl = row.querySelector('.change-rate');       // 등락률
+    const rateBadge = row.querySelector('.rate-badge');     // 등락률
+    const volumeEl = row.querySelector('.daily-volume');    // 거래대금
+
+    let direction = null;
+
+    // 현재가
     if (priceEl) {
-        // 기존 가격과 비교해서 상승/하락 판단 (반짝임 효과용)
         const oldPrice = parseFloat(priceEl.innerText.replace(/[^0-9.-]+/g, ""));
         const newPrice = data.marketPrice;
 
+        const isChanged = oldPrice !== newPrice;
         priceEl.innerText = newPrice.toLocaleString();
+        if (rateEl && rateBadge) {
+            const rate = Number(data.changeRate);
+            rateBadge.innerText = (rate > 0 ? '+' : '') + rate.toFixed(2) + '%';
+            rateEl.classList.remove('text-plus', 'text-minus');
 
-        // 가격 변동 애니메이션
-        if (newPrice > oldPrice) {
-            flashEffect(priceEl, 'up');
-        } else if (newPrice < oldPrice) {
-            flashEffect(priceEl, 'down');
+            if (rate > 0) {
+                rateEl.classList.add('text-plus');
+                if (isChanged) flashEffect(rateBadge, 'up'); // 양수면 무조건 빨간색
+            } else if (rate < 0) {
+                rateEl.classList.add('text-minus');
+                if (isChanged) flashEffect(rateBadge, 'down'); // 음수면 무조건 파란색
+            }
         }
+
     }
 
-    // 등락률 업데이트
-    const rateEl = row.querySelector('.change-rate');
-    if (rateEl) {
-        const rate = data.changeRate.toFixed(2);
-        rateEl.innerText = (rate > 0 ? '+' : '') + rate + '%';
-
-        rateEl.classList.remove('text-plus', 'text-minus');
-        rateEl.classList.add(rate > 0 ? 'text-plus' : rate < 0 ? 'text-minus' : '');
-    }
-
-    // 거래대금 업데이트
-    const volumeEl = row.querySelector('.daily-volume');
+    // 거래대금
     if (volumeEl) {
         volumeEl.setAttribute('data-value', data.dailyTradeVolume);
-        volumeEl.innerText = Math.floor(data.dailyTradeVolume).toLocaleString();
-
-        // 가격 및 등락률 텍스트 업데이트
-        // priceDiv.innerText = `${newPrice.toLocaleString()} 원`;
-        // pctDiv.innerText = `${data.gain > 0 ? '+' : ''}${data.gainPct}%`;
-        //
-        // // 색상 클래스 갱신
-        // const colorClass = data.gain > 0 ? 'text-plus' : data.gain < 0 ? 'text-minus' : '';
-        // pctDiv.className = `token-code ${colorClass}`;
-        //
-        // // 가격 셀 업데이트
-        // const priceCell = row.querySelector('.td-price .token-name');
-        // if (priceCell) {
-        //     priceCell.innerText = Number(data.marketPrice).toLocaleString() + " 원";
-        // }
-        //
-        // // 반짝임 효과 적용
-        // if (newPrice > oldPrice) {
-        //     priceDiv.classList.remove('up-flash');
-        //     void priceDiv.offsetWidth; // 리플로우 강제 발생 (애니메이션 재시작)
-        //     priceDiv.classList.add('up-flash');
-        // } else if (newPrice < oldPrice) {
-        //     priceDiv.classList.remove('down-flash');
-        //     void priceDiv.offsetWidth;
-        //     priceDiv.classList.add('down-flash');
-        // }
-
-        // // 등락률 및 색상 업데이트
-        // const pctCell = row.querySelector('.td-pct .token-code');
-        // if (pctCell) {
-        //     const isPlus = data.gain > 0;
-        //     pctCell.className = `token-code ${isPlus ? 'text-plus' : 'text-minus'}`;
-        //     pctCell.innerText = `${isPlus ? '+' : ''}${data.gainPct}%`;
-        // }
+        volumeEl.innerText = formatVolume(data.dailyTradeVolume);
     }
+
+    reorderTable();
+}
+
+function flashEffect(el, direction) {
+    const bgColor = direction === 'up' ? '#ffe2e2' : '#e0efff';
+
+    el.style.transition = 'none';
+    el.style.backgroundColor = bgColor;
+
+    void el.offsetWidth;
+
+    el.style.transition = 'background-color 0.6s ease';
+    el.style.backgroundColor = 'transparent';
+}
+
+function formatVolume(value) {
+    if (!value) return "0";
+    const num = parseFloat(value);
+
+    if (num >= 1000000) {
+        const million = Math.floor(num / 1000000);
+        const thousand = Math.round((num % 1000000) / 10000);
+
+        if (thousand === 0) return million.toLocaleString() + "백만";
+        return million.toLocaleString() + "백 " + thousand + "만";
+    }
+
+    if (num < 10000) {
+        return Math.floor(num).toLocaleString();
+    }
+
+    return num.toLocaleString();
 }
 
 // 거래대금 순 정렬
@@ -95,7 +97,7 @@ function reorderTable() {
         return;
     }
 
-    const  rows = Array.from(tbody.querySelectorAll('tr'));
+    const  rows = Array.from(tbody.querySelectorAll('tr[id^="token-row-"]'));
 
     rows.sort((a, b) => {
        const volA = parseFloat(a.querySelector('.daily-volume')?.getAttribute('data-value') || 0);
@@ -110,19 +112,3 @@ function reorderTable() {
     });
 }
 
-function flashEffact(el, direction) {
-    const color = direction === 'up' ? 'rgba(255, 68, 68, 0.2)' : 'rgba(0, 102, 255, 0.2)';
-    el.style.backgroundColor = color;
-    el.style.transition = 'background-color 0.3s';
-    setTimeout(() => {
-        el.style.backgroundColor = 'transparent';
-    }, 300);
-}
-
-// document.addEventListener('DOMContentLoaded', fetchStocks);
-// window.fetchTokens = fetchTokens;
-// // window.connectExchange = connectExchange;
-// document.addEventListener('DOMContentLoaded', async () => {
-//     await fetchTokens();
-//     connectExchange();
-// });

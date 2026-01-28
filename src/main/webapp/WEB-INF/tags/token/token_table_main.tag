@@ -28,15 +28,39 @@
                                 <div class="token-code">${token.tickerSymbol}</div>
                             </td>
                             <td class="tx-right">
-                                <div class="token-name market-price ${token.marketPrice >= 0 ? 'text-plus' : 'text-minus'}">
+                                <div class="token-name market-price">
                                     <fmt:formatNumber value="${token.marketPrice}" type="number"/>
                                 </div>
                             </td>
-                            <td class="tx-right change-rate">
-                                <fmt:formatNumber value="${token.changeRate}" type="number"/>&#37;
+                            <td class="tx-right change-rate ${token.changeRate > 0 ? 'text-plus' : (token.changeRate < 0 ? 'text-minus' : '')}">
+                                <span class="rate-badge">
+                                    <c:choose>
+                                        <c:when test="${token.changeRate > 0}">+</c:when>
+                                    </c:choose>
+                                    <fmt:formatNumber value="${token.changeRate}" type="number" minFractionDigits="2" maxFractionDigits="2"/>&#37;
+                                </span>
                             </td>
                             <td class="token-amount tx-right daily-volume" data-value="${token.dailyTradeVolume}">
-                                <fmt:formatNumber value="${token.dailyTradeVolume}" type="number"/>
+                                <c:set var="vol" value="${token.dailyTradeVolume}" />
+                                <c:choose>
+                                    <c:when test="${vol >= 1000000}">
+                                        <%-- 백만 단위와 만 단위를 나눠서 표시 (예: 283백 90만) --%>
+                                        <fmt:parseNumber var="millionPart" value="${vol / 1000000}" integerOnly="true" />
+                                        <fmt:parseNumber var="tenThousandPart" value="${(vol % 1000000) / 10000}" integerOnly="true" />
+
+                                        <fmt:formatNumber value="${millionPart}" pattern="#,###"/>백
+                                        <c:if test="${tenThousandPart > 0}">
+                                            ${tenThousandPart}만
+                                        </c:if>
+                                    </c:when>
+                                    <c:when test="${vol >= 10000}">
+                                        <fmt:parseNumber var="tenThousandOnly" value="${vol / 10000}" integerOnly="true" />
+                                        ${tenThousandOnly}만
+                                    </c:when>
+                                    <c:otherwise>
+                                        <fmt:formatNumber value="${vol}" pattern="#,###"/>
+                                    </c:otherwise>
+                                </c:choose>
                             </td>
                         </tr>
                     </c:forEach>
@@ -72,7 +96,7 @@
 .token-table td:first-child { padding-left: 24px; }
 .token-table td:last-child { padding-right: 24px; }
 
-.token_table_main td.token-amount { text-align: right; padding-right: 24px;}
+.token_table_main td.token-amount { text-align: right; padding-right: 24px; font: var(--font-body-03); font-weight: 700;}
 .token_table_main .token-name { font: var(--font-body-03); color: var(--gray-900); }
 .token_table_main .token-code { font: var(--font-caption-01); color: var(--gray-400); }
 

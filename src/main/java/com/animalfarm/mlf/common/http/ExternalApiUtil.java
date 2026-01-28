@@ -26,7 +26,7 @@ public class ExternalApiUtil {
      * @param responseType ParameterizedTypeReference (제네릭 타입 보존용)
      */
     public <T> T callApi(String url, HttpMethod method, Object body, ParameterizedTypeReference<ApiResponse<T>> responseType) {
-        
+
         // 1. 헤더 설정 (JSON 통신 표준화)
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);

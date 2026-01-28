@@ -1,16 +1,10 @@
 package com.animalfarm.mlf.domain.token;
 
-import java.math.BigDecimal;
 import java.util.List;
 
-import com.animalfarm.mlf.common.http.ApiResponse;
-import com.animalfarm.mlf.common.http.ExternalApiUtil;
-import com.animalfarm.mlf.domain.token.dto.MarketDTO;
+import com.animalfarm.mlf.domain.token.dto.TokenListDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,11 +20,10 @@ public class TokenViewController {
 
 	@Autowired
 	private TokenService tokenService;
-	private final ExternalApiUtil externalApiUtil;
 
 	@GetMapping
 	public String tokenListPage(Model model) {
-		List<MarketDTO> list = tokenService.selectAll();
+		List<TokenListDTO> list = tokenService.selectAll();
 		if (!list.isEmpty()) {
 			System.out.println("Data Type: " + list.get(0).getClass().getName());
 		}
