@@ -25,12 +25,13 @@
                             
                             <h3 class="mt-20">구매 할인 정책</h3>
                             <div class="discount-info">
-                                <div class="row"><span>구매 금액</span><span class="right">추가 할인</span></div>
+                                <div class="row"><span>토큰 지분</span><span class="right">추가 할인</span></div>
                                 <div class="divider"></div>
-                                <div class="row"><span>1억 이하</span><span class="percent">1%</span></div>
-                                <div class="row"><span>1억 ~ 2억</span><span class="percent">3%</span></div>
-                                <div class="row"><span>2억 ~ 3억</span><span class="percent">5%</span></div>
-                                <div class="row"><span>3억 초과</span><span class="percent">7%</span></div>
+                                <div class="row"><span>2% ~ 5% 지분</span><span class="percent">1%</span></div>
+                                <div class="row"><span>5% ~ 10% 지분</span><span class="percent">2.5%</span></div>
+                                <div class="row"><span>10 ~ 20% 지분</span><span class="percent">5%</span></div>
+                                <div class="row"><span>20% ~ 50% 지분</span><span class="percent">7.5%</span></div>
+                                <div class="row"><span>50% ~ 100% 지분</span><span class="percent">10%</span></div>
                             </div>
                         </div>
                     </div>

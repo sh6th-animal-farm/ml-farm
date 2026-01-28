@@ -49,4 +49,16 @@ public interface CarbonRepository {
 	BigDecimal selectCpAmount(@Param("cpId")
 	Long cpId);
 
+	// 결제 완료시 carbonHist테이블에 거래내역 담기
+	int insertCarbonHist(
+		@Param("userId")
+		Long userId,
+		@Param("cpId")
+		Long cpId,
+		@Param("amount")
+		BigDecimal amount,
+		@Param("discountedPrice")
+		BigDecimal discountedPrice,
+		@Param("discountRate")
+		BigDecimal discountRate);
 }
