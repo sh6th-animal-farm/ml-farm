@@ -3,14 +3,35 @@
     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper
-	namespace="com.animalfarm.mlf.domain.subscription.SubscriptionRepository">
-
-	<select id="select" parameterType="subscriptionSelectDTO" resultType="subscriptionHistDTO">
+<mapper	namespace="com.animalfarm.mlf.domain.subscription.SubscriptionRepository">
+	
+	<select id="select" resultType="subscriptionHistDTO">
 		select * from subscription_hists
 		where
 		project_id=#{projectId} and user_id=#{userId}
 	</select>
+	
+	<update id="update" parameterType="subscriptionHistDTO">
+		UPDATE subscription_hists
+	    <set>
+	        <if test="subscriptionStatus != null">
+	            subscription_status = #{subscriptionStatus},
+	        </if>
+	        <if test="paymentStatus != null">
+	            payment_status = #{paymentStatus},
+	        </if>
+	        <if test="externalRefId != null">
+	            external_ref_id = #{externalRefId},
+	        </if>
+	        <if test="canceledAt != null">
+	            canceled_at = #{canceledAt},
+	        </if>
+	        <if test="subscriptionAmount != null">
+	            subscription_amount = #{subscriptionAmount},
+	        </if>
+	    </set>
+	    WHERE sh_id = #{shId}
+	</update>
 
 	<insert id="subscriptionApplication" parameterType="subscriptionApplicationDTO" useGeneratedKeys="true"
 		keyProperty="shId" keyColumn="sh_id">
