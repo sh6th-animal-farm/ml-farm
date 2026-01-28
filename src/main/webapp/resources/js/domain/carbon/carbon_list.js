@@ -6,19 +6,17 @@ document.addEventListener("DOMContentLoaded", function () {
     const params = new URLSearchParams(window.location.search);
     const category = params.get("category") || "ALL";
     
-    loadCarbonList(category);
+    // AuthManager가 있으면 인증 체크부터 수행
+    if (typeof AuthManager !== 'undefined' && AuthManager.ensureAuth()) {
+        loadCarbonList(category);
+    }
 });
 
 async function loadCarbonList(category) {
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
-        if (typeof AuthManager !== 'undefined') AuthManager.forceLogout();
-        return;
-    }
-
     try {
         // 탭 활성화 상태 동기화 (진한 녹색 적용)
         syncActiveMenu(category);
+        const token = localStorage.getItem("accessToken");
         const response = await fetch(`${ctx}/api/carbon/category?category=${category}`, {
             method: "GET",
             headers: {
@@ -29,12 +27,10 @@ async function loadCarbonList(category) {
 
         if (response.ok) {
             const result = await response.json();
-            renderFilteredList(result.payload); //
-        } else if (response.status === 401 || response.status === 403) {
-            AuthManager.forceLogout();
+            renderFilteredList(result.payload); 
         }
     } catch (e) {
-        console.error("로딩 실패", e);
+        console.error("리스트 로딩 실패", e);
     }
 }
 

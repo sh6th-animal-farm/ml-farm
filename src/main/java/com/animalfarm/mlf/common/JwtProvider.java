@@ -43,11 +43,11 @@ public class JwtProvider {
 	 * Access Token: 60분 (요구사항 반영)
 	 * Refresh Token: 30일 (Redis 보관 기간과 동일하게 설정)
 	 */
-	private final long accessTokenExp = 60 * 60 * 1000L; //1시간
+	//	private final long accessTokenExp = 60 * 60 * 1000L; //1시간
+	//	private final long refreshTokenExp = 14L * 24 * 60 * 60 * 1000L; //14일
+	private final long accessTokenExp = 1 * 60 * 1000L; //1분
 	private final long refreshTokenExp = 14L * 24 * 60 * 60 * 1000L; //14일
-	
 
-	
 	@PostConstruct
 	protected void init() {
 		//시크릿 키를 HMAC SHA 알고리즘에 적합한 Key 객체로 변환
@@ -115,10 +115,13 @@ public class JwtProvider {
 				.parseClaimsJws(token);
 
 			return true;
+		} catch (io.jsonwebtoken.ExpiredJwtException e) {
+			// [수정] 만료된 경우 별도 로그 출력
+			System.out.println("DEBUG: 토큰이 만료되었습니다. (Expired)");
 		} catch (io.jsonwebtoken.security.SignatureException e) {
-			System.out.println("DEBUG: 서명이 일치하지 않습니다. (열쇠 불일치)");
+			System.out.println("DEBUG: 서명이 일치하지 않습니다. (Invalid Signature)");
 		} catch (Exception e) {
-			System.out.println("DEBUG: 토큰 검증 실패: " + e.getMessage());
+			System.out.println("DEBUG: 토큰 검증 중 오류 발생: " + e.getMessage());
 		}
 		return false;
 	}
