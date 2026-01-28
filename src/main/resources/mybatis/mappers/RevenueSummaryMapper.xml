@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.animalfarm.mlf.domain.accounting.RevenueSummaryRepository">
+
+    <select id="selectSettlementTargets" resultType="map">
+        SELECT 
+            r.project_id AS "projectId",
+            COALESCE(SUM(r.amount), 0) AS "totalRevenue",
+            COALESCE(e.total_exp, 0) AS "totalExpense"
+        FROM revenues r
+        LEFT JOIN (
+            /* 아직 정산되지 않은 지출 항목들을 프로젝트별로 미리 합계 */
+            SELECT project_id, SUM(amount) AS total_exp
+            FROM expenses
+            WHERE rs_id IS NULL
+            GROUP BY project_id
+        ) e ON r.project_id = e.project_id
+        WHERE r.rs_id IS NULL
+        GROUP BY r.project_id, e.total_exp
+        ORDER BY r.project_id ASC
+        LIMIT #{_pagesize} OFFSET #{_skiprows}
+    </select>
+
+    <insert id="insertSummary" useGeneratedKeys="true" keyProperty="rsId" keyColumn="rs_id">
+        INSERT INTO revenue_summary (
+        	project_id,
+            total_revenue,
+            total_expense,
+            net_profit,
+            created_at
+        ) VALUES (
+        	#{projectId},
+            #{totalRevenue},
+            #{totalExpense},
+            #{netProfit},
+            NOW()
+        )
+    </insert>
+
+</mapper>
