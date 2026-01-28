@@ -1,23 +1,19 @@
 package com.animalfarm.mlf.domain.token;
 
-import java.math.BigDecimal;
 import java.util.List;
 
-import com.animalfarm.mlf.common.http.ApiResponse;
 import com.animalfarm.mlf.common.http.ExternalApiUtil;
-import com.animalfarm.mlf.domain.token.dto.MarketDTO;
+import com.animalfarm.mlf.domain.token.dto.TokenListDTO;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import com.animalfarm.mlf.common.security.SecurityUtil;
 
 @Controller
 @RequestMapping("/token")
@@ -30,7 +26,7 @@ public class TokenViewController {
 
 	@GetMapping
 	public String tokenListPage(Model model) {
-		List<MarketDTO> list = tokenService.selectAll();
+		List<TokenListDTO> list = tokenService.selectAll();
 		if (!list.isEmpty()) {
 			System.out.println("Data Type: " + list.get(0).getClass().getName());
 		}
@@ -40,12 +36,17 @@ public class TokenViewController {
 		return "layout";
 	}
 
-	@GetMapping("/{id}}")
-	public String tokenDetailPage(@PathVariable Long id, Model model) {
-		Long userId = SecurityUtil.getCurrentUserId();
+	@GetMapping("/{id}")
+	public String tokenDetailPage(@PathVariable Long id, Model model) throws JsonProcessingException {
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule()); // 자바 8 날짜/시간 모듈 등록
+		mapper.disable(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS); // 날짜를 'yyyy-MM-ddThh:mm:ss' 형태로 변환
 
 		model.addAttribute("tokenId", id);
 		model.addAttribute("tokenDetail", tokenService.selectByTokenId(id));
+		model.addAttribute("orderBuyList", mapper.writeValueAsString(tokenService.selectAllOrderBuyPrice(id)));
+		model.addAttribute("orderSellList", mapper.writeValueAsString(tokenService.selectAllOrderSellPrice(id)));
+		model.addAttribute("tradeList", mapper.writeValueAsString(tokenService.selectAllTradePrice(id)));
 		model.addAttribute("contentPage", "/WEB-INF/views/token/token_detail.jsp");
 
 		return "layout";

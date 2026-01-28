@@ -1,24 +1,23 @@
 package com.animalfarm.mlf.domain.token;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.animalfarm.mlf.domain.token.dto.MarketDTO;
+import com.animalfarm.mlf.domain.token.dto.OrderPriceDTO;
+import com.animalfarm.mlf.domain.token.dto.TokenListDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import com.animalfarm.mlf.common.http.ApiResponse;
 import com.animalfarm.mlf.common.http.ExternalApiUtil;
 import com.animalfarm.mlf.domain.token.dto.TokenDTO;
 import com.animalfarm.mlf.domain.token.dto.TokenDetailDTO;
+import com.animalfarm.mlf.domain.token.dto.TradePriceDTO;
 
 @Slf4j
 @Service
@@ -35,13 +34,13 @@ public class TokenService {
 	private String khUrl;
 
 	// 전체 토큰 시세 조회
-	public List<MarketDTO> selectAll() {
+	public List<TokenListDTO> selectAll() {
 		try {
-			List<MarketDTO> list = externalApiUtil.callApi(
+			List<TokenListDTO> list = externalApiUtil.callApi(
 					khUrl + "/market",
 					HttpMethod.GET,
 					null,
-					new ParameterizedTypeReference<ApiResponse<List<MarketDTO>>>() {}
+					new ParameterizedTypeReference<ApiResponse<List<TokenListDTO>>>() {}
 			);
 
 			list.forEach(dto -> {
@@ -58,14 +57,58 @@ public class TokenService {
 		}
 	}
 
-	public TokenDTO selectByProjectId(Long projectId) {
-		return tokenRepository.selectByProjectId(projectId);
-	}
-
 	// 토큰 상세 내역 조회
 	public TokenDetailDTO selectByTokenId(Long tokenId) {
 		String targetUrl = khUrl + "/my/market/" + tokenId; 	// [TODO] 강황증권 API 필요
 		return null;
+	}
+
+	// 토큰 현재가 조회
+	public BigDecimal selectCurrentPrice(Long tokenId) {
+		BigDecimal curPrice = externalApiUtil.callApi(
+			khUrl + "/market/current/" + tokenId,
+			HttpMethod.GET,
+			null,
+			new ParameterizedTypeReference<ApiResponse<BigDecimal>>() {}
+		);
+
+		return curPrice;
+	}
+
+	// 매수 호가 조회
+	public List<OrderPriceDTO> selectAllOrderBuyPrice(Long tokenId) {
+		List<OrderPriceDTO> orderBuyPriceList = externalApiUtil.callApi(
+			khUrl + "/market/order/buy/" + tokenId,
+			HttpMethod.GET,
+			null,
+			new ParameterizedTypeReference<ApiResponse<List<OrderPriceDTO>>>() {}
+		);
+
+		return orderBuyPriceList;
+	}
+
+	// 매도 호가 조회
+	public List<OrderPriceDTO> selectAllOrderSellPrice(Long tokenId) {
+		List<OrderPriceDTO> orderSellPriceList = externalApiUtil.callApi(
+			khUrl + "/market/order/sell/" + tokenId,
+			HttpMethod.GET,
+			null,
+			new ParameterizedTypeReference<ApiResponse<List<OrderPriceDTO>>>() {}
+		);
+
+		return orderSellPriceList;
+	}
+
+	// 체결가 조회
+	public List<TradePriceDTO> selectAllTradePrice(Long tokenId) {
+		List<TradePriceDTO> tradePriceList = externalApiUtil.callApi(
+			khUrl + "/market/trade/" + tokenId,
+			HttpMethod.GET,
+			null,
+			new ParameterizedTypeReference<ApiResponse<List<TradePriceDTO>>>() {}
+		);
+
+		return tradePriceList;
 	}
 
 	// 증권사 연동 번호 조회 (지갑 번호)
@@ -85,5 +128,11 @@ public class TokenService {
 		}
 		return null;
 	}
+
+	public TokenDTO selectByProjectId(Long projectId) {
+		return tokenRepository.selectByProjectId(projectId);
+	}
+
+	// 보유 토큰 수량 조회
 
 }

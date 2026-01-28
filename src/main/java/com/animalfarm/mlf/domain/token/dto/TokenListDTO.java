@@ -3,14 +3,13 @@ package com.animalfarm.mlf.domain.token.dto;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.util.function.BiConsumer;
 
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MarketDTO {
+public class TokenListDTO {
 	private Long tokenId;						// 토큰 고유 번호
 	private String tokenName;					// 토큰 이름
 	private String tickerSymbol;				// 종목 코드

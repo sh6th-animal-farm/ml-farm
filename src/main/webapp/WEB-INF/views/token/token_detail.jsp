@@ -1,7 +1,18 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags"%>
 
-<script>const tokenId = ${tokenId};</script>
+<script>
+  window.tokenId = ${tokenId};
+  window.orderBuyList = ${orderBuyList};
+  window.orderSellList = ${orderSellList};
+  window.tradeList = ${tradeList};
+
+  console.log(window.tokenId);
+  console.log(window.orderBuyList);
+  console.log(window.orderSellList);
+  console.log(window.tradeList);
+</script>
+
 <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/token_detail.css" />
 <script type="module" src="${pageContext.request.contextPath}/resources/js/domain/token/token_detail.js"></script>
 
@@ -45,7 +56,7 @@
       </div>
 
       <div class="card list-card">
-        <div class="scroll">
+        <div class="scroll active">
           <table class="token-list-table">
             <thead>
               <tr>
@@ -176,7 +187,7 @@
             <div>총 2건</div>
             <div>최신순</div>
           </div>
-          <div class="scroll">
+          <div class="scroll active">
             <ul class="transaction-list">
               <li class="transaction-item">
                 <div class="item-hover-layer">
@@ -275,23 +286,22 @@
 
       <div class="card trade-card">
         <div class="tab-menu">
-          <button class="trade-btn active">호가</button>
-          <button class="trade-btn">체결</button>
+          <button class="trade-btn active" data-tab="order-tab">호가</button>
+          <button class="trade-btn" data-tab="trade-tab">체결</button>
         </div>
-        <div class="scroll">
+        <div id="order-tab" class="scroll active">
           <table class="hoga-table">
             <thead>
-              <tbody>
-                <tr><td class="trade-dir">매도</td><td class="hoga-sell" style="text-align: right;">128,800</td><td style="text-align: right;">1.22</td></tr>
-                <tr><td class="trade-dir">매도</td><td class="hoga-sell" style="text-align: right;">128,700</td><td style="text-align: right;">1.88</td></tr>
-                <tr><td class="trade-dir">매수</td><td class="hoga-buy" style="text-align: right;">127,900</td><td style="text-align: right;">2.21</td></tr>
-                <tr><td class="trade-dir">매도</td><td class="hoga-sell" style="text-align: right;">128,800</td><td style="text-align: right;">1.22</td></tr>
-                <tr><td class="trade-dir">매도</td><td class="hoga-sell" style="text-align: right;">128,700</td><td style="text-align: right;">1.88</td></tr>
-                <tr><td class="trade-dir">매수</td><td class="hoga-buy" style="text-align: right;">127,900</td><td style="text-align: right;">2.21</td></tr>
-                <tr><td class="trade-dir">매도</td><td class="hoga-sell" style="text-align: right;">128,800</td><td style="text-align: right;">1.22</td></tr>
-                <tr><td class="trade-dir">매도</td><td class="hoga-sell" style="text-align: right;">128,700</td><td style="text-align: right;">1.88</td></tr>
-                <tr><td class="trade-dir">매수</td><td class="hoga-buy" style="text-align: right;">127,900</td><td style="text-align: right;">2.21</td></tr>
+              <tbody id="order-hist-body">
               </tbody>
+          </table>
+        </div>
+
+        <div id="trade-tab" class="scroll">
+          <table class="hoga-table">
+            <thead>
+            <tbody id="trade-hist-body">
+            </tbody>
           </table>
         </div>
       </div>

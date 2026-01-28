@@ -104,7 +104,8 @@
 .token-list-table th, .hoga-table th { position: sticky; top: 0; padding: 14px; background: #fff; text-align: left; font: var(--font-body-02); color: var(--gray-400); border-bottom: 1px solid var(--gray-200); }
 .token-list-table td, .hoga-table td { padding: 14px; border-bottom: 1px solid var(--gray-100); }
 .token-list-table tbody tr:hover { background: var(--gray-100); }
-.scroll { flex: 1; overflow-y: auto; }
+.scroll { display: none; flex: 1; overflow-y: auto; }
+.scroll.active { display: block; }
 
 /* 종목 테이블 상세 */
 .token-code { margin-left: 4px; font: var(--font-caption-02); color: var(--gray-700); }
