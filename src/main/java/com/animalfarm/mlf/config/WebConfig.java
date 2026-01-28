@@ -26,6 +26,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 @Configuration
 @EnableWebMvc
 @PropertySource("classpath:config/application.properties")
+@PropertySource("classpath:config/slack.properties")
 public class WebConfig implements WebMvcConfigurer {
 
 	// @Value를 해석하기 위해 반드시 필요한 빈입니다.
@@ -68,14 +69,17 @@ public class WebConfig implements WebMvcConfigurer {
 		registry.addResourceHandler("/uploads/**")
 			.addResourceLocations("file:///C:/mlfarm-data/uploads/");
 	}
-	
-	@Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
-    }
 
 	@Bean
-    public ObjectMapper objectMapper() {
-        return new ObjectMapper();
-    }
+	public RestTemplate restTemplate() {
+		return new RestTemplate();
+	}
+
+	@Bean
+	public ObjectMapper objectMapper() {
+		return Jackson2ObjectMapperBuilder.json()
+			.modules(new JavaTimeModule())
+			.featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+			.build();
+	}
 }
