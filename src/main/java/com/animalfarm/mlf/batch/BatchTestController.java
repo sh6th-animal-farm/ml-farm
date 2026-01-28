@@ -16,9 +16,9 @@ import lombok.RequiredArgsConstructor;
 public class BatchTestController {
 
 	private final JobLauncher jobLauncher;
-	private final Job settlementJob; // SettlementJobConfig에서 만든 빈 이름
+	private final Job settlementJob; // JobConfig에서 만든 빈 이름
 
-	@GetMapping("/run")
+	@GetMapping("/runSettlement")
 	public String runSettlement() {
 		try {
 			// 배치는 동일한 파라미터로 실행하면 '이미 성공했다'고 판단해 실행되지 않음
@@ -34,4 +34,5 @@ public class BatchTestController {
 			return "Batch Job Failed: " + e.getMessage();
 		}
 	}
+
 }

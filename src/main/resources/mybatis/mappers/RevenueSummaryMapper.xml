@@ -36,5 +36,13 @@
             NOW()
         )
     </insert>
+    
+    <select id="selectByProjectId">
+    	SELECT *
+    	FROM revenue_summary
+    	WHERE project_id=#{projectId} AND status='READY'
+    	ORDER BY created_at DESC
+    	LIMIT 1
+    </select>
 
 </mapper>

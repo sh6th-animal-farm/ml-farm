@@ -49,4 +49,6 @@ public interface ProjectRepository {
 
 	public abstract void updateProjectStatus(ProjectStatusDTO projectStatusDTO);
 
+	public abstract ProjectDTO selectByProjectId(Long projectId);
+
 }

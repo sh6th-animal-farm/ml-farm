@@ -8,13 +8,18 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.dao.DataAccessException;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import com.animalfarm.mlf.common.http.ApiResponse;
+import com.animalfarm.mlf.common.http.ExternalApiUtil;
+import com.animalfarm.mlf.domain.accounting.DividenedService;
+import com.animalfarm.mlf.domain.accounting.dto.DividendResponseDTO;
 import com.animalfarm.mlf.domain.project.dto.FarmDTO;
 import com.animalfarm.mlf.domain.project.dto.ImgEditable;
 import com.animalfarm.mlf.domain.project.dto.ProjectDTO;
@@ -28,13 +33,21 @@ import com.animalfarm.mlf.domain.project.dto.ProjectStarredDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectStatusDTO;
 import com.animalfarm.mlf.domain.token.TokenRepository;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class ProjectService {
 	@Autowired
 	ProjectRepository projectRepository;
 
 	@Autowired
-	TokenRepository tokenReopsitory;
+	TokenRepository tokenRepository;
+
+	private final ExternalApiUtil externalApiUtil;
+	private final DividenedService dividenedService;
 
 	// 강황증권 API 서버 주소
 	@Value("${api.kh-stock.url}")
@@ -116,7 +129,7 @@ public class ProjectService {
 				.hashValue(createHash("0", tokenId, totalSupply)) // 해시 계산
 				.build();
 
-			tokenReopsitory.insertTokenLedger(projectNewTokenDTO);
+			tokenRepository.insertTokenLedger(projectNewTokenDTO);
 
 			return true;
 		} catch (Exception e) {
@@ -252,4 +265,16 @@ public class ProjectService {
 			return 0.0;
 		}
 	}
+
+	public List<DividendResponseDTO> getDividendSnapshot(Long projectId) {
+		String fullUrl = khUrl + "/api/project/dividend/before/" + projectId.toString();
+		try {
+			return externalApiUtil.callApi(fullUrl, HttpMethod.POST, null,
+				new ParameterizedTypeReference<ApiResponse<List<DividendResponseDTO>>>() {}, null);
+		} catch (Exception e) {
+			return new ArrayList<>();
+		}
+
+	}
+
 }

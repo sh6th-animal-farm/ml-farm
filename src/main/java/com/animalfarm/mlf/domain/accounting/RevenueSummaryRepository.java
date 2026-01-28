@@ -14,4 +14,6 @@ public interface RevenueSummaryRepository {
 
 	List<Map<String, Object>> selectSettlementTargets(Map<String, Object> params);
 
+	RevenueSummaryDTO selectByProjectId(Long projectId);
+
 }

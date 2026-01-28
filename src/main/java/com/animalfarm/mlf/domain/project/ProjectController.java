@@ -12,8 +12,10 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.animalfarm.mlf.domain.accounting.DividenedService;
 import com.animalfarm.mlf.domain.project.dto.ProjectDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectDetailDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectInsertDTO;
@@ -23,9 +25,12 @@ import com.animalfarm.mlf.domain.project.dto.ProjectSearchReqDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectStarredDTO;
 
 @RestController
+@RequestMapping("/api/project")
 public class ProjectController {
 	@Autowired
 	ProjectService projectService;
+	@Autowired
+	DividenedService dividenedService;
 
 	@InitBinder
 	protected void initBinder(WebDataBinder binder) {
@@ -40,37 +45,32 @@ public class ProjectController {
 		});
 	}
 
-	@GetMapping("/projects")
-	public String projectListPage() {
-		return "";
-	}
-
-	@GetMapping("/api/project/{projectId}")
+	@GetMapping("/{projectId}")
 	public ProjectDetailDTO selectDetail(@PathVariable("projectId")
 	Long projectId) {
 		return projectService.selectDetail(projectId);
 	}
 
-	@GetMapping("/api/projects/all")
+	@GetMapping("/all")
 	public List<ProjectDTO> selectAll() {
 		return projectService.selectAll();
 	}
 
-	@GetMapping("/api/projects")
+	@GetMapping("")
 	public List<ProjectListDTO> selectByCondition(@ModelAttribute
 	ProjectSearchReqDTO searchDTO) {
 		return projectService.selectByCondition(searchDTO);
 	}
 
 	//관심 프로젝트인지 조회
-	@GetMapping("/api/projects/starred")
+	@GetMapping("/starred")
 	public boolean getStarredStatus(@ModelAttribute
 	ProjectStarredDTO projectStarredDTO) {
 		return projectService.getStarredStatus(projectStarredDTO);
 	}
 
 	//관심 프로젝트 신규 등록
-	@PostMapping("/api/projects/starred")
+	@PostMapping("/starred")
 	public Boolean upsertStrarredProject(@RequestBody
 	ProjectStarredDTO projectStarredDTO) {
 		Boolean curStatus = null;
@@ -80,7 +80,7 @@ public class ProjectController {
 		return curStatus;
 	}
 
-	@PostMapping("/api/projects/insert")
+	@PostMapping("/insert")
 	public ResponseEntity<String> insertProject(@RequestBody
 	ProjectInsertDTO projectInsertDTO) {
 		if (projectService.insertProject(projectInsertDTO)) {
@@ -91,7 +91,7 @@ public class ProjectController {
 
 	}
 
-	@PostMapping("/api/projects/update")
+	@PostMapping("/update")
 	public ResponseEntity<String> updateProject(@RequestBody
 	ProjectDTO projectDTO) {
 		if (projectService.updateProject(projectDTO)) {
@@ -101,14 +101,25 @@ public class ProjectController {
 		}
 	}
 
-	@GetMapping("/api/project/picture/{projectId}/all")
+	@GetMapping("/picture/{projectId}/all")
 	public List<ProjectPictureDTO> selectPictures(@PathVariable("projectId")
 	Long projectId) {
 		return projectService.selectPictures(projectId);
 	}
 
-	@GetMapping("/api/project/checkAccount")
+	@GetMapping("/checkAccount")
 	public boolean checkAccount(Long userId) {
 		return projectService.checkAccount();
+	}
+
+	@PostMapping("/dividend")
+	public ResponseEntity<String> processDividend(@RequestBody
+	Long projectId) {
+		try {
+			dividenedService.runDividendBatch(projectId);
+			return ResponseEntity.ok("성공했습니다. DB를 확인해주세요.");
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("실패");
+		}
 	}
 }
