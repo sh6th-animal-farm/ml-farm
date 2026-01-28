@@ -18,7 +18,7 @@ import lombok.ToString;
 public class RevenueSummaryDTO {
 	Long rsId;
 	Long projectId;
-	Long dividenedId;
+	String status;
 	BigDecimal totalRevenue;
 	BigDecimal totalExpense;
 	BigDecimal netProfit;

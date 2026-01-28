@@ -31,16 +31,27 @@ public class DividenedService {
 		}
 		// 해당 프로젝트의 토큰 정보 조회
 		TokenDTO token = tokenRepository.selectByProjectId(projectId);
+		
+		if (token == null) {
+			throw new RuntimeException("해당 프로젝트에 발행된 토큰이 없습니다.");
+		}
 
 		// 배치 파라미터 구성
-		JobParameters params = new JobParametersBuilder()
-			.addLong("requestTime", System.currentTimeMillis())
-			.addLong("projectId", summary.getProjectId())
-			.addLong("rsId", summary.getRsId())
-			// BigDecimal -> Double 변환 (JobParameter 제약 때문)
-			.addDouble("totalAmount", summary.getNetProfit().doubleValue())
-			.addDouble("totalIssueVolume", token.getTotalSupply().doubleValue())
-			.toJobParameters();
+		JobParameters params;
+		try {
+			params = new JobParametersBuilder()
+				.addLong("requestTime", System.currentTimeMillis())
+				.addLong("projectId", summary.getProjectId())
+				.addLong("rsId", summary.getRsId())
+				// BigDecimal -> Double 변환 (JobParameter 제약 때문)
+				.addDouble("totalAmount", summary.getNetProfit().doubleValue())
+				.addDouble("totalIssueVolume", token.getTotalSupply().doubleValue())
+				.toJobParameters();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			throw new RuntimeException("파라미터 전달 오류");
+		}
 
 		// 배치 실행
 		jobLauncher.run(dividendJob, params);

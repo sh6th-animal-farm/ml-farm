@@ -41,6 +41,9 @@
 			alias="subscriptionHistDTO" />
 		<typeAlias type="com.animalfarm.mlf.domain.project.dto.ProjectNewTokenDTO"
 			alias="projectNewTokenDTO" />
+		<typeAlias type="com.animalfarm.mlf.domain.accounting.dto.RevenueSummaryDTO"
+			alias="revenueSummaryDTO" />
+			
 	</typeAliases>
 	
 </configuration>

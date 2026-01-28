@@ -119,7 +119,7 @@ public class ProjectController {
 			dividenedService.runDividendBatch(projectId);
 			return ResponseEntity.ok("성공했습니다. DB를 확인해주세요.");
 		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("실패");
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
 }
