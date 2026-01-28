@@ -10,7 +10,8 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/common.css">
     <script>
         // 전역 변수로 선언 (보통 'ctx' 또는 'contextPath'라고 명명)
-        const ctx = "${pageContext.request.contextPath}";
+        //const ctx = "${pageContext.request.contextPath}";
+        const ctx = "https://mlfarm.3jun.store";
     </script>
 </head>
 <body>
