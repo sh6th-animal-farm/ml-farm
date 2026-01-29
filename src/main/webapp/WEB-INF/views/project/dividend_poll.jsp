@@ -48,3 +48,43 @@
         <button type="submit" class="submit-button">선택 완료</button>
     </form>
 </div>
+
+<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+
+<div id="addressModal" class="poll-modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeAddressModal()">&times;</span>
+        
+        <div class="modal-header">
+            <h5>배송지 확인</h5>
+        </div>
+        
+        <div class="modal-body">
+            <p>선택하신 작물을 아래 주소로 보내드릴까요?</p>
+            
+            <div class="address-section">
+                <div class="current-address-box">
+                    <span id="displayAddress">
+                        ${not empty curAddress ? curAddress : '등록된 주소가 없습니다.'}
+                    </span>
+                    
+                    <button type="button" class="btn-edit-address" onclick="toggleAddressEdit()">
+                        수정
+                    </button>
+                </div>
+                
+
+                <div id="addressInputArea" style="display: none; margin-top: 16px;">
+                    <input type="text" id="detailAddress" class="address-input" 
+                        placeholder="상세 주소(동·호수 등)를 입력해주세요" oninput="combineAddress()">
+                    <input type="hidden" id="baseAddress">
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn-cancel" onclick="closeAddressModal()">취소</button>
+            <button type="button" class="btn-confirm" onclick="confirmCropSelection()">배송 확정</button>
+        </div>
+    </div>
+</div>

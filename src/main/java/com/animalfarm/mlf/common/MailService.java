@@ -68,7 +68,7 @@ public class MailService {
 			html = html.replace("{{USER_NAME}}", userName);
 			html = html.replace("{{AMOUNT}}", amount);
 			html = html.replace("{{END_DATE}}", endDate);
-			html = html.replace("{{POLL_URL}}", "http://localhost:8080/poll?id=" + dividendId);
+			html = html.replace("{{POLL_URL}}", "http://localhost:8080/project/dividend/poll?id=" + dividendId);
 
 			helper.setText(html, true);
 

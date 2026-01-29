@@ -16,4 +16,5 @@ import lombok.ToString;
 public class DividendSelectDTO {
 	Long dividendId;
 	String dividendType;
+	String address;
 }

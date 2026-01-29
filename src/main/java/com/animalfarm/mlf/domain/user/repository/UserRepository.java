@@ -1,6 +1,7 @@
 package com.animalfarm.mlf.domain.user.repository;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import com.animalfarm.mlf.domain.user.dto.UserDTO;
 
@@ -21,4 +22,10 @@ public interface UserRepository {
 	int insertUser(UserDTO user);
 
 	boolean existsByEmail(String email);
+
+	String selectAddress(Long userId);
+
+	int insertAddress(@Param("address")
+	String address, @Param("userId")
+	Long userId);
 }

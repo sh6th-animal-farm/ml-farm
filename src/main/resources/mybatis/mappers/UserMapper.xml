@@ -30,5 +30,17 @@
     	    WHERE email = #{email}
   	  	)
 	</select>
+	
+	<select id="selectAddress" resultType="string">
+        SELECT address 
+        FROM users 
+        WHERE user_id = #{userId}
+    </select>
+
+    <update id="updateAddress">
+        UPDATE users 
+        SET address = #{address}
+        WHERE user_id = #{userId}
+    </update>
 
 </mapper>

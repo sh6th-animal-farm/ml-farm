@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.animalfarm.mlf.domain.accounting.DividendService;
 import com.animalfarm.mlf.domain.accounting.dto.DividendDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectSearchReqDTO;
+import com.animalfarm.mlf.domain.user.service.UserService;
 
 @Controller
 @RequestMapping("/project")
@@ -22,6 +23,8 @@ public class ProjectViewController {
 	ProjectService projectService;
 	@Autowired
 	DividendService dividendService;
+	@Autowired
+	UserService userService;
 
 	@GetMapping({"", "/"})
 	public String index() {
@@ -51,7 +54,7 @@ public class ProjectViewController {
 		return "project/project_card_list";
 	}
 
-	@GetMapping("/poll")
+	@GetMapping("/dividend/poll")
 	public String pollDividendType(Model model, @RequestParam
 	Long id) {
 		model.addAttribute("contentPage", "/WEB-INF/views/project/dividend_poll.jsp");
@@ -60,6 +63,8 @@ public class ProjectViewController {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 		String formattedDate = dividend.getPollEndDate().format(formatter);
 		model.addAttribute("pollEndDisplay", formattedDate);
+		String curAddress = userService.selectAddress();
+		model.addAttribute("curAddress", curAddress);
 		return "layout";
 	}
 }

@@ -24,6 +24,7 @@ import com.animalfarm.mlf.domain.project.dto.ProjectListDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectPictureDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectSearchReqDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectStarredDTO;
+import com.animalfarm.mlf.domain.user.service.UserService;
 
 @RestController
 @RequestMapping("/api/project")
@@ -32,6 +33,8 @@ public class ProjectController {
 	ProjectService projectService;
 	@Autowired
 	DividendService dividendService;
+	@Autowired
+	UserService userService;
 
 	@InitBinder
 	protected void initBinder(WebDataBinder binder) {
@@ -137,10 +140,14 @@ public class ProjectController {
 	@PostMapping("/dividend/poll/select")
 	public ResponseEntity<String> selectDividendType(@RequestBody
 	DividendSelectDTO dividendSelectDTO) {
+		Long dividendId = dividendSelectDTO.getDividendId();
+		String dividendType = dividendSelectDTO.getDividendType();
+		String address = dividendSelectDTO.getAddress();
 		try {
-			dividendService.processUserSelection(
-				dividendSelectDTO.getDividendId(),
-				dividendSelectDTO.getDividendType());
+			dividendService.processUserSelection(dividendId, dividendType);
+			if ("CROP".equals(dividendSelectDTO.getDividendType()) && address != null && !address.trim().isEmpty()) {
+				userService.insertAddress(address);
+			}
 			// 성공 시 성공 메시지 반환
 			return ResponseEntity.ok("수령 방식 선택이 완료되었습니다.");
 		} catch (Exception e) {
