@@ -1,5 +1,7 @@
 package com.animalfarm.mlf.domain.accounting;
 
+import java.math.BigDecimal;
+
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
@@ -12,6 +14,8 @@ import com.animalfarm.mlf.domain.accounting.dto.DividendDTO;
 import com.animalfarm.mlf.domain.accounting.dto.RevenueSummaryDTO;
 import com.animalfarm.mlf.domain.token.TokenRepository;
 import com.animalfarm.mlf.domain.token.dto.TokenDTO;
+import com.animalfarm.mlf.domain.user.repository.UserRepository;
+import com.animalfarm.mlf.domain.user.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +30,7 @@ public class DividendService {
 	private final RevenueSummaryRepository summaryRepo; // 정산 데이터 조회용
 	private final TokenRepository tokenRepository; // 토큰 발행량 조회용
 	private final DividendRepository dividendRepository;
+	private final UserRepository userRepository;
 
 	public void runDividendBatch(Long projectId) throws Exception {
 		// rsId를 기반으로 정산 요약 정보 조회 (DB에서 직접 가져옴)
@@ -73,11 +78,14 @@ public class DividendService {
 	}
 
 	@Transactional
-	public void processUserSelection(Long dividendId, String dividendType) throws Exception {
+	public void processUserSelection(Long dividendId, String dividendType, String address) throws Exception {
 		Long curUserId = SecurityUtil.getCurrentUserId();
 		DividendDTO dividend = getDividendByID(dividendId);
 		if (!curUserId.equals(dividend.getUserId())) {
 			throw new Exception("투자자 본인만 결정할 수 있습니다.");
+		}
+		if ("CROP".equals(dividendType) && address != null && !address.trim().isEmpty()) {
+			userRepository.updateAddress(address, curUserId);
 		}
 		dividendRepository.updateUserSelection(dividendId, dividendType);
 	}

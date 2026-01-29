@@ -45,6 +45,8 @@
 			alias="revenueSummaryDTO" />
 		<typeAlias type="com.animalfarm.mlf.domain.accounting.dto.DividendDTO"
 			alias="dividendDTO" />
+		<typeAlias type="com.animalfarm.mlf.domain.user.dto.UserDTO"
+			alias="userDTO" />
 			
 	</typeAliases>
 	

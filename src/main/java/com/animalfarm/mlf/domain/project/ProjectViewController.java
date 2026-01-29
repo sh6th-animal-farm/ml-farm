@@ -63,8 +63,6 @@ public class ProjectViewController {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 		String formattedDate = dividend.getPollEndDate().format(formatter);
 		model.addAttribute("pollEndDisplay", formattedDate);
-		String curAddress = userService.selectAddress();
-		model.addAttribute("curAddress", curAddress);
 		return "layout";
 	}
 }

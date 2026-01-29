@@ -6,7 +6,7 @@
 	namespace="com.animalfarm.mlf.domain.user.repository.UserRepository">
 
 	<select id="findByEmail"
-		resultType="com.animalfarm.mlf.domain.user.dto.UserDTO">
+		resultType="userDTO">
 		SELECT
 		user_id,
 		email,
@@ -42,5 +42,10 @@
         SET address = #{address}
         WHERE user_id = #{userId}
     </update>
+    
+    <select id="getUserById" resultType="userDTO">
+    	SELECT * from users
+    	WHERE user_id = #{userId}
+    </select>
 
 </mapper>

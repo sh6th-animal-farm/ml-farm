@@ -33,8 +33,6 @@ public class ProjectController {
 	ProjectService projectService;
 	@Autowired
 	DividendService dividendService;
-	@Autowired
-	UserService userService;
 
 	@InitBinder
 	protected void initBinder(WebDataBinder binder) {
@@ -144,10 +142,7 @@ public class ProjectController {
 		String dividendType = dividendSelectDTO.getDividendType();
 		String address = dividendSelectDTO.getAddress();
 		try {
-			dividendService.processUserSelection(dividendId, dividendType);
-			if ("CROP".equals(dividendSelectDTO.getDividendType()) && address != null && !address.trim().isEmpty()) {
-				userService.insertAddress(address);
-			}
+			dividendService.processUserSelection(dividendId, dividendType, address);
 			// 성공 시 성공 메시지 반환
 			return ResponseEntity.ok("수령 방식 선택이 완료되었습니다.");
 		} catch (Exception e) {

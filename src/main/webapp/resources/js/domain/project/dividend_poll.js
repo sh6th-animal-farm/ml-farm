@@ -1,3 +1,4 @@
+import { AuthApi } from "../../api/auth_api.js";
 import { ProjectApi } from "./project_api.js";
 
 window.selectType = function (type, element) {
@@ -21,8 +22,11 @@ document.getElementById("pollForm").onsubmit = async function (e) {
   } else {
     if (!confirm(typeName + " 수령으로 확정하시겠습니까?")) return;
 
+  const dividendIdEl = document.querySelector('input[name="dividendId"]');
+  const dividendId = dividendIdEl ? dividendIdEl.value : null;
+
     const requestData = {
-      dividendId: this.dividendId.value,
+      dividendId: dividendId,
       dividendType: selectedType,
     };
 
@@ -92,23 +96,20 @@ window.combineAddress = function () {
 
 // 모달 내 확정 클릭 시 실행
 window.confirmCropSelection = async function () {
-  const isEditMode =
-    document.getElementById("addressInputArea").style.display === "block";
   let finalAddress = document.getElementById("displayAddress").innerText;
 
-  if (isEditMode) {
-    finalAddress = document.getElementById("newAddress").value;
-    if (!finalAddress.trim()) {
-      alert("새로운 주소를 입력해주세요.");
-      return;
-    }
+  if (!finalAddress.trim() || finalAddress==="주소 등록이 필요합니다.") {
+    alert("새로운 주소를 입력해주세요.");
+    return;
   }
 
   if (!confirm(`입력하신 주소(${finalAddress})로 배송을 확정하시겠습니까?`))
     return;
+  const dividendIdEl = document.querySelector('input[name="dividendId"]');
+  const dividendId = dividendIdEl ? dividendIdEl.value : null;
 
   const requestData = {
-    dividendId: this.dividendId.value,
+    dividendId: dividendId,
     dividendType: "CROP",
     address: finalAddress, // 주소 정보 포함
   };
@@ -132,3 +133,17 @@ async function sendSelection(data) {
 window.closeAddressModal = function () {
   document.getElementById("addressModal").style.display = "none";
 };
+
+document.addEventListener("DOMContentLoaded", async ()=>{
+  let user = null;
+  try{
+    user = await AuthApi.getUser();
+    if (!user) {
+      location.href = ctx + "/auth/login"
+    }
+  } catch (e) {
+      location.href = ctx + "/auth/login"
+  }
+
+  document.getElementById("displayAddress").innerText = user.address || "주소 등록이 필요합니다.";
+})

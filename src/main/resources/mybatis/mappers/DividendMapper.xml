@@ -40,15 +40,19 @@
 	</select>
 	
 	<update id="updateUserSelection">
-	    UPDATE dividends
+		UPDATE dividends
 	    SET
 	        status = 'DECIDED',
 	        dividend_type = #{dividendType},
-	        paid_amount = amount_aft_tax,
+	        /* 방식이 CROP이면 0, 그 외(CASH)에는 원래 금액 저장 */
+	        paid_amount = CASE 
+	                        WHEN #{dividendType} = 'CROP' THEN 0 
+	                        ELSE amount_aft_tax 
+	                      END,
 	        selection_at = CURRENT_TIMESTAMP
 	    WHERE
-	    	dividend_id = #{dividendId}
-	      	AND status = 'POLLING'
+	        dividend_id = #{dividendId}
+	        AND status = 'POLLING'
     </update>
 	
 </mapper>

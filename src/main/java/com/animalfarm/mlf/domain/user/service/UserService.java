@@ -85,9 +85,12 @@ public class UserService {
 		return userRepository.selectAddress(SecurityUtil.getCurrentUserId());
 	}
 
-	@Transactional
-	public void insertAddress(String address) {
+	public void updateAddress(String address) {
 		Long userId = SecurityUtil.getCurrentUserId();
-		userRepository.insertAddress(address, userId);
+		userRepository.updateAddress(address, userId);
+	}
+
+	public UserDTO getUserById(Long userId) {
+		return userRepository.getUserById(userId);
 	}
 }

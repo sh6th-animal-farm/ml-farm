@@ -65,7 +65,7 @@
             <div class="address-section">
                 <div class="current-address-box">
                     <span id="displayAddress">
-                        ${not empty curAddress ? curAddress : '등록된 주소가 없습니다.'}
+                        등록된 주소가 없습니다.
                     </span>
                     
                     <button type="button" class="btn-edit-address" onclick="toggleAddressEdit()">
