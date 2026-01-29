@@ -80,7 +80,7 @@ public class ExternalApiUtil {
 				throw new RuntimeException(apiResponse.getMessage());
 			} catch (Exception parseException) {
 				// 파싱 실패 시 기본 에러 메시지
-				throw new RuntimeException("증권사 서비스 오류가 발생했습니다. (Status: " + e.getRawStatusCode() + ")");
+				throw new RuntimeException("서비스 오류가 발생했습니다. (Status: " + e.getRawStatusCode() + ")");
 			}
 
 		} catch (Exception e) {
