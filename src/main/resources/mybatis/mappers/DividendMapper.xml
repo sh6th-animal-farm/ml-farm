@@ -39,4 +39,16 @@
 		where dividend_id = #{dividendId}
 	</select>
 	
+	<update id="updateUserSelection">
+	    UPDATE dividends
+	    SET
+	        status = 'DECIDED',
+	        dividend_type = #{dividendType},
+	        paid_amount = amount_aft_tax,
+	        selection_at = CURRENT_TIMESTAMP
+	    WHERE
+	    	dividend_id = #{dividendId}
+	      	AND status = 'POLLING'
+    </update>
+	
 </mapper>

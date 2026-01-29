@@ -4,6 +4,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/project_poll.css">
+<script type="module" src="${pageContext.request.contextPath}/resources/js/domain/project/dividend_poll.js"></script>
 
 <div class="poll-container">
     <h2 class="poll-title">배당 수령 방식 선택</h2>
@@ -15,7 +16,7 @@
         </p>
     </div>
 
-    <form id="pollForm" action="/accounting/dividend/select" method="post">
+    <form id="pollForm" >
         <input type="hidden" name="dividendId" value="${dividend.dividendId}">
         <input type="hidden" id="selectedType" name="dividendType" value="CASH">
 
@@ -47,19 +48,3 @@
         <button type="submit" class="submit-button">선택 완료</button>
     </form>
 </div>
-
-<script>
-    function selectType(type, element) {
-        // 모든 카드에서 active 제거
-        document.querySelectorAll('.card-choice').forEach(card => card.classList.remove('active'));
-        // 클릭한 카드에 active 추가
-        element.classList.add('active');
-        // hidden input 업데이트
-        document.getElementById('selectedType').value = type;
-    }
-
-    document.getElementById('pollForm').onsubmit = function() {
-        const typeName = document.getElementById('selectedType').value === 'CASH' ? "현금" : "작물";
-        return confirm(typeName + " 수령으로 확정하시겠습니까?");
-    };
-</script>

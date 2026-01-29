@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.animalfarm.mlf.domain.accounting.DividendService;
+import com.animalfarm.mlf.domain.accounting.dto.DividendSelectDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectDetailDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectInsertDTO;
@@ -132,4 +133,20 @@ public class ProjectController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
+
+	@PostMapping("/dividend/poll/select")
+	public ResponseEntity<String> selectDividendType(@RequestBody
+	DividendSelectDTO dividendSelectDTO) {
+		try {
+			dividendService.processUserSelection(
+				dividendSelectDTO.getDividendId(),
+				dividendSelectDTO.getDividendType());
+			// 성공 시 성공 메시지 반환
+			return ResponseEntity.ok("수령 방식 선택이 완료되었습니다.");
+		} catch (Exception e) {
+			// 실패 시 에러 메시지와 함께 400 또는 500 에러 반환
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+
 }

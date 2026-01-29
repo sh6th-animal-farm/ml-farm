@@ -5,7 +5,9 @@ import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.animalfarm.mlf.common.security.SecurityUtil;
 import com.animalfarm.mlf.domain.accounting.dto.DividendDTO;
 import com.animalfarm.mlf.domain.accounting.dto.RevenueSummaryDTO;
 import com.animalfarm.mlf.domain.token.TokenRepository;
@@ -68,6 +70,16 @@ public class DividendService {
 
 	public DividendDTO getDividendByID(Long dividendId) {
 		return dividendRepository.selectById(dividendId);
+	}
+
+	@Transactional
+	public void processUserSelection(Long dividendId, String dividendType) throws Exception {
+		Long curUserId = SecurityUtil.getCurrentUserId();
+		DividendDTO dividend = getDividendByID(dividendId);
+		if (!curUserId.equals(dividend.getUserId())) {
+			throw new Exception("투자자 본인만 결정할 수 있습니다.");
+		}
+		dividendRepository.updateUserSelection(dividendId, dividendType);
 	}
 
 }
