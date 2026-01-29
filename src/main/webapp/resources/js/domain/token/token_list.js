@@ -5,7 +5,15 @@ WebSocketManager.connect('http://localhost:9090/ws-stomp', function () {
 
     // 1. 전체 토큰 리스트 구독
     WebSocketManager.subscribe('list', '/topic/tokenList', function (data) {
-        const row = document.getElementById(`token-row-${data.tokenId}`);
+        let row = document.getElementById(`token-row-${data.tokenId}`);
+        if(!row) {
+            row = createNewTokenRow(data);
+            const tbody = document.querySelector('.token_table_main tbody');
+            const emptyRow = tbody.querySelector('td[colspan]');
+            if (emptyRow) emptyRow.parentElement.remove();
+
+            tbody.appendChild(row);
+        }
         updateTokenRow(row, data);
     });
 
@@ -25,17 +33,16 @@ function updateTokenRow(row, data) {
     const rateBadge = row.querySelector('.rate-badge');     // 등락률
     const volumeEl = row.querySelector('.daily-volume');    // 거래대금
 
-    let direction = null;
-
     // 현재가
     if (priceEl) {
         const oldPrice = parseFloat(priceEl.innerText.replace(/[^0-9.-]+/g, ""));
         const newPrice = data.marketPrice;
-
         const isChanged = oldPrice !== newPrice;
         priceEl.innerText = newPrice.toLocaleString();
+
         if (rateEl && rateBadge) {
-            const rate = Number(data.changeRate);
+            const rate = Number(data.changeRate) || 0;
+
             rateBadge.innerText = (rate > 0 ? '+' : '') + rate.toFixed(2) + '%';
             rateEl.classList.remove('text-plus', 'text-minus');
 
@@ -93,22 +100,85 @@ function formatVolume(value) {
 // 거래대금 순 정렬
 function reorderTable() {
     const tbody = document.querySelector('.token_table_main tbody');
-    if (!tbody) {
-        return;
-    }
+    if (!tbody) return;
+    const rows = Array.from(tbody.querySelectorAll('tr[id^="token-row-"]'));
 
-    const  rows = Array.from(tbody.querySelectorAll('tr[id^="token-row-"]'));
-
+    // 1. 현재 화면상의 Top 위치 기록 (First)
+    const firstPositions = new Map();
+    rows.forEach(row => firstPositions.set(row.id, row.getBoundingClientRect().top));
+    // 2. 정렬 로직
     rows.sort((a, b) => {
-       const volA = parseFloat(a.querySelector('.daily-volume')?.getAttribute('data-value') || 0);
-       const volB = parseFloat(b.querySelector('.daily-volume')?.getAttribute('data-value') || 0);
-       return volB - volA;
+        const volA = parseFloat(a.querySelector('.daily-volume')?.getAttribute('data-value') || 0);
+        const volB = parseFloat(b.querySelector('.daily-volume')?.getAttribute('data-value') || 0);
+        return volB - volA;
     });
-
+    // 3. DOM 순서 변경 및 순위 업데이트 (Last)
     rows.forEach((row, index) => {
-        tbody.appendChild(row);
         const rankEl = row.querySelector('.ranking-num');
-        if (rankEl) rankEl.innerText = index + 1;
+        const oldRank = rankEl ? parseInt(rankEl.innerText) : 0;
+        const newRank = index + 1;
+
+        if (rankEl && oldRank !== newRank) {
+            rankEl.innerText = newRank;
+            // 순위 숫자 팝 효과
+            rankEl.style.display = 'inline-block';
+            rankEl.style.transition = 'transform 0.3s';
+            rankEl.style.transform = 'scale(1.4)';
+            setTimeout(() => rankEl.style.transform = 'scale(1)', 300);
+
+            // 색상 하이라이트 (상승/하락)
+            if (oldRank !== 0) {
+                const highlight = oldRank > newRank ? 'rank-up-highlight' : 'rank-down-highlight';
+                row.classList.add(highlight);
+                setTimeout(() => row.classList.remove(highlight), 1000);
+            }
+        }
+        tbody.appendChild(row);
+    });
+    // 4. 역변환 애니메이션 (Invert & Play)
+    requestAnimationFrame(() => {
+        rows.forEach(row => {
+            const firstTop = firstPositions.get(row.id);
+            const lastTop = row.getBoundingClientRect().top;
+            const deltaY = firstTop - lastTop;
+
+            if (deltaY !== 0) {
+                row.style.transition = 'none';
+                row.style.transform = `translateY(${deltaY}px)`;
+
+                requestAnimationFrame(() => {
+                    row.style.transition = 'transform 0.6s cubic-bezier(0.2, 0, 0, 1)';
+                    row.style.transform = 'translateY(0)';
+                });
+            }
+        });
     });
 }
+
+function createNewTokenRow(data) {
+    const tr = document.createElement('tr');
+    tr.id = `token-row-${data.tokenId}`;
+
+    tr.innerHTML = `
+        <td class="tx-center ranking-num">-</td>
+        <td>
+            <div class="token-name">${data.tokenName}</div>
+            <div class="token-code">${data.tickerSymbol}</div>
+        </td>
+        <td class="tx-right">
+            <div class="token-name market-price">0</div>
+        </td>
+        <td class="tx-right change-rate">
+            <span class="rate-badge">0.00%</span>
+        </td>
+        <td class="token-amount tx-right daily-volume" data-value="0">0</td>
+    `;
+
+    tr.addEventListener('click', () => {
+        location.href = `/token/${data.tokenId}`;
+    });
+
+    return tr;
+}
+
 

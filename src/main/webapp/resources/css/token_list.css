@@ -1,7 +1,3 @@
-/* ============================================================================
-   TOKEN LIST PAGE STYLES - 최적화 버전
-   ============================================================================ */
-
 /* 1. 기본 레이아웃 및 컨테이너 */
 .token-list-container {
     padding-block: 40px;
@@ -9,46 +5,38 @@
     margin: 0 auto;
     font-family: 'Pretendard', sans-serif;
 }
-
 .content-wrapper {
     display: flex;
     gap: 24px;
     align-items: flex-start;
 }
-
-/* 2. 상단 헤더 섹션 (제목 + 검색창) */
+.left-column { flex: 2; min-width: 0; }
+.right-column { flex: 1; min-width: 416px; }
+/* 2. 상단 헤더 섹션 */
 .header-flex {
+    display: flex;
     justify-content: space-between;
     align-items: flex-end;
     margin-bottom: 24px;
 }
-
 .section-header h2 {
     font: var(--font-header-01);
     font-weight: 600;
     color: var(--gray-900);
     margin: 0;
 }
-
-/* 3. 검색창 - 우측 차트 카드 너비(416px)에 고정 */
-.search_box {
-    flex: 1;
-    display: flex;
-    justify-content: flex-end;
-}
-
+/* 3. 검색창 */
 .search_box .background-border {
     display: flex;
     align-items: center;
     background: #FFFFFF;
     border: 1px solid var(--gray-100);
-    border-radius: 999px; /* Radius Full */
+    border-radius: 999px;
     padding: 10px 24px;
     width: 100%;
     max-width: 416px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
-
 .search_box .input {
     flex: 1;
     border: none;
@@ -57,57 +45,107 @@
     color: var(--gray-900);
     background: transparent;
 }
-
-/* 4. 컬럼 배분 */
-.left-column { flex: 2; min-width: 0; }
-.right-column { flex: 1; min-width: 416px; }
-
-/* 5. 공통 카드 스타일 (리스트 & 차트) */
+/* 4. 카드 및 컨테이너 스타일 */
 .table-token-list-wrapper, .chart-view-card {
     background-color: #ffffff;
     border-radius: 12px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
-    border: none;
 }
-
-/* 6. 테이블 요소 간소화 */
+.token-table-scroll-container {
+    flex: 1;
+    max-height: 100vh;
+    overflow-y: auto;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    background: #fff;
+    position: relative;
+    border: 1px solid var(--gray-100);
+}
+/* 5. 테이블 레이아웃 (Flex 기반 - 애니메이션 지원) */
 .token_table_main {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
 }
-
-.token_table_main th {
-    padding: 16px;
+/* 헤더와 바디의 행 구조를 동일하게 만듬 */
+.token_table_main thead tr,
+.token_table_main tbody tr {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    border-bottom: 1px solid var(--gray-50);
+}
+.token_table_main th,
+.token_table_main td {
+    display: block;
+    flex-shrink: 0;
+    padding: 16px 8px;
+    box-sizing: border-box;
+}
+/* [중요] 컬럼 너비 강제 고정 (애니메이션 이동 시 비틀림 방지) */
+.token_table_main th:nth-child(1), .token_table_main td:nth-child(1) { width: 80px; text-align: center; } /* 순위 */
+.token_table_main th:nth-child(2), .token_table_main td:nth-child(2) { flex: 1; min-width: 150px; text-align: left; } /* 종목 */
+.token_table_main th:nth-child(3), .token_table_main td:nth-child(3) { width: 160px; text-align: right; } /* 현재가 */
+.token_table_main th:nth-child(4), .token_table_main td:nth-child(4) { width: 120px; text-align: right; } /* 등락률 */
+.token_table_main th:nth-child(5), .token_table_main td:nth-child(5) { width: 180px; text-align: right; padding-right: 24px !important; } /* 거래대금 */
+/* 6. 테이블 상세 스타일 */
+.token_table_main thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
     background-color: #FAFAFA;
     color: var(--gray-400);
     font-size: 14px;
     font-weight: 500;
-    text-align: left;
-    border-bottom: 1px solid var(--gray-100);
 }
-
-.token_table_main td {
-    padding: 20px 16px;
-    border-bottom: 1px solid var(--gray-50);
-    vertical-align: middle;
-}
-
-.row:hover { background-color: var(--gray-50); cursor: pointer; }
-
-.search-icon-btn {
-    right: 20px;
-    top: 50%;
-    background: none;
-    border: none;
+.token_table_main tbody tr {
+    will-change: transform;
     cursor: pointer;
+    background-color: #fff;
+    transition: background-color 0.3s ease;
 }
+.token_table_main tbody tr:hover { background-color: var(--gray-50); }
+/* 텍스트 스타일 통합 */
+.token_table_main .token-name { font: var(--font-body-03); color: var(--gray-900); }
+.token_table_main .token-code { font: var(--font-caption-01); color: var(--gray-400); }
+.token_table_main .market-price { font-weight: 700; }
+.tx-right { text-align: right; }
+.text-plus { color: var(--error) !important; }
+.text-minus { color: var(--info) !important; }
+/* 7. 특수 요소 및 애니메이션 */
 .rate-badge {
     display: inline-block;
-    padding: 2px 8px;   /* 토스처럼 적당한 여백 */
-    border-radius: 4px; /* 둥근 모서리 */
+    padding: 2px 8px;
+    border-radius: 4px;
     transition: background-color 0.6s ease-out;
-    min-width: 80px;    /* 숫자가 변해도 너비가 출렁이지 않게 고정(선택사항) */
+    min-width: 80px;
     text-align: right;
     font: var(--font-body-03);
     font-weight: 700;
+}
+/* 순위 변동 하이라이트 효과 */
+.rank-up-highlight { animation: rank-up-glow 1s ease-out forwards; }
+.rank-down-highlight { animation: rank-down-glow 1s ease-out forwards; }
+@keyframes rank-up-glow {
+    0% { background-color: rgba(255, 75, 75, 0.15); }
+    100% { background-color: transparent; }
+}
+@keyframes rank-down-glow {
+    0% { background-color: rgba(75, 130, 255, 0.15); }
+    100% { background-color: transparent; }
+}
+/* 스크롤바 커스텀 */
+.token-table-scroll-container::-webkit-scrollbar { width: 6px; }
+.token-table-scroll-container::-webkit-scrollbar-thumb {
+    background: var(--gray-300);
+    border-radius: 10px;
+}
+
+/* 데이터 없을 때 (Empty State) 대응 */
+.token_table_main tbody tr:has(td[colspan]) {
+    display: block !important;
+}
+.token_table_main tbody tr td[colspan] {
+    width: 100% !important;
+    text-align: center;
 }
