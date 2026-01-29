@@ -1,6 +1,6 @@
 package com.animalfarm.mlf.domain.carbon;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,9 +12,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/carbon")
 public class CarbonViewController {
 
-	@Autowired
-	private CarbonService carbonService;
-
 	@GetMapping("/list")
 	public String carbonListPage(
 		@RequestParam(value = "category", required = false)
@@ -22,15 +19,22 @@ public class CarbonViewController {
 		Model model) {
 		model.addAttribute("contentPage", "/WEB-INF/views/carbon/carbon_list.jsp");
 		model.addAttribute("activeMenu", "carbon-market");
-		model.addAttribute("carbonList", carbonService.selectByCondition(category));
 
 		return "layout";
 	}
 
+	@Value("${portone.imp-code}")
+	private String portoneImpCode;
+
+	@Value("${portone.channel-key}")
+	private String portoneChannelKey;
+
 	@GetMapping("/{id}")
 	public String carbonDetailPage(@PathVariable
 	Long id, Model model) {
-		model.addAttribute("cpId", id); // JS에서 API 호출할 때 쓰라고 넘겨줌
+		model.addAttribute("cpId", id);
+		model.addAttribute("portoneImpCode", portoneImpCode);
+		model.addAttribute("portoneChannelKey", portoneChannelKey);
 		model.addAttribute("contentPage", "/WEB-INF/views/carbon/carbon_detail.jsp");
 		model.addAttribute("activeMenu", "carbon");
 		return "layout";

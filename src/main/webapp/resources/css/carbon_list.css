@@ -1,21 +1,190 @@
 @charset "UTF-8";
 
+/* 헤더 상단 정렬 */
+.carbon-header {
+    display: flex;
+    justify-content: space-between; 
+    align-items: flex-start;       
+    margin-bottom: 24px;
+}
+
+/* 물음표 아이콘 기본 (회색) */
+.help-circle {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 24px; height: 24px; background: #e0e0e0; color: #fff;
+    border-radius: 50%; font-size: 14px; cursor: pointer;
+    transition: all 0.2s; vertical-align: middle; margin-left: 10px; z-index: 101;
+}
+
+/* [핵심] 활성화 시 녹색으로 변경 */
+.help-circle.active {
+    background-color: var(--green-600); /* 진한 녹색 */
+}
+
+.market-title { display: flex; align-items: center; }
+
+/* [중요] 툴팁의 기준점이 될 컨테이너 */
+.guide-container {
+    position: relative;
+    display: inline-flex;
+    margin-left: 8px;
+    font-weight: normal; 
+    letter-spacing: normal;
+    line-height: normal;
+}
+
+/* 툴팁 컨테이너 */
+.guide-tooltip {
+    position: absolute;
+    top: 40px;    /* 아이콘 바로 아래 배치 */
+    left: -15px;    
+    width: 400px;
+    background: #fff;
+    border-radius: 24px;
+    box-shadow: 0 15px 50px rgba(0,0,0,0.15);
+    z-index: 9999;
+    padding: 35px;
+
+    /* [핵심] 툴팁 내부 텍스트 전체 리셋 */
+    font-size: 14px !important;
+    font-weight: 400 !important;
+    color: #333 !important;
+    text-align: left;
+    line-height: 1.5;
+}
+
+/* 말풍선 꼬리 */
+.guide-tooltip::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 25px;     /* 아이콘 위치에 맞게 꼬리 이동 */
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-bottom: 10px solid #fff;
+}
+
+/* 툴팁 내부 제목 스타일 (탄소마켓이란?, 구매 할인 정책) */
+.tooltip-content h3 { 
+    display: block;
+    font-size: 20px !important; /* 시안 기준 큰 제목 */
+    font-weight: 800 !important; 
+    color: #111 !important;
+    margin-bottom: 12px;
+    padding: 0;
+}
+
+/* 툴팁 내부 설명 문구 */
+.tooltip-content p { 
+    font-size: 15px !important; 
+    color: #444 !important; 
+    line-height: 1.6 !important; 
+    margin-bottom: 25px; 
+    font-weight: 400 !important;
+}
+
+
+/* 할인 정보 테이블 행 스타일 */
+.discount-info .row { 
+    display: flex; 
+    justify-content: space-between; 
+    padding: 12px 0; 
+    padding-left: 10px;
+    border: none;
+    width: 340px;
+    font-size: 15px !important;
+}
+
+/* 테이블 첫 줄(헤더) 색상 연하게 */
+.discount-info .row:first-child {
+    color: #888;
+    font-weight: 500 !important;
+    margin-top: 5px;
+}
+
+.discount-info .row:not(:first-child) {
+    border-bottom: none;
+    padding: 8px 0;
+    padding-left: 10px;
+}
+
+/* 빨간색 할인율 강조 */
+.discount-info .percent { 
+    color: #ff4d4f !important; 
+    font-weight: 700 !important; 
+}
+
+.mt-20 { margin-top: 25px; }
+
+.header-left {
+    display: flex;
+    flex-direction: column;
+}
+
+.carbon-header h2 {
+    margin: 0 0 8px 0;
+    font-size: 32px;
+    letter-spacing: -0.5px;
+}
+
+.carbon-header p {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+}
+
+/* 오른쪽 버튼 스타일 */
+.btn-history {
+    font: var(--font-button-02);
+    color: var(--green-700);
+    border: 1px solid var(--green-200);
+    padding: 10px 20px;
+    border-radius: var(--radius-s);
+    background: #fff;
+    white-space: nowrap;
+    margin-top: 5px;
+    transition: all 0.2s ease;
+}
+
+.btn-history:hover {
+    background-color: var(--green-50);
+}
+
+.filter-group .menu-btn {
+    padding: 8px 18px;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--gray-200);
+    background: #fff;
+    color: var(--gray-500);
+    font: var(--font-caption-02);
+    cursor: pointer;
+    transition: all 0.25s ease; /* 부드러운 변화 */
+}
+
+/* 마우스를 올렸을 때 (Hover) - 연한 녹색 */
+.filter-group .menu-btn:hover {
+    background-color: var(--green-50);
+    color: var(--green-700);
+    border-color: var(--green-200);
+}
+
+/* 클릭되어 활성화되었을 때 (Active) - 진한 녹색 */
+.filter-group .menu-btn.active {
+    background-color: var(--green-600) !important;
+    color: #fff !important;
+    border-color: var(--green-600) !important;
+    font-weight: 700;
+}
+
+/* 활성화 상태에서 호버 시 스타일 유지 */
+.filter-group .menu-btn.active:hover {
+    background-color: var(--green-700) !important;
+}
+
 .carbon-page{
   max-width: 1400px;
   margin: 0 auto;
-  padding: 18px 6px 50px;
-}
-
-.carbon-header h2{
-  margin: 8px 0 6px;
-  font-size: 32px;
-  letter-spacing: -0.5px;
-}
-
-.carbon-header p{
-  margin: 0 0 14px;
-  color: #666;
-  font-size: 14px;
+  padding: 64px 6px 120px;
 }
 
 /* controls */
@@ -24,7 +193,7 @@
   align-items:center;
   justify-content: space-between;
   gap: 12px;
-  margin-top: 10px;
+  margin-top: 48px;
 }
 
 .filter-group{
