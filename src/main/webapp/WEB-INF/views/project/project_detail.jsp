@@ -129,7 +129,8 @@
 		    projectId="${projectData.projectId}"
 		    price="${projectData.totalSupply > 0 ? (projectData.targetAmount / projectData.totalSupply) : 0}"
 		    thumbnail="${pageContext.request.contextPath}/uploads/projects/${projectData.images[0]}"
-		    userLimit="40000000"
+		    userLimit="5000000000"
+		    minAmountPerInvestor="${projectData.minAmountPerInvestor}"
 		    walletBalance="0"
 		    tokenId="${tokenId}"
 		/>

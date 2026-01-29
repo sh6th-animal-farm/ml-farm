@@ -206,7 +206,7 @@ public class SubscriptionService {
 					System.out.println(rate + " 프로젝트 폐기");
 					projectCanceled(data);
 					selectAndAllCancel(projectId);
-					//tokenClosed(tokenId);
+					tokenClosed(tokenId);
 				} else if (rate.compareTo(rate70) >= 0 && rate.compareTo(rate90) < 0) {
 					if (extensionCount == 0) {
 						System.out.println(rate + " 프로젝트 종료일 +2일");
@@ -216,7 +216,7 @@ public class SubscriptionService {
 						System.out.println("프로젝트 폐기");
 						projectCanceled(data);
 						selectAndAllCancel(projectId);
-						//tokenClosed(tokenId);
+						tokenClosed(tokenId);
 					}
 				} else if (rate.compareTo(rate90) >= 0 && rate.compareTo(rate100) < 0) {
 					//마리팜이 충당할 가격
