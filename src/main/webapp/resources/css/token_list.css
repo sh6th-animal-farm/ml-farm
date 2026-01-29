@@ -25,26 +25,7 @@
     color: var(--gray-900);
     margin: 0;
 }
-/* 3. 검색창 */
-.search_box .background-border {
-    display: flex;
-    align-items: center;
-    background: #FFFFFF;
-    border: 1px solid var(--gray-100);
-    border-radius: 999px;
-    padding: 10px 24px;
-    width: 100%;
-    max-width: 416px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-}
-.search_box .input {
-    flex: 1;
-    border: none;
-    outline: none;
-    font-size: 16px;
-    color: var(--gray-900);
-    background: transparent;
-}
+
 /* 4. 카드 및 컨테이너 스타일 */
 .table-token-list-wrapper, .chart-view-card {
     background-color: #ffffff;
@@ -148,4 +129,55 @@
 .token_table_main tbody tr td[colspan] {
     width: 100% !important;
     text-align: center;
+}
+
+.search_box {
+    width: 100%;
+    max-width: 416px; /* right-column의 min-width와 동일하게 설정  */
+    margin-left: auto; /* 우측 정렬  */
+}
+
+.search_box .background-border {
+    display: flex;
+    align-items: center;
+    background: #FFFFFF;
+    border: 1px solid var(--gray-100);
+    border-radius: var(--radius-xl); /* 999px 캡슐형 */
+    padding: 8px 20px 8px 24px;   /* 이미지 비율에 맞춘 패딩 */
+    width: 100%;
+    max-width: 416px;
+    box-shadow: var(--shadow);    /* 가이드의 그림자 적용 */
+    transition: border-color 0.2s;
+}
+
+.search_box .background-border:focus-within {
+    border-color: var(--green-500);
+}
+
+.search_box .input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font: var(--font-body-01);    /* 16px Regular */
+    color: var(--gray-900);
+    background: transparent;
+}
+
+.search_box .input::placeholder {
+    color: var(--gray-300);
+}
+
+.search-icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s;
+}
+
+.search-icon-btn:hover {
+    opacity: 0.7;
 }

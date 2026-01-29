@@ -23,21 +23,7 @@ public class ExternalApiUtil {
 	private final RestTemplate restTemplate;
 	private final ObjectMapper objectMapper;
 
-<<<<<<< HEAD
-    /**
-     * 외부 API 호출 공통 메서드
-     * @param url 호출 주소
-     * @param method HttpMethod (GET, POST 등)
-     * @param body 요청 바디 (없으면 null)
-     * @param responseType ParameterizedTypeReference (제네릭 타입 보존용)
-     */
-    public <T> T callApi(String url, HttpMethod method, Object body, ParameterizedTypeReference<ApiResponse<T>> responseType) {
 
-        // 1. 헤더 설정 (JSON 통신 표준화)
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<Object> entity = new HttpEntity<>(body, headers);
-=======
 	/**
 	 * 기본 호출 메서드 (멱등성 키가 없는 경우)
 	 */
@@ -45,7 +31,6 @@ public class ExternalApiUtil {
 		ParameterizedTypeReference<ApiResponse<T>> responseType) {
 		return callApi(url, method, body, responseType, null); // 마지막 인자로 null 전달
 	}
->>>>>>> develop
 
 	/**
 	 * 외부 API 호출 공통 메서드
