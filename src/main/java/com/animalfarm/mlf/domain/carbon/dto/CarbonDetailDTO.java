@@ -27,4 +27,5 @@ public class CarbonDetailDTO {
 	private String addressStreet;
 	private String addressDetails;
 	private String farmName;
+	private String thumbnailUrl;
 }

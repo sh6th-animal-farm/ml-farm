@@ -4,21 +4,23 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import com.animalfarm.mlf.common.ApiResponseDTO;
-import com.animalfarm.mlf.common.security.CustomUser;
+import com.animalfarm.mlf.common.security.SecurityUtil;
 import com.animalfarm.mlf.domain.carbon.dto.CarbonDetailDTO;
 import com.animalfarm.mlf.domain.carbon.dto.CarbonDiscountDTO;
 import com.animalfarm.mlf.domain.carbon.dto.CarbonListDTO;
+import com.animalfarm.mlf.domain.carbon.dto.CarbonOrderCompleteDTO;
+import com.animalfarm.mlf.domain.carbon.dto.CarbonOrderResponseDTO;
 import com.animalfarm.mlf.domain.carbon.dto.UserBenefitDTO;
 
 @Service
@@ -36,20 +38,6 @@ public class CarbonService {
 	// ---------------------------------------------------------
 	// 1. 공통 유틸리티 메서드 (내부 전용)
 	// ---------------------------------------------------------
-
-	/**
-	 * 시큐리티 세션에서 현재 로그인한 유저의 ID를 가져옵니다.
-	 */
-	private Long getLoginUserId() {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-		if (auth == null || !(auth.getPrincipal() instanceof CustomUser)) {
-			throw new RuntimeException("로그인 정보가 만료되었습니다. 다시 로그인해주세요.");
-		}
-		CustomUser user = (CustomUser)auth.getPrincipal();
-
-		return user.getUserId();
-	}
 
 	/**
 	 * [API 호출] 강황증권으로부터 유저의 전체 지분 리스트를 가져옵니다.
@@ -76,6 +64,33 @@ public class CarbonService {
 		} catch (Exception e) {
 			System.out.println("[ERROR] 강황증권 API 통신 실패: " + e.getMessage());
 			return new ArrayList<>();
+		}
+	}
+
+	/**
+	 * [API 호출] 강황증권으로부터 유저의 주문 가능 금액(available_balance)을 가져옵니다.
+	 * 엔드포인트: GET /api/order/balance?user_id=...
+	 */
+	public BigDecimal fetchAvailableBalance(Long walletId) {
+		try {
+			String url = GANGHWANG_API_URL + "api/order/balance/" + walletId;
+
+			ResponseEntity<String> responseEntity = restTemplate.exchange(
+				url,
+				HttpMethod.GET,
+				null,
+				String.class);
+
+			String body = responseEntity.getBody();
+			if (body == null || body.trim().isEmpty()) {
+				throw new RuntimeException("강황증권 주문 가능 금액 응답이 비어있습니다.");
+			}
+
+			return new BigDecimal(body.trim());
+
+		} catch (Exception e) {
+			throw new RuntimeException(
+				"강황증권 주문 가능 금액 조회 중 오류가 발생했습니다: " + e.getMessage(), e);
 		}
 	}
 
@@ -139,25 +154,78 @@ public class CarbonService {
 			.build();
 	}
 
+	// 보유 잔고가 있는 토큰 ID만 추출
+	private List<Long> extractMyTokenIds(List<CarbonDiscountDTO> holdings) {
+		return holdings.stream()
+			.filter(h -> h.getMyBalance() != null && h.getMyBalance().compareTo(BigDecimal.ZERO) > 0)
+			.map(CarbonDiscountDTO::getTokenId)
+			.collect(Collectors.toList());
+	}
+
+	// 리스트의 각 상품에 UserBenefitDTO(할인율, 최종가 등) 주입
+	private List<CarbonListDTO> applyBenefitsToList(List<CarbonListDTO> list, List<CarbonDiscountDTO> holdings) {
+		for (CarbonListDTO item : list) {
+			BigDecimal actualAmount = carbonRepository.getActualAmount(item.getProjectId()); // [cite: 2]
+			Long targetTokenId = carbonRepository.getTokenIdByProjectId(item.getProjectId()); // [cite: 2]
+
+			CarbonDiscountDTO myHolding = holdings.stream()
+				.filter(h -> h.getTokenId().equals(targetTokenId))
+				.findFirst().orElse(null);
+
+			// 상세페이지에서 완성한 계산기(processCalculation) 그대로 사용
+			item.setUserBenefit(processCalculation(
+				item.getCpAmount(),
+				item.getCpPrice(),
+				actualAmount,
+				myHolding));
+		}
+		return list;
+	}
+
 	// ---------------------------------------------------------
 	// 2. 외부 노출용 서비스 메서드 (컨트롤러에서 호출)
 	// ---------------------------------------------------------
 
-	// [전체 조회]
+	// [전체 조회] 로그인 유저의 토큰과 관련된 모든 상품 조회 및 혜택 계산
 	public List<CarbonListDTO> selectAll() {
-		return carbonRepository.selectAll();
+		Long userId = SecurityUtil.getCurrentUserId();
+		Long walletId = carbonRepository.getWalletIdByUserId(userId);
+		List<CarbonDiscountDTO> holdings = fetchAllHoldings(walletId); // 강황증권 API 호출
+
+		List<Long> myTokenIds = extractMyTokenIds(holdings);
+		if (myTokenIds.isEmpty()) {
+			return new ArrayList<>();
+		}
+
+		List<CarbonListDTO> list = carbonRepository.selectAll(myTokenIds);
+		return applyBenefitsToList(list, holdings);
 	}
 
-	// [카테고리 조회]
+	// [카테고리 조회] 카테고리 조건 + 유저 토큰 필터링 및 혜택 계산
 	public List<CarbonListDTO> selectByCondition(String category) {
-		return carbonRepository.selectByCondition(category);
+		if (category == null || "ALL".equalsIgnoreCase(category)) {
+			return selectAll();
+		}
+
+		Long userId = SecurityUtil.getCurrentUserId();
+		Long walletId = carbonRepository.getWalletIdByUserId(userId);
+		List<CarbonDiscountDTO> holdings = fetchAllHoldings(walletId);
+
+		List<Long> myTokenIds = extractMyTokenIds(holdings);
+		if (myTokenIds.isEmpty()) {
+			return new ArrayList<>();
+		}
+
+		// 카테고리와 토큰 ID 리스트를 모두 만족하는 상품 조회
+		List<CarbonListDTO> list = carbonRepository.selectByCondition(category, myTokenIds);
+		return applyBenefitsToList(list, holdings);
 	}
 
 	/**
 	 * [상세 조회] 특정 상품 정보와 유저의 실시간 혜택 계산
 	 */
 	public ApiResponseDTO<CarbonDetailDTO> selectDetail(Long cpId) {
-		Long userId = getLoginUserId();
+		Long userId = SecurityUtil.getCurrentUserId();
 		Long walletId = carbonRepository.getWalletIdByUserId(userId);
 
 		// 1. 마리팜 상품 정보 조회 (여기엔 projectId가 들어있음)
@@ -191,5 +259,116 @@ public class CarbonService {
 			actualAmount, myHolding));
 
 		return new ApiResponseDTO<CarbonDetailDTO>("상품 상세 정보 조회에 성공했습니다.", detail);
+	}
+
+	/**
+	 * [모달용] 주문 견적
+	 */
+	public ApiResponseDTO<CarbonOrderResponseDTO> quoteOrder(Long cpId, BigDecimal amount) {
+
+		if (cpId == null) {
+			throw new IllegalArgumentException("cpId가 필요합니다.");
+		}
+		if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+			throw new IllegalArgumentException("amount는 0보다 커야 합니다.");
+		}
+
+		Long userId = SecurityUtil.getCurrentUserId();
+		Long walletId = carbonRepository.getWalletIdByUserId(userId);
+
+		CarbonDetailDTO detail = carbonRepository.selectDetail(cpId);
+		if (detail == null || detail.getCarbonInfo() == null) {
+			throw new RuntimeException("해당 상품 정보를 찾을 수 없습니다. (ID: " + cpId + ")");
+		}
+
+		BigDecimal remainAmount = carbonRepository.selectCpAmount(cpId);
+		if (remainAmount == null) {
+			remainAmount = BigDecimal.ZERO;
+		}
+
+		Long projectId = detail.getCarbonInfo().getProjectId();
+		BigDecimal actualAmount = carbonRepository.getActualAmount(projectId);
+		Long tokenId = carbonRepository.getTokenIdByProjectId(projectId);
+
+		List<CarbonDiscountDTO> holdings = fetchAllHoldings(walletId);
+		CarbonDiscountDTO myHolding = holdings.stream()
+			.filter(h -> h.getTokenId() != null && h.getTokenId().equals(tokenId))
+			.findFirst()
+			.orElse(null);
+
+		UserBenefitDTO benefit = processCalculation(
+			detail.getCarbonInfo().getCpAmount(),
+			detail.getCarbonInfo().getCpPrice(),
+			actualAmount,
+			myHolding);
+
+		BigDecimal unitPrice = (benefit != null && benefit.getCurrentPrice() != null)
+			? benefit.getCurrentPrice()
+			: detail.getCarbonInfo().getCpPrice();
+
+		BigDecimal discountRate = (benefit != null && benefit.getDiscountRate() != null)
+			? benefit.getDiscountRate()
+			: BigDecimal.ZERO;
+
+		BigDecimal total = unitPrice.multiply(amount).setScale(0, RoundingMode.HALF_UP);
+		BigDecimal supply = total.divide(new BigDecimal("1.1"), 0, RoundingMode.FLOOR);
+		BigDecimal vat = total.subtract(supply);
+
+		String cpTitle = carbonRepository.selectCpTitle(cpId);
+
+		CarbonOrderResponseDTO resp = CarbonOrderResponseDTO.builder()
+			.cpId(cpId)
+			.cpTitle(cpTitle)
+			.orderAmount(amount)
+			.unitPrice(unitPrice)
+			.supplyAmount(supply)
+			.vatAmount(vat)
+			.totalAmount(total)
+			.userMaxLimit(benefit != null ? benefit.getUserMaxLimit() : null)
+			.remainAmount(remainAmount)
+			.discountRate(discountRate)
+			.build();
+
+		return new ApiResponseDTO<>("주문 견적 조회에 성공했습니다.", resp);
+	}
+
+	@Transactional
+	public void completeOrder(CarbonOrderCompleteDTO req) {
+		// 1) 기본 검증
+		if (req == null) {
+			throw new IllegalArgumentException("요청값이 없습니다.");
+		}
+		if (req.getCpId() == null) {
+			throw new IllegalArgumentException("cpId가 필요합니다.");
+		}
+		if (req.getAmount() == null || req.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
+			throw new IllegalArgumentException("amount는 0보다 커야 합니다.");
+		}
+
+		// 2) 로그인 유저
+		Long userId = SecurityUtil.getCurrentUserId();
+
+		// 3) 주문 견적 뽑아오기
+		ApiResponseDTO<CarbonOrderResponseDTO> quoteRes = quoteOrder(req.getCpId(), req.getAmount());
+		CarbonOrderResponseDTO quote = quoteRes.getPayload();
+		if (quote == null) {
+			throw new RuntimeException("주문 견적 payload가 없습니다.");
+		}
+
+		BigDecimal discountedPrice = quote.getTotalAmount();
+		BigDecimal discountRate = quote.getDiscountRate();
+
+		// 4) 구매내역 insert
+		int inserted = carbonRepository.insertCarbonHist(
+			userId,
+			req.getCpId(),
+			req.getAmount(),
+			discountedPrice,
+			discountRate);
+
+		if (inserted != 1) {
+			throw new RuntimeException("구매내역 저장에 실패했습니다.");
+		}
+
 	}
 }

@@ -26,7 +26,7 @@ public class RedisConfig {
 	@Value("${redis.port}")
 	private int redisPort;
 
-	@Value("${redis.password:}") // 비밀번호가 없을 경우를 대비해 기본값을 비워둠
+	@Value("${redis.password}") // 비밀번호가 없을 경우를 대비해 기본값을 비워둠
 	private String redisPassword;
 
 	/**

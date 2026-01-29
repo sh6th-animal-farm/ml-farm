@@ -10,10 +10,14 @@ import com.animalfarm.mlf.domain.carbon.dto.CarbonListDTO;
 
 public interface CarbonRepository {
 
-	List<CarbonListDTO> selectAll();
+	// [전체] 보유 토큰 기반 상품 리스트
+	List<CarbonListDTO> selectAll(@Param("tokenIds")
+	List<Long> tokenIds);
 
+	// [카테고리] 카테고리 + 보유 토큰 기반 상품 리스트
 	List<CarbonListDTO> selectByCondition(@Param("category")
-	String category);
+	String category, @Param("tokenIds")
+	List<Long> tokenIds);
 
 	// 상세 조회
 	CarbonDetailDTO selectDetail(Long cpId);
@@ -38,4 +42,23 @@ public interface CarbonRepository {
 	BigDecimal getDiscountRate(@Param("sharePercent")
 	BigDecimal sharePercent);
 
+	String selectCpTitle(@Param("cpId")
+	Long cpId);
+
+	// 상품 잔여 수량 조회
+	BigDecimal selectCpAmount(@Param("cpId")
+	Long cpId);
+
+	// 결제 완료시 carbonHist테이블에 거래내역 담기
+	int insertCarbonHist(
+		@Param("userId")
+		Long userId,
+		@Param("cpId")
+		Long cpId,
+		@Param("amount")
+		BigDecimal amount,
+		@Param("discountedPrice")
+		BigDecimal discountedPrice,
+		@Param("discountRate")
+		BigDecimal discountRate);
 }
