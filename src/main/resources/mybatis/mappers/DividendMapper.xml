@@ -75,7 +75,7 @@
 	    JOIN revenue_summary rs ON d.rs_id = rs.rs_id
 	    JOIN tokens t ON rs.project_id = t.project_id
 	    WHERE d.status = 'DECIDED' 
-	      AND d.api_sent_yn = 'N' -- TODO
+	      AND d.api_sent_yn = 'N'
 	</select>
 	
 </mapper>

@@ -104,16 +104,11 @@ public class DividendService {
 	}
 	
 	@Transactional
-	public boolean sendDividendData(Long tokenId, List<? extends DividendRequestDTO> divReqDTOList)  {
-		try {
-			final String finalUrl = KH_BASE_URL + "/api/project/dividend/after/" + tokenId;
-			externalApiUtil.callApi(finalUrl, HttpMethod.POST,
-					divReqDTOList, 
-					new ParameterizedTypeReference<ApiResponse<String>>(){});
-			return true;
-		} catch(Exception e) {
-			return false;
-		}
+	public void sendDividendData(Long tokenId, List<? extends DividendRequestDTO> divReqDTOList) throws Exception {
+		final String finalUrl = KH_BASE_URL + "/api/project/dividend/after/" + tokenId;
+		externalApiUtil.callApi(finalUrl, HttpMethod.POST,
+				divReqDTOList, 
+				new ParameterizedTypeReference<ApiResponse<String>>(){});
 	}
 
 }

@@ -1,5 +1,7 @@
 package com.animalfarm.mlf.config.batch;
 
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -72,12 +74,24 @@ public class DividendClosingBatchConfig {
 
     @Bean
     public ItemWriter<DividendRequestDTO> dividendWriter() {
-    	return items -> 
-    		items.stream()
-    	     .collect(Collectors.groupingBy(DividendRequestDTO::getTokenId))
-    	     .forEach((tokenId, group) -> {
-    	         dividendService.sendDividendData(tokenId, group);
-    	     });
+    	return items -> {
+            // 그룹화하여 전송
+            Map<Long, List<DividendRequestDTO>> grouped = items.stream()
+                .collect(Collectors.groupingBy(DividendRequestDTO::getTokenId));
+
+            for (Map.Entry<Long, List<DividendRequestDTO>> entry : grouped.entrySet()) {
+                log.info("TokenId: {} 에 대해 {}건 전송 시작", entry.getKey(), entry.getValue().size());
+                
+                try {
+                    dividendService.sendDividendData(entry.getKey(), entry.getValue());
+                } catch (Exception e) {
+                    log.error("API 전송 중 치명적 에러 발생: {}", e.getMessage());
+                    // 여기서 예외를 던져야 배치의 retryLimit(3)이 작동합니다.
+                    throw new RuntimeException("증권사 API 전송 실패", e);
+                }
+            }
+        };
+    		// 전송 후 디비 전송 완료 표시,처리
         
     }
 }
