@@ -72,9 +72,9 @@
 .carbon-table td:first-child { padding-left: 24px; text-align: center; }
 .carbon-table td:last-child { padding-right: 24px; }
 
-.project-name { font:var(--font-body-03); color: var(--gray-900); }
+.project-name { font:var(--font-body-01); color: var(--gray-900); }
 .buy-date {font:var(--font-body-01);}
 .expire-date {font:var(--font-body-01);}
-.carbon-unit { font:var(--font-body-03); color: var(--gray-900); }
-.carbon-price { font:var(--font-body-03); color: var(--gray-900); text-align: right; }
+.carbon-unit { font:var(--font-body-01); color: var(--gray-900); }
+.carbon-price { font:var(--font-body-01); color: var(--gray-900); text-align: right; }
 </style>
