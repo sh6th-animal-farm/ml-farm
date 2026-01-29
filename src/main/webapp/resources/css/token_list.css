@@ -93,6 +93,7 @@
 .tx-right { text-align: right; }
 .text-plus { color: var(--error) !important; }
 .text-minus { color: var(--info) !important; }
+.text-zero {color: var(--gray-900) !important; }
 /* 7. 특수 요소 및 애니메이션 */
 .rate-badge {
     display: inline-block;

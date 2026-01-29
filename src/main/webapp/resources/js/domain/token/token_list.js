@@ -181,6 +181,7 @@ function createNewTokenRow(data) {
     return tr;
 }
 
+// list hover 시 우측 패널 업데이트
 document.querySelectorAll('.token_table_main tbody tr[id^="token-row-"]').forEach(row => {
     let hoverTimer;
     const tokenId = row.id.split('-').pop();
@@ -200,10 +201,108 @@ document.querySelectorAll('.token_table_main tbody tr[id^="token-row-"]').forEac
     });
 });
 
-function updateRightPanel(tokenId) {
+// 우측 패널 정보
+async function updateRightPanel(tokenId) {
     if (!tokenId) {
         return;
     }
     console.log(`${tokenId} 토큰의 차트를 불러옵니다.`);
-    // 여기에 Ajax 등으로 mp:token_chart_card의 내용을 갱신하는 로직을 넣으세요.
+
+    try {
+        const response = await TokenApi.getCandle(tokenId, {
+            unit: 1,
+            start: 0,
+            end: Math.floor(Date.now() / 1000)
+        });
+
+        const candleCsvList = response.data || response.payload;
+        const panel = document.querySelector('.token_chart_card');
+
+        if (panel && candleCsvList && candleCsvList.length > 0) {
+            // 2. 최신 캔들 데이터(리스트의 마지막) 추출
+            const lastRow = candleCsvList[candleCsvList.length - 1];
+
+            // CSV 파싱: [시간, unit, 시, 고, 저, 종, 양]
+            const [time, unit, open, high, low, close, vol] = lastRow.split(',');
+
+            // 3. 데이터 바인딩 (성능을 위해 파싱하며 즉시 할당)
+            const currentPrice = parseFloat(close);
+            const highPrice = parseFloat(high);
+            const lowPrice = parseFloat(low);
+            const volume = parseFloat(vol);
+
+            // 현재가 업데이트
+            panel.querySelector('.current-price').innerText = currentPrice.toLocaleString();
+
+            // 고가/저가/거래량
+            panel.querySelector('.high-price').innerText = highPrice.toLocaleString();
+            panel.querySelector('.low-price').innerText = lowPrice.toLocaleString();
+            panel.querySelector('.trade-volume').innerText = volume.toLocaleString();
+
+            /* 주의: tickerSymbol, changeRate 등은 캔들 데이터에 포함되지 않습니다.
+               이 정보들은 '토큰 리스트'에서 이미 가지고 있는 데이터를 쓰거나
+               별도의 상세 정보 API(Snapshot)를 호출해야 합니다.
+            */
+
+            // 임시: 만약 다른 데이터 소스(예: 리스트에서 선택된 데이터)가 있다면 병합
+            if (window.selectedTokenData) {
+                const data = window.selectedTokenData;
+                panel.querySelector('.token-title').innerText = data.tickerSymbol;
+                panel.querySelector('.token-desc').innerText = data.tokenName;
+
+                // 등락률 계산 예시 (오늘 시가 기준)
+                const openPrice = parseFloat(open);
+                const changeRate = ((currentPrice - openPrice) / openPrice) * 100;
+
+                const rateEl = panel.querySelector('.current-rate');
+                rateEl.innerText = (changeRate > 0 ? '+' : '') + changeRate.toFixed(2) + '%';
+                // 클래스 제어 로직 동일...
+            }
+        }
+        // if (panel && data) {
+        //
+        //     panel.querySelector('.token-title').innerText = data.tickerSymbol;
+        //     panel.querySelector('.token-desc').innerText = data.tokenName;
+        //
+        //     const priceEl = panel.querySelector('.current-price');
+        //     const rateEl = panel.querySelector('.current-rate');
+        //
+        //     rateEl.innerText = (data.changeRate > 0 ? '+' : '') + data.changeRate.toFixed(2) + '%';
+        //     rateEl.classList.remove('text-plus', 'text-minus', 'text-zero');
+        //     if (data.changeRate > 0) {
+        //         rateEl.classList.add('text-plus');
+        //     } else if (data.changeRate < 0) {
+        //         rateEl.classList.add('text-minus');
+        //     } else {
+        //         rateEl.classList.add('text-zero');
+        //     }
+        //
+        //     panel.querySelector('.prev-close').innerText = data.prevClose.toLocaleString();
+        //     panel.querySelector('.high-price').innerText = data.highPrice.toLocaleString();
+        //     panel.querySelector('.low-price').innerText = data.lowPrice.toLocaleString();
+        //     panel.querySelector('.trade-volume').innerText = data.tradeVolume.toLocaleString();
+        // }
+    } catch (err) {
+        console.log("로딩 실패: ", err);
+    }
 }
+
+
+// let currentChart = null;
+// let candleSeries = null;
+//
+// function initChart() {
+//     const container = document.getElementById('tv_chart_container'); // HTML에 이 ID의 div가 있어야 함
+//     if (!container) return;
+//
+//     currentChart = LightweightCharts.createChart(container, {
+//         width: container.clientWidth,
+//         height: 400,
+//         layout: { backgroundColor: '#ffffff', textColor: '#333' },
+//         timeScale: { timeVisible: true, secondsVisible: false }
+//     });
+//     candleSeries = currentChart.addCandlestickSeries();
+// }
+//
+// // 페이지 로드 시 초기화
+// document.addEventListener('DOMContentLoaded', initChart);

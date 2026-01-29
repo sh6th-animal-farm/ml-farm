@@ -2,5 +2,5 @@
 import { http } from "../../api/http_client.js";
 
 export const TokenApi = {
-    getToken: (projectId) => http.get(`${ctx}/api/token/${projectId}`),
+    getCandle: (tokenId) => http.get(`${ctx}/api/market/candles/${tokenId}`),
 };
