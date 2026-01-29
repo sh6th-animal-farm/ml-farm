@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 
+import com.animalfarm.mlf.domain.token.dto.OrderDTO;
 import com.animalfarm.mlf.domain.token.dto.OrderPriceDTO;
 import com.animalfarm.mlf.domain.token.dto.TokenListDTO;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.animalfarm.mlf.common.http.ApiResponse;
 import com.animalfarm.mlf.common.http.ExternalApiUtil;
@@ -154,6 +158,31 @@ public class TokenService {
 			return externalApiUtil.callApi(targetUrl, HttpMethod.GET, null, responseType);
 		}
 		return null;
+	}
+
+	// 주문 (매수, 매도)
+	public boolean createOrder(Long userId, Long tokenId, OrderDTO order) {
+		Long walletId = selectWalletId(userId);
+		if (walletId != null) {
+			order.setWalletId(walletId);
+			String targetUrl = khUrl + "/order/" + tokenId;
+			ParameterizedTypeReference<ApiResponse<Void>> responseType =
+				new ParameterizedTypeReference<ApiResponse<Void>>() {};
+
+			externalApiUtil.callApi(targetUrl, HttpMethod.POST, order, responseType);
+			return true;
+		}
+		return false;
+	}
+
+	// 주문 취소
+	public boolean cancelOrder(Long tokenId, Long orderId) {
+		String targetUrl = khUrl + "/order/cancel" + tokenId + "/" + orderId;
+		ParameterizedTypeReference<ApiResponse<Void>> responseType =
+			new ParameterizedTypeReference<ApiResponse<Void>>() {};
+
+		externalApiUtil.callApi(targetUrl, HttpMethod.POST, null, responseType);
+		return true;
 	}
 
 	public TokenDTO selectByProjectId(Long projectId) {

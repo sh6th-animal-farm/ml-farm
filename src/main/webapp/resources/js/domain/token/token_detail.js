@@ -74,104 +74,7 @@ document.querySelectorAll('.tab-menu').forEach(tabMenu => {
     });
 });
 
-/* 미체결 내역 조회 */
-async function fetchPendingOrders() {
-    try {
-        const response = await TokenApi.getPendingList(window.tokenId);
-        const data = await response.json();
-        renderPendingOrders(data);
-    } catch (error) {
-        console.error("미체결 내역 조회 실패:", error);
-    }
-}
-
-function renderPendingOrders(pendingList) {
-    const listContainer = document.querySelector('.transaction-list');
-    const summaryCount = document.querySelector('.history-summary div:first-child');
-
-    if (!listContainer) return;
-
-    // 1. 총 건수 업데이트
-    if (summaryCount) {
-        summaryCount.innerText = `총 ${pendingList.length}건`;
-    }
-
-    // 2. 리스트가 비었을 경우 처리
-    if (!pendingList || pendingList.length === 0) {
-        listContainer.innerHTML = '<li class="transaction-item" style="justify-content:center;">미체결 내역이 없습니다.</li>';
-        return;
-    }
-
-    // 3. 리스트 생성
-    const html = pendingList.map(item => createPendingRowHtml(item)).join('');
-
-    listContainer.innerHTML = html;
-}
-
-function createPendingRowHtml(item) {
-    const isBuy = item.orderSide === 'BUY';
-    const sideText = isBuy ? '매수' : '매도';
-    const sideClass = isBuy ? 'buy' : 'sell';
-
-    // 날짜 포맷 (2026-01-25 19:09:55 형식)
-    const date = new Date(item.createdAt);
-    const formattedDate = date.getFullYear() + '-' +
-        String(date.getMonth() + 1).padStart(2, '0') + '-' +
-        String(date.getDate()).padStart(2, '0') + ' ' +
-        String(date.getHours()).padStart(2, '0') + ':' +
-        String(date.getMinutes()).padStart(2, '0') + ':' +
-        String(date.getSeconds()).padStart(2, '0');
-
-    return `
-            <li class="transaction-item" data-order-id="${item.orderId}">
-                <div class="item-hover-layer">
-                    <div class="trashcan-box" onclick="cancelOrder(${item.orderId})">
-                        <i class="icon-trashcan"></i> </div>
-                </div>
-
-                <div class="trade-title">
-                    <div class="item-header">
-                        <span class="asset-name">HSSJ01/KRW</span>
-                        <span class="trade-type ${sideClass}">${sideText}</span>
-                    </div>
-                    <div class="trade-date">${formattedDate}</div>
-                </div>
-
-                <div class="trade-info">
-                    <div class="trade-info-row">
-                        <span class="label">주문가격</span>
-                        <span class="value">${Number(item.orderPrice).toLocaleString()}</span>
-                    </div>
-                    <div class="trade-info-row">
-                        <span class="label">주문수량</span>
-                        <span class="value">${Number(item.orderVolume).toFixed(8)}</span>
-                    </div>
-                    <div class="trade-info-row">
-                        <span class="label">미체결량</span>
-                        <span class="value">${Number(item.remainingToken).toFixed(8)}</span>
-                    </div>
-                </div>
-            </li>
-        `;
-}
-
-/* 주문 취소 */
-// async function cancelOrder(orderId) {
-//     if(!confirm("주문을 취소하시겠습니까?")) return;
-//
-//     try {
-//         // DELETE 요청 혹은 취소 API 호출
-//         const response = await fetch(`/api/orders/${orderId}`, { method: 'DELETE' });
-//         if(response.ok) {
-//             alert("주문이 취소되었습니다.");
-//             fetchOpenOrders(); // 목록 새로고침
-//         }
-//     } catch (error) {
-//         console.error("취소 실패:", error);
-//     }
-// }
-
-/* 시장가, 지정가 입력값 */
+/* 시장가, 지정가 인풋박스 */
 document.querySelectorAll('.order-type').forEach(select => {
     select.addEventListener('change', function() {
         const tabContent = this.closest('.tab-content');
@@ -211,6 +114,7 @@ document.querySelectorAll('.perc-btn').forEach(button => {
     });
 });
 
+/* % 버튼 클릭 시, 자동 수량 계산 */
 async function fetchBalance(perc) {
     try {
         const activeTab = document.querySelector('.tab-content-wrapper.active');
@@ -259,6 +163,197 @@ async function fetchBalance(perc) {
         }
     } catch (error) {
         console.error("잔액 조회 실패:", error);
+    }
+}
+
+/* 매수, 매도 주문 */
+document.querySelector('.btn-buy').addEventListener('click', (e) => handleOrder(e, 'BUY'));
+document.querySelector('.btn-sell').addEventListener('click', (e) => handleOrder(e, 'SELL'));
+
+/* 매수, 매도 주문 처리 */
+async function handleOrder(event, side){
+    const container = event.target.closest('.tab-content-wrapper');
+    const orderType = container.querySelector('.order-type').value; // LIMIT or MARKET
+
+    const getValue = (selector) => {
+        const element = container.querySelector(selector);
+        return element ? Number(element.value.replace(/,/g, '')) : 0; // 기본값 0, 콤마 제거 후 숫자 변환
+    };
+
+    const orderDTO = {
+        tokenId: window.tokenId,
+        orderSide: side,
+        orderType: orderType,
+        orderPrice: orderType === 'LIMIT' ? getValue('.price-group input') : 0, // 시장가는 0
+        orderVolume: (side === 'BUY' && orderType === 'MARKET') ? 0 : getValue('.volume-group input'), // 시장가 매수는 0
+        totalPrice: (side === 'BUY') ? getValue('.amount-group input') : 0 // 매도는 0
+    };
+
+    // 검증 실행
+    const check = validateOrder(orderDTO);
+    if (!check.valid) {
+        alert(check.msg);
+        return;
+    }
+
+    // API 호출
+    try {
+        const result = await TokenApi.createOrder(orderDTO.tokenId, orderDTO);
+        if (result) alert("주문이 완료되었습니다.");
+    } catch(e) {
+        console.error("주문 실패: ", e);
+    }
+};
+
+/* 주문 검증 */
+function validateOrder(dto) {
+    const { orderSide, orderType, orderPrice, orderVolume, totalPrice } = dto;
+
+    // 1. 계좌 연동 여부 검증
+    // -> 서비스 함수에서 처리
+    // if (!dto.walletId) {
+    //     return { valid: false, msg: "계좌 연동이 필요한 서비스입니다." };
+    // }
+
+    // 2. 숫자 형식 및 음수 체크
+    if (isNaN(orderPrice) || isNaN(orderVolume) || isNaN(totalPrice) ||
+        orderPrice < 0 || orderVolume < 0 || totalPrice < 0) {
+        return { valid: false, msg: "올바른 값을 입력해주세요." };
+    }
+
+    // 3. 매수 조건 검증
+    if (orderSide === 'BUY') {
+        let finalBuyAmount = 0;
+
+        if (orderType === 'LIMIT') {
+            // 지정가 매수: 가격 * 수량으로 총액 계산
+            if (orderPrice <= 0) {
+                return { valid: false, msg: "가격을 입력해주세요." };
+            } else if (orderVolume <= 0) {
+                return { valid: false, msg: "수량을 입력해주세요." };
+            }
+
+            finalBuyAmount = orderPrice * orderVolume;
+        } else {
+            // 시장가 매수: 입력된 총액(totalPrice) 그대로 사용
+            finalBuyAmount = totalPrice;
+        }
+
+        // 최소 금액 1,000원 검증
+        if (finalBuyAmount < 1000) {
+            return { valid: false, msg: "최소 주문 금액은 1,000원입니다." };
+        }
+    }
+
+    // 4. 매도 조건 검증
+    else if (orderSide === 'SELL') {
+        // 지정가 매도 시 가격 입력 체크
+        if (orderType === 'LIMIT' && orderPrice <= 0) {
+            return { valid: false, msg: "가격을 입력해주세요." };
+        }
+
+        // 최소 수량 0.00001개 검증 (시장가/지정가 공통)
+        if (orderVolume < 0.00001) {
+            return { valid: false, msg: "최소 주문 수량은 0.00001개입니다." };
+        }
+    }
+
+    return { valid: true };
+};
+
+/* 미체결 내역 조회 */
+async function fetchPendingOrders() {
+    try {
+        const response = await TokenApi.getPendingList(window.tokenId);
+        const data = await response.json();
+        renderPendingOrders(data);
+    } catch (error) {
+        console.error("미체결 내역 조회 실패:", error);
+    }
+}
+
+/* 미체결 내역 렌더링 */
+function renderPendingOrders(pendingList) {
+    const listContainer = document.querySelector('.transaction-list');
+    const summaryCount = document.querySelector('.history-summary div:first-child');
+
+    if (!listContainer) return;
+
+    // 1. 총 건수 업데이트
+    if (summaryCount) {
+        summaryCount.innerText = `총 ${pendingList.length}건`;
+    }
+
+    // 2. 리스트가 비었을 경우 처리
+    if (!pendingList || pendingList.length === 0) {
+        listContainer.innerHTML = '<li class="transaction-item" style="justify-content:center;">미체결 내역이 없습니다.</li>';
+        return;
+    }
+
+    // 3. 리스트 생성
+    const html = pendingList.map(item => createPendingRowHtml(item)).join('');
+
+    listContainer.innerHTML = html;
+}
+
+/* 미체결 내역 Html 생성 */
+function createPendingRowHtml(item) {
+    const isBuy = item.orderSide === 'BUY';
+    const sideText = isBuy ? '매수' : '매도';
+    const sideClass = isBuy ? 'buy' : 'sell';
+
+    // 날짜 포맷 (2026-01-25 19:09:55 형식)
+    const date = new Date(item.createdAt);
+    const formattedDate = date.getFullYear() + '-' +
+        String(date.getMonth() + 1).padStart(2, '0') + '-' +
+        String(date.getDate()).padStart(2, '0') + ' ' +
+        String(date.getHours()).padStart(2, '0') + ':' +
+        String(date.getMinutes()).padStart(2, '0') + ':' +
+        String(date.getSeconds()).padStart(2, '0');
+
+    return `
+            <li class="transaction-item" data-order-id="${item.orderId}">
+                <div class="item-hover-layer">
+                    <div class="trashcan-box" onclick="cancelOrder(${item.orderId})">
+                        <i class="icon-trashcan"></i> </div>
+                </div>
+
+                <div class="trade-title">
+                    <div class="item-header">
+                        <span class="asset-name">HSSJ01/KRW</span>
+                        <span class="trade-type ${sideClass}">${sideText}</span>
+                    </div>
+                    <div class="trade-date">${formattedDate}</div>
+                </div>
+
+                <div class="trade-info">
+                    <div class="trade-info-row">
+                        <span class="label">주문가격</span>
+                        <span class="value">${Number(item.orderPrice).toLocaleString()}</span>
+                    </div>
+                    <div class="trade-info-row">
+                        <span class="label">주문수량</span>
+                        <span class="value">${Number(item.orderVolume).toFixed(8)}</span>
+                    </div>
+                    <div class="trade-info-row">
+                        <span class="label">미체결량</span>
+                        <span class="value">${Number(item.remainingToken).toFixed(8)}</span>
+                    </div>
+                </div>
+            </li>
+        `;
+}
+
+/* 주문 취소 */
+async function cancelOrder(orderId) {
+    if(!confirm("주문을 취소하시겠습니까?")) return;
+
+    try {
+        await TokenApi.cancelOrder(window.tokenId, orderId);
+        alert("주문이 취소되었습니다.");
+        fetchPendingOrders();
+    } catch (e) {
+        console.error("취소 실패: ", e);
     }
 }
 

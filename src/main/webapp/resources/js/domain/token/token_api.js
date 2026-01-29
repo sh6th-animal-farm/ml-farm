@@ -6,5 +6,7 @@ export const TokenApi = {
     getTokenList: () => http.get(`${ctx}/api/market`),
     getCashBalance: () => http.get(`${ctx}/api/account/balance`),
     getTokenBalance: (tokenId) => http.get(`${ctx}/api/account/balance/${tokenId}`),
-    getPendingList: (tokenId) => http.get(`${ctx}/api/token/${tokenId}/pending`)
+    getPendingList: (tokenId) => http.get(`${ctx}/api/token/pending/${tokenId}`),
+    createOrder: (tokenId, order) => http.post(`${ctx}/api/token/order/${tokenId}`, order),
+    cancelOrder: (tokenId, orderId) => http.post(`${ctx}/api/token/order-cancel/${tokenId}/${orderId}`)
 };
