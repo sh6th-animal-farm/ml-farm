@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper
+	namespace="com.animalfarm.mlf.domain.mypage.MypageRepository">
+	
+	<select id="selectCarbonHistoryByUserId" resultType="com.animalfarm.mlf.domain.mypage.dto.CarbonHistoryDTO">
+	    SELECT 
+	        cp.cp_type,
+	        p.project_name,
+	        TO_CHAR(ch.date, 'YYYY. MM. DD') AS date_str,
+        	TO_CHAR(ch.date + INTERVAL '1 year', 'YYYY. MM. DD') AS end_date_str,
+	        ch.amount,
+	        ch.discounted_price AS price
+	    FROM carbon_hists ch
+	    INNER JOIN carbon_products cp ON ch.cp_id = cp.cp_id
+	    INNER JOIN projects p ON cp.project_id = p.project_id
+	    WHERE ch.user_id = #{userId}
+	    ORDER BY ch.date DESC
+	</select>
+</mapper>
