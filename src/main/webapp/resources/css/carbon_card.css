@@ -87,6 +87,18 @@
   cursor:pointer;
 }
 
-.btn-dark{ background:#1f1f1f; }
-.btn-green{ background:#4A9F2E; }
-.btn-blue{ background:#1F76D2; }
+/* [기본] 평상시 검은색 버튼 */
+.btn-action.btn-dark {
+    background-color: #1f1f1f; 
+    color: #fff;
+    transition: background-color 0.3s ease;
+}
+
+/* [호버] JS에서 주입한 hover 클래스가 있을 때만 색상 변경 */
+.carbon-card .btn-action.hover-blue:hover {
+    background-color: #1F76D2;
+}
+
+.carbon-card .btn-action.hover-green:hover {
+    background-color: #4A9F2E;
+}

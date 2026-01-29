@@ -23,6 +23,7 @@ public class ExternalApiUtil {
 	private final RestTemplate restTemplate;
 	private final ObjectMapper objectMapper;
 
+
 	/**
 	 * 기본 호출 메서드 (멱등성 키가 없는 경우)
 	 */
