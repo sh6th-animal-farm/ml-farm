@@ -3,157 +3,182 @@ import { TokenApi } from "./token_api.js";
 /* 웹소켓 연결 및 구독 */
 WebSocketManager.connect('http://localhost:9090/ws-stomp', function () {
 
-    // 2. 우측 패널용 캔들 토픽 구독
-    WebSocketManager.subscribe('trade', `/topic/candles/${tokenId}`, function(data) {
-        // 실시간 정보 업데이트
-        //updateTokenRow(data);
-        console.log('[WebSocket - 캔들]', data);
+    // 1. 전체 토큰 리스트 구독
+    WebSocketManager.subscribe('list', '/topic/tokenList', function (data) {
+        let row = document.getElementById(`token-row-${data.tokenId}`);
+        if(!row) {
+            row = createNewTokenRow(data);
+            const tbody = document.querySelector('.token_table_main tbody');
+            const emptyRow = tbody.querySelector('td[colspan]');
+            if (emptyRow) emptyRow.parentElement.remove();
+
+            tbody.appendChild(row);
+        }
+        updateTokenRow(row, data);
     });
 
-    // 2. 캔들 토픽 구독
-    WebSocketManager.subscribe('trade', `/topic/candles/${tokenId}`, function(data) {
-        // 실시간 정보 업데이트(시가, 저가, 고가, 종가, 거래량)
-        // updateTokenRow(data);
-        console.log('[WebSocket - 캔들]', data);
-    });
+    // 2. 우측 패널용 캔들 토픽 구독
+    // WebSocketManager.subscribe('trade', `/topic/candles/${tokenId}`, function(data) {
+    //     // 실시간 정보 업데이트
+    //     //updateTokenRow(data);
+    //     console.log('[WebSocket - 캔들]', data);
+    // });
 });
 
-
-// async function fetchTokens() {
-//
-//     const url = new URL(window.location.href);
-//     window.history.pushState({}, "", url);
-//
-//     try {
-//         const data = await TokenApi.getTokenList();
-//
-//         if(data && data.length > 0) {
-//             renderTokenTable(data);
-//         }
-//     } catch (error) {
-//         console.error("데이터 로드 실패: ", error);
-//     }
-// }
-
-// 일단 이렇게 그릴게요....
-function renderTokenTable(tokens) {
-    const tbody = document.querySelector('.token_table_main tbody');
-    if (!tbody) {
-        return;
-    }
-
-    const html = tokens.map((token, index) => {
-
-        const hasPrice = token.marketPrice != null;
-        const hasGain = token.gain != null;
-
-        const colorClass = hasGain ? (token.gain > 0 ? 'text-plus' : token.gain < 0 ? 'text-minus' : '') : '';
-        const sign = hasGain && token.gain > 0 ? '+' : '';
-
-        return `
-            <tr>
-                <td class="td-rank">${index + 1}</td>
-                
-                <td>
-                    <div class="token-name">${token.tokenName || '-'}</div>
-                    <div class="token-code">${token.tickerSymbol || '-'}</div>
-                </td>
-                
-                <td class="td-price">
-                    <div class="token-name">
-                        ${hasPrice ? Number(token.marketPrice).toLocaleString() + " 원" : "-"}
-                    </div>
-                </td>
-                
-                <td class="td-change">
-                    <div class="token-name ${colorClass}">
-                        ${hasGain ? sign + Number(token.gain).toLocaleString() : "-"}
-                    </div>
-                </td>
-                
-                <td class="token-amount">
-                    <div class="token-name">
-                        ${token.dailyTradeVolume ? Number(token.dailyTradeVolume).toLocaleString() : "-"}
-                    </div>
-                </td>
-            </tr>
-        `;
-    }).join('');
-
-    tbody.innerHTML = html;
-}
-
-// 소켓 연결 설정
-// function connectExchange(ec2Ip, tokenPath) {
-//     const socket = new SockJS('http://localhost:9090/ws-stomp');
-//     const stompClient = Stomp.over(socket);
-//
-//     stompClient.connect({}, function (frame) {
-//         console.log('Connected: ' + frame);
-//
-//         // 실시간 시세 채널 구독
-//         stompClient.subscribe('/topic/trades/**', function (response) {
-//             console.log('실시간 데이터 수신:', response.body);
-//             const updatedData = JSON.parse(response.body);
-//             updateTokenRow(updatedData);
-//         });
-//     }, function (error) {
-//         console.error('STOMP Error: ' + error);
-//     });
-// }
-
 // 특정 행(row)만 찾아서 업데이트
-function updateTokenRow(data) {
-    const row = document.querySelector(`tr[data-token-id="${data.tokenId}"]`);
-    if (!row) {
-        return;
+function updateTokenRow(row, data) {
+
+    const priceEl = row.querySelector('.market-price');     // 현재가
+    const rateEl = row.querySelector('.change-rate');       // 등락률
+    const rateBadge = row.querySelector('.rate-badge');     // 등락률
+    const volumeEl = row.querySelector('.daily-volume');    // 거래대금
+
+    // 현재가
+    if (priceEl) {
+        const oldPrice = parseFloat(priceEl.innerText.replace(/[^0-9.-]+/g, ""));
+        const newPrice = data.marketPrice;
+        const isChanged = oldPrice !== newPrice;
+        priceEl.innerText = newPrice.toLocaleString();
+
+        if (rateEl && rateBadge) {
+            const rate = Number(data.changeRate) || 0;
+
+            rateBadge.innerText = (rate > 0 ? '+' : '') + rate.toFixed(2) + '%';
+            rateEl.classList.remove('text-plus', 'text-minus');
+
+            if (rate > 0) {
+                rateEl.classList.add('text-plus');
+                if (isChanged) flashEffect(rateBadge, 'up'); // 양수면 무조건 빨간색
+            } else if (rate < 0) {
+                rateEl.classList.add('text-minus');
+                if (isChanged) flashEffect(rateBadge, 'down'); // 음수면 무조건 파란색
+            }
+        }
+
     }
 
-    const priceDiv = row.querySelector('.td-price .token-name');
-    const pctDiv = row.querySelector('.td-pct .token-name');
-
-    // 기존 가격과 비교해서 상승/하락 판단 (반짝임 효과용)
-    const oldPrice = parseFloat(priceDiv.innerText.replace(/[^0-9.-]+/g, ""));
-    const newPrice = data.marketPrice;
-
-    // 가격 및 등락률 텍스트 업데이트
-    priceDiv.innerText = `${newPrice.toLocaleString()} 원`;
-    pctDiv.innerText = `${data.gain > 0 ? '+' : ''}${data.gainPct}%`;
-
-    // 색상 클래스 갱신
-    const colorClass = data.gain > 0 ? 'text-plus' : data.gain < 0 ? 'text-minus' : '';
-    pctDiv.className = `token-code ${colorClass}`;
-
-    // 가격 셀 업데이트
-    const priceCell = row.querySelector('.td-price .token-name');
-    if (priceCell) {
-        priceCell.innerText = Number(data.marketPrice).toLocaleString() + " 원";
+    // 거래대금
+    if (volumeEl) {
+        volumeEl.setAttribute('data-value', data.dailyTradeVolume);
+        volumeEl.innerText = formatVolume(data.dailyTradeVolume);
     }
 
-    // 반짝임 효과 적용
-    if (newPrice > oldPrice) {
-        priceDiv.classList.remove('up-flash');
-        void priceDiv.offsetWidth; // 리플로우 강제 발생 (애니메이션 재시작)
-        priceDiv.classList.add('up-flash');
-    } else if (newPrice < oldPrice) {
-        priceDiv.classList.remove('down-flash');
-        void priceDiv.offsetWidth;
-        priceDiv.classList.add('down-flash');
-    }
-
-    // // 등락률 및 색상 업데이트
-    // const pctCell = row.querySelector('.td-pct .token-code');
-    // if (pctCell) {
-    //     const isPlus = data.gain > 0;
-    //     pctCell.className = `token-code ${isPlus ? 'text-plus' : 'text-minus'}`;
-    //     pctCell.innerText = `${isPlus ? '+' : ''}${data.gainPct}%`;
-    // }
+    reorderTable();
 }
 
-// document.addEventListener('DOMContentLoaded', fetchStocks);
-// window.fetchTokens = fetchTokens;
-// // window.connectExchange = connectExchange;
-// document.addEventListener('DOMContentLoaded', async () => {
-//     await fetchTokens();
-//     connectExchange();
-// });
+function flashEffect(el, direction) {
+    const bgColor = direction === 'up' ? '#ffe2e2' : '#e0efff';
+
+    el.style.transition = 'none';
+    el.style.backgroundColor = bgColor;
+
+    void el.offsetWidth;
+
+    el.style.transition = 'background-color 0.6s ease';
+    el.style.backgroundColor = 'transparent';
+}
+
+function formatVolume(value) {
+    if (!value) return "0";
+    const num = parseFloat(value);
+
+    if (num >= 1000000) {
+        const million = Math.floor(num / 1000000);
+        const thousand = Math.round((num % 1000000) / 10000);
+
+        if (thousand === 0) return million.toLocaleString() + "백만";
+        return million.toLocaleString() + "백 " + thousand + "만";
+    }
+
+    if (num < 10000) {
+        return Math.floor(num).toLocaleString();
+    }
+
+    return num.toLocaleString();
+}
+
+// 거래대금 순 정렬
+function reorderTable() {
+    const tbody = document.querySelector('.token_table_main tbody');
+    if (!tbody) return;
+    const rows = Array.from(tbody.querySelectorAll('tr[id^="token-row-"]'));
+
+    // 1. 현재 화면상의 Top 위치 기록 (First)
+    const firstPositions = new Map();
+    rows.forEach(row => firstPositions.set(row.id, row.getBoundingClientRect().top));
+    // 2. 정렬 로직
+    rows.sort((a, b) => {
+        const volA = parseFloat(a.querySelector('.daily-volume')?.getAttribute('data-value') || 0);
+        const volB = parseFloat(b.querySelector('.daily-volume')?.getAttribute('data-value') || 0);
+        return volB - volA;
+    });
+    // 3. DOM 순서 변경 및 순위 업데이트 (Last)
+    rows.forEach((row, index) => {
+        const rankEl = row.querySelector('.ranking-num');
+        const oldRank = rankEl ? parseInt(rankEl.innerText) : 0;
+        const newRank = index + 1;
+
+        if (rankEl && oldRank !== newRank) {
+            rankEl.innerText = newRank;
+            // 순위 숫자 팝 효과
+            rankEl.style.display = 'inline-block';
+            rankEl.style.transition = 'transform 0.3s';
+            rankEl.style.transform = 'scale(1.4)';
+            setTimeout(() => rankEl.style.transform = 'scale(1)', 300);
+
+            // 색상 하이라이트 (상승/하락)
+            if (oldRank !== 0) {
+                const highlight = oldRank > newRank ? 'rank-up-highlight' : 'rank-down-highlight';
+                row.classList.add(highlight);
+                setTimeout(() => row.classList.remove(highlight), 1000);
+            }
+        }
+        tbody.appendChild(row);
+    });
+    // 4. 역변환 애니메이션 (Invert & Play)
+    requestAnimationFrame(() => {
+        rows.forEach(row => {
+            const firstTop = firstPositions.get(row.id);
+            const lastTop = row.getBoundingClientRect().top;
+            const deltaY = firstTop - lastTop;
+
+            if (deltaY !== 0) {
+                row.style.transition = 'none';
+                row.style.transform = `translateY(${deltaY}px)`;
+
+                requestAnimationFrame(() => {
+                    row.style.transition = 'transform 0.6s cubic-bezier(0.2, 0, 0, 1)';
+                    row.style.transform = 'translateY(0)';
+                });
+            }
+        });
+    });
+}
+
+function createNewTokenRow(data) {
+    const tr = document.createElement('tr');
+    tr.id = `token-row-${data.tokenId}`;
+
+    tr.innerHTML = `
+        <td class="tx-center ranking-num">-</td>
+        <td>
+            <div class="token-name">${data.tokenName}</div>
+            <div class="token-code">${data.tickerSymbol}</div>
+        </td>
+        <td class="tx-right">
+            <div class="token-name market-price">0</div>
+        </td>
+        <td class="tx-right change-rate">
+            <span class="rate-badge">0.00%</span>
+        </td>
+        <td class="token-amount tx-right daily-volume" data-value="0">0</td>
+    `;
+
+    tr.addEventListener('click', () => {
+        location.href = `/token/${data.tokenId}`;
+    });
+
+    return tr;
+}
+
+

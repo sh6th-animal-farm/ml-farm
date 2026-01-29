@@ -1,26 +1,27 @@
 package com.animalfarm.mlf.domain.token;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.animalfarm.mlf.domain.token.dto.OrderDTO;
-import com.animalfarm.mlf.domain.token.dto.OrderPriceDTO;
 import com.animalfarm.mlf.domain.token.dto.TokenListDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.client.RestTemplate;
 
 import com.animalfarm.mlf.common.http.ApiResponse;
 import com.animalfarm.mlf.common.http.ExternalApiUtil;
+import com.animalfarm.mlf.domain.token.dto.OrderDTO;
+import com.animalfarm.mlf.domain.token.dto.OrderPriceDTO;
 import com.animalfarm.mlf.domain.token.dto.TokenDTO;
 import com.animalfarm.mlf.domain.token.dto.TokenDetailDTO;
+import com.animalfarm.mlf.domain.token.dto.TokenListDTO;
 import com.animalfarm.mlf.domain.token.dto.TokenPendingDTO;
 import com.animalfarm.mlf.domain.token.dto.TradePriceDTO;
 
@@ -34,8 +35,8 @@ public class TokenService {
 	@Autowired
 	ExternalApiUtil externalApiUtil;
 
-	// @Value("${api.kh-stock.url}") // 강황증권 API 서버 주소 (배포)
-	@Value("http://localhost:9090/api") // 강황증권 API 서버 주소 (테스트)
+	@Value("${api.kh-stock.url}") // 강황증권 API 서버 주소 (배포)
+	//@Value("http://localhost:9090/api") // 강황증권 API 서버 주소 (테스트)
 	private String khUrl;
 
 	// 전체 토큰 시세 조회
@@ -51,8 +52,7 @@ public class TokenService {
 			list.forEach(dto -> {
 				if (dto.getMarketPrice() == null) dto.setMarketPrice(BigDecimal.ZERO);
 				if (dto.getDailyTradeVolume() == null) dto.setDailyTradeVolume(BigDecimal.ZERO);
-				// 등락률 계산 예정
-				 if (dto.getChangeRate() == null) dto.setChangeRate(BigDecimal.ZERO);
+				if (dto.getChangeRate() == null) dto.setChangeRate(BigDecimal.ZERO);
 			});
 
 			return list;

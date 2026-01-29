@@ -10,10 +10,15 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TokenListDTO {
-	private Long tokenId;						// 토큰 고유 번호
-	private String tokenName;					// 토큰 이름
-	private String tickerSymbol;				// 종목 코드
-	private BigDecimal marketPrice;				// 현재가
-	private BigDecimal dailyTradeVolume;		// 거래 대금
-	private BigDecimal changeRate;				// 등락률
+	private Long tokenId;
+	private String tokenName;
+	private String tickerSymbol;
+	private BigDecimal marketPrice;			// 현재가(시장가)
+	private BigDecimal dailyTradeVolume;	// 오늘 누적 거래 대금
+
+	private BigDecimal openPrice;			// 시가: 오늘 or 어제 오전 9시 시작 가격
+	private BigDecimal highPrice;   		// 고가 (추가)
+	private BigDecimal lowPrice;    		// 저가 (추가)
+	private BigDecimal changeRate;			// 등락률
 }
+
