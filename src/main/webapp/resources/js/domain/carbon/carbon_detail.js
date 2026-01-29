@@ -1,4 +1,6 @@
 // carbon_detail.js
+
+// 화면을 다 그리고 서버에서 상세 데이터를 가져와라
 document.addEventListener("DOMContentLoaded", function() {
     const cpId = document.getElementById("targetCpId").value;
     if(cpId) {
@@ -8,10 +10,10 @@ document.addEventListener("DOMContentLoaded", function() {
 
 async function loadCarbonDetail(cpId) {
     try {
-        // 1. localStorage에서 토큰을 가져옵니다.
+        // localStorage에서 토큰을 가져옵니다.
         const token = localStorage.getItem("accessToken");
 
-        // 2. fetch 요청 시 헤더에 신분증(JWT)을 첨부합니다.
+        // fetch 요청 시 헤더에 신분증(JWT)을 첨부합니다.
         const response = await fetch(ctx + "/api/carbon/" + cpId, {
             method: "GET",
             headers: {
@@ -21,20 +23,12 @@ async function loadCarbonDetail(cpId) {
         });
 
         if (!response.ok) {
-            // 401(만료)이나 403(권한없음) 에러가 나면 팀장님이 만든 강제 로그아웃 실행
-            if (response.status === 401 || response.status === 403) {
-                console.warn("세션 만료 또는 권한 없음. 강제 로그아웃을 실행합니다.");
-                if (typeof AuthManager !== 'undefined') {
-                    AuthManager.forceLogout();
-                }
-                return;
-            }
-            throw new Error("서버 응답 에러: " + response.status);
+          return;
         }
 
         const result = await response.json(); //규격 { message, payload } 처리
 
-        // 1. 결과 데이터가 정상적으로 존재할 때만 렌더링 함수 호출
+        // 결과 데이터가 정상적으로 존재할 때만 렌더링 함수 호출
         if (result && result.payload) {
             renderPage(result.payload); 
         } else {
@@ -179,11 +173,7 @@ async function refreshQuote() {
     });
 
     if (!res.ok) {
-      if (res.status === 401 || res.status === 403) {
-        if (typeof AuthManager !== 'undefined') AuthManager.forceLogout();
-        return;
-      }
-      throw new Error("quote 응답 오류: " + res.status);
+      return;
     }
 
     const json = await res.json(); // {message, payload}
