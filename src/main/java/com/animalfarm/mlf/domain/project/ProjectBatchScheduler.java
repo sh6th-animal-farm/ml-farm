@@ -21,5 +21,6 @@ public class ProjectBatchScheduler {
 	public void runBatch() {
 		List<ProjectStatusDTO> status = projectService.selectStatus();
 		subscriptionService.projectStartCheck();
+		subscriptionService.selectAllocationInfo();
 	}
 }

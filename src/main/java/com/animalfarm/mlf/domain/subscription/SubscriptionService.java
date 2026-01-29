@@ -2,6 +2,7 @@ package com.animalfarm.mlf.domain.subscription;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,9 @@ import com.animalfarm.mlf.domain.refund.RefundRepository;
 import com.animalfarm.mlf.domain.retry.ApiRetryQueueDTO;
 import com.animalfarm.mlf.domain.retry.ApiRetryService;
 import com.animalfarm.mlf.domain.retry.ApiType;
+import com.animalfarm.mlf.domain.subscription.dto.AllocationRequestDTO;
+import com.animalfarm.mlf.domain.subscription.dto.AllocationTokenDTO;
+import com.animalfarm.mlf.domain.subscription.dto.InvestorDTO;
 import com.animalfarm.mlf.domain.subscription.dto.ProjectStartCheckDTO;
 import com.animalfarm.mlf.domain.subscription.dto.SubscriptionApplicationDTO;
 import com.animalfarm.mlf.domain.subscription.dto.SubscriptionHistDTO;
@@ -331,5 +335,142 @@ public class SubscriptionService {
 		subscriptionHistDTO.setCanceledAt(OffsetDateTime.now());
 
 		self.updateRefundAndSubsTable(refundDTO, subscriptionHistDTO);
+	}
+
+	public void selectAllocationInfo() {
+		AllocationTokenDTO dto = subscriptionRepository.selectAllocationInfo(57L);
+		List<InvestorDTO> investors = dto.getInvestors();
+		Long tokenId = dto.getTokenId();
+		Long projectId = dto.getProjectId();
+
+		BigDecimal standardAmount = ((dto.getActualAmount().divide(dto.getSubscriberCount()))
+			.max(dto.getMinAmountPerInvestor()));
+
+		BigDecimal maxAmount = investors.stream()
+			.map(investor -> investor.getSubscriptionAmount())
+			.max((a, b) -> a.compareTo(b))
+			.orElse(BigDecimal.ZERO);
+
+		BigDecimal minAmount = investors.stream()
+			.map(investor -> investor.getSubscriptionAmount())
+			.min((a, b) -> a.compareTo(b))
+			.orElse(BigDecimal.ZERO);
+
+		if (minAmount.compareTo(standardAmount) >= 0) {
+			//[Case 01] 모든 참여자가 '기준 금액' 이상 신청
+			//모든 참여자에게 **[기준 금액]**만큼만 동일하게 배분합니다
+			List<AllocationRequestDTO> requestList = new ArrayList<AllocationRequestDTO>();
+			for (InvestorDTO sendData : investors) {
+				Long shId = sendData.getShId();
+				Long userId = sendData.getUserId();
+				BigDecimal subscriptionAmount = sendData.getSubscriptionAmount();
+				BigDecimal pricePerToken = dto.getTargetAmount().divide(dto.getTotalSupply());
+				Long uclId = subscriptionRepository.selectUclId(userId);
+				BigDecimal resultTokenCount = standardAmount.divide(pricePerToken);
+
+				AllocationRequestDTO allocationRequestDTO = AllocationRequestDTO
+					.builder()
+					.subscriptionId(shId)
+					.walletId(uclId)
+					.passPrice(pricePerToken)
+					.passVolume(resultTokenCount)
+					.build();
+				requestList.add(allocationRequestDTO);
+			}
+			resultAllocation(tokenId, requestList);
+
+		} else if (minAmount.compareTo(standardAmount) < 0 && maxAmount.compareTo(standardAmount) >= 0) {
+			//[Case 02] 일부만 '기준 금액' 이상 신청 (핵심 로직)
+			/*
+			 * 배정 로직 (2단계 배정):
+				1. 1차 배정: 기준 금액 미만 신청자에게는 신청액 전액을 먼저 배정합니다.
+				2. 물량 확보: 1차 배정 후 남은 잔여 토큰 물량을 계산합니다.
+				3. 2차 배정: 기준 금액 이상 신청자들에게 **[남은 물량 × 초과 신청 비율]**로 비례 배분합니다.
+			*/
+			BigDecimal targetAmount = dto.getTargetAmount(); // 프로젝트 목표 금액
+			BigDecimal tokenTotalSupply = dto.getTotalSupply(); //토큰 총 발행량
+			BigDecimal pricePerToken = dto.getTargetAmount().divide(dto.getTotalSupply()); // 토큰 1개당 가격
+			List<AllocationRequestDTO> requestList = new ArrayList<AllocationRequestDTO>();
+			BigDecimal totalExcessAmount = null; // 총 초과 금액
+			BigDecimal remainintTokens = tokenTotalSupply; // 나머지 토큰 수
+
+			//1차 배정
+			for (InvestorDTO sendData : investors) {
+				if (sendData.getSubscriptionAmount().compareTo(standardAmount) < 0) {
+					Long shId = sendData.getShId();
+					Long userId = sendData.getUserId();
+					BigDecimal subscriptionAmount = sendData.getSubscriptionAmount();
+					Long uclId = subscriptionRepository.selectUclId(userId);
+					BigDecimal resultTokenCount = subscriptionAmount.divide(pricePerToken);
+
+					// 물량 확보
+					targetAmount = targetAmount.subtract(subscriptionAmount); // 목표 금액 - 기준 금액 미만 신청자 금액
+					remainintTokens = remainintTokens.subtract(resultTokenCount); // 토큰 총 발행량 - 기준 금액 미만 신청자 토큰
+
+					AllocationRequestDTO allocationRequestDTO = AllocationRequestDTO
+						.builder()
+						.subscriptionId(shId)
+						.walletId(uclId)
+						.passPrice(pricePerToken)
+						.passVolume(resultTokenCount)
+						.build();
+					requestList.add(allocationRequestDTO);
+					investors.remove(sendData); // 이미 받은 사람은 투자자 리스트에서 제거
+				} else {
+					BigDecimal subscriptionAmount = sendData.getSubscriptionAmount();
+					// 총 초과 금액 += 개별 신청액 - 기준 금액
+					totalExcessAmount = totalExcessAmount.add(subscriptionAmount.subtract(standardAmount));
+					// 남은 토큰 발행량
+					remainintTokens = remainintTokens.subtract(standardAmount.multiply(pricePerToken));
+				}
+			}
+
+			// 가격 = 기준 금액 + ((남은 토큰 발행량 * (개별 초과 금액 / 총 초과 금액))) * 토큰 1개당 가격
+			// 토큰 = (기준 금액 / 토큰 1개당 가격) +  (남은 토큰 발행량 * (개별 초과 금액 / 총 초과 금액))
+			for (InvestorDTO sendData : investors) {
+				if (sendData.getSubscriptionAmount().compareTo(standardAmount) >= 0) {
+
+				}
+			}
+
+		} else {
+			//[Case 03] 모든 참여자가 '기준 금액' 미만 신청
+			//모든 참여자에게 **신청액 전액(100%)**을 배정합니다.
+			List<AllocationRequestDTO> requestList = new ArrayList<AllocationRequestDTO>();
+			for (InvestorDTO sendData : investors) {
+				Long shId = sendData.getShId();
+				Long userId = sendData.getUserId();
+				BigDecimal subscriptionAmount = sendData.getSubscriptionAmount();
+				BigDecimal pricePerToken = dto.getTargetAmount().divide(dto.getTotalSupply());
+				Long uclId = subscriptionRepository.selectUclId(userId);
+				BigDecimal resultTokenCount = dto.getActualAmount().divide(pricePerToken);
+
+				AllocationRequestDTO allocationRequestDTO = AllocationRequestDTO
+					.builder()
+					.subscriptionId(shId)
+					.walletId(uclId)
+					.passPrice(pricePerToken)
+					.passVolume(resultTokenCount)
+					.build();
+				requestList.add(allocationRequestDTO);
+			}
+			resultAllocation(tokenId, requestList);
+		}
+	}
+
+	// 강황증권에 토큰 배정 보내기
+	public void resultAllocation(Long tokenId, List<AllocationRequestDTO> allocationTokenDTO) {
+		String url = KH_BASE_URL + "api/project/result/" + tokenId;
+		try {
+			externalApiUtil.callApi(
+				url,
+				HttpMethod.POST,
+				allocationTokenDTO,
+				new ParameterizedTypeReference<ApiResponse<Void>>() {});
+			log.info("배정 완료 데이터 전송 성공: tokenId={}", tokenId);
+		} catch (Exception e) {
+			log.error("배정 데이터 전송 중 오류 발생: {}", e.getMessage());
+			throw e;
+		}
 	}
 }
