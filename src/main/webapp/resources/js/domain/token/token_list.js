@@ -181,4 +181,29 @@ function createNewTokenRow(data) {
     return tr;
 }
 
+document.querySelectorAll('.token_table_main tbody tr[id^="token-row-"]').forEach(row => {
+    let hoverTimer;
+    const tokenId = row.id.split('-').pop();
 
+    row.addEventListener('mouseenter', () => {
+        hoverTimer = setTimeout(() => {
+            updateRightPanel(tokenId);
+        }, 300);
+    });
+
+    row.addEventListener('mouseleave', () => {
+        clearTimeout(hoverTimer);
+    });
+
+    row.addEventListener('click', () => {
+        location.href = `/token/${tokenId}`;
+    });
+});
+
+function updateRightPanel(tokenId) {
+    if (!tokenId) {
+        return;
+    }
+    console.log(`${tokenId} 토큰의 차트를 불러옵니다.`);
+    // 여기에 Ajax 등으로 mp:token_chart_card의 내용을 갱신하는 로직을 넣으세요.
+}
