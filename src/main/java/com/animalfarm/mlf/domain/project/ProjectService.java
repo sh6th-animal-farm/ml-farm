@@ -47,7 +47,6 @@ public class ProjectService {
 	TokenRepository tokenRepository;
 
 	private final ExternalApiUtil externalApiUtil;
-	private final DividendService dividenedService;
 
 	// 강황증권 API 서버 주소
 	@Value("${api.kh-stock.url}")

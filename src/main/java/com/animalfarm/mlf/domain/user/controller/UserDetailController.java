@@ -20,10 +20,8 @@ public class UserDetailController {
 	
 	@GetMapping("/me")
     public ResponseEntity<Object> getCurrentUserInfo() {
-		System.out.println("인증 시작");
         try {
             Long userId = SecurityUtil.getCurrentUserId();
-            System.out.println("인증성공: "+userId);
             if (userId == null) {
                 // 토큰이 없거나 유효하지 않은 경우 401 반환
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
@@ -31,10 +29,19 @@ public class UserDetailController {
             
             // 유저 정보 조회 (address 포함)
             UserDTO user = userService.getUserById(userId);
-            System.out.println("사용자: "+user);
             return ResponseEntity.ok(user);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }
+	
+	@GetMapping("/walletId")
+	public Long getWalletId() {
+		try {
+            Long userId = SecurityUtil.getCurrentUserId();
+            return userService.getWalletIdByUserId(userId);
+		} catch (Exception e) {
+			return -1L;
+		}
+	}
 }

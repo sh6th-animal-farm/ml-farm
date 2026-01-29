@@ -54,5 +54,28 @@
 	        dividend_id = #{dividendId}
 	        AND status = 'POLLING'
     </update>
+    
+    <update id="updateAutoDecide">
+	    UPDATE dividends
+	    SET
+	        status = 'DECIDED',
+	        dividend_type = 'CASH',
+	        paid_amount = amount_aft_tax,
+	        selection_at = CURRENT_TIMESTAMP
+	    WHERE
+	        status = 'POLLING'
+	        AND poll_end_date <![CDATA[<]]> CURRENT_TIMESTAMP
+	</update>
+	
+	<select id="findAllDecidedForApi" resultType="dividendDTO">
+	    SELECT 
+	        d.*,
+	        t.token_id as tokenId
+	    FROM dividends d
+	    JOIN revenue_summary rs ON d.rs_id = rs.rs_id
+	    JOIN tokens t ON rs.project_id = t.project_id
+	    WHERE d.status = 'DECIDED' 
+	      AND d.api_sent_yn = 'N' -- TODO
+	</select>
 	
 </mapper>

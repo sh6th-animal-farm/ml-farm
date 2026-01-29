@@ -1,21 +1,27 @@
 package com.animalfarm.mlf.domain.accounting;
 
-import java.math.BigDecimal;
+
+import java.util.List;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.animalfarm.mlf.common.http.ApiResponse;
+import com.animalfarm.mlf.common.http.ExternalApiUtil;
 import com.animalfarm.mlf.common.security.SecurityUtil;
 import com.animalfarm.mlf.domain.accounting.dto.DividendDTO;
+import com.animalfarm.mlf.domain.accounting.dto.DividendRequestDTO;
 import com.animalfarm.mlf.domain.accounting.dto.RevenueSummaryDTO;
 import com.animalfarm.mlf.domain.token.TokenRepository;
 import com.animalfarm.mlf.domain.token.dto.TokenDTO;
 import com.animalfarm.mlf.domain.user.repository.UserRepository;
-import com.animalfarm.mlf.domain.user.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +37,13 @@ public class DividendService {
 	private final TokenRepository tokenRepository; // 토큰 발행량 조회용
 	private final DividendRepository dividendRepository;
 	private final UserRepository userRepository;
+	private final RevenueSummaryRepository revenueSummaryRepository;
+	private final ExternalApiUtil externalApiUtil;
+
+	// 강황증권 API 서버 주소
+	@Value("${api.kh-stock.url}")
+	private String KH_BASE_URL;
+
 
 	public void runDividendBatch(Long projectId) throws Exception {
 		// rsId를 기반으로 정산 요약 정보 조회 (DB에서 직접 가져옴)
@@ -88,6 +101,19 @@ public class DividendService {
 			userRepository.updateAddress(address, curUserId);
 		}
 		dividendRepository.updateUserSelection(dividendId, dividendType);
+	}
+	
+	@Transactional
+	public boolean sendDividendData(Long tokenId, List<? extends DividendRequestDTO> divReqDTOList)  {
+		try {
+			final String finalUrl = KH_BASE_URL + "/api/project/dividend/after/" + tokenId;
+			externalApiUtil.callApi(finalUrl, HttpMethod.POST,
+					divReqDTOList, 
+					new ParameterizedTypeReference<ApiResponse<String>>(){});
+			return true;
+		} catch(Exception e) {
+			return false;
+		}
 	}
 
 }

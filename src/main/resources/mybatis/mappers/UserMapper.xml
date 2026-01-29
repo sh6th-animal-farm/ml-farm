@@ -47,5 +47,10 @@
     	SELECT * from users
     	WHERE user_id = #{userId}
     </select>
+    
+    <select id="getUclDTOByUserId" resultType="uclDTO">
+    	SELECT * from user_certificate_links
+    	WHERE user_id = #{userId}
+    </select>
 
 </mapper>

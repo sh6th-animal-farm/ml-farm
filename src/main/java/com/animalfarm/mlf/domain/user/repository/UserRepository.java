@@ -3,6 +3,7 @@ package com.animalfarm.mlf.domain.user.repository;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import com.animalfarm.mlf.domain.user.dto.UserCertificateLinkDTO;
 import com.animalfarm.mlf.domain.user.dto.UserDTO;
 
 @Mapper
@@ -21,4 +22,6 @@ public interface UserRepository {
 	Long userId);
 
 	UserDTO getUserById(Long userId);
+
+	UserCertificateLinkDTO getUclDTOByUserId(Long userId);
 }

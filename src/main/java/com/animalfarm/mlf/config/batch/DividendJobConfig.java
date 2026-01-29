@@ -71,12 +71,9 @@ public class DividendJobConfig {
 		Long projectId,
 		@Value("#{jobParameters[rsId]}")
 		Long rsId) {
-		System.out.println("READER: [pid] "+projectId+ "[rsid] "+rsId);
 
 		// 외부 API 호출
 		List<DividendResponseDTO> snapshot = projectService.getDividendSnapshot(projectId);
-		
-		System.out.println(snapshot);
 
 		// 모든 DTO에 rsId 세팅
 		snapshot.forEach(s -> s.setRsId(rsId));

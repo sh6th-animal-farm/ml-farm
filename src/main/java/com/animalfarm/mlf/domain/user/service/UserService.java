@@ -93,4 +93,8 @@ public class UserService {
 	public UserDTO getUserById(Long userId) {
 		return userRepository.getUserById(userId);
 	}
+
+	public Long getWalletIdByUserId(Long userId) {
+		return userRepository.getUclDTOByUserId(userId).getUclId();
+	}
 }

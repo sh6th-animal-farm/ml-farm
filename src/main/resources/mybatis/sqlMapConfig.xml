@@ -47,6 +47,8 @@
 			alias="dividendDTO" />
 		<typeAlias type="com.animalfarm.mlf.domain.user.dto.UserDTO"
 			alias="userDTO" />
+		<typeAlias type="com.animalfarm.mlf.domain.user.dto.UserCertificateLinkDTO"
+			alias="uclDTO" />
 			
 	</typeAliases>
 	

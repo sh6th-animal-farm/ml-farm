@@ -41,4 +41,8 @@ public class DividendDTO {
 	// 메일 전송시 필요
 	private String userEmail;
 	private String userName;
+	
+	// 배당 내역 증권사 기록시 필요
+	private Long tokenId;
+	private Long walletId;
 }
