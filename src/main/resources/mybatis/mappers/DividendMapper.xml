@@ -22,4 +22,21 @@
         )
     </insert>
 
+	<select id="selectPollingList" resultType="dividendDTO">
+	    SELECT d.*, u.user_name as userName, u.email as userEmail
+	    FROM dividends d
+	    JOIN users u ON d.user_id = u.user_id
+	    WHERE d.status = 'PENDING' 
+	      AND d.poll_end_date > NOW()
+	</select>
+	
+	<update id="updateStatusToPolling">
+		UPDATE dividends SET status = 'POLLING' WHERE dividend_id = #{dividendId}
+	</update>
+	
+	<select id="selectById" resultType="dividendDTO">
+		SELECT * FROM dividends
+		where dividend_id = #{dividendId}
+	</select>
+	
 </mapper>

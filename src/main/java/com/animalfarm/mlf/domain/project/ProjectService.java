@@ -18,7 +18,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.animalfarm.mlf.common.http.ApiResponse;
 import com.animalfarm.mlf.common.http.ExternalApiUtil;
-import com.animalfarm.mlf.domain.accounting.DividenedService;
+import com.animalfarm.mlf.domain.accounting.DividendService;
 import com.animalfarm.mlf.domain.accounting.dto.DividendResponseDTO;
 import com.animalfarm.mlf.domain.project.dto.FarmDTO;
 import com.animalfarm.mlf.domain.project.dto.ImgEditable;
@@ -47,7 +47,7 @@ public class ProjectService {
 	TokenRepository tokenRepository;
 
 	private final ExternalApiUtil externalApiUtil;
-	private final DividenedService dividenedService;
+	private final DividendService dividenedService;
 
 	// 강황증권 API 서버 주소
 	@Value("${api.kh-stock.url}")

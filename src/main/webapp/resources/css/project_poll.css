@@ -1,0 +1,153 @@
+/* 전체 컨테이너 */
+.poll-container {
+  max-width: 480px;
+  margin: 60px auto;
+  background: #ffffff;
+  padding: 24px;
+  border-radius: var(--radius-l);
+  box-shadow: var(--shadow);
+}
+
+/* 로고 및 제목 */
+.poll-container .logo {
+  width: 100px;
+  display: block;
+  margin: 0 auto 24px;
+}
+
+.poll-container .poll-title {
+  text-align: center;
+  font: var(--font-header-03);
+  color: var(--gray-900);
+  margin-top: 6px;
+  margin-bottom: 30px;
+}
+
+/* 배당금 박스 */
+.amount-box {
+  background: #f8f9fa;
+  border-radius: var(--radius-m);
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 32px;
+  border: 1px solid #eee;
+}
+
+.amount-label {
+  font: var(--font-button-02);
+  color: var(--gray-500);
+  margin-bottom: 8px;
+}
+
+.amount-value {
+  font: var(--font-header-01);
+  color: var(--green-700); /* 진한 초록 */
+  margin: 0;
+}
+
+/* 선택 카드 스타일 */
+.choice-label {
+  display: block;
+  font: var(--font-button-02);
+  color: #444;
+  margin-bottom: 12px;
+}
+
+.card-choice {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 18px;
+  border: 2px solid #efefef;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.bg-icon {
+  position: absolute;
+  right: -15px; /* 살짝 밖으로 걸치게 */
+  bottom: -20px; /* 살짝 아래로 걸치게 */
+  width: 120px; /* 크기 조절 */
+  height: 120px;
+  fill: var(--gray-200); /* 연한 회색 (SVG 색상) */
+  transform: rotate(-15deg);
+  z-index: -1; /* 텍스트 뒤로 */
+  pointer-events: none; /* 클릭 방해 금지 */
+}
+
+/* 원화 기호 전용 (텍스트로 처리할 경우) */
+.won-symbol {
+  position: absolute;
+  right: -10px;
+  bottom: -20px;
+  font-size: 7rem;
+  font-weight: 900;
+  color: var(--gray-200);
+  transform: rotate(-15deg);
+  z-index: -1;
+  line-height: 1;
+}
+
+.card-choice:hover {
+  border-color: #a5d6a7;
+  background-color: #fafffa;
+}
+
+.card-choice.active {
+  border-color: var(--green-600);
+  background-color: #f1f8f1;
+}
+
+.icon-wrapper {
+  font-size: 2.2rem;
+  margin-right: 20px;
+}
+
+.text-wrapper h6 {
+  font: var(--font-body-03);
+  margin: 0 0 4px 0;
+  color: #333;
+}
+
+.text-wrapper small {
+  font: var(--font-caption-01);
+  color: #888;
+}
+
+/* 알림창 */
+.poll-alert {
+  background-color: var(--warning-light);
+  border-left: 4px solid var(--warning);
+  padding: 12px;
+  border-radius: var(--radius-s);
+  margin: 24px 0;
+  font-size: 0.88rem;
+  color: var(--gray-600);
+  line-height: 1.6;
+}
+
+.poll-alert strong {
+  color: var(--gray-800);
+  font-weight: 600;
+}
+
+/* 버튼 */
+.submit-button {
+  width: 100%;
+  padding: 16px;
+  background-color: var(--green-600);
+  color: white;
+  border: none;
+  border-radius: var(--radius-m);
+  font: var(--font-button-01);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.submit-button:hover {
+  background-color: #43a047;
+}

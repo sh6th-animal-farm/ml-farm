@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.animalfarm.mlf.domain.accounting.DividenedService;
+import com.animalfarm.mlf.domain.accounting.DividendService;
 import com.animalfarm.mlf.domain.project.dto.ProjectDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectDetailDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectInsertDTO;
@@ -30,7 +30,7 @@ public class ProjectController {
 	@Autowired
 	ProjectService projectService;
 	@Autowired
-	DividenedService dividenedService;
+	DividendService dividendService;
 
 	@InitBinder
 	protected void initBinder(WebDataBinder binder) {
@@ -116,7 +116,17 @@ public class ProjectController {
 	public ResponseEntity<String> processDividend(@RequestBody
 	Long projectId) {
 		try {
-			dividenedService.runDividendBatch(projectId);
+			dividendService.runDividendBatch(projectId);
+			return ResponseEntity.ok("성공했습니다. DB를 확인해주세요.");
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+
+	@PostMapping("/dividend-mail")
+	public ResponseEntity<String> sendDividendEmail() {
+		try {
+			dividendService.sendEmail();
 			return ResponseEntity.ok("성공했습니다. DB를 확인해주세요.");
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

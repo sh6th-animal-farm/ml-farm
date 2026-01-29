@@ -37,4 +37,8 @@ public class DividendDTO {
 
 	private OffsetDateTime pollEndDate;
 	private OffsetDateTime selectionAt;
+
+	// 메일 전송시 필요
+	private String userEmail;
+	private String userName;
 }
