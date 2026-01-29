@@ -1,6 +1,7 @@
 package com.animalfarm.mlf.domain.subscription;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -343,7 +344,11 @@ public class SubscriptionService {
 		Long tokenId = dto.getTokenId();
 		Long projectId = dto.getProjectId();
 
-		BigDecimal standardAmount = ((dto.getActualAmount().divide(dto.getSubscriberCount()))
+		// [설정] KRW(원화)는 소수점 0자리, 토큰은 소수점 4자리
+	    final int MONEY_SCALE = 0;
+	    final int TOKEN_SCALE = 4;
+		
+		BigDecimal standardAmount = ((dto.getActualAmount().divide(dto.getSubscriberCount(), MONEY_SCALE, RoundingMode.FLOOR))
 			.max(dto.getMinAmountPerInvestor()));
 
 		BigDecimal maxAmount = investors.stream()
@@ -364,9 +369,9 @@ public class SubscriptionService {
 				Long shId = sendData.getShId();
 				Long userId = sendData.getUserId();
 				BigDecimal subscriptionAmount = sendData.getSubscriptionAmount();
-				BigDecimal pricePerToken = dto.getTargetAmount().divide(dto.getTotalSupply());
+				BigDecimal pricePerToken = dto.getTargetAmount().divide(dto.getTotalSupply(), MONEY_SCALE, RoundingMode.FLOOR);
 				Long uclId = subscriptionRepository.selectUclId(userId);
-				BigDecimal resultTokenCount = standardAmount.divide(pricePerToken);
+				BigDecimal resultTokenCount = standardAmount.divide(pricePerToken, TOKEN_SCALE, RoundingMode.FLOOR);
 
 				AllocationRequestDTO allocationRequestDTO = AllocationRequestDTO
 					.builder()
@@ -389,11 +394,11 @@ public class SubscriptionService {
 			*/
 			BigDecimal targetAmount = dto.getTargetAmount(); // 프로젝트 목표 금액
 			BigDecimal tokenTotalSupply = dto.getTotalSupply(); //토큰 총 발행량
-			BigDecimal pricePerToken = dto.getTargetAmount().divide(dto.getTotalSupply()); // 토큰 1개당 가격
+			BigDecimal pricePerToken = dto.getTargetAmount().divide(dto.getTotalSupply(), MONEY_SCALE, RoundingMode.FLOOR); // 토큰 1개당 가격
 			List<AllocationRequestDTO> requestList = new ArrayList<AllocationRequestDTO>();
-			BigDecimal totalExcessAmount = null; // 총 초과 금액
-			BigDecimal remainintTokens = tokenTotalSupply; // 나머지 토큰 수
-
+			BigDecimal totalExcessAmount = BigDecimal.ZERO; // 총 초과 금액
+			BigDecimal remainingTokens = tokenTotalSupply; // 나머지 토큰 수
+			List<InvestorDTO> highValueInvestors = new ArrayList<InvestorDTO>();
 			//1차 배정
 			for (InvestorDTO sendData : investors) {
 				if (sendData.getSubscriptionAmount().compareTo(standardAmount) < 0) {
@@ -401,11 +406,11 @@ public class SubscriptionService {
 					Long userId = sendData.getUserId();
 					BigDecimal subscriptionAmount = sendData.getSubscriptionAmount();
 					Long uclId = subscriptionRepository.selectUclId(userId);
-					BigDecimal resultTokenCount = subscriptionAmount.divide(pricePerToken);
+					BigDecimal resultTokenCount = subscriptionAmount.divide(pricePerToken, TOKEN_SCALE, RoundingMode.FLOOR);
 
 					// 물량 확보
 					targetAmount = targetAmount.subtract(subscriptionAmount); // 목표 금액 - 기준 금액 미만 신청자 금액
-					remainintTokens = remainintTokens.subtract(resultTokenCount); // 토큰 총 발행량 - 기준 금액 미만 신청자 토큰
+					remainingTokens = remainingTokens.subtract(resultTokenCount); // 토큰 총 발행량 - 기준 금액 미만 신청자 토큰
 
 					AllocationRequestDTO allocationRequestDTO = AllocationRequestDTO
 						.builder()
@@ -415,24 +420,45 @@ public class SubscriptionService {
 						.passVolume(resultTokenCount)
 						.build();
 					requestList.add(allocationRequestDTO);
-					investors.remove(sendData); // 이미 받은 사람은 투자자 리스트에서 제거
 				} else {
 					BigDecimal subscriptionAmount = sendData.getSubscriptionAmount();
 					// 총 초과 금액 += 개별 신청액 - 기준 금액
 					totalExcessAmount = totalExcessAmount.add(subscriptionAmount.subtract(standardAmount));
 					// 남은 토큰 발행량
-					remainintTokens = remainintTokens.subtract(standardAmount.multiply(pricePerToken));
+					remainingTokens = remainingTokens.subtract(standardAmount.divide(pricePerToken, TOKEN_SCALE, RoundingMode.FLOOR));
+					highValueInvestors.add(sendData);
 				}
 			}
 
 			// 가격 = 기준 금액 + ((남은 토큰 발행량 * (개별 초과 금액 / 총 초과 금액))) * 토큰 1개당 가격
 			// 토큰 = (기준 금액 / 토큰 1개당 가격) +  (남은 토큰 발행량 * (개별 초과 금액 / 총 초과 금액))
-			for (InvestorDTO sendData : investors) {
+			for (InvestorDTO sendData : highValueInvestors) {
 				if (sendData.getSubscriptionAmount().compareTo(standardAmount) >= 0) {
-
+					Long shId = sendData.getShId();
+					Long userId = sendData.getUserId();
+					BigDecimal subscriptionAmount = sendData.getSubscriptionAmount();
+					Long uclId = subscriptionRepository.selectUclId(userId);
+					BigDecimal userExcessAmount = subscriptionAmount.subtract(standardAmount);
+					
+					//추가 토큰 계산 (0으로 나누기 방어 로직 포함)
+				    BigDecimal extraTokens = BigDecimal.ZERO;
+				    if (totalExcessAmount.compareTo(BigDecimal.ZERO) > 0) {
+				        extraTokens = remainingTokens.multiply(userExcessAmount)
+				                      .divide(totalExcessAmount, TOKEN_SCALE, RoundingMode.FLOOR);
+				    }
+					BigDecimal resultTokenCount = (standardAmount.divide(pricePerToken, TOKEN_SCALE, RoundingMode.FLOOR)).add(extraTokens);
+					
+					AllocationRequestDTO allocationRequestDTO = AllocationRequestDTO
+							.builder()
+							.subscriptionId(shId)
+							.walletId(uclId)
+							.passPrice(pricePerToken)
+							.passVolume(resultTokenCount)
+							.build();
+						requestList.add(allocationRequestDTO);
 				}
 			}
-
+			resultAllocation(tokenId, requestList);
 		} else {
 			//[Case 03] 모든 참여자가 '기준 금액' 미만 신청
 			//모든 참여자에게 **신청액 전액(100%)**을 배정합니다.
@@ -441,9 +467,9 @@ public class SubscriptionService {
 				Long shId = sendData.getShId();
 				Long userId = sendData.getUserId();
 				BigDecimal subscriptionAmount = sendData.getSubscriptionAmount();
-				BigDecimal pricePerToken = dto.getTargetAmount().divide(dto.getTotalSupply());
+				BigDecimal pricePerToken = dto.getTargetAmount().divide(dto.getTotalSupply(), MONEY_SCALE, RoundingMode.FLOOR);
 				Long uclId = subscriptionRepository.selectUclId(userId);
-				BigDecimal resultTokenCount = dto.getActualAmount().divide(pricePerToken);
+				BigDecimal resultTokenCount = subscriptionAmount.divide(pricePerToken, TOKEN_SCALE, RoundingMode.FLOOR);
 
 				AllocationRequestDTO allocationRequestDTO = AllocationRequestDTO
 					.builder()
