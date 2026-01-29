@@ -211,32 +211,27 @@ public class ProjectService {
 	}
 
 	public boolean checkAccount() {
+		Long userId = SecurityUtil.getCurrentUserId();
+		System.out.println("checkAccount userId  " + userId);
 		// 1. 목적지 주소 생성 (외부 IP + 상세 경로)
-		String targetUrl = khUrl + "api/my/account/1";
+		String targetUrl = khUrl + "api/my/account/" + userId;
 		try {
 			// 2. GET 방식으로 데이터 요청 (응답은 String으로 받는 예시)
-			ResponseEntity<ApiResponse> responseEntity = restTemplate.getForEntity(targetUrl, ApiResponse.class);
-			int status = responseEntity.getStatusCodeValue();
-			System.out.println("응답 결과: " + status);
-			if (status == 200) {
-				ApiResponse response = responseEntity.getBody();
-				System.out.println("response: " + response.getMessage());
-				if (response.getPayload() != null) {
-					return true;
-				}
-			}
-			System.out.println("연동되어 있지 않습니다.");
-			return false;
+			Object payload = externalApiUtil.callApi(targetUrl, HttpMethod.GET, null,
+				new ParameterizedTypeReference<ApiResponse<Object>>() {});
+			System.out.println("응답 결과: " + payload);
+
+			return payload != null;
+
 		} catch (Exception e) {
 			// 3. 외부 서버 연결 실패 시 예외 처리 (재시도 테이블 insert 등)
-			System.err.println("외부 서버 통신 실패: " + e.getMessage());
+			log.error("계좌 확인 실패: {}", e.getMessage());
 			return false;
 		}
 	}
 
 	public Double selectMyWalletAmount() {
 		Long userId = SecurityUtil.getCurrentUserId();
-		System.out.println("userId " + userId);
 		Long uclId = projectRepository.selectMyWalletId(userId);
 		// 1. 목적지 주소 생성 (외부 IP + 상세 경로)
 		String targetUrl = khUrl + "api/my/wallet/" + uclId;

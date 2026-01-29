@@ -65,7 +65,7 @@ public class SubscriptionService {
 		String idempotencyKey = "SUB-CANCEL-" + subscriptionHistDTO.getShId();
 
 		// url 생성
-		String url = KH_BASE_URL + "/api/project/cancel/" + subscriptionHistDTO.getExternalRefId();
+		String url = KH_BASE_URL + "api/project/cancel/" + subscriptionHistDTO.getExternalRefId();
 		RefundDTO refundDTO = null;
 		try {
 			// 취소 및 환불 요청
@@ -206,6 +206,7 @@ public class SubscriptionService {
 					System.out.println(rate + " 프로젝트 폐기");
 					projectCanceled(data);
 					selectAndAllCancel(projectId);
+					//tokenClosed(tokenId);
 				} else if (rate.compareTo(rate70) >= 0 && rate.compareTo(rate90) < 0) {
 					if (extensionCount == 0) {
 						System.out.println(rate + " 프로젝트 종료일 +2일");
@@ -215,6 +216,7 @@ public class SubscriptionService {
 						System.out.println("프로젝트 폐기");
 						projectCanceled(data);
 						selectAndAllCancel(projectId);
+						//tokenClosed(tokenId);
 					}
 				} else if (rate.compareTo(rate90) >= 0 && rate.compareTo(rate100) < 0) {
 					//마리팜이 충당할 가격
@@ -268,7 +270,7 @@ public class SubscriptionService {
 			String idempotencyKey = "SUB-REJECTED-" + subscriptionHistDTO.getShId();
 
 			// url 생성
-			String url = KH_BASE_URL + "/api/project/cancel/" + subscriptionHistDTO.getExternalRefId();
+			String url = KH_BASE_URL + "api/project/cancel/" + subscriptionHistDTO.getExternalRefId();
 			RefundDTO refundDTO = null;
 			try {
 				// 취소 및 환불 요청
@@ -296,6 +298,19 @@ public class SubscriptionService {
 					params,
 					idempotencyKey);
 			}
+		}
+	}
+
+	//일단 사용하지 말고 두기
+	private void tokenClosed(Long tokenId) {
+		String url = KH_BASE_URL + "api/project/close/" + tokenId;
+		try {
+			externalApiUtil.callApi(url, HttpMethod.POST, null,
+				new ParameterizedTypeReference<ApiResponse<Object>>() {});
+
+			log.info("강황 증권에 토큰 소각 완료");
+		} catch (Exception e) {
+			log.error("정산 실패 메시지: {}", e.getMessage());
 		}
 	}
 
