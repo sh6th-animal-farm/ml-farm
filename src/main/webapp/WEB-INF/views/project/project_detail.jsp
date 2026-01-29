@@ -130,7 +130,7 @@
 		    price="${projectData.totalSupply > 0 ? (projectData.targetAmount / projectData.totalSupply) : 0}"
 		    thumbnail="${pageContext.request.contextPath}/uploads/projects/${projectData.images[0]}"
 		    userLimit="40000000"
-		    walletBalance="${myCash}"
+		    walletBalance="0"
 		    tokenId="${tokenId}"
 		/>
 		<t:warning_card id="noAccountModal" title="연동된 계좌 없음">

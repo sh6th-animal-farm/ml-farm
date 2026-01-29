@@ -49,4 +49,5 @@ public interface ProjectRepository {
 
 	public abstract void updateProjectStatus(ProjectStatusDTO projectStatusDTO);
 
+	public abstract Long selectMyWalletId(Long userId);
 }

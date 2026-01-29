@@ -57,5 +57,4 @@ public class SubscriptionController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("청약 신청 중 서버 오류가 발생했습니다.");
 		}
 	}
-
 }

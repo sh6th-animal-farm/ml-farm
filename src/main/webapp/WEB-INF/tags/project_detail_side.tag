@@ -78,7 +78,7 @@
                             <button class="btn" style="width: 100%; background: #757575; color: #fff; font: var(--font-button-01); padding: 24px 0; border-radius: var(--radius-m); cursor: not-allowed; border:none;" disabled>청약 신청하기</button>
                         </c:when>
                         <c:otherwise>
-                            <button class="btn" style="width: 100%; background: var(--green-600); color: #fff; font: var(--font-button-01); padding: 24px 0; border-radius: var(--radius-m); cursor: pointer; border:none;" onclick="openSubscriptionModal('subscriptionModal')">청약 신청하기</button>
+                            <button class="btn" style="width: 100%; background: var(--green-600); color: #fff; font: var(--font-button-01); padding: 24px 0; border-radius: var(--radius-m); cursor: pointer; border:none;" onclick="handleSubscriptionClick()">청약 신청하기</button>
                         </c:otherwise>
                     </c:choose>
                     
@@ -114,16 +114,73 @@
     </div>
 </aside>
 <script>
+function getUserIdFromToken() {
+    const token = localStorage.getItem('accessToken'); // 토큰 저장 키 확인
+    if (!token) return null;
+
+    // 토큰의 Payload 부분을 디코딩 (atob 사용)
+    const base64Payload = token.split('.')[1];
+    const payload = JSON.parse(atob(base64Payload));
+    console.log("토큰 내부 정보:", payload);
+    return payload.userId; // 토큰에 담긴 key 이름(sub 또는 userId) 확인 필요
+}
+
 function handleSubscriptionClick() {
+    const token = localStorage.getItem('accessToken');
+    
+    // 1. 로그인 체크 (atob를 이용한 payload 검증은 detail.js에서 이미 하므로 토큰 존재여부만 체크)
+    if (!token) {
+        alert("로그인이 필요한 서비스입니다.");
+        return;
+    }
+
+    // 2. 계좌 여부 체크 (AJAX)
+    $.ajax({
+        url: '${pageContext.request.contextPath}/api/project/checkAccount',
+        type: 'GET',
+        headers: {
+            "Authorization": "Bearer " + token
+        },
+        success: function(res) {
+            // 서버 응답이 true이면 계좌가 있는 것
+            if (res === true) {
+                // detail.js에 정의된 함수를 호출하여 잔액 조회 및 청약 모달 실행
+                openSubscriptionModal('subscriptionModal');
+            } else {
+                // 계좌가 없으면 안내 모달 오픈
+                document.getElementById('noAccountModal').style.display = 'flex';
+            }
+        },
+        error: function(xhr) {
+            // 아까 로그에서 본 400 에러(계좌 없음) 상황 포함
+            console.error("계좌 확인 중 오류 발생:", xhr.status);
+            document.getElementById('noAccountModal').style.display = 'flex';
+        }
+    });
+}
+
+/* 
+function handleSubscriptionClick() {
+	const userId = getUserIdFromToken();
+    
+    if (!userId) {
+        alert("로그인이 필요합니다.");
+        location.href = "/login";
+        return;
+    }
+	
 	$.ajax({
 	    // 1. [어디로?] 서버의 이 주소로 찾아갈게!
 	    url: '${pageContext.request.contextPath}/api/project/checkAccount', 
 	    
 	    // 2. [어떻게?] 단순히 데이터를 가져오는 거니까 GET 방식을 쓸게.
 	    type: 'GET',
-	    
+	    headers: {
+            "Authorization": "Bearer " + localStorage.getItem('accessToken')
+        },
 	    // 3. [성공하면?] 서버가 대답을 무사히 보내주면 실행되는 구간이야.
 	    success: function(res) {
+	    	console.log("서버 응답:", res);
 	        if (res === true) { 
 	            // 서버가 "응, 계좌 있어(true)"라고 대답하면
 	            // 서버가 "아니, 없어(false)"라고 대답하면
@@ -135,9 +192,10 @@ function handleSubscriptionClick() {
 	        }
 	    },
 	    // 4. [실패하면?] 인터넷이 끊겼거나 서버가 터졌을 때 실행돼.
-	    error: function() {
+	    error: function(xhr) {
+	    	console.error("에러 상태:", xhr.status);
 	        alert("오류 발생!");
 	    }
 	});
-}
+} */
 </script>
