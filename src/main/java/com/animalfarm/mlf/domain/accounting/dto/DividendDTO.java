@@ -1,6 +1,7 @@
 package com.animalfarm.mlf.domain.accounting.dto;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,5 +26,15 @@ public class DividendDTO {
 	private BigDecimal tax;
 	private BigDecimal amountAftTax;
 
+	// 배당 방식: CASH, CROP
 	private String dividendType;
+
+	// 배당 상태: POLLING, DECIDED, COMPLETED
+	private String status;
+
+	// 실제 지급 금액 (작물 선택 시 0원 또는 차액)
+	private BigDecimal paidAmount;
+
+	private OffsetDateTime pollEndDate;
+	private OffsetDateTime selectionAt;
 }

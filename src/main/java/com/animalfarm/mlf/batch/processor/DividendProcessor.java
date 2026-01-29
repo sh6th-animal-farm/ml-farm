@@ -2,6 +2,7 @@ package com.animalfarm.mlf.batch.processor;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.OffsetDateTime;
 
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,10 +42,13 @@ public class DividendProcessor implements ItemProcessor<DividendResponseDTO, Div
 
 		return DividendDTO.builder()
 			.userId(snap.getUserId())
+			.rsId(snap.getRsId())
 			.amountBfTax(amountBfTax)
 			.tax(tax)
 			.amountAftTax(amountAftTax)
 			.dividendType("CASH")
+			.pollEndDate(OffsetDateTime.now().plusDays(2)
+				.withHour(23).withMinute(59).withSecond(59))
 			.build();
 	}
 }

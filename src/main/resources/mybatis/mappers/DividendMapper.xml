@@ -10,13 +10,15 @@
             amount_bf_tax,
             tax,
             amount_aft_tax,
+            poll_end_date
         ) VALUES (
             #{rsId},
             #{userId},
             #{dividendType},
             #{amountBfTax},
             #{tax},
-            #{amountAftTax}
+            #{amountAftTax},
+            #{pollEndDate}
         )
     </insert>
 
