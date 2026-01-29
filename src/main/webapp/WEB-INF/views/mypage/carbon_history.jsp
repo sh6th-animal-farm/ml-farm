@@ -70,30 +70,16 @@ function loadCarbonHistory() {
 
         let html = "";
         data.forEach(item => {
-        	// [수정] substring 대신 new Date()를 사용하여 날짜 포맷팅
-            const formatDate = (dateVal) => {
-                if (!dateVal) return "-";
-                const d = new Date(dateVal);
-                // YYYY. MM. DD 형식으로 변환
-                return d.getFullYear() + ". " + 
-                       String(d.getMonth() + 1).padStart(2, '0') + ". " + 
-                       String(d.getDate()).padStart(2, '0');
-            };
-
-            const buyDate = formatDate(item.date); 
-            const endDate = formatDate(item.endDate); 
+        	
+        	let badgeStatus = (item.cpType === 'REDUCTION') ? "announcement" : "subscription";
+            let label = (item.cpType === 'REDUCTION') ? "감축" : "제거";
             
-            let badgeStatus = "others";
-            let label = "알 수 없음";
-            if (item.cpType === 'REDUCTION') { badgeStatus = "announcement"; label = "감축"; }
-            else if (item.cpType === 'REMOVAL') { badgeStatus = "subscription"; label = "제거"; }
-
             html += `
                 <tr>
                     <td><span class="badge-\${badgeStatus}">\${label}</span></td>
                     <td class="project-name">\${item.projectName}</td>
-                    <td class="buy-date">\${buyDate}</td>
-                    <td class="expire-date">\${endDate}</td>
+                    <td class="buy-date">\${item.dateStr}</td>
+                    <td class="expire-date">\${item.endDateStr}</td>
                     <td class="carbon-unit">\${item.amount.toLocaleString()} tCO2e</td>
                     <td class="carbon-price">\${item.price.toLocaleString()} 원</td>
                 </tr>
