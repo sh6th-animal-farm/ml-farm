@@ -7,10 +7,10 @@
   window.orderSellList = ${orderSellList};
   window.tradeList = ${tradeList};
 
-  console.log(window.tokenId);
-  console.log(window.orderBuyList);
-  console.log(window.orderSellList);
-  console.log(window.tradeList);
+  console.log("tokenId: ", window.tokenId);
+  console.log("호가(매수): ", window.orderBuyList);
+  console.log("호가(매도): ", window.orderSellList);
+  console.log("체결: ", window.tradeList);
 </script>
 
 <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/token_detail.css" />
@@ -188,101 +188,11 @@
 
         <div id="history-tab" class="tab-content-wrapper">
           <div class="history-summary">
-            <div>총 2건</div>
+            <div>총 0건</div>
             <div>최신순</div>
           </div>
           <div class="scroll active">
             <ul class="transaction-list">
-<%--              <li class="transaction-item">--%>
-<%--                <div class="item-hover-layer">--%>
-<%--                  <div class="trashcan-box">--%>
-<%--                    <t:icon name="trashcan" size="48" className="trashcan"></t:icon>--%>
-<%--                  </div>--%>
-<%--                </div>--%>
-
-<%--                <div class="trade-title">--%>
-<%--                  <div class="item-header">--%>
-<%--                    <span class="asset-name">HSSJ01/KRW</span>--%>
-<%--                    <span class="trade-type sell">매도</span>--%>
-<%--                  </div>--%>
-<%--                  <div class="trade-date">2026-01-25 19:09:55</div>--%>
-<%--                </div>--%>
-
-<%--                <div class="trade-info">--%>
-<%--                  <div class="trade-info-row">--%>
-<%--                    <span class="label">주문가격</span>--%>
-<%--                    <span class="value">5,000.0</span>--%>
-<%--                  </div>--%>
-<%--                  <div class="trade-info-row">--%>
-<%--                    <span class="label">주문수량</span>--%>
-<%--                    <span class="value">1.00000</span>--%>
-<%--                  </div>--%>
-<%--                  <div class="trade-info-row">--%>
-<%--                    <span class="label">미체결량</span>--%>
-<%--                    <span class="value">0.4390</span>--%>
-<%--                  </div>--%>
-<%--                </div>--%>
-<%--              </li>--%>
-<%--              <li class="transaction-item">--%>
-<%--                <div class="item-hover-layer">--%>
-<%--                  <div class="trashcan-box">--%>
-<%--                    <t:icon name="trashcan" size="48" className="trashcan"></t:icon>--%>
-<%--                  </div>--%>
-<%--                </div>--%>
-
-<%--                <div class="trade-title">--%>
-<%--                  <div class="item-header">--%>
-<%--                    <span class="asset-name">HSSJ01/KRW</span>--%>
-<%--                    <span class="trade-type buy">매수</span>--%>
-<%--                  </div>--%>
-<%--                  <div class="trade-date">2026-01-25 19:09:55</div>--%>
-<%--                </div>--%>
-
-<%--                <div class="trade-info">--%>
-<%--                  <div class="trade-info-row">--%>
-<%--                    <span class="label">주문가격</span>--%>
-<%--                    <span class="value">5,000.0</span>--%>
-<%--                  </div>--%>
-<%--                  <div class="trade-info-row">--%>
-<%--                    <span class="label">주문수량</span>--%>
-<%--                    <span class="value">1.00000</span>--%>
-<%--                  </div>--%>
-<%--                  <div class="trade-info-row">--%>
-<%--                    <span class="label">미체결량</span>--%>
-<%--                    <span class="value">0.9021</span>--%>
-<%--                  </div>--%>
-<%--                </div>--%>
-<%--              </li>--%>
-<%--              <li class="transaction-item">--%>
-<%--                <div class="item-hover-layer">--%>
-<%--                  <div class="trashcan-box">--%>
-<%--                    <t:icon name="trashcan" size="48" className="trashcan"></t:icon>--%>
-<%--                  </div>--%>
-<%--                </div>--%>
-
-<%--                <div class="trade-title">--%>
-<%--                  <div class="item-header">--%>
-<%--                    <span class="asset-name">HSSJ01/KRW</span>--%>
-<%--                    <span class="trade-type sell">매도</span>--%>
-<%--                  </div>--%>
-<%--                  <div class="trade-date">2026-01-25 19:09:55</div>--%>
-<%--                </div>--%>
-
-<%--                <div class="trade-info">--%>
-<%--                  <div class="trade-info-row">--%>
-<%--                    <span class="label">주문가격</span>--%>
-<%--                    <span class="value">5,000.0</span>--%>
-<%--                  </div>--%>
-<%--                  <div class="trade-info-row">--%>
-<%--                    <span class="label">주문수량</span>--%>
-<%--                    <span class="value">1.0000</span>--%>
-<%--                  </div>--%>
-<%--                  <div class="trade-info-row">--%>
-<%--                    <span class="label">미체결량</span>--%>
-<%--                    <span class="value">0.3786</span>--%>
-<%--                  </div>--%>
-<%--                </div>--%>
-<%--              </li>--%>
             </ul>
           </div>
         </div>

@@ -35,8 +35,8 @@ public class TokenService {
 	@Autowired
 	ExternalApiUtil externalApiUtil;
 
-	@Value("${api.kh-stock.url}") // 강황증권 API 서버 주소 (배포)
-	//@Value("http://localhost:9090/api") // 강황증권 API 서버 주소 (테스트)
+	// @Value("${api.kh-stock.url}") // 강황증권 API 서버 주소 (배포)
+	@Value("http://localhost:9090/api") // 강황증권 API 서버 주소 (테스트)
 	private String khUrl;
 
 	// 전체 토큰 시세 조회
@@ -161,15 +161,15 @@ public class TokenService {
 	}
 
 	// 주문 (매수, 매도)
-	public boolean createOrder(Long userId, Long tokenId, OrderDTO order) {
+	public boolean createOrder(Long userId, Long tokenId, OrderDTO orderDTO) {
 		Long walletId = selectWalletId(userId);
 		if (walletId != null) {
-			order.setWalletId(walletId);
-			String targetUrl = khUrl + "/order/" + tokenId;
+			orderDTO.setWalletId(walletId);
+			String targetUrl = khUrl + "/order";
 			ParameterizedTypeReference<ApiResponse<Void>> responseType =
 				new ParameterizedTypeReference<ApiResponse<Void>>() {};
 
-			externalApiUtil.callApi(targetUrl, HttpMethod.POST, order, responseType);
+			externalApiUtil.callApi(targetUrl, HttpMethod.POST, orderDTO, responseType);
 			return true;
 		}
 		return false;
@@ -177,7 +177,7 @@ public class TokenService {
 
 	// 주문 취소
 	public boolean cancelOrder(Long tokenId, Long orderId) {
-		String targetUrl = khUrl + "/order/cancel" + tokenId + "/" + orderId;
+		String targetUrl = khUrl + "/order/cancel/" + tokenId + "/" + orderId;
 		ParameterizedTypeReference<ApiResponse<Void>> responseType =
 			new ParameterizedTypeReference<ApiResponse<Void>>() {};
 

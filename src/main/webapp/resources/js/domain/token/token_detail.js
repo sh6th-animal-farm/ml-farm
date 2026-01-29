@@ -120,15 +120,15 @@ async function fetchBalance(perc) {
         const activeTab = document.querySelector('.tab-content-wrapper.active');
         const isBuyTab = activeTab.id === 'buy-tab';
 
+        let balance = 0;
         if (isBuyTab) {
             // 매수: 주문 가능 금액
-            const response = await TokenApi.getCashBalance();
-            const balance = await response.json();
+            balance = await TokenApi.getCashBalance();
         } else {
             // 매도: 보유 토큰 수량
-            const response = await TokenApi.getTokenBalance(window.tokenId);
-            const balance = await response.json();
+            balance = await TokenApi.getTokenBalance(window.tokenId);
         }
+        console.log("잔액: ", balance);
 
         const calculatedAmount = balance * (perc / 100);
 
@@ -201,6 +201,7 @@ async function handleOrder(event, side){
         const result = await TokenApi.createOrder(orderDTO.tokenId, orderDTO);
         if (result) alert("주문이 완료되었습니다.");
     } catch(e) {
+        alert("주문 처리 중 오류가 발생했습니다. 다시 시도해주세요.");
         console.error("주문 실패: ", e);
     }
 };
@@ -264,8 +265,7 @@ function validateOrder(dto) {
 /* 미체결 내역 조회 */
 async function fetchPendingOrders() {
     try {
-        const response = await TokenApi.getPendingList(window.tokenId);
-        const data = await response.json();
+        const data = await TokenApi.getPendingList(window.tokenId);
         renderPendingOrders(data);
     } catch (error) {
         console.error("미체결 내역 조회 실패:", error);
@@ -315,7 +315,8 @@ function createPendingRowHtml(item) {
             <li class="transaction-item" data-order-id="${item.orderId}">
                 <div class="item-hover-layer">
                     <div class="trashcan-box" onclick="cancelOrder(${item.orderId})">
-                        <i class="icon-trashcan"></i> </div>
+                        <i class="icon-trashcan"></i>
+                    </div>
                 </div>
 
                 <div class="trade-title">
@@ -356,6 +357,8 @@ async function cancelOrder(orderId) {
         console.error("취소 실패: ", e);
     }
 }
+
+window.cancelOrder = cancelOrder;
 
 /* 호가, 체결 탭 */
 const tradeBtns = document.querySelectorAll('.trade-btn');

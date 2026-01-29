@@ -59,16 +59,16 @@ public class TokenController {
 
 	// 주문 (매수, 매도)
 	@PostMapping("/api/token/order/{tokenId}")
-	public boolean createOrder(@PathVariable Long tokenId, @RequestBody OrderDTO order) {
+	public boolean createOrder(@PathVariable Long tokenId, @RequestBody OrderDTO orderDTO) {
 		Long userId = SecurityUtil.getCurrentUserId();
 		if (userId != null) {
-			return tokenService.createOrder(userId, tokenId, order);
+			return tokenService.createOrder(userId, tokenId, orderDTO);
 		}
 		return false;
 	}
 
 	// 주문 취소
-	@PostMapping("/api/token/order/{tokenId}/{orderId}")
+	@PostMapping("/api/token/order-cancel/{tokenId}/{orderId}")
 	public boolean cancelOrder(@PathVariable Long tokenId, @PathVariable Long orderId) {
 		return tokenService.cancelOrder(tokenId, orderId);
 	}

@@ -80,9 +80,9 @@
 .transaction-item { position: relative; display: flex; flex-direction: column; gap: 20px; padding: 16px 4px; background-color: white; border-bottom: 1px solid var(--gray-200); isolation: isolate; }
 
 /* 호버 시 블러 처리 */
-.item-hover-layer { position: absolute; inset: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; opacity: 0; background: rgba(255, 255, 255, 0.5); backdrop-filter: blur(4px); transition: opacity 0.2s ease-in-out; z-index: 10; cursor: pointer; }
-.transaction-item:hover .item-hover-layer { opacity: 1; }
-.trashcan-box { display: flex !important; align-items: center; justify-content: center; z-index: 11; }
+.item-hover-layer { position: absolute; inset: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; opacity: 0; background: rgba(255, 255, 255, 0.5); backdrop-filter: blur(4px); transition: opacity 0.2s ease-in-out; z-index: 10; pointer-events: none; }
+.transaction-item:hover .item-hover-layer { opacity: 1; pointer-events: auto; }
+.trashcan-box { display: flex !important; width: 50px; height: 50px; align-items: center; justify-content: center; cursor: pointer; z-index: 11; }
 .trashcan { display: flex !important; align-items: center; justify-content: center; color: var(--gray-900) !important; fill: var(--gray-900) !important; }
 
 /* 제목 및 날짜 */
