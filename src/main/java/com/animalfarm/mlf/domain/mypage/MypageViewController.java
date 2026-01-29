@@ -1,5 +1,6 @@
 package com.animalfarm.mlf.domain.mypage;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,6 +9,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/mypage")
 public class MypageViewController {
+
+	@Autowired
+	MypageService mypageService;
 
 	// /admin 또는 /admin/ 으로 접속 시 실행
 	@GetMapping({"", "/"})
