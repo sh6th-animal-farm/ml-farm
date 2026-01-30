@@ -11,12 +11,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import com.animalfarm.mlf.common.ApiResponseDTO;
 import com.animalfarm.mlf.common.security.SecurityUtil;
 import com.animalfarm.mlf.domain.mypage.dto.CarbonHistoryDTO;
 import com.animalfarm.mlf.domain.mypage.dto.HoldingDTO;
 import com.animalfarm.mlf.domain.mypage.dto.WalletDTO;
+import com.animalfarm.mlf.domain.mypage.dto.PasswordUpdateRequestDTO;
+import com.animalfarm.mlf.domain.mypage.dto.ProfileDTO;
+import com.animalfarm.mlf.domain.mypage.dto.ProfileUpdateRequestDTO;
 
 @Service
 public class MypageService {
@@ -32,6 +37,8 @@ public class MypageService {
 	// ---------------------------------------------------------
 	// 탄소 구매 내역 조회
 	// ---------------------------------------------------------
+	private PasswordEncoder passwordEncoder;
+
 	public List<CarbonHistoryDTO> getCarbonHistory() {
 		Long userId = SecurityUtil.getCurrentUserId();
 		return mypageRepository.selectCarbonHistoryByUserId(userId);
@@ -135,5 +142,44 @@ public class MypageService {
 			System.err.println("[ERROR] 계좌 연동 실패 (계좌 없음 또는 통신 오류): " + e.getMessage());
 		}
 		return null; // 계좌가 없으면 null 반환
+	}
+	
+	public ProfileDTO getProfile() {
+		Long userId = SecurityUtil.getCurrentUserId();
+		return mypageRepository.selectProfile(userId);
+	}
+
+	public void updateProfile(ProfileUpdateRequestDTO req) {
+		Long userId = SecurityUtil.getCurrentUserId();
+		mypageRepository.updateProfile(userId, req);
+	}
+
+	@Transactional
+	public void updatePassword(PasswordUpdateRequestDTO dto) {
+
+		Long userId = SecurityUtil.getCurrentUserId();
+
+		if (dto == null
+			|| dto.getCurrentPassword() == null
+			|| dto.getNewPassword() == null) {
+			throw new IllegalArgumentException("비밀번호 입력값이 올바르지 않습니다.");
+		}
+
+		// 1. 현재 비밀번호(암호화) 조회
+		String encodedPassword = mypageRepository.selectPasswordByUserId(userId);
+		if (encodedPassword == null) {
+			throw new IllegalStateException("사용자 정보를 찾을 수 없습니다.");
+		}
+
+		// 2. 현재 비밀번호 검증
+		if (!passwordEncoder.matches(dto.getCurrentPassword(), encodedPassword)) {
+			throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
+		}
+
+		// 3. 새 비밀번호 암호화
+		String newEncodedPassword = passwordEncoder.encode(dto.getNewPassword());
+
+		// 4. 비밀번호 업데이트
+		mypageRepository.updatePassword(userId, newEncodedPassword);
 	}
 }

@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,6 +16,9 @@ import com.animalfarm.mlf.common.ApiResponseDTO;
 import com.animalfarm.mlf.domain.mypage.dto.CarbonHistoryDTO;
 import com.animalfarm.mlf.domain.mypage.dto.HoldingDTO;
 import com.animalfarm.mlf.domain.mypage.dto.WalletDTO;
+import com.animalfarm.mlf.domain.mypage.dto.PasswordUpdateRequestDTO;
+import com.animalfarm.mlf.domain.mypage.dto.ProfileDTO;
+import com.animalfarm.mlf.domain.mypage.dto.ProfileUpdateRequestDTO;
 
 @RestController
 @RequestMapping("/api/mypage")
@@ -59,5 +64,21 @@ public class MypageController {
 				.body(new ApiResponseDTO<>("연동 가능한 강황증권 계좌를 찾을 수 없습니다.", null));
 		}
 
+	@GetMapping("/profile")
+	public ResponseEntity<ProfileDTO> getProfile() {
+	}
+
+	@PatchMapping("/profile")
+	public ResponseEntity<Void> updateProfile(@RequestBody
+	ProfileUpdateRequestDTO req) {
+		mypageService.updateProfile(req);
+		return ResponseEntity.ok().build();
+	}
+
+	@PatchMapping("/password")
+	public ResponseEntity<Void> updatePassword(@RequestBody
+	PasswordUpdateRequestDTO dto) {
+		mypageService.updatePassword(dto);
+		return ResponseEntity.ok().build();
 	}
 }

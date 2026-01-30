@@ -1,4 +1,4 @@
-package com.animalfarm.mlf.domain.common;
+package com.animalfarm.mlf.common;
 
 import java.io.File;
 import java.io.IOException;

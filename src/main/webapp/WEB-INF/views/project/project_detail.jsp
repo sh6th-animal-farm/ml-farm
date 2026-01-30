@@ -126,10 +126,13 @@
 		<t:subscription_modal 
 		    id="subscriptionModal"
 		    title="${projectData.projectName} 공모"
-		    price="345000"
+		    projectId="${projectData.projectId}"
+		    price="${projectData.totalSupply > 0 ? (projectData.targetAmount / projectData.totalSupply) : 0}"
 		    thumbnail="${pageContext.request.contextPath}/uploads/projects/${projectData.images[0]}"
-		    userLimit="40000000"
-		    walletBalance="${myCash}"
+		    userLimit="5000000000"
+		    minAmountPerInvestor="${projectData.minAmountPerInvestor}"
+		    walletBalance="0"
+		    tokenId="${tokenId}"
 		/>
 		<t:warning_card id="noAccountModal" title="연동된 계좌 없음">
    			현재 팜조각에 연동된 <strong>증권사 계좌</strong>가 없습니다.<br> 

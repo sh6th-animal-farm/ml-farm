@@ -61,4 +61,50 @@
 	</insert>
     
     
+	<select id="selectProfile" parameterType="long"
+        resultType="com.animalfarm.mlf.domain.mypage.dto.ProfileDTO">
+	  SELECT
+	  user_name,
+	  investor_type,
+	  created_at,
+	  email,
+	  phone_number,
+	  address,
+	  push_yn,
+	  receive_email_yn
+	FROM users
+	WHERE user_id = #{userId}
+	  AND deleted_at IS NULL
+	</select>
+	
+	<update id="updateProfile">
+	  UPDATE users
+	  <set>
+	    <if test="req.address != null">address = #{req.address},</if>
+	    <if test="req.pushYn != null">push_yn = #{req.pushYn},</if>
+	    <if test="req.receiveEmailYn != null">receive_email_yn = #{req.receiveEmailYn},</if>
+	    updated_at = NOW()
+	  </set>
+	  WHERE user_id = #{userId}
+	    AND deleted_at IS NULL
+	</update>
+	
+	<!-- 현재 비밀번호 조회 -->
+    <select id="selectPasswordByUserId"
+            parameterType="long"
+            resultType="string">
+        SELECT password
+        FROM users
+        WHERE user_id = #{userId}
+          AND deleted_at IS NULL
+    </select>
+
+    <!-- 비밀번호 업데이트 -->
+    <update id="updatePassword">
+        UPDATE users
+        SET password = #{password},
+            updated_at = NOW()
+        WHERE user_id = #{userId}
+          AND deleted_at IS NULL
+    </update>
 </mapper>

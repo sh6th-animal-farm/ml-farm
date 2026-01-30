@@ -5,10 +5,13 @@
 <%-- 속성 정의 --%>
 <%@ attribute name="id" required="true" %> <%-- 모달 고유 ID --%>
 <%@ attribute name="title" required="true" %> <%-- 프로젝트 제목 --%>
+<%@ attribute name="projectId" required="true" %> <%-- 프로젝트 제목 --%>
 <%@ attribute name="price" required="true" type="java.lang.Long" %> <%-- 1토큰 당 가격 --%>
 <%@ attribute name="thumbnail" required="false" %> <%-- 이미지 경로 --%>
 <%@ attribute name="userLimit" required="true" type="java.lang.Long" %> <%-- 투자 한도 잔여 --%>
 <%@ attribute name="walletBalance" required="true" type="java.lang.Long" %> <%-- 지갑 잔액 --%>
+<%@ attribute name="tokenId" required="true" type="java.lang.Long" %> <%-- 토큰Id --%>
+<%@ attribute name="minAmountPerInvestor" required="true" type="java.lang.Long" %> <%-- 토큰Id --%>
 
 <div id="${id}" class="subscription-modal-overlay">
     <div class="subscription-modal-content" onclick="event.stopPropagation()">
@@ -47,13 +50,14 @@
                 <span class="unit">토큰</span>
             </div>
             <div class="error-container">
+            	<p class="min-info-msg" id="min-info">* 최소 청약 금액: <fmt:formatNumber value="${minAmountPerInvestor}" pattern="#,###"/>원</p>
                 <p class="error-msg" id="sub-error">신청 가능한 최대 수량을 초과할 수 없습니다.</p>
             </div>
         </div>
 
         <div class="wallet-info">
             <span>나의 지갑(Wallet) 잔액</span>
-            <strong><fmt:formatNumber value="${walletBalance}" pattern="#,###"/>원</strong>
+            <strong id="modal-wallet-balance"><fmt:formatNumber value="${walletBalance}" pattern="#,###"/>원</strong>
         </div>
 
         <%-- 최종 결제 정보 --%>
@@ -69,14 +73,15 @@
         </div>
 
         <%-- 신청 버튼 --%>
-        <button class="submit-btn" onclick="submitSubscription('${id}')">청약 신청 완료</button>
+        <button class="submit-btn" onclick="submitSubscription('${projectId}')">청약 신청 완료</button>
     </div>
 </div>
 
 <script>
-    const unitPrice = ${price}; 
-    const myBalance = ${walletBalance}; 
-    const currentRemainLimit = ${userLimit}; // 서버에서 이미 계산된 잔여 한도
+	window.unitPrice = ${price}; 
+	window.myBalance = ${walletBalance}; // 처음엔 0
+	window.currentRemainLimit = ${userLimit};
+	window.minAmount = ${minAmountPerInvestor};
     
     const myTotalLimit = 50000000; // 예시: 총 한도 5천만원
     const alreadyInvested = myTotalLimit - currentRemainLimit; // 이미 사용한 금액 계산
@@ -85,8 +90,7 @@
         const input = document.getElementById('sub-quantity');
         const wrapper = input.closest('.token-input-wrapper');
         const errorMsg = document.getElementById('sub-error');
-        const displayQty = document.getElementById('display-quantity');
-        const displayTotal = document.getElementById('display-total-price');
+        const minInfo = document.getElementById('min-info'); // 최소 금액 안내 문구
         const submitBtn = document.querySelector('.submit-btn');
         
         // 입력값 정제
@@ -96,48 +100,72 @@
             submitBtn.disabled = true;
             return;
         }
-
-        // 최대 가능 수량 계산 (한도 vs 잔액 중 최소값 기준)
+        
+        // 현재 총액 계산
+        const currentTotalPrice = quantity * unitPrice;
+        
+        // 최대 가능 수량 계산 (한도 vs 잔액)
         const maxAvailableAmount = Math.min(currentRemainLimit, myBalance);
         const maxQuantity = Math.floor(maxAvailableAmount / unitPrice);
 
-        // 검증 로직
-        if (quantity > maxQuantity) {
-            input.value = maxQuantity; // 최대치로 강제 고정
-            quantity = maxQuantity;
-            
-            errorMsg.style.display = 'block'; // 에러 표시
-            wrapper.classList.add('is-error');
-            
-            // 1.5초 후 디자인 원복 (사용자 경험 개선)
-            setTimeout(() => {
-            	wrapper.classList.remove('is-error');
-            	errorMsg.style.display = 'none';
-            }, 2000);
-        } else {
-        	wrapper.classList.remove('is-error');
-        	errorMsg.style.display = 'none';
+        let isError = false;
+        let msg = "";
+
+        // 1. 최소 금액 검증
+        if (currentTotalPrice < minAmount) {
+            isError = true;
+            msg = "최소 청약 금액은 " + minAmount.toLocaleString() + "원 입니다.";
+        } 
+        // 2. 최대 수량 검증
+        else if (quantity > maxQuantity) {
+            isError = true;
+            msg = "신청 가능한 최대 수량을 초과할 수 없습니다.";
+            // 사용자 경험을 위해 강제로 깎지는 않고 메시지만 보여주거나, 필요시 아래 주석 해제
+            // input.value = maxQuantity; 
+            // quantity = maxQuantity; 
         }
 
-        // UI 업데이트
+        // UI 반영
+        if (isError) {
+            errorMsg.innerText = msg;
+            errorMsg.style.display = 'block';   // 에러 메시지 표시
+            minInfo.style.display = 'none';     // 평상시 안내 문구 숨김
+            wrapper.classList.add('is-error');
+            submitBtn.disabled = true;          // 버튼 비활성화
+        } else {
+            errorMsg.style.display = 'none';
+            minInfo.style.display = 'block';    // 평상시 안내 문구 다시 표시
+            wrapper.classList.remove('is-error');
+            submitBtn.disabled = false;         // 버튼 활성화
+        }
+
         updateModalUI(quantity);
-        submitBtn.disabled = (quantity <= 0);
     }
 
     function updateModalUI(quantity) {
+        // 1. 이번 청약 금액 계산
         const totalAmount = quantity * unitPrice;
         
-        // 콤마 포맷팅 처리
+        // 2. 콤마 포맷팅 처리
         document.getElementById('display-quantity').innerText = quantity.toLocaleString() + ' 토큰';
         document.getElementById('display-total-price').innerText = totalAmount.toLocaleString();
         
-        // 투자 한도 프로그레스 바 업데이트
-        const newTotalUsage = alreadyInvested + totalAmount;
-        const usagePercent = Math.min((newTotalUsage / myTotalLimit) * 100, 100);
+     	// 2. 퍼센트 계산 로직
+        // 사용자가 '남은 한도' 중에서 이번에 '얼마나 채우는지' 보여줍니다.
+        let usagePercent = 0;
+        if (currentRemainLimit > 0) {
+            usagePercent = (totalAmount / currentRemainLimit) * 100;
+        }
         
-        document.getElementById('limit-bar').style.width = usagePercent + '%';
-        document.getElementById('limit-percent-text').innerText = Math.floor(usagePercent) + '% 사용';
-        // 현재는 잔여 한도 대비 이번 청약 금액 비율로 시뮬레이션 가능
+        // 0보다 작으면 0, 100보다 크면 100으로 고정 (Clamping)
+        usagePercent = Math.min(Math.max(usagePercent, 0), 100);
+        
+        // 5. UI 업데이트
+        const bar = document.getElementById('limit-bar');
+        const text = document.getElementById('limit-percent-text');
+        
+        bar.style.width = usagePercent + '%';
+        text.innerText = Math.floor(usagePercent) + '% 사용';
     }
 
     function closeSubscriptionModal(id) {
@@ -155,6 +183,59 @@
         alert(qty + "토큰 청약 신청이 완료되었습니다.");
         closeSubscriptionModal(id);
     }
+    
+ // '청약 신청 완료' 버튼을 눌렀을 때 실행되는 함수
+    function submitSubscription(projectId) {
+        const quantity = document.getElementById('sub-quantity').value; // 입력한 숫자
+        const totalPrice = quantity * unitPrice;
+        
+     	// 1. 로컬 스토리지에서 토큰을 가져옵니다.
+        const token = localStorage.getItem("accessToken");
+        
+        const payload = {
+        	tokenId: ${projectData.tokenId},
+        	projectId: projectId,         // 프로젝트 ID
+        	subscriptionAmount: totalPrice, // 수량
+            walletId: window.myWalletId,
+            projectId: projectId
+            
+        };
+        
+        fetch(ctx + "/api/subscription/application", {
+            method: "POST",
+            headers: { 
+            	"Content-Type": "application/json",
+            	"Authorization": token ? "Bearer " + token : ""
+            			},
+            body: JSON.stringify(payload) // 박스를 테이프로 감싸서 전송!
+        })
+        .then(response => {
+            // 서버가 200 OK를 던졌는지 확인
+            if (!response.ok) {
+                return response.text().then(err => { throw new Error(err) });
+            }
+            return response.text(); // 서버가 ResponseEntity<String>으로 주니까 text로 받기
+        })
+        .then(result => {
+            // 앞뒤 공백 제거 (혹시 모를 줄바꿈 방지)
+            const status = result.trim();
+            console.log("서버 응답 결과:", status);
+
+            if (status === "success") {
+                alert("✅ 청약 신청이 완료되었습니다!");
+                location.href = ctx + "/project/" + projectId;
+            } else if (status === "empty_payload") {
+                alert("❌ 청약 신청이 실패되었습니다!.");
+            } else {
+                alert("⚠️ 신청 실패: " + status);
+            }
+        })
+        .catch(error => {
+            console.error("Fetch 에러:", error);
+            alert("⚠️ 서버 연결 오류: " + error.message);
+        });
+    }
+    
     // 초기 실행
     window.onload = () => updateModalUI(1);
 </script>
@@ -229,4 +310,10 @@ input[type="number"] {
     cursor: not-allowed;
 }
 .submit-btn { width: 100%; padding: 16px; background: var(--green-600); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; }
+.min-info-msg {
+    font: var(--font-caption-01);
+    color: var(--gray-400);
+    text-align: right;
+    margin-top: 4px;
+}
 </style>
