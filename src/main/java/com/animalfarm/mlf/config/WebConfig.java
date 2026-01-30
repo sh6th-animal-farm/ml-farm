@@ -78,6 +78,9 @@ public class WebConfig implements WebMvcConfigurer {
 
 	@Bean
 	public ObjectMapper objectMapper() {
-		return new ObjectMapper();
+		return Jackson2ObjectMapperBuilder.json()
+			.modules(new JavaTimeModule())
+			.featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+			.build();
 	}
 }

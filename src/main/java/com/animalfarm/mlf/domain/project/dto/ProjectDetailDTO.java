@@ -51,4 +51,5 @@ public class ProjectDetailDTO {
 
 	private String tickerSymbol; //Tokens 테이블 연관
 	private BigDecimal totalSupply;
+	private Long tokenId;
 }
