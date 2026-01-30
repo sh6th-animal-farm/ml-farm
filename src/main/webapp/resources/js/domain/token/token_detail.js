@@ -24,6 +24,19 @@ WebSocketManager.connect('http://localhost:9090/ws-stomp', function() {
         console.log('[WebSocket - 호가]', data);
         updateOrderBook(data);
     });
+
+    // 3. 캔들 토픽 구독
+    WebSocketManager.subscribe('candle', `/topic/candles/${tokenId}`, function (data) {
+        console.log('[WebSocket - 캔들]', data);
+        // 실시간 캔들 데이터
+        candleSeries.update({
+            time: data.candleTime > 10000000000 ? Math.floor(data.candleTime / 1000) : data.candleTime,
+            open: parseFloat(data.openingPrice),
+            high: parseFloat(data.highPrice),
+            low: parseFloat(data.lowPrice),
+            close: parseFloat(data.marketPrice)
+        });
+    });
 });
 
 /* 틱 주기 토글 */
@@ -517,4 +530,53 @@ function updateOrderList(list, data) {
             list.splice(index, 1);
         }
     }
+}
+
+let candleSeries;
+
+async function initTradingChart(tokenId) {
+    const chartContainer = document.querySelector('.token-chart');
+    if(!chartContainer) {
+        return;
+    }
+    // 1. 차트 인스턴스 생성
+    const chart = LightweightCharts.createChart(chartContainer, {
+        layout: { backgroundColor: '#ffffff', textColor: '#333' },
+        grid: { vertLines: { color: '#f0f0f0' }, horzLines: { color: '#f0f0f0' } },
+        timeScale: { timeVisible: true, secondsVisible: false },
+    });
+
+    candleSeries = chart.addSeries(LightweightCharts.CandlestickSeries, {
+        upColor: '#f23645',
+        downColor: '#089981',
+        borderUpColor: '#f23645',
+        borderDownColor: '#089981',
+        wickUpColor: '#f23645',
+        wickDownColor: '#089981',
+    });
+
+    try {
+        // 백엔드에서 과거 캔들 데이터 가져오기
+        const response = await TokenApi.getCandles(tokenId);
+        const chartData = response.map(c => ({
+            time: c.candleTime > 10000000000 ? Math.floor(c.candleTime / 1000) : c.candleTime,
+            open : parseFloat(c.openingPrice),
+            high : parseFloat(c.highPrice),
+            low : parseFloat(c.lowPrice),
+            close : parseFloat(c.closingPrice)
+        }));
+
+        // 차트에 데이터 주입
+        candleSeries.setData(chartData);
+
+        // 실시간 업데이트 구독
+        subscribeCandleSocket(tokenId);
+
+    } catch (e) {
+        console.error("차트 로딩 중 오류 발생", e);
+    }
+}
+
+if (window.tokenId) {
+    initTradingChart(window.tokenId);
 }

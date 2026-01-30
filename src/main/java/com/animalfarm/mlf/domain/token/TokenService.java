@@ -3,8 +3,11 @@ package com.animalfarm.mlf.domain.token;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import com.animalfarm.mlf.domain.token.dto.CandleDTO;
 import com.animalfarm.mlf.domain.token.dto.TokenListDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,6 +69,41 @@ public class TokenService {
 	public TokenDetailDTO selectByTokenId(Long tokenId) {
 		String targetUrl = khUrl + "/my/market/" + tokenId; 	// [TODO] 강황증권 API 필요
 		return null;
+	}
+
+	// 토큰 차트 조회
+	public List<CandleDTO> selectCandles(Long tokenId, int unit, long start, long end) {
+		try {
+			List<String> list = externalApiUtil.callApi(
+				khUrl +String.format("/market/candles/%d?unit=%d&start=%d&end=%d", tokenId, unit, start, end),
+				HttpMethod.GET,
+				null,
+				new ParameterizedTypeReference<ApiResponse<List<String>>>() {}
+			);
+
+			if (list == null || list.isEmpty()) {
+				return Collections.emptyList();
+			}
+
+			return list.stream()
+				.map(csv -> {
+					String[] s = csv.split(",");
+					return CandleDTO.builder()
+						.candleTime(Long.parseLong(s[0]))
+						.openingPrice(new BigDecimal(s[2]))
+						.highPrice(new BigDecimal(s[3]))
+						.lowPrice(new BigDecimal(s[4]))
+						.closingPrice(new BigDecimal(s[5]))
+						.tradeVolume(new BigDecimal(s[6]))
+						.build();
+			})
+			.sorted(Comparator.comparingLong(CandleDTO::getCandleTime))
+			.collect(Collectors.toList());
+
+		} catch (RuntimeException e) {
+			log.error("[Service Error] 토큰 목록 조회 실패: {}",e.getMessage());
+			return Collections.emptyList();
+		}
 	}
 
 	// 토큰 현재가 조회
