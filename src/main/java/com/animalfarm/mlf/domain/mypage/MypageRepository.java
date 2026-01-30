@@ -12,6 +12,7 @@ import com.animalfarm.mlf.domain.mypage.dto.ProjectDTO;
 
 @Mapper
 public interface MypageRepository {
+
 	List<CarbonHistoryDTO> selectCarbonHistoryByUserId(Long userId);
 
 	ProfileDTO selectProfile(Long userId);
@@ -33,4 +34,18 @@ public interface MypageRepository {
 
 	List<ProjectDTO> selectMyProjects(@Param("user_id")
 	Long userId);
+	// 유저 ID로 지갑 번호(ucl_id) 존재 여부 & 가져오기
+	Long getWalletIdByUserId(@Param("userId")
+	Long userId);
+
+	// 계좌 연동하기
+	void upsertUserWalletLink(
+		@Param("userId")
+		Long userId,
+		@Param("walletId")
+		Long walletId,
+		@Param("accessToken")
+		String randomAccessToken,
+		@Param("refreshToken")
+		String randomRefreshToken);
 }

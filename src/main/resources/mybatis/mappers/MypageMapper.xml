@@ -106,4 +106,44 @@
 	
 	  ORDER BY p.project_id, sh.subscription_date DESC
 	</select>
+
+	<select id="getWalletIdByUserId" resultType="long">
+        SELECT ucl_id 
+        FROM user_certificate_links 
+        WHERE user_id = #{userId}
+    </select>
+    
+    
+    <insert id="upsertUserWalletLink">
+	    INSERT INTO user_certificate_links (
+	        ucl_id, 
+	        user_id, 
+	        certificates_id, 
+	        access_token, 
+	        refresh_token, 
+	        token_expired_at, 
+	        refresh_token_expired_at,
+	        created_at
+	    )
+	    VALUES (
+	        #{walletId}, 
+	        #{userId}, 
+	        1, -- 증권사 번호 1 고정
+	        #{accessToken}, 
+	        #{refreshToken}, 
+	        NOW() + INTERVAL '1 hour',
+	        NOW() + INTERVAL '30 days',
+	        NOW()
+	    )
+	    ON CONFLICT (user_id) 
+	    DO UPDATE SET 
+	        ucl_id = EXCLUDED.ucl_id,
+	        certificates_id = 1,
+	        access_token = EXCLUDED.access_token,
+	        refresh_token = EXCLUDED.refresh_token,
+	        token_expired_at = EXCLUDED.token_expired_at,
+	        refresh_token_expired_at = EXCLUDED.refresh_token_expired_at,
+	        updated_at = NOW()
+	</insert>
+
 </mapper>
