@@ -36,6 +36,11 @@
             }
         });
     </script>
+
+    <%-- SockJS, STOMP, WebSocket manager --%>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script src="${ctx}/resources/js/util/websocket_manager.js"></script>
     
 </body>
 </html>

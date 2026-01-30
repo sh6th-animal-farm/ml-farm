@@ -12,8 +12,11 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.animalfarm.mlf.domain.accounting.DividendService;
+import com.animalfarm.mlf.domain.accounting.dto.DividendSelectDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectDetailDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectInsertDTO;
@@ -21,11 +24,18 @@ import com.animalfarm.mlf.domain.project.dto.ProjectListDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectPictureDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectSearchReqDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectStarredDTO;
+import com.animalfarm.mlf.domain.user.service.UserService;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
+@RequestMapping("/api/project")
 public class ProjectController {
 	@Autowired
 	ProjectService projectService;
+	@Autowired
+	DividendService dividendService;
 
 	@InitBinder
 	protected void initBinder(WebDataBinder binder) {
@@ -40,37 +50,32 @@ public class ProjectController {
 		});
 	}
 
-	@GetMapping("/projects")
-	public String projectListPage() {
-		return "";
-	}
-
-	@GetMapping("/api/project/{projectId}")
+	@GetMapping("/{projectId}")
 	public ProjectDetailDTO selectDetail(@PathVariable("projectId")
 	Long projectId) {
 		return projectService.selectDetail(projectId);
 	}
 
-	@GetMapping("/api/projects/all")
+	@GetMapping("/all")
 	public List<ProjectDTO> selectAll() {
 		return projectService.selectAll();
 	}
 
-	@GetMapping("/api/projects")
+	@GetMapping("")
 	public List<ProjectListDTO> selectByCondition(@ModelAttribute
 	ProjectSearchReqDTO searchDTO) {
 		return projectService.selectByCondition(searchDTO);
 	}
 
 	//관심 프로젝트인지 조회
-	@GetMapping("/api/projects/starred")
+	@GetMapping("/starred")
 	public boolean getStarredStatus(@ModelAttribute
 	ProjectStarredDTO projectStarredDTO) {
 		return projectService.getStarredStatus(projectStarredDTO);
 	}
 
 	//관심 프로젝트 신규 등록
-	@PostMapping("/api/projects/starred")
+	@PostMapping("/starred")
 	public Boolean upsertStrarredProject(@RequestBody
 	ProjectStarredDTO projectStarredDTO) {
 		Boolean curStatus = null;
@@ -80,18 +85,24 @@ public class ProjectController {
 		return curStatus;
 	}
 
-	@PostMapping("/api/projects/insert")
+	@PostMapping("/insert")
 	public ResponseEntity<String> insertProject(@RequestBody
 	ProjectInsertDTO projectInsertDTO) {
 		if (projectService.insertProject(projectInsertDTO)) {
-			return ResponseEntity.ok("success");
+			try {
+				projectService.postTokenIssue(projectInsertDTO);
+				return ResponseEntity.ok("success");
+			} catch (Exception e) {
+				log.error("증권사 전송 중 오류 발생: {}", e.getMessage());
+				return ResponseEntity.ok("api_fail");
+			}
 		} else {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("프로젝트 등록 중 서버 오류가 발생했습니다.");
 		}
 
 	}
 
-	@PostMapping("/api/projects/update")
+	@PostMapping("/update")
 	public ResponseEntity<String> updateProject(@RequestBody
 	ProjectDTO projectDTO) {
 		if (projectService.updateProject(projectDTO)) {
@@ -101,14 +112,52 @@ public class ProjectController {
 		}
 	}
 
-	@GetMapping("/api/project/picture/{projectId}/all")
+	@GetMapping("/picture/{projectId}/all")
 	public List<ProjectPictureDTO> selectPictures(@PathVariable("projectId")
 	Long projectId) {
 		return projectService.selectPictures(projectId);
 	}
 
-	@GetMapping("/api/project/checkAccount")
+	@GetMapping("/checkAccount")
 	public boolean checkAccount(Long userId) {
 		return projectService.checkAccount();
 	}
+
+	@PostMapping("/dividend")
+	public ResponseEntity<String> processDividend(@RequestBody
+	Long projectId) {
+		try {
+			dividendService.runDividendBatch(projectId);
+			return ResponseEntity.ok("성공했습니다. DB를 확인해주세요.");
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+
+	@PostMapping("/dividend-mail")
+	public ResponseEntity<String> sendDividendEmail() {
+		try {
+			dividendService.sendEmail();
+			return ResponseEntity.ok("성공했습니다. DB를 확인해주세요.");
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+
+	@PostMapping("/dividend/poll/select")
+	public ResponseEntity<String> selectDividendType(@RequestBody
+	DividendSelectDTO dividendSelectDTO) {
+		Long dividendId = dividendSelectDTO.getDividendId();
+		String dividendType = dividendSelectDTO.getDividendType();
+		String address = dividendSelectDTO.getAddress();
+		try {
+			dividendService.processUserSelection(dividendId, dividendType, address);
+			// 성공 시 성공 메시지 반환
+			return ResponseEntity.ok("수령 방식 선택이 완료되었습니다.");
+		} catch (Exception e) {
+			// 실패 시 에러 메시지와 함께 400 또는 500 에러 반환
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+
 }
