@@ -39,6 +39,8 @@
 			alias="subscriptionSelectDTO" />
 		<typeAlias type="com.animalfarm.mlf.domain.subscription.dto.SubscriptionHistDTO"
 			alias="subscriptionHistDTO" />
+		<typeAlias type="com.animalfarm.mlf.domain.subscription.dto.SubscriptionApplicationDTO"
+			alias="subscriptionApplicationDTO" />
 		<typeAlias type="com.animalfarm.mlf.domain.project.dto.ProjectNewTokenDTO"
 			alias="projectNewTokenDTO" />
 		<typeAlias type="com.animalfarm.mlf.domain.accounting.dto.RevenueSummaryDTO"
@@ -49,7 +51,10 @@
 			alias="userDTO" />
 		<typeAlias type="com.animalfarm.mlf.domain.user.dto.UserCertificateLinkDTO"
 			alias="uclDTO" />
-			
+		<typeAlias type="com.animalfarm.mlf.domain.subscription.dto.ProjectStartCheckDTO"
+			alias="projectStartCheckDTO" />
+		<typeAlias type="com.animalfarm.mlf.domain.refund.RefundDTO"
+			alias="refundDTO" />
 	</typeAliases>
 	
 </configuration>

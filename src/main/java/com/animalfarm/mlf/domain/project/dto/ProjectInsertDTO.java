@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -61,6 +63,9 @@ public class ProjectInsertDTO implements ImgEditable {
 	private String tickerSymbol;
 	private BigDecimal totalSupply;
 	private Long tokenId;
+
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+	private OffsetDateTime createdAt;
 
 	// 이미지 파일명 리스트와 삭제할 ID 리스트
 	private List<String> projectImageNames; // 신규 추가된 파일명들

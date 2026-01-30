@@ -51,4 +51,5 @@ public interface ProjectRepository {
 
 	public abstract ProjectDTO selectByProjectId(Long projectId);
 
+	public abstract Long selectMyWalletId(Long userId);
 }

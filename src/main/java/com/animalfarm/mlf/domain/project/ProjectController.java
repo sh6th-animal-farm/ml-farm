@@ -26,6 +26,9 @@ import com.animalfarm.mlf.domain.project.dto.ProjectSearchReqDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectStarredDTO;
 import com.animalfarm.mlf.domain.user.service.UserService;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
 @RequestMapping("/api/project")
 public class ProjectController {
@@ -86,7 +89,13 @@ public class ProjectController {
 	public ResponseEntity<String> insertProject(@RequestBody
 	ProjectInsertDTO projectInsertDTO) {
 		if (projectService.insertProject(projectInsertDTO)) {
-			return ResponseEntity.ok("success");
+			try {
+				projectService.postTokenIssue(projectInsertDTO);
+				return ResponseEntity.ok("success");
+			} catch (Exception e) {
+				log.error("증권사 전송 중 오류 발생: {}", e.getMessage());
+				return ResponseEntity.ok("api_fail");
+			}
 		} else {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("프로젝트 등록 중 서버 오류가 발생했습니다.");
 		}

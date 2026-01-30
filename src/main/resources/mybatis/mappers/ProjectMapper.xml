@@ -46,6 +46,7 @@
 		c.method,
 		t.ticker_symbol,
 		t.total_supply,
+		t.token_id,
 		img.image_url, -- 직접 조인 (중복 행 발생하지만 MyBatis가 처리함)
 		fed.temperature_inside -- 직접 조인
 		FROM projects p
@@ -143,7 +144,7 @@
 		#{managerCount})
 	</insert>
 
-	<insert id="insertToken" parameterType="projectInsertDTO" useGeneratedKeys="true" keyProperty="tokenId" keyColumn="token_id">		
+	<insert id="insertToken" parameterType="projectInsertDTO" useGeneratedKeys="true" keyProperty="tokenId,createdAt" keyColumn="token_id,created_at">		
 		INSERT INTO tokens (project_id, token_name, ticker_symbol, total_supply)
 		Values (
 		#{projectId},
@@ -270,4 +271,11 @@
 		updated_at = NOW()
 		WHERE project_id = #{projectId} AND project_status = #{projectStatus};
 	</update>
+	
+	<select id="selectMyWalletId" parameterType="long" resultType="long">
+		select ucl.ucl_id from users u 
+		join user_certificate_links ucl 
+		on u.user_id = ucl.user_id 
+		where ucl.user_id = #{userId};
+	</select>
 </mapper>
