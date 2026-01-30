@@ -1,4 +1,4 @@
-package com.animalfarm.mlf.domain.token.dto;
+package com.animalfarm.mlf.domain.accounting.dto;
 
 import java.math.BigDecimal;
 
@@ -9,16 +9,18 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-@ToString
 @Getter
 @Setter
 @Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class TokenDTO {
-	private Long tokenId;
-	private Long projectId;
-	private String tokenName;
-	private String tickerSymbol;
-	private BigDecimal totalSupply;
+public class RevenueSummaryDTO {
+	Long rsId;
+	Long projectId;
+	String status;
+	BigDecimal totalRevenue;
+	BigDecimal totalExpense;
+	BigDecimal netProfit;
+
 }

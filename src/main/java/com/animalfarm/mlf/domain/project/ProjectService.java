@@ -18,6 +18,8 @@ import org.springframework.web.client.RestTemplate;
 
 import com.animalfarm.mlf.common.http.ApiResponse;
 import com.animalfarm.mlf.common.http.ExternalApiUtil;
+import com.animalfarm.mlf.domain.accounting.DividendService;
+import com.animalfarm.mlf.domain.accounting.dto.DividendResponseDTO;
 import com.animalfarm.mlf.common.security.SecurityUtil;
 import com.animalfarm.mlf.domain.project.dto.FarmDTO;
 import com.animalfarm.mlf.domain.project.dto.ImgEditable;
@@ -35,14 +37,17 @@ import com.animalfarm.mlf.domain.token.dto.TokenIssueDTO;
 
 import lombok.extern.slf4j.Slf4j;
 
-@Service
+import lombok.RequiredArgsConstructor;
+
 @Slf4j
+@Service
+@RequiredArgsConstructor
 public class ProjectService {
 	@Autowired
 	ProjectRepository projectRepository;
 
 	@Autowired
-	TokenRepository tokenReopsitory;
+	TokenRepository tokenRepository;
 
 	// 강황증권 API 서버 주소
 	@Value("${api.kh-stock.url}")
@@ -127,7 +132,7 @@ public class ProjectService {
 				.hashValue(createHash("0", tokenId, totalSupply)) // 해시 계산
 				.build();
 
-			tokenReopsitory.insertTokenLedger(projectNewTokenDTO);
+			tokenRepository.insertTokenLedger(projectNewTokenDTO);
 
 			return true;
 		} catch (Exception e) {
@@ -260,6 +265,17 @@ public class ProjectService {
 			System.err.println("외부 서버 통신 실패: " + e.getMessage());
 			return 0.0;
 		}
+	}
+
+	public List<DividendResponseDTO> getDividendSnapshot(Long projectId) {
+		String fullUrl = khUrl + "/api/project/dividend/before/" + projectId.toString();
+		try {
+			return externalApiUtil.callApi(fullUrl, HttpMethod.POST, null,
+				new ParameterizedTypeReference<ApiResponse<List<DividendResponseDTO>>>() {}, null);
+		} catch (Exception e) {
+			return new ArrayList<>();
+		}
+
 	}
 
 	public void postTokenIssue(ProjectInsertDTO projectInsertDTO) {
