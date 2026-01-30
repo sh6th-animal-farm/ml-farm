@@ -66,6 +66,7 @@ public class MypageController {
 
 	@GetMapping("/profile")
 	public ResponseEntity<ProfileDTO> getProfile() {
+		return ResponseEntity.ok(mypageService.getProfile());
 	}
 
 	@PatchMapping("/profile")
