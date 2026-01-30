@@ -27,6 +27,8 @@ Thumbs.db       # Windows
 *.log           # 로그 파일
 
 ### Security & Config ###
+*.properties
+
 # DB 설정 파일
 src/main/resources/config/database.properties
 src/main/resources/config/db.properties
@@ -44,6 +46,8 @@ src/main/resources/config/redis.properties
 # 강황증권 설정 파일
 src/main/resources/config/kh-holding.properties
 
+# 결제 api 설정 파일
+src/main/resources/config/payment.properties
 # Slack 웹훅 설정 파일
 src/main/resources/config/slack.properties
 

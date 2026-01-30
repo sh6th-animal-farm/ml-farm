@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,6 +23,7 @@ public class ExternalApiUtil {
 
 	private final RestTemplate restTemplate;
 	private final ObjectMapper objectMapper;
+
 
 	/**
 	 * 기본 호출 메서드 (멱등성 키가 없는 경우)
@@ -60,15 +62,16 @@ public class ExternalApiUtil {
 			// 3. 성공 응답 처리 (2xx)
 			if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
 				log.info("[API Success] URL: {}, Msg: {}", url, response.getBody().getMessage());
-				return response.getBody().getPayload();
+				return response.getBody().getPayload(); // 실제 데이터, 빈 리스트, Null 중 하나 반환
 			}
 
 			throw new RuntimeException("API 응답이 비어있습니다.");
 
-		} catch (HttpClientErrorException e) {
+		} catch (HttpStatusCodeException e) {
+			// 4XX, 5XX 에러 캐치
 			// 핵심: 증권사가 보낸 에러 JSON 바디를 ApiResponse 객체로 변환
 			String errorBody = e.getResponseBodyAsString();
-			log.error("[API Error Body] {}", errorBody);
+			log.error("[API Fail] Status: {}, Body: {}", e.getStatusCode(), errorBody);
 
 			try {
 				// ApiResponse 구조에 맞게 읽어옴
@@ -77,7 +80,7 @@ public class ExternalApiUtil {
 				throw new RuntimeException(apiResponse.getMessage());
 			} catch (Exception parseException) {
 				// 파싱 실패 시 기본 에러 메시지
-				throw new RuntimeException("증권사 서비스 오류가 발생했습니다. (Status: " + e.getRawStatusCode() + ")");
+				throw new RuntimeException("서비스 오류가 발생했습니다. (Status: " + e.getRawStatusCode() + ")");
 			}
 
 		} catch (Exception e) {

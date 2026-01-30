@@ -18,7 +18,7 @@ public class SubscriptionController {
 	SubscriptionService subscriptionService;
 	
 	@PostMapping("/cancel")
-	public ResponseEntity<ApiResponse<Object>> cancelSubscription (@RequestBody SubscriptionSelectDTO subscriptionSelectDTO) {
+	public ResponseEntity<ApiResponse<String>> cancelSubscription (@RequestBody SubscriptionSelectDTO subscriptionSelectDTO) {
 		boolean isSuccess = subscriptionService.selectAndCancel(subscriptionSelectDTO);
 		
 		if (isSuccess) {
