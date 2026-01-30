@@ -7,19 +7,19 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.animalfarm.mlf.domain.project.dto.ProjectStatusDTO;
+import com.animalfarm.mlf.domain.subscription.SubscriptionService;
 
 @Component
 public class ProjectBatchScheduler {
 	@Autowired
 	ProjectService projectService;
 
+	@Autowired
+	SubscriptionService subscriptionService;
+
 	@Scheduled(cron = "0 * * * * *")
 	public void runBatch() {
 		List<ProjectStatusDTO> status = projectService.selectStatus();
-		System.out.println("#########결과########");
-		for (ProjectStatusDTO dto : status) {
-			System.out.println(dto);
-		}
-		System.out.println("\n\n\n");
+		subscriptionService.projectStartCheck();
 	}
 }

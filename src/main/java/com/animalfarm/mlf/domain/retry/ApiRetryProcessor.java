@@ -19,6 +19,7 @@ public class ApiRetryProcessor {
 	private final ExternalApiUtil externalApiUtil;
 	private final ApiRetryQueueRepository apiRetryQueueMapper;
 	private final ObjectMapper objectMapper;
+	private final ApiRetryService apiRetryService;
 
 	@Value("${api.kh-stock.url}")
 	private String KH_BASE_URL;
@@ -42,7 +43,7 @@ public class ApiRetryProcessor {
 			String fullUrl = KH_BASE_URL + type.getFullUri(params);
 
 			// 외부 API 호출 (멱등성 키 포함)
-			externalApiUtil.callApi(
+			Object response = externalApiUtil.callApi(
 				fullUrl,
 				type.getMethod(),
 				retry.getPayload(),
@@ -53,6 +54,8 @@ public class ApiRetryProcessor {
 			retry.setStatus("COMPLETED");
 			apiRetryQueueMapper.updateStatus(retry);
 			log.info("재시도 성공했습니다. Key: {}", retry.getIdempotencyKey());
+
+			apiRetryService.afterRetrySuccess(retry, response);
 
 		} catch (Exception e) {
 			// 실패
