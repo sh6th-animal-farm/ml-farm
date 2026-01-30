@@ -45,8 +45,6 @@ public class JwtProvider {
 	 */
 	private final long accessTokenExp = 60 * 60 * 1000L; //1시간
 	private final long refreshTokenExp = 14L * 24 * 60 * 60 * 1000L; //14일
-	
-
 
 	@PostConstruct
 	protected void init() {
@@ -115,10 +113,13 @@ public class JwtProvider {
 				.parseClaimsJws(token);
 
 			return true;
+		} catch (io.jsonwebtoken.ExpiredJwtException e) {
+			// [수정] 만료된 경우 별도 로그 출력
+			System.out.println("DEBUG: 토큰이 만료되었습니다. (Expired)");
 		} catch (io.jsonwebtoken.security.SignatureException e) {
-			System.out.println("DEBUG: 서명이 일치하지 않습니다. (열쇠 불일치)");
+			System.out.println("DEBUG: 서명이 일치하지 않습니다. (Invalid Signature)");
 		} catch (Exception e) {
-			System.out.println("DEBUG: 토큰 검증 실패: " + e.getMessage());
+			System.out.println("DEBUG: 토큰 검증 중 오류 발생: " + e.getMessage());
 		}
 		return false;
 	}

@@ -1,0 +1,92 @@
+/* /resources/css/policy.css */
+.policy-wrap{
+  max-width: var(--container-max);
+  margin: 40px auto;
+  padding: 0 16px;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 20px;
+  align-items: start;
+  font-family: var(--font-main);
+}
+
+.policy-side{
+  background: var(--gray-0);
+  border: 1px solid var(--gray-100);
+  border-radius: var(--radius-l);
+  box-shadow: var(--shadow);
+  padding: 18px;
+  position: sticky;
+  top: 100px;
+}
+
+.policy-side-title{
+  font: var(--font-subtitle-01);
+  color: var(--gray-900);
+  margin-bottom: 12px;
+}
+
+.policy-menu{
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.terms-item{
+  list-style: none;
+  margin: 0;
+  padding: 12px 12px;
+  border-radius: var(--radius-s);
+  cursor: pointer;
+  color: var(--gray-700);
+  font: var(--font-body-02);
+  background: transparent;
+}
+
+.terms-item:hover{
+  background: var(--gray-50);
+  color: var(--green-600);
+}
+
+.terms-item.active{
+  background: var(--green-50);
+  color: var(--green-800);
+  font-weight: 700;
+}
+
+.policy-card{
+  background: var(--gray-0);
+  border: 1px solid var(--gray-100);
+  border-radius: var(--radius-l);
+  box-shadow: var(--shadow);
+  padding: 28px;
+}
+
+/* 섹션 전환 */
+.content-section{ display:none; }
+.content-section.active{ display:block; }
+
+.content-section h3{
+  font: var(--font-header-02);
+  color: var(--gray-900);
+  margin-bottom: 14px;
+}
+
+.content-body h4{
+  margin-top: 18px;
+  margin-bottom: 8px;
+  font: var(--font-body-04);
+  color: var(--gray-900);
+}
+
+.content-body p, .content-body li{
+  font: var(--font-body-01);
+  color: var(--gray-600);
+  line-height: 1.75;
+}
+
+.content-body ul, .content-body ol{
+  padding-left: 18px;
+}
