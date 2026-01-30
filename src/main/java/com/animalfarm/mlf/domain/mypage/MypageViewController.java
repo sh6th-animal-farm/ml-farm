@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class MypageViewController {
 
 	@Autowired
-	MypageService mypageService;
+	private MypageService mypageService;
 
 	// /admin 또는 /admin/ 으로 접속 시 실행
 	@GetMapping({"", "/"})
@@ -23,6 +23,7 @@ public class MypageViewController {
 	public String profilePage(Model model) {
 		model.addAttribute("contentPage", "/WEB-INF/views/mypage/profile.jsp");
 		model.addAttribute("menu", "profile");
+
 		return "layout";
 	}
 
