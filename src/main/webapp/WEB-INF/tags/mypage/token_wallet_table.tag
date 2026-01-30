@@ -7,36 +7,35 @@
 <table class="token-table">
 	<thead>
 	    <tr>
-	        <th class="table-head-name">종목명</th>
+	        <th class="table-head-name">종목</th>
 	        <th class="table-head-others">평가손익 / 수익률</th>
 	        <th class="table-head-others">평가금액 / 매입금액</th>
 	        <th class="table-head-others table-head-last">보유수량</th>
 	    </tr>
 	</thead>
-	<tbody>
+	<tbody id="token-data-list">
 	    <c:choose>
-            <c:when test="${not empty tokenList}">
+            <%-- 연동 내역이 있더라도 보유한 토큰이 0개일 수 있으므로 null 체크 병행 --%>
+            <c:when test="${not empty tokenList && tokenList.size() > 0}">
                 <c:forEach var="token" items="${tokenList}">
                     <tr>
-                        <td>
-                            <div class="token-name">${token.name}</div>
-                            <div class="token-code">${token.code}</div>
-                        </td>
+                        <td><div class="token-name">${token.tokenName}</div></td>
+                        <td><div class="token-code-cell">${token.tickerSymbol}</div> </td>
                         <td style="text-align: right;">
                             <%-- 수익률이 0보다 크면 text-plus, 작으면 text-minus 적용 --%>
-                            <div class="token-name ${token.gain >= 0 ? 'text-plus' : 'text-minus'}">
-                                ${token.gain >= 0 ? '+' : ''}<fmt:formatNumber value="${token.gain}" type="number"/> 원
+                            <div class="token-name ${token.profitLoss >= 0 ? 'text-plus' : 'text-minus'}">
+                                ${token.profitLoss >= 0 ? '+' : ''}<fmt:formatNumber value="${token.profitLoss}" type="number"/> 원
                             </div>
-                            <div class="token-code ${token.gainPct >= 0 ? 'text-plus' : 'text-minus'}">
-                                ${token.gainPct >= 0 ? '+' : ''}<fmt:formatNumber value="${token.gainPct}" pattern="0.00"/> %
+                            <div class="token-code ${token.profitLossRate >= 0 ? 'text-plus' : 'text-minus'}">
+                                ${token.profitLossRate >= 0 ? '+' : ''}<fmt:formatNumber value="${token.profitLossRate}" pattern="0.00"/> %
                             </div>
                         </td>
                         <td style="text-align: right;">
                             <div class="token-name"><fmt:formatNumber value="${token.marketValue}" type="number"/> 원</div>
-                            <div class="token-code"><fmt:formatNumber value="${token.purchaseAmount}" type="number"/> 원</div>
+                            <div class="token-code"><fmt:formatNumber value="${token.purchasedValue}" type="number"/> 원</div>
                         </td>
                         <td class="token-amount">
-                            <fmt:formatNumber value="${token.quantity}" type="number"/> st
+                            <fmt:formatNumber value="${token.tokenBalance}" type="number"/> st
                         </td>
                     </tr>
                 </c:forEach>
@@ -61,6 +60,7 @@
 .token-table { width: 100%; table-layout: fixed; border-collapse: collapse; background: #fff; border-radius: var(--radius-l); overflow: hidden; box-shadow: var(--shadow); }
 .token-table th { background: var(--gray-50); padding: 20px 8px; color: var(--gray-500); font:var(--font-button-02); border-bottom: 1px solid #F1F1F1; box-sizing: border-box; }
 .table-head-name { width: auto; padding-left:24px !important; text-align: left; }
+.table-head-code { width: 120px; text-align: left; padding-left: 8px;}
 .table-head-others { width: 176px; text-align: right; }
 .table-head-last { padding-right: 24px !important; }
 .token-table td { padding: 24px 8px; border-bottom: 1px solid #F1F1F1; vertical-align: middle; }

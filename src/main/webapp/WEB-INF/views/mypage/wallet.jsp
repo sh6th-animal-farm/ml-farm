@@ -8,13 +8,15 @@
 <%@ taglib prefix="mp" tagdir="/WEB-INF/tags/mypage"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
+
+<script src="${pageContext.request.contextPath}/resources/js/domain/mypage/wallet.js"></script>
+
 <%
 	/* 상단 참여한 프로젝트, 관심 프로젝트 탭에 들어갈 숫자 가져와서 List 생성 */
     List<Map<String, Object>> tokenTabs = new ArrayList<>();
     
     Map<String, Object> tab1 = new HashMap<>();
     tab1.put("title", "보유 토큰");
-    tab1.put("count", 8);
     tab1.put("value", "TOKEN_TYPES");
     tokenTabs.add(tab1);
     
@@ -58,26 +60,39 @@
 	    	<t:section_header title="나의 전자지갑" subtitle="연동된 증권 계좌와 실시간 투자 현황을 확인하세요." />	
 	        <button class="btn-link-account"><t:icon name="link" size="16" color="white"/> 계좌 연동</button>
     	</div>
-
+	
+		<%-- 상단 계좌 및 투자 현황 카드 --%>
         <div class="account-card">
             <div class="bank-info">
                 <div class="bank-icon">🏦</div>
                 <div>
-                    <p class="bank-name">${bankName }kh증권</p>
-                    <p class="account-number">${accountNumber }570802-04-021849</p>
+                    <p class="bank-name">${wallet.bankName}</p>
+                    <p class="account-number">${wallet.accountNo}</p>
                 </div>
             </div>
-            <div class="total-amount">${totalAmount }12,450,000<div class="amount-unit">원</div></div>
+            <div class="total-amount">
+            	<span id="main-cash-balance"><fmt:formatNumber value="${wallet.cashBalance}" type="number"/></span>
+    			<span class="amount-unit">원</span>
+            </div>
         </div>
 
-        <mp:investment_grid totalAsset="62,520,000" deposit="12,450,000" purchaseAmount="46,500,000" marketValue="50,070,000" unrealizedGain="+3,570,000" returnPct="+7.67%"/>
-
+		
+		<div id="investment-section">
+		    <mp:investment_grid 
+			    totalAsset="${wallet.totalBalance}" 
+			    deposit="${wallet.cashBalance}" 
+			    purchaseAmount="${wallet.totalPurchasedValue}" 
+			    marketValue="${wallet.totalMarketValue}" 
+			    unrealizedGain="${wallet.profitLoss}"  
+			    returnPct="${wallet.profitLossRate}%" 
+		    />
+		</div>
+		
 		<t:category_tab items="${tokenTabs}" activeValue="TOKEN_TYPES" />
         
-        <mp:token_wallet_table tokenList="${tokenList}"/>
+        <%-- 보유 토큰 테이블 --%>
+        <mp:token_wallet_table tokenList="${tokenList}" />
 
-		<c:if test="${tokenList.length>0}">
-        	<button class="btn-more"  onclick="">+ 더보기</button>
-		</c:if>
+		<button id="btn-more-tokens" class="btn-more" style="display: none;">+ 더보기</button>
     </div>
 </div>
