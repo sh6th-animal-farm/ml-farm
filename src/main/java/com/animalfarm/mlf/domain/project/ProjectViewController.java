@@ -3,6 +3,7 @@ package com.animalfarm.mlf.domain.project;
 import java.time.format.DateTimeFormatter;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,6 +21,9 @@ import com.animalfarm.mlf.domain.user.service.UserService;
 @Controller
 @RequestMapping("/project")
 public class ProjectViewController {
+	
+	@Value("${api.kakako.javascript.key}")
+	String kakaoMapKey; 
 
 	@Autowired
 	ProjectService projectService;
@@ -54,6 +58,7 @@ public class ProjectViewController {
 		model.addAttribute("contentPage", "/WEB-INF/views/project/project_list.jsp");
 		model.addAttribute("activeMenu", "project");
 		model.addAttribute("projectList", projectService.selectByCondition(searchReqDTO));
+		model.addAttribute("kakaoMapKey", kakaoMapKey);
 		return "layout"; // 항상 layout.jsp를 리턴
 	}
 
