@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.animalfarm.mlf.common.ApiResponseDTO;
 import com.animalfarm.mlf.domain.mypage.dto.CarbonHistoryDTO;
 import com.animalfarm.mlf.domain.mypage.dto.HoldingDTO;
-import com.animalfarm.mlf.domain.mypage.dto.WalletDTO;
 import com.animalfarm.mlf.domain.mypage.dto.PasswordUpdateRequestDTO;
 import com.animalfarm.mlf.domain.mypage.dto.ProfileDTO;
 import com.animalfarm.mlf.domain.mypage.dto.ProfileUpdateRequestDTO;
+import com.animalfarm.mlf.domain.mypage.dto.WalletDTO;
 
 @RestController
 @RequestMapping("/api/mypage")
@@ -63,6 +63,7 @@ public class MypageController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND)
 				.body(new ApiResponseDTO<>("연동 가능한 강황증권 계좌를 찾을 수 없습니다.", null));
 		}
+	}
 
 	@GetMapping("/profile")
 	public ResponseEntity<ProfileDTO> getProfile() {
