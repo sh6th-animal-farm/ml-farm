@@ -87,6 +87,6 @@ public class MypageController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND)
 				.body(new ApiResponseDTO<>("연동 가능한 강황증권 계좌를 찾을 수 없습니다.", null));
 		}
-
 	}
+
 }
