@@ -11,4 +11,6 @@ public interface TokenRepository {
 	TokenDTO selectByProjectId(Long projectId);
 
 	public abstract void insertTokenLedger(ProjectNewTokenDTO projectNewTokenDTO);
+
+	public abstract String selectLastHash();
 }

@@ -44,4 +44,10 @@
 		#{hashValue},
 		#{prevHashValue} )
 	</insert>
+	
+	<select id="selectLastHash" resultType="string">
+		select hash_value from token_ledger 
+		order by ledger_id desc
+		limit 1;
+	</select>
 </mapper>

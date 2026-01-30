@@ -137,7 +137,7 @@ public class ProjectService {
 	}
 
 	// 간단한 해시 계산 예시 메서드
-	private String createHash(String prevHash, Long projectId, BigDecimal amount) {
+	public String createHash(String prevHash, Long projectId, BigDecimal amount) {
 		return org.springframework.util.DigestUtils.md5DigestAsHex(
 			(prevHash + projectId + amount.toString()).getBytes());
 	}
@@ -243,21 +243,22 @@ public class ProjectService {
 			if (status == 200) {
 				ApiResponse response = responseEntity.getBody();
 				System.out.println("response : " + response.getPayload());
-				List<Map<String, Object>> list = (List<Map<String, Object>>)response.getPayload();
+				Map<String, Object> list = (Map<String, Object>)response.getPayload();
+				Object rawBalance = list.get("cashBalance");
 				System.out.println("list : " + list);
 				if (response.getPayload() != null) {
-					System.out.println(response.getMessage());
-					double result = (double)list.get(0).get("cashBalance");
-					System.out.println(list.get(0).get("cashBalance"));
-					return result;
+					System.out.println("메시지" + response.getMessage());
+					BigDecimal balanceBD = new BigDecimal(String.valueOf(rawBalance));
+					System.out.println(balanceBD);
+					return balanceBD.doubleValue();
 				} else {
-					System.out.println(response.getMessage());
+					System.out.println("메시지" + response.getMessage());
 				}
 			}
 			return 0.0;
 		} catch (Exception e) {
 			// 3. 외부 서버 연결 실패 시 예외 처리 (재시도 테이블 insert 등)
-			System.err.println("외부 서버 통신 실패: " + e.getMessage());
+			System.err.println("여긴가 외부 서버 통신 실패: " + e.getMessage());
 			return 0.0;
 		}
 	}

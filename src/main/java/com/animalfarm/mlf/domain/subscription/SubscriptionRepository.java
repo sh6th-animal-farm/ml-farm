@@ -48,4 +48,6 @@ public interface SubscriptionRepository {
 	public abstract Long selectUclId(Long userId);
 
 	public abstract AllocationTokenDTO selectAllocationInfo(Long projectId);
+
+	public abstract boolean approveSubscription(Long shId);
 }

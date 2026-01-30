@@ -158,7 +158,7 @@
 		p.project_id,
 		p.min_amount_per_investor,
 		p.actual_amount, <!-- 목표 금액 -->
-		p.targetAmount,
+		p.target_amount,
 		t.token_id,
 		t.total_supply,
 		<!-- 참여자 수 -->
@@ -177,6 +177,12 @@
 		WHERE sh.payment_status = 'PAID'
 		AND p.project_id = #{projectId}
 		GROUP BY p.project_id, p.min_amount_per_investor, p.actual_amount,
-		p.targetAmount, t.token_id, t.total_supply;
+		p.target_amount, t.token_id, t.total_supply;
 	</select>
+	
+	<update id="approveSubscription">
+		update subscription_hists 
+		set subscription_status = 'APPROVED' 
+		where sh_id = #{shId};
+	</update>
 </mapper>

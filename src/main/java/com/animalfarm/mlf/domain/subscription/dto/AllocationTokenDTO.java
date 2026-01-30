@@ -53,7 +53,4 @@ public class AllocationTokenDTO {
 			return Collections.emptyList();
 		}
 	}
-
-	//transactionId
-	//
 }
