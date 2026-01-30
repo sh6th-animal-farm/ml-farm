@@ -14,6 +14,7 @@ import com.animalfarm.mlf.domain.mypage.dto.CarbonHistoryDTO;
 import com.animalfarm.mlf.domain.mypage.dto.PasswordUpdateRequestDTO;
 import com.animalfarm.mlf.domain.mypage.dto.ProfileDTO;
 import com.animalfarm.mlf.domain.mypage.dto.ProfileUpdateRequestDTO;
+import com.animalfarm.mlf.domain.mypage.dto.ProjectDTO;
 
 @RestController
 @RequestMapping("/api/mypage")
@@ -45,5 +46,10 @@ public class MypageController {
 	PasswordUpdateRequestDTO dto) {
 		mypageService.updatePassword(dto);
 		return ResponseEntity.ok().build();
+	}
+
+	@GetMapping("/projects")
+	public ResponseEntity<List<ProjectDTO>> getMyProjects() {
+		return ResponseEntity.ok(mypageService.getMyProjects());
 	}
 }

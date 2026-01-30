@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Param;
 import com.animalfarm.mlf.domain.mypage.dto.CarbonHistoryDTO;
 import com.animalfarm.mlf.domain.mypage.dto.ProfileDTO;
 import com.animalfarm.mlf.domain.mypage.dto.ProfileUpdateRequestDTO;
+import com.animalfarm.mlf.domain.mypage.dto.ProjectDTO;
 
 @Mapper
 public interface MypageRepository {
@@ -29,4 +30,7 @@ public interface MypageRepository {
 		Long userId,
 		@Param("password")
 		String password);
+
+	List<ProjectDTO> selectMyProjects(@Param("user_id")
+	Long userId);
 }

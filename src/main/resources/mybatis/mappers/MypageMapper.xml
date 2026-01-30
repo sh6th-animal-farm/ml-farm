@@ -67,4 +67,43 @@
         WHERE user_id = #{userId}
           AND deleted_at IS NULL
     </update>
+    
+    <select id="selectMyProjects"
+    	parameterType="long"
+        resultType="com.animalfarm.mlf.domain.mypage.dto.ProjectDTO">
+
+	  SELECT DISTINCT ON (p.project_id)
+	    p.project_id,
+	    p.project_name,
+	    p.project_round,
+	    p.project_status,
+	
+	    p.announcement_start_date,
+	    p.announcement_end_date,
+	
+	    p.subscription_start_date,
+	    p.subscription_end_date,
+	
+	    p.project_start_date,
+	    p.project_end_date,
+	
+	    sh.subscription_status,
+	    sp.is_starred
+	
+	  FROM projects p
+	
+	  LEFT JOIN subscription_hists sh
+	    ON sh.project_id = p.project_id
+	   AND sh.user_id = #{user_id}
+	   AND sh.deleted_at IS NULL
+	
+	  LEFT JOIN starred_projects sp
+	    ON sp.project_id = p.project_id
+	   AND sp.user_id = #{user_id}
+	   AND sp.deleted_at IS NULL
+	
+	  WHERE p.deleted_at IS NULL
+	
+	  ORDER BY p.project_id, sh.subscription_date DESC
+	</select>
 </mapper>

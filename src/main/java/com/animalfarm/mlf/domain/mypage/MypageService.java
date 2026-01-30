@@ -12,6 +12,7 @@ import com.animalfarm.mlf.domain.mypage.dto.CarbonHistoryDTO;
 import com.animalfarm.mlf.domain.mypage.dto.PasswordUpdateRequestDTO;
 import com.animalfarm.mlf.domain.mypage.dto.ProfileDTO;
 import com.animalfarm.mlf.domain.mypage.dto.ProfileUpdateRequestDTO;
+import com.animalfarm.mlf.domain.mypage.dto.ProjectDTO;
 
 @Service
 public class MypageService {
@@ -63,5 +64,10 @@ public class MypageService {
 
 		// 4. 비밀번호 업데이트
 		mypageRepository.updatePassword(userId, newEncodedPassword);
+	}
+
+	public List<ProjectDTO> getMyProjects() {
+		Long userId = SecurityUtil.getCurrentUserId();
+		return mypageRepository.selectMyProjects(userId);
 	}
 }
