@@ -15,7 +15,7 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProjectNewTokenDTO {
+public class TokenLedgerDTO {
 	// 1. 식별 정보
 	private Long tokenId; // 토큰 번호 (BIGINT)
 
