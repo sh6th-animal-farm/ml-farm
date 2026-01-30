@@ -75,7 +75,16 @@
 	    JOIN revenue_summary rs ON d.rs_id = rs.rs_id
 	    JOIN tokens t ON rs.project_id = t.project_id
 	    WHERE d.status = 'DECIDED' 
-	      AND d.api_sent_yn = 'N'
+	      AND d.paid_at IS NULL
 	</select>
+	
+	<update id="updatePaidAt">
+	    UPDATE dividends
+	    SET paid_at = CURRENT_TIMESTAMP
+	    WHERE dividend_id IN
+	    <foreach collection="list" item="item" open="(" separator="," close=")">
+	        #{item.dividendId}
+	    </foreach>
+	</update>
 	
 </mapper>

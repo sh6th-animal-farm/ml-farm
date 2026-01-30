@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.animalfarm.mlf.domain.accounting.dto.DividendDTO;
+import com.animalfarm.mlf.domain.accounting.dto.DividendRequestDTO;
 
 @Mapper
 public interface DividendRepository {
@@ -25,5 +26,7 @@ public interface DividendRepository {
 	Long dividendId,
 		@Param("dividendType")
 		String dividendType);
+
+	void updatePaidAt(List<? extends DividendRequestDTO> divReqDTOList);
 
 }

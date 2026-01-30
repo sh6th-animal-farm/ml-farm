@@ -1,6 +1,5 @@
 package com.animalfarm.mlf.domain.accounting;
 
-
 import java.util.List;
 
 import org.springframework.batch.core.Job;
@@ -43,7 +42,6 @@ public class DividendService {
 	// 강황증권 API 서버 주소
 	@Value("${api.kh-stock.url}")
 	private String KH_BASE_URL;
-
 
 	public void runDividendBatch(Long projectId) throws Exception {
 		// rsId를 기반으로 정산 요약 정보 조회 (DB에서 직접 가져옴)
@@ -102,13 +100,14 @@ public class DividendService {
 		}
 		dividendRepository.updateUserSelection(dividendId, dividendType);
 	}
-	
+
 	@Transactional
 	public void sendDividendData(Long tokenId, List<? extends DividendRequestDTO> divReqDTOList) throws Exception {
 		final String finalUrl = KH_BASE_URL + "/api/project/dividend/after/" + tokenId;
 		externalApiUtil.callApi(finalUrl, HttpMethod.POST,
-				divReqDTOList, 
-				new ParameterizedTypeReference<ApiResponse<String>>(){});
+			divReqDTOList,
+			new ParameterizedTypeReference<ApiResponse<String>>() {});
+		dividendRepository.updatePaidAt(divReqDTOList);
 	}
 
 }
