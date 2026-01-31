@@ -1,12 +1,11 @@
 package com.animalfarm.mlf.domain.token;
 
-import java.math.BigDecimal;
+import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 
-import com.animalfarm.mlf.domain.project.dto.ProjectNewTokenDTO;
+import com.animalfarm.mlf.domain.project.dto.TokenLedgerDTO;
 import com.animalfarm.mlf.domain.token.dto.TokenDTO;
-import com.animalfarm.mlf.domain.token.dto.TokenDetailDTO;
 
 @Mapper
 public interface TokenRepository {
@@ -15,5 +14,9 @@ public interface TokenRepository {
 
 	Long selectWalletId(Long userId);
 
-	public abstract void insertTokenLedger(ProjectNewTokenDTO projectNewTokenDTO);
+	public abstract void insertTokenLedger(TokenLedgerDTO projectNewTokenDTO);
+
+	void insertTokenLedgerBatch(List<TokenLedgerDTO> tokenLedgerList);
+
+	String selectLastHash();
 }

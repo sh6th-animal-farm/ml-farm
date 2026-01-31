@@ -19,7 +19,7 @@
 		LIMIT 1
 	</select>
 
-	<insert id="insertTokenLedger" parameterType="projectNewTokenDTO">
+	<insert id="insertTokenLedger" parameterType="tokenLedgerDTO">
 		INSERT INTO token_ledger (
 		token_id,
 		from_user_id,
@@ -52,4 +52,25 @@
 		#{hashValue},
 		#{prevHashValue} )
 	</insert>
+	
+	<insert id="insertTokenLedgerBatch" parameterType="java.util.List">
+	    INSERT INTO token_ledger (
+	        token_id, from_user_id, to_user_id, transaction_id, order_amount, contract_amount,
+	        status, fee, transaction_type, from_balance_after, to_balance_after, hash_value, prev_hash_value
+	    ) VALUES
+	    <foreach collection="list" item="item" separator=",">
+	    (
+	        #{item.tokenId}, #{item.fromUserId}, #{item.toUserId}, #{item.transactionId}, #{item.orderAmount}, #{item.contractAmount},
+	        #{item.status}, #{item.fee}, #{item.transactionType}, #{item.from_balanceAfter}, ${item. to_balanceAfter}, 
+	        #{item.hashValue}, #{item.prevHashValue} 
+	    )
+	    </foreach>
+	</insert>
+	
+	<select id="selectLastHash" resultType="string">
+	    SELECT hash_value 
+	    FROM token_ledger 
+	    ORDER BY created_at DESC, ledger_id DESC
+	    LIMIT 1
+	</select>
 </mapper>

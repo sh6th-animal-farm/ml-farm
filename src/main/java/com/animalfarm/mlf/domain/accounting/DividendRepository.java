@@ -29,4 +29,8 @@ public interface DividendRepository {
 
 	void updatePaidAt(List<? extends DividendRequestDTO> divReqDTOList);
 
+	DividendDTO findAllDecidedForApi();
+
+	void updateAutoDecide();
+
 }

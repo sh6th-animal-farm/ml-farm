@@ -24,7 +24,6 @@ import com.animalfarm.mlf.domain.project.dto.ProjectListDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectPictureDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectSearchReqDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectStarredDTO;
-import com.animalfarm.mlf.domain.user.service.UserService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -121,27 +120,6 @@ public class ProjectController {
 	@GetMapping("/checkAccount")
 	public boolean checkAccount(Long userId) {
 		return projectService.checkAccount();
-	}
-
-	@PostMapping("/dividend")
-	public ResponseEntity<String> processDividend(@RequestBody
-	Long projectId) {
-		try {
-			dividendService.runDividendBatch(projectId);
-			return ResponseEntity.ok("성공했습니다. DB를 확인해주세요.");
-		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}
-	}
-
-	@PostMapping("/dividend-mail")
-	public ResponseEntity<String> sendDividendEmail() {
-		try {
-			dividendService.sendEmail();
-			return ResponseEntity.ok("성공했습니다. DB를 확인해주세요.");
-		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}
 	}
 
 	@PostMapping("/dividend/poll/select")

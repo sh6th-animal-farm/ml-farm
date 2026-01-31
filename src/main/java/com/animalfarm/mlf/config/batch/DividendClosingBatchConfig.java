@@ -57,7 +57,7 @@ public class DividendClosingBatchConfig {
 			.<DividendDTO, DividendRequestDTO>chunk(100) // 100건씩 끊어서 처리
 			.reader(dividendReader())
 			.processor((ItemProcessor<DividendDTO, DividendRequestDTO>)DividendRequestDTO::from)
-			.writer(dividendWriter())
+			.writer(dividendClosingWriter())
 			.faultTolerant()
 			.retry(Exception.class)
 			.retryLimit(3) // API 실패 시 3번까지 재시도
@@ -68,12 +68,12 @@ public class DividendClosingBatchConfig {
 	public MyBatisCursorItemReader<DividendDTO> dividendReader() {
 		return new MyBatisCursorItemReaderBuilder<DividendDTO>()
 			.sqlSessionFactory(sqlSessionFactory)
-			.queryId("com.animalfarm.mlf.repository.DividendRepository.findAllDecidedForApi")
+			.queryId("com.animalfarm.mlf.domain.accounting.DividendRepository.findAllDecidedForApi")
 			.build();
 	}
 
 	@Bean
-	public ItemWriter<DividendRequestDTO> dividendWriter() {
+	public ItemWriter<DividendRequestDTO> dividendClosingWriter() {
 		return items -> {
 			// 그룹화하여 전송
 			Map<Long, List<DividendRequestDTO>> grouped = items.stream()
@@ -91,6 +91,5 @@ public class DividendClosingBatchConfig {
 			}
 		};
 		// 전송 후 디비 전송 완료 표시,처리
-
 	}
 }
