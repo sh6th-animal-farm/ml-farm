@@ -19,7 +19,7 @@
     	<img class="thumbnail" src="${thumbnailUrl}" alt="project thumnail" />
         <t:status_badge className="badge" label="${label}" status="${status.badgeStatus}"/>
         <button class="interest-btn" data-starred="${isStarred}" onclick="event.stopPropagation(); toggleStarred(this, null); starProject('2', '${id}', this);">
-        	<t:icon name="heart_filled" size="26" color="${isStarred ? 'var(--green-600)' : 'var(--gray-900)'}" />
+        	<t:icon name="heart_filled" size="26" color="${isStarred ? 'var(--green-600)' : 'white'}" />
         </button>
     </div>
     

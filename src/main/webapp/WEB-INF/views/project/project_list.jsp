@@ -12,10 +12,7 @@ uri="http://java.sun.com/jsp/jstl/core" %>
   src="${pageContext.request.contextPath}/resources/js/domain/project/project_list.js"
 ></script>
 <script src="${pageContext.request.contextPath}/resources/js/util/timer.js"></script>
-<script
-  type="text/javascript"
-  src="//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoMapKey}"
-></script>
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoMapKey}&libraries=services,clusterer&autoload=false"></script>
 
 <div class="project-list-container">
   <div class="section-header">
@@ -73,4 +70,13 @@ uri="http://java.sun.com/jsp/jstl/core" %>
   </div>
 </div>
 
+<script src="${pageContext.request.contextPath}/resources/js/constants/region_coords.js"></script>
 <script src="${pageContext.request.contextPath}/resources/js/util/kakao_map.js"></script>
+<script>
+	const projectList = ${projectListJson}; 
+	console.log(projectList);
+	// 2. DOM이 로드된 후 지도 초기화
+    document.addEventListener("DOMContentLoaded", function() {
+        initMap(projectList);
+    });
+</script>

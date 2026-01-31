@@ -1,5 +1,7 @@
 package com.animalfarm.mlf.domain.project;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -10,17 +12,23 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.animalfarm.mlf.domain.project.dto.ProjectListDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectSearchReqDTO;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.RequiredArgsConstructor;
 
 @Controller
+@RequiredArgsConstructor
 @RequestMapping("/project")
 public class ProjectViewController {
 	
 	@Value("${api.kakako.javascript.key}")
 	String kakaoMapKey; 
 
-	@Autowired
-	ProjectService projectService;
+	private final ProjectService projectService;
+	private final ObjectMapper objectMapper;
+	
 
 	@GetMapping({"", "/"})
 	public String index() {
@@ -44,10 +52,13 @@ public class ProjectViewController {
 	}
 
 	@GetMapping("/list")
-	public String projectListPage(Model model, ProjectSearchReqDTO searchReqDTO) {
+	public String projectListPage(Model model, ProjectSearchReqDTO searchReqDTO) throws Exception {
 		model.addAttribute("contentPage", "/WEB-INF/views/project/project_list.jsp");
 		model.addAttribute("activeMenu", "project");
-		model.addAttribute("projectList", projectService.selectByCondition(searchReqDTO));
+		List<ProjectListDTO> projectList = projectService.selectByCondition(searchReqDTO);
+	    String projectListJson = objectMapper.writeValueAsString(projectList);
+		model.addAttribute("projectList", projectList);
+		model.addAttribute("projectListJson", projectListJson);
 		model.addAttribute("kakaoMapKey", kakaoMapKey);
 		return "layout"; // 항상 layout.jsp를 리턴
 	}
