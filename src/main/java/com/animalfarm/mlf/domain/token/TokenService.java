@@ -74,11 +74,11 @@ public class TokenService {
 	// 토큰 차트 조회
 	public List<CandleDTO> selectCandles(Long tokenId, int unit, long start, long end) {
 		try {
-			List<String> list = externalApiUtil.callApi(
-				khUrl +String.format("/market/candles/%d?unit=%d&start=%d&end=%d", tokenId, unit, start, end),
+			List<CandleDTO> list = externalApiUtil.callApi(
+				khUrl + String.format("/market/candles/%d?unit=%d&start=%d&end=%d", tokenId, unit, start, end),
 				HttpMethod.GET,
 				null,
-				new ParameterizedTypeReference<ApiResponse<List<String>>>() {}
+				new ParameterizedTypeReference<ApiResponse<List<CandleDTO>>>() {}
 			);
 
 			if (list == null || list.isEmpty()) {
@@ -86,19 +86,8 @@ public class TokenService {
 			}
 
 			return list.stream()
-				.map(csv -> {
-					String[] s = csv.split(",");
-					return CandleDTO.builder()
-						.candleTime(Long.parseLong(s[0]))
-						.openingPrice(new BigDecimal(s[2]))
-						.highPrice(new BigDecimal(s[3]))
-						.lowPrice(new BigDecimal(s[4]))
-						.closingPrice(new BigDecimal(s[5]))
-						.tradeVolume(new BigDecimal(s[6]))
-						.build();
-			})
-			.sorted(Comparator.comparingLong(CandleDTO::getCandleTime))
-			.collect(Collectors.toList());
+				.sorted(Comparator.comparingLong(CandleDTO::getCandleTime))
+				.collect(Collectors.toList());
 
 		} catch (RuntimeException e) {
 			log.error("[Service Error] 토큰 목록 조회 실패: {}",e.getMessage());
