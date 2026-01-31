@@ -17,6 +17,7 @@ function initMap(projectList) {
             averageCenter: true,
             minLevel: 1,      // 모든 레벨에서 클러스터링 허용
             minClusterSize: 1, // 마커가 1개여도 클러스터 디자인 적용
+            disableClickZoom: true,
             styles: [{
                 width: "48px", height: "48px",
                 background: "rgba(74, 159, 46, 0.9)", // Green 600
@@ -33,13 +34,34 @@ function initMap(projectList) {
         // 클러스터 클릭 이벤트 처리
         kakao.maps.event.addListener(clusterer, 'clusterclick', function(cluster) {
             var markers = cluster.getMarkers();
+            console.log(markers);
             
-            // 뭉쳐있는 마커가 여러 개일 때만 확대 로직 실행
-            if (markers.length > 1) {
-                var level = map.getLevel();
-                map.setLevel(level - 2, {anchor: cluster.getCenter()});
+            if (markers && markers.length > 0) {
+                if (markers.length === 1) {
+                    // 단일 마커 모달 표시
+                    var marker = markers[0];
+                    var project = marker.projectData;
+                    var position = marker.getPosition();
+                    displayProjectModal(project, position);
+                } else {
+                    // 마커가 여러 개면 2단계씩 확대
+                    var level = map.getLevel();
+                    map.setLevel(level - 2, {anchor: cluster.getCenter()});
+                }
+            } else {
+                // 만약 markers가 0인데 클릭되었다면, 지도를 한 단계 더 확대하여 마커를 노출시킵니다.
+                map.setLevel(map.getLevel() - 1, {anchor: cluster.getCenter()});
             }
-            // 1개일 때는 marker 자체의 click 이벤트가 동작하므로 여기서 처리하지 않아도 됩니다.
+        });
+
+        // 지도 이동 시작 시 모달 닫기
+        kakao.maps.event.addListener(map, 'dragstart', function() {
+            closeOverlay();
+        });
+
+        // 지도 확대/축소 시 모달 닫기
+        kakao.maps.event.addListener(map, 'zoom_changed', function() {
+            closeOverlay();
         });
 
         renderMarkers(projectList);
@@ -62,11 +84,13 @@ function renderMarkers(projectList) {
                     { offset: new kakao.maps.Point(24, 24) }
                 )
             });
+            
+            marker.projectData = project;
 
-            // 2. 마커에 직접 클릭 이벤트 등록 (이게 가장 확실함)
-            kakao.maps.event.addListener(marker, 'click', function() {
-                displayProjectModal(project, position);
-            });
+            // // 2. 마커에 직접 클릭 이벤트 등록 (이게 가장 확실함)
+            // kakao.maps.event.addListener(marker, 'click', function() {
+            //     displayProjectModal(project, position);
+            // });
 
             return marker;
         });
@@ -83,7 +107,13 @@ function displayProjectModal(project, position) {
     map.panTo(position);
 
     var content = `
-        <div style="padding:20px; background:#fff; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,0.15); border:1px solid #E1E1E1; min-width:220px;">
+    <div class="custom-modal-container" style="position:relative; margin-left:15px;">
+        <div style="position:absolute; left:-10px; top:50%; transform:translateY(-50%); 
+                    width:0; height:0; border-top:10px solid transparent; 
+                    border-bottom:10px solid transparent; border-right:10px solid #fff; z-index:2; box-shadow:var(--shadow);">
+        </div>
+        <div style="padding:20px; background:#fff; border-radius:16px; 
+                    box-shadow:var(--shadow); rgba(0,0,0,0.15); min-width:220px;">
             <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:12px;">
                 <h4 style="margin:0; color:#191919; font-size:16px; font-weight:700;">${project.projectName}</h4>
                 <span style="cursor:pointer; color:#707070; font-size:20px;" onclick="closeOverlay()">×</span>
@@ -93,12 +123,14 @@ function displayProjectModal(project, position) {
                     style="width:100%; background:#4A9F2E; color:#fff; border:none; border-radius:8px; padding:10px; font-weight:600; cursor:pointer;">
                 상세보기
             </button>
-        </div>`;
+        </div>
+    </div>`;
 
     activeOverlay = new kakao.maps.CustomOverlay({
         content: content,
         position: position,
-        yAnchor: 1.2
+        xAnchor: -0.1, // 마커 기준 오른쪽으로 살짝 떨어뜨림
+        yAnchor: 0.5   // 마커의 세로 중앙에 맞춤
     });
     activeOverlay.setMap(map);
 }
