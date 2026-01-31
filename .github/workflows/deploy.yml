@@ -46,6 +46,7 @@ jobs:
           echo "${{ secrets.KH_HOLDINGS_PROPERTIES_CONTENT }}" > src/main/resources/config/kh-holding.properties
           echo "${{ secrets.SLACK_PROPERTIES_CONTENT }}" > src/main/resources/config/slack.properties
           echo "${{ secrets.PAYMENT_PROPERTIES_CONTENT }}" > src/main/resources/config/payment.properties
+          echo "${{ secrets.KAKAO_PROPERTIES_CONTENT }}" > src/main/resources/config/kakao.properties
 
       # 스프링 프로파일 local을 prod로 변환
       - name: Change Profile to Prod
