@@ -165,6 +165,45 @@ document.querySelectorAll('.order-type').forEach(select => {
             volumeGroup.style.display = 'flex';
             amountGroup.style.display = 'none';
         }
+
+        // 매수/매도 탭 변경 시, 총 주문 금액/수량 재계산
+        updateOrderTotal(tabContent);
+    });
+});
+
+// 총 주문 금액/수량 계산
+function updateOrderTotal(tabContent) {
+    const isBuyTab = tabContent.closest('#buy-tab') !== null;
+    const orderType = tabContent.querySelector('.order-type').value;
+    const totalDisplay = tabContent.querySelector('.total-amount');
+
+    const getValue = (selector) => {
+        const input = tabContent.querySelector(selector);
+        return input ? parseFloat(input.value.replace(/,/g, '')) || 0 : 0;
+    };
+
+    if (isBuyTab) {
+        if (orderType === 'MARKET') {
+            // 시장가 매수: 사용자가 입력한 '주문 총액' 그대로
+            const amount = getValue('.amount-group .input-box');
+            totalDisplay.textContent = `${Math.floor(amount).toLocaleString()}원`;
+        } else {
+            // 지정가 매수: 가격 * 수량
+            const total = getValue('.price-group .input-box') * getValue('.volume-group .input-box');
+            totalDisplay.textContent = `${Math.floor(total).toLocaleString()}원`;
+        }
+    } else {
+        // 매도 탭: 시장가/지정가 상관없이 '주문 수량' 표시
+        const volume = getValue('.volume-group .input-box');
+        totalDisplay.textContent = `${volume.toLocaleString()}`;
+    }
+}
+
+// 인풋박스 입력 시 실시간 계산 및 업데이트
+document.querySelectorAll('.tab-content .input-box').forEach(input => {
+    input.addEventListener('input', function() {
+        const tabContent = this.closest('.tab-content');
+        updateOrderTotal(tabContent);
     });
 });
 
@@ -181,6 +220,7 @@ async function fetchBalance(perc) {
     try {
         const activeTab = document.querySelector('.tab-content-wrapper.active');
         const isBuyTab = activeTab.id === 'buy-tab';
+        const totalDisplay = activeTab.querySelector('.total-amount');
 
         let balance = 0;
         if (isBuyTab) {
@@ -192,7 +232,7 @@ async function fetchBalance(perc) {
         }
         console.log("잔액: ", balance);
 
-        const calculatedAmount = balance * (perc / 100);
+        const calculatedAmount = (balance * (perc / 100)).toFixed(4);
 
         const orderType = activeTab.querySelector('.order-type').value;
 
@@ -203,24 +243,24 @@ async function fetchBalance(perc) {
         if (orderType === 'MARKET') {
             if (isBuyTab) {
                 // 시장가 매수: 주문 총액 초기화
-                amountInput.value = Math.floor(calculatedAmount);
+                amountInput.value = calculatedAmount;
+                totalDisplay.textContent = `${calculatedAmount} KRW`;
             } else {
                 // 시장가 매도: 주문 수량 초기화
-                volumeInput.value = calculatedAmount.toFixed(8);
+                volumeInput.value = calculatedAmount;
+                totalDisplay.textContent = calculatedAmount;
             }
         } else {
-            const price = parseFloat(priceInput.value);
+            const price = parseFloat(priceInput.value.replace(/,/g, ''));
 
             if (isBuyTab) {
                 // 지정가 매수: 주문 수량 초기화
-                if (price > 0) {
-                    volumeInput.value = (calculatedAmount / price).toFixed(8);
-                } else {
-                    console.log("가격을 먼저 입력해주세요.");
-                }
+                volumeInput.value = (calculatedAmount / price).toFixed(4);
+                totalDisplay.textContent = `${calculatedAmount} KRW`;
             } else {
                 // 지정가 매도: 주문 수량 초기화
                 if (volumeInput) volumeInput.value = calculatedAmount;
+                totalDisplay.textContent = calculatedAmount;
             }
         }
     } catch (error) {
@@ -239,16 +279,20 @@ async function handleOrder(event, side){
 
     const getValue = (selector) => {
         const element = container.querySelector(selector);
-        return element ? Number(element.value.replace(/,/g, '')) : 0; // 기본값 0, 콤마 제거 후 숫자 변환
+        return (element && element.value) ? Number(element.value.replace(/,/g, '')) : 0;
     };
+
+    const price = getValue('.price-group input');
+    const volume = getValue('.volume-group input');
+    const amount = getValue('.amount-group input');
 
     const orderDTO = {
         tokenId: window.tokenId,
         orderSide: side,
         orderType: orderType,
-        orderPrice: orderType === 'LIMIT' ? getValue('.price-group input') : 0, // 시장가는 0
-        orderVolume: (side === 'BUY' && orderType === 'MARKET') ? 0 : getValue('.volume-group input'), // 시장가 매수는 0
-        totalPrice: (side === 'BUY') ? getValue('.amount-group input') : 0 // 매도는 0
+        orderPrice: orderType === 'LIMIT' ? price : 0,  // 지정가는 주문가격, 시장가는 0
+        orderVolume: (side === 'BUY' && orderType === 'MARKET') ? 0 : volume, // 시장가 매수는 0, 그 외는 주문수량
+        totalPrice: (side === 'BUY') ? (orderType === 'LIMIT' ? price * volume : amount) : 0 // 지정가 매수는 가격*수량, 시장가 매수는 총액, 매도는 0
     };
 
     // 검증 실행
@@ -257,6 +301,8 @@ async function handleOrder(event, side){
         alert(check.msg);
         return;
     }
+
+    console.log(orderDTO);
 
     // API 호출
     try {
@@ -348,7 +394,7 @@ function renderPendingOrders(pendingList) {
 
     // 2. 리스트가 비었을 경우 처리
     if (!pendingList || pendingList.length === 0) {
-        listContainer.innerHTML = '<li class="transaction-item" style="justify-content:center;">미체결 내역이 없습니다.</li>';
+        listContainer.innerHTML = '<li class="transaction-item no-content">미체결 내역이 없습니다.</li>';
         return;
     }
 
@@ -377,7 +423,7 @@ function createPendingRowHtml(item) {
             <li class="transaction-item" data-order-id="${item.orderId}">
                 <div class="item-hover-layer">
                     <div class="trashcan-box" onclick="cancelOrder(${item.orderId})">
-                        <i class="icon-trashcan"></i>
+                        ${Icons.trashCan}
                     </div>
                 </div>
 
@@ -396,11 +442,11 @@ function createPendingRowHtml(item) {
                     </div>
                     <div class="trade-info-row">
                         <span class="label">주문수량</span>
-                        <span class="value">${Number(item.orderVolume).toFixed(8)}</span>
+                        <span class="value">${Number(item.orderVolume).toFixed(4)}</span>
                     </div>
                     <div class="trade-info-row">
                         <span class="label">미체결량</span>
-                        <span class="value">${Number(item.remainingToken).toFixed(8)}</span>
+                        <span class="value">${Number(item.remainingToken).toFixed(4)}</span>
                     </div>
                 </div>
             </li>
@@ -419,8 +465,6 @@ async function cancelOrder(orderId) {
         console.error("취소 실패: ", e);
     }
 }
-
-
 
 /* 호가, 체결 탭 */
 const tradeBtns = document.querySelectorAll('.trade-btn');
@@ -460,7 +504,7 @@ function renderTradeHistory(tradeList) {
     if (!tbody) return;
 
     if (!tradeList || tradeList.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">체결 내역이 없습니다.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="3" class="no-content">체결 내역이 없습니다.</td></tr>';
         return;
     }
 
@@ -478,7 +522,7 @@ function createTradeRowHtml(item) {
     const dirClass = isSell ? 'sell' : 'buy';
 
     const formattedPrice = Number(item.price).toLocaleString();
-    const formattedVolume = Number(item.volume).toFixed(8);
+    const formattedVolume = Number(item.volume).toFixed(4);
 
     return `
         <tr>
@@ -514,7 +558,7 @@ function renderOrderBook(sellList, buyList) {
     if (!tbody) return;
 
     if (sellList.length === 0 && buyList.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">호가 데이터가 없습니다.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="3" class="no-content">호가 정보가 없습니다.</td></tr>';
         return;
     }
 
@@ -538,7 +582,7 @@ function createOrderRowHtml(item, type) {
     const dirClass = isSell ? 'sell' : 'buy';
 
     const formattedPrice = Number(item.price).toLocaleString();
-    const formattedVolume = Number(item.totalVolume).toFixed(2);
+    const formattedVolume = Number(item.totalVolume).toFixed(4);
 
     return `
         <tr>
@@ -623,9 +667,11 @@ function syncTicker(data) {
 // 강황증권의 백엔드에서 과거 캔들 데이터 가져오기
 async function initTradingChart(tokenId) {
     const chartContainer = document.querySelector('.token-chart');
+
     if(!chartContainer) {
         return;
     }
+
     // 1. 차트 인스턴스 생성
     const chart = LightweightCharts.createChart(chartContainer, {
         layout: { backgroundColor: '#fff', textColor: '#333' },
@@ -662,6 +708,11 @@ async function initTradingChart(tokenId) {
     try {
         const response = await TokenApi.getCandles(tokenId);
 
+        // 지정가 주문 가격을 페이지 들어왔을 때의 시가로 고정
+        const curPrice = response[response.length - 1].closingPrice; // 가장 최근 캔들 데이터의 종가
+        const priceInputs = document.querySelectorAll('.price-group .input-box');
+        priceInputs.forEach(input => input.value = curPrice);
+
         const chartData = transformCandleData(response);
         const volumeData = transformVolumeData(response);
 
@@ -676,6 +727,15 @@ async function initTradingChart(tokenId) {
         console.error("차트 로딩 중 오류 발생", e);
     }
 }
+
+export const Icons = {
+    trashCan: `
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill="var(--gray-800)" d="M7.5 4.8C7.5 4.32261 7.68964 3.86477 8.02721 3.52721C8.36477 3.18964 8.82261 3 9.3 3H14.7C15.1774 3 15.6352 3.18964 15.9728 3.52721C16.3104 3.86477 16.5 4.32261 16.5 4.8V6.6H20.1C20.3387 6.6 20.5676 6.69482 20.7364 6.8636C20.9052 7.03239 21 7.26131 21 7.5C21 7.73869 20.9052 7.96761 20.7364 8.1364C20.5676 8.30518 20.3387 8.4 20.1 8.4H19.1379L18.3576 19.3278C18.3253 19.7819 18.1221 20.2069 17.7889 20.5172C17.4557 20.8275 17.0174 21 16.5621 21H7.437C6.98173 21 6.54336 20.8275 6.2102 20.5172C5.87703 20.2069 5.67382 19.7819 5.6415 19.3278L4.863 8.4H3.9C3.66131 8.4 3.43239 8.30518 3.2636 8.1364C3.09482 7.96761 3 7.73869 3 7.5C3 7.26131 3.09482 7.03239 3.2636 6.8636C3.43239 6.69482 3.66131 6.6 3.9 6.6H7.5V4.8ZM9.3 6.6H14.7V4.8H9.3V6.6ZM6.6666 8.4L7.4379 19.2H16.563L17.3343 8.4H6.6666ZM10.2 10.2C10.4387 10.2 10.6676 10.2948 10.8364 10.4636C11.0052 10.6324 11.1 10.8613 11.1 11.1V16.5C11.1 16.7387 11.0052 16.9676 10.8364 17.1364C10.6676 17.3052 10.4387 17.4 10.2 17.4C9.96131 17.4 9.73239 17.3052 9.5636 17.1364C9.39482 16.9676 9.3 16.7387 9.3 16.5V11.1C9.3 10.8613 9.39482 10.6324 9.5636 10.4636C9.73239 10.2948 9.96131 10.2 10.2 10.2ZM13.8 10.2C14.0387 10.2 14.2676 10.2948 14.4364 10.4636C14.6052 10.6324 14.7 10.8613 14.7 11.1V16.5C14.7 16.7387 14.6052 16.9676 14.4364 17.1364C14.2676 17.3052 14.0387 17.4 13.8 17.4C13.5613 17.4 13.3324 17.3052 13.1636 17.1364C12.9948 16.9676 12.9 16.7387 12.9 16.5V11.1C12.9 10.8613 12.9948 10.6324 13.1636 10.4636C13.3324 10.2948 13.5613 10.2 13.8 10.2Z"/>
+            </svg>`
+};
+
+window.Icons = Icons;
 
 window.cancelOrder = cancelOrder;
 
