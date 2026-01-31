@@ -6,6 +6,7 @@
 
 <link rel="stylesheet"
       href="${pageContext.request.contextPath}/resources/css/token_list.css">
+<script src="${pageContext.request.contextPath}/resources/js/util/lightweight-charts.js"></script>
 <script type="module" src="${pageContext.request.contextPath}/resources/js/domain/token/token_list.js"></script>
 
 <div class="token-list-container">

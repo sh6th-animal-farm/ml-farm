@@ -10,4 +10,6 @@ export const TokenApi = {
     createOrder: (tokenId, order) => http.post(`${ctx}/api/token/order/${tokenId}`, order),
     cancelOrder: (tokenId, orderId) => http.post(`${ctx}/api/token/order-cancel/${tokenId}/${orderId}`),
     getCandles: (tokenId, unit = 1) => http.get(`${ctx}/api/market/candles/${tokenId}?unit=${unit}`),
+    getOhlc: (tokenId) => http.get(`${ctx}/api/token/ohlcv/${tokenId}`),
+    getDetail: (tokenId) => http.get(`${ctx}/api/token/${tokenId}`),
 };
