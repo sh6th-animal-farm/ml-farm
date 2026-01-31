@@ -76,7 +76,6 @@ pageEncoding="UTF-8"%> <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
   </div>
 </header>
 <script>
-
 // DOMContentLoaded까지 기다리지 않고 로그인 상태를 판단하여 헤더 상태 바꾸기
 (function() {
         const token = localStorage.getItem("accessToken");

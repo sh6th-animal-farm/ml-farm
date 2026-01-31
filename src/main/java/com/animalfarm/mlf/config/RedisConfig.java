@@ -61,12 +61,12 @@ public class RedisConfig {
 	 * 이 객체를 통해 Redis의 String, Hash, List 등의 자료구조를 제어합니다.
 	 */
 	@Bean(name = "redisTemplate")
-	public RedisTemplate<String, Object> redisTemplate() {
+	public RedisTemplate<String, Object> redisTemplate(JedisConnectionFactory factory) {
 
 		RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
 
 		// 1. 위에서 만든 커넥션 팩토리를 연결
-		redisTemplate.setConnectionFactory(jedisConnectionFactory());
+		redisTemplate.setConnectionFactory(factory);
 
 		//Redis 서버에 저장될 떄 key와 value를 어떤 방식으로 직렬화(변환)할 지 결정
 		//StringRedisSerializer를 설정해야 redis-cli에서 데이터를 사람이 읽을 수 있는 형태로 볼 수 있다

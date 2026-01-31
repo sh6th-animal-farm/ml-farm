@@ -11,7 +11,8 @@
     <link rel="icon" href="data:;base64,iVBORw0KGgo=">
     <script>
         // 전역 변수로 선언 (보통 'ctx' 또는 'contextPath'라고 명명)
-        const ctx = "${pageContext.request.contextPath}";
+        //const ctx = "${pageContext.request.contextPath}";
+        const ctx = "https://mlfarm.3jun.store";
     </script>
 </head>
 <body>
