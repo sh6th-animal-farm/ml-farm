@@ -329,8 +329,8 @@ public class SubscriptionService {
 	private void tokenClosed(Long tokenId) {
 		String url = KH_BASE_URL + "api/project/close/" + tokenId;
 		try {
-			externalApiUtil.callApi(url, HttpMethod.POST, null, new ParameterizedTypeReference<ApiResponse<Object>>() {
-			});
+			externalApiUtil.callApi(url, HttpMethod.POST, null,
+				new ParameterizedTypeReference<ApiResponse<Object>>() {});
 
 			log.info("강황 증권에 토큰 소각 완료");
 		} catch (Exception e) {
