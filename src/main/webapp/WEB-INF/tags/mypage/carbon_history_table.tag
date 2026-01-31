@@ -8,7 +8,7 @@
 <table class="carbon-table">
     <thead>
         <tr>
-            <th class="th-type head-first">구분</th>
+            <th class="th-type head-first">유형</th>
             <th>프로젝트 정보</th>
             <th class="th-buy-date">구매일</th>
             <th class="th-expire-date">만료일</th>
@@ -16,7 +16,7 @@
             <th class="head-last" style="text-align: right;">구매 금액</th>
         </tr>
     </thead>
-    <tbody>
+    <tbody id="carbon-data-list">
         <c:choose>
             <c:when test="${not empty carbonList}">
                 <c:forEach var="item" items="${carbonList}">
@@ -72,9 +72,9 @@
 .carbon-table td:first-child { padding-left: 24px; text-align: center; }
 .carbon-table td:last-child { padding-right: 24px; }
 
-.project-name { font:var(--font-body-03); color: var(--gray-900); }
+.project-name { font:var(--font-body-01); color: var(--gray-900); }
 .buy-date {font:var(--font-body-01);}
 .expire-date {font:var(--font-body-01);}
-.carbon-unit { font:var(--font-body-03); color: var(--gray-900); }
-.carbon-price { font:var(--font-body-03); color: var(--gray-900); text-align: right; }
+.carbon-unit { font:var(--font-body-01); color: var(--gray-900); }
+.carbon-price { font:var(--font-body-01); color: var(--gray-900); text-align: right; }
 </style>
