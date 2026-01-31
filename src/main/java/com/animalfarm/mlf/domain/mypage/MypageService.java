@@ -8,20 +8,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 
 import com.animalfarm.mlf.common.ApiResponseDTO;
 import com.animalfarm.mlf.common.security.SecurityUtil;
 import com.animalfarm.mlf.domain.mypage.dto.CarbonHistoryDTO;
 import com.animalfarm.mlf.domain.mypage.dto.HoldingDTO;
-import com.animalfarm.mlf.domain.mypage.dto.WalletDTO;
+import com.animalfarm.mlf.domain.mypage.dto.MyTransactionHistDTO;
 import com.animalfarm.mlf.domain.mypage.dto.PasswordUpdateRequestDTO;
 import com.animalfarm.mlf.domain.mypage.dto.ProfileDTO;
 import com.animalfarm.mlf.domain.mypage.dto.ProfileUpdateRequestDTO;
+import com.animalfarm.mlf.domain.mypage.dto.WalletDTO;
 
 @Service
 public class MypageService {
@@ -33,6 +33,45 @@ public class MypageService {
 
 	// 강황증권 API 서버 주소
 	private final String GANGHWANG_API_URL = "http://54.167.85.125:9090/";
+
+	// ---------------------------------------------------------
+	// 거래 내역 조회
+	// ---------------------------------------------------------
+	public List<MyTransactionHistDTO> getTransactionHistory(int page, int period, String category) {
+		Long walletId = validateAndGetWalletId();
+		if (walletId == null) {
+			return new ArrayList<>();
+		}
+
+		// 별도의 로직 없이 바로 외부 API 호출
+		return fetchList(walletId, page, period, category);
+	}
+
+	private List<MyTransactionHistDTO> fetchList(Long walletId, int page, int period, String apiCategory) {
+		try {
+			// 변경된 명세: /api/my/transaction/{walletId}?page=..&period=..&category=..
+			StringBuilder urlBuilder = new StringBuilder(GANGHWANG_API_URL)
+				.append("api/my/transaction/").append(walletId)
+				.append("?page=").append(page)
+				.append("&period=").append(period);
+
+			// category가 있을 때만 붙임 (필수가 아니라면 null 체크 유지)
+			// 명세상 TOKEN, PROJECT 등이 default값 역할을 하므로 무조건 보내는 게 안전함
+			if (apiCategory != null && !apiCategory.isEmpty()) {
+				urlBuilder.append("&category=").append(apiCategory);
+			}
+
+			ResponseEntity<ApiResponseDTO<List<MyTransactionHistDTO>>> response = restTemplate.exchange(
+				urlBuilder.toString(), HttpMethod.GET, null,
+				new ParameterizedTypeReference<ApiResponseDTO<List<MyTransactionHistDTO>>>() {});
+
+			return (response.getBody() != null) ? response.getBody().getPayload() : new ArrayList<>();
+
+		} catch (Exception e) {
+			System.err.println("[ERROR] API 호출 실패: " + e.getMessage());
+			return new ArrayList<>();
+		}
+	}
 
 	// ---------------------------------------------------------
 	// 탄소 구매 내역 조회
@@ -143,7 +182,7 @@ public class MypageService {
 		}
 		return null; // 계좌가 없으면 null 반환
 	}
-	
+
 	public ProfileDTO getProfile() {
 		Long userId = SecurityUtil.getCurrentUserId();
 		return mypageRepository.selectProfile(userId);

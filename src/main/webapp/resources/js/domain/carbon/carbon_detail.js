@@ -49,6 +49,15 @@ function renderPage(data) {
 
     const info = data.carbonInfo;
     const benefit = data.userBenefit;
+    const projectId = info.projectId; // CarbonDTO의 프로젝트 ID 필드
+
+    // 버튼 요소를 찾아 클릭 시 해당 프로젝트 상세로 이동하게 설정
+    const btn = document.getElementById("btnGoProject");
+    if (btn && projectId) {
+        btn.onclick = function() {
+            location.href = ctx + "/project/" + projectId;
+        };
+    }
 
     // info(CarbonDTO)가 아니라 data(CarbonDetailDTO)에서 직접 꺼냅니다.
     const mainImg = document.getElementById("detailMainImg");

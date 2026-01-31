@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.animalfarm.mlf.common.ApiResponseDTO;
 import com.animalfarm.mlf.domain.mypage.dto.CarbonHistoryDTO;
 import com.animalfarm.mlf.domain.mypage.dto.HoldingDTO;
+import com.animalfarm.mlf.domain.mypage.dto.MyTransactionHistDTO;
 import com.animalfarm.mlf.domain.mypage.dto.PasswordUpdateRequestDTO;
 import com.animalfarm.mlf.domain.mypage.dto.ProfileDTO;
 import com.animalfarm.mlf.domain.mypage.dto.ProfileUpdateRequestDTO;
@@ -26,6 +27,19 @@ public class MypageController {
 
 	@Autowired
 	private MypageService mypageService;
+
+	@GetMapping("/transaction-history")
+	public ResponseEntity<ApiResponseDTO<List<MyTransactionHistDTO>>> getTransactionHistory(
+		@RequestParam(value = "page", defaultValue = "1")
+		int page,
+		@RequestParam(value = "period", defaultValue = "0")
+		int period,
+		@RequestParam(value = "category", required = false)
+		String category) {
+
+		List<MyTransactionHistDTO> list = mypageService.getTransactionHistory(page, period, category);
+		return ResponseEntity.ok(new ApiResponseDTO<>("거래 내역 조회 성공", list));
+	}
 
 	// 탄소 구매 내역 조회
 	@GetMapping("/carbon-history")
