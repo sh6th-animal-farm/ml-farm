@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.animalfarm.mlf.common.security.SecurityUtil;
+import com.animalfarm.mlf.domain.project.dto.FarmDTO;
 import com.animalfarm.mlf.domain.accounting.DividendService;
 import com.animalfarm.mlf.domain.accounting.dto.DividendSelectDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectDTO;
@@ -26,14 +28,17 @@ import com.animalfarm.mlf.domain.project.dto.ProjectSearchReqDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectStarredDTO;
 import com.animalfarm.mlf.domain.user.service.UserService;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/project")
 public class ProjectController {
-	@Autowired
-	ProjectService projectService;
+	
+	private final ProjectService projectService;
+	private final FarmService farmService;
 	@Autowired
 	DividendService dividendService;
 
@@ -61,15 +66,22 @@ public class ProjectController {
 		return projectService.selectAll();
 	}
 
-	@GetMapping("")
-	public List<ProjectListDTO> selectByCondition(@ModelAttribute
+	@GetMapping("/")
+	public List<ProjectListDTO> selectByCondition(@RequestBody
 	ProjectSearchReqDTO searchDTO) {
+		Long userId = null;
+		try {
+			userId = SecurityUtil.getCurrentUserId();
+		} catch(Exception e) {
+			userId = -1L;
+		}
+		searchDTO.setUserId(userId);
 		return projectService.selectByCondition(searchDTO);
 	}
 
 	//관심 프로젝트인지 조회
 	@GetMapping("/starred")
-	public boolean getStarredStatus(@ModelAttribute
+	public boolean getStarredStatus(@RequestBody
 	ProjectStarredDTO projectStarredDTO) {
 		return projectService.getStarredStatus(projectStarredDTO);
 	}
@@ -121,6 +133,11 @@ public class ProjectController {
 	@GetMapping("/checkAccount")
 	public boolean checkAccount(Long userId) {
 		return projectService.checkAccount();
+	}
+	
+	@GetMapping("/farm/all")
+	public List<FarmDTO> selectAllFarm() {
+		return farmService.selectAllFarm();
 	}
 
 	@PostMapping("/dividend")
