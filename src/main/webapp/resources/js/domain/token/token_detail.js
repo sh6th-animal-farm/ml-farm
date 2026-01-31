@@ -1,13 +1,57 @@
 import {TokenApi} from "./token_api.js";
 
-// 초기 로딩 시, 호가창 렌더링
-if (window.orderSellList && window.orderBuyList) {
-    renderOrderBook(window.orderSellList, window.orderBuyList);
+let candleSeries; // 캔들
+let volumeSeries; // 거래량
+let isChartReady = false; // 차트 초기화
+
+// 캔들 데이터 변환 (과거 데이터용, 배열)
+const transformCandleData = (data) => {
+    return data.map(data => transformSingleCandle(data));
 }
 
-// 초기 로딩 시, 체결창 렌더링
-if (window.tradeList) {
-    renderTradeHistory(window.tradeList);
+// 캔들 데이터 변환 (실시간 데이터용, 객체 하나)
+const transformSingleCandle = (data) => ({
+    time: Number(data.candleTime),
+    open: Number(data.openingPrice),
+    high: Number(data.highPrice),
+    low: Number(data.lowPrice),
+    close: Number(data.closingPrice)
+});
+
+// 거래량 데이터 변환 (과거 데이터용, 배열)
+const transformVolumeData = (data) => {
+    return data.map(item => transformSingleVolume(item));
+};
+
+// 거래량 데이터 변환 (실시간 데이터용, 객체 하나)
+const transformSingleVolume = (data) => ({
+    time: Number(data.candleTime),
+    value: Number(data.tradeVolume || 0),
+    color: Number(data.closingPrice) >= Number(data.openingPrice)
+        ? 'rgba(242, 54, 69, 0.3)'
+        : 'rgba(8, 153, 129, 0.3)'
+});
+
+// Ticker 상태 관리 객체
+const tickerState = {
+    referencePrice: 0, // 전일 종가
+    lastPrice: 0,
+    elements: null
+};
+
+// 초기화 시 DOM 캐싱
+function initTickerElements() {
+    if (tickerState.elements) {
+        return;
+    }
+    tickerState.elements = {
+        container: document.querySelector('.price-header'),
+        price: document.querySelector('.current-price .price'),
+        rate: document.querySelector('.change-rate'),
+        high: document.querySelector('.info-row span:nth-child(1) b'),
+        low: document.querySelector('.info-row span:nth-child(2) b'),
+        volume: document.querySelector('.info-row span:nth-child(3) b')
+    };
 }
 
 /* 웹소켓 연결 및 구독 */
@@ -23,6 +67,24 @@ WebSocketManager.connect('http://localhost:9090/ws-stomp', function() {
     WebSocketManager.subscribe('order', `/topic/orders/${tokenId}`, function(data) {
         console.log('[WebSocket - 호가]', data);
         updateOrderBook(data);
+    });
+
+    // 3. 캔들 토픽 구독
+    WebSocketManager.subscribe('candle', `/topic/candles/${tokenId}`, function (data) {
+        console.log('[WebSocket - 캔들]', data);
+        // 실시간 캔들 데이터 갱신
+        if (!isChartReady || !candleSeries) {
+            return;
+        }
+        candleSeries.update(transformSingleCandle(data));
+        volumeSeries.update(transformSingleVolume(data));
+        // syncTicker(data);
+    });
+
+    // 4. OHLCV 구독
+    WebSocketManager.subscribe('list', `/topic/tokenList/${tokenId}`, function (data) {
+        console.log('[WebSocket - OHLCV]', data);
+        syncTicker(data);
     });
 });
 
@@ -358,7 +420,7 @@ async function cancelOrder(orderId) {
     }
 }
 
-window.cancelOrder = cancelOrder;
+
 
 /* 호가, 체결 탭 */
 const tradeBtns = document.querySelectorAll('.trade-btn');
@@ -517,4 +579,117 @@ function updateOrderList(list, data) {
             list.splice(index, 1);
         }
     }
+}
+
+// OHLCV
+function syncTicker(data) {
+    if (!tickerState.elements) initTickerElements();
+
+    const current = Number(data.marketPrice || 0);
+    const high = Number(data.highPrice || 0);
+    const low = Number(data.lowPrice || 0);
+    const rate = Number(data.changeRate || 0);
+    const volume = Number(data.dailyTradeVolume || 0);
+
+    const { elements, lastPrice } = tickerState;
+    if (!elements || !elements.price) return;
+
+    // 가격 변화 애니메이션
+    if (lastPrice !== 0 && lastPrice !== current) {
+        const flashClass = current > lastPrice ? 'up-flash' : 'down-flash';
+        elements.price.classList.add(flashClass);
+        setTimeout(() => elements.price.classList.remove(flashClass), 300);
+    }
+
+    // 값 업데이트
+    elements.price.innerText = current.toLocaleString();
+    elements.high.innerText = high.toLocaleString();
+    elements.low.innerText = low.toLocaleString();
+    elements.volume.innerText = Math.floor(volume).toLocaleString();
+
+    // 등락률 처리
+    const isUp = rate > 0;
+    const isDown = rate < 0;
+
+    elements.rate.innerText = `${isUp ? '+' : ''}${rate.toFixed(2)}% 전일대비`;
+
+    const color = isUp ? '#f23645' : (isDown ? '#089981' : '#333');
+    elements.price.style.color = color;
+    elements.rate.style.color = color;
+
+    tickerState.lastPrice = current;
+}
+
+// 강황증권의 백엔드에서 과거 캔들 데이터 가져오기
+async function initTradingChart(tokenId) {
+    const chartContainer = document.querySelector('.token-chart');
+    if(!chartContainer) {
+        return;
+    }
+    // 1. 차트 인스턴스 생성
+    const chart = LightweightCharts.createChart(chartContainer, {
+        layout: { backgroundColor: '#fff', textColor: '#333' },
+        grid: { vertLines: { color: '#f0f0f0' }, horzLines: { color: '#f0f0f0' } },
+        // grid: { vertLines: { visible: false }, horzLines: { visible: false } },
+        timeScale: { timeVisible: true, secondsVisible: false },
+        localization: { locale: 'ko-KR' },
+    });
+
+    // 캔들 디자인
+    candleSeries = chart.addSeries(LightweightCharts.CandlestickSeries, {
+        upColor: '#f23645',
+        downColor: '#089981',
+        borderUpColor: '#f23645',
+        borderDownColor: '#089981',
+        wickUpColor: '#f23645',
+        wickDownColor: '#089981',
+    });
+
+    // 거래량 시리즈
+    volumeSeries = chart.addSeries(LightweightCharts.HistogramSeries, {
+        priceFormat: { type: 'volume' },
+        priceScaleId: '',
+    });
+
+    // 거래량이 차트 하단 20%만 차지하도록 설정
+    volumeSeries.priceScale().applyOptions({
+        scaleMargins: {
+            top: 0.8,
+            bottom: 0,
+        },
+    });
+
+    try {
+        const response = await TokenApi.getCandles(tokenId);
+
+        const chartData = transformCandleData(response);
+        const volumeData = transformVolumeData(response);
+
+        console.log(chartData);
+
+        candleSeries.setData(chartData); // 캔들 데이터 주입
+        volumeSeries.setData(volumeData); // 거래량 데이터 맵핑
+
+        isChartReady = true;
+
+    } catch (e) {
+        console.error("차트 로딩 중 오류 발생", e);
+    }
+}
+
+window.cancelOrder = cancelOrder;
+
+// 초기 로딩 시, 호가창 렌더링
+if (window.orderSellList && window.orderBuyList) {
+    renderOrderBook(window.orderSellList, window.orderBuyList);
+}
+
+// 초기 로딩 시, 체결창 렌더링
+if (window.tradeList) {
+    renderTradeHistory(window.tradeList);
+}
+
+// 초기 로딩 시, 차트 렌더링
+if (window.tokenId) {
+    initTradingChart(window.tokenId);
 }
