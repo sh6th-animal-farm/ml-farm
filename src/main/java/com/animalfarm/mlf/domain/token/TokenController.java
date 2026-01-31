@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.animalfarm.mlf.common.security.SecurityUtil;
+import com.animalfarm.mlf.domain.token.dto.CandleDTO;
 import com.animalfarm.mlf.domain.token.dto.OrderDTO;
 import com.animalfarm.mlf.domain.token.dto.TokenDTO;
 import com.animalfarm.mlf.domain.token.dto.TokenPendingDTO;
@@ -22,8 +23,7 @@ public class TokenController {
 	TokenService tokenService;
 
 	@GetMapping("/api/token/{projectId}")
-	public TokenDTO selectDetail(@PathVariable("projectId")
-	Long projectId) {
+	public TokenDTO selectDetail(@PathVariable("projectId") Long projectId) {
 		return tokenService.selectByProjectId(projectId);
 	}
 
@@ -71,5 +71,18 @@ public class TokenController {
 	@PostMapping("/api/token/order-cancel/{tokenId}/{orderId}")
 	public boolean cancelOrder(@PathVariable Long tokenId, @PathVariable Long orderId) {
 		return tokenService.cancelOrder(tokenId, orderId);
+	}
+
+	// 캔들 조회
+	@GetMapping("/api/market/candles/{tokenId}")
+	public List<CandleDTO> selectCandles(
+			@PathVariable Long tokenId,
+			@RequestParam(defaultValue = "1") int unit,
+			@RequestParam(required = false) Long start,
+			@RequestParam(required = false) Long end) {
+
+		return tokenService.selectCandles(tokenId, unit,
+				start != null ? start : 0L,
+				end != null ? end : System.currentTimeMillis());
 	}
 }

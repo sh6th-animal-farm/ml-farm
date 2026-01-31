@@ -17,14 +17,14 @@
 
 /* 상단 토큰명 */
 .token-title { display:flex; gap: 8px; align-items: end; }
-.token-title h2 { font: var(--font-header-01); color: var(--gray-900); }
+.token-title h2 { font: var(--font-header-02); color: var(--gray-900); }
 .token-title p { font: var(--font-body-01); color: var(--gray-700); padding-bottom: 6px; }
 
 /* 상단 시세 정보 */
 .token-summary { display: flex; flex-direction: column; gap: 4px; }
 .price-header { display: flex; align-items: baseline; gap: 8px; }
 .current-price { display: flex; align-items: baseline; gap: 4px; }
-.price { font: var(--font-header-01); }
+.price { font: var(--font-header-02); }
 .unit { font: var(--font-caption-01); }
 .change-rate { font: var(--font-body-04); color: var(--error); }
 .info-row { display: flex; gap: 12px; font: var(--font-body-02); color: var(--gray-700); }
@@ -35,7 +35,7 @@
 .period-btn.active { background: white; font: var(--font-caption-03); color: var(--green-600); }
 
 /* 차트 */
-.token-chart { width: 100%; height: 325px; background: var(--gray-100); border: 1px solid var(--gray-100); border-radius: 12px; }
+.token-chart { width: 100%; height: 450px; background: var(--gray-100); border: 1px solid var(--gray-100); border-radius: 12px; overflow: hidden;}
 
 /* 종목 (좌측 하단) */
 .list-card { display: flex; flex-direction: column; height: 320px; }
@@ -116,3 +116,6 @@
 /* 호가 컬러 */
 .hoga-sell { color: var(--error); font-weight: 600; }
 .hoga-buy { color: var(--info); font-weight: 600; }
+
+/* 트레이딩뷰 로고 제거 */
+.token-chart a { display: none !important; }

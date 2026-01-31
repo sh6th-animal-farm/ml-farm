@@ -8,5 +8,6 @@ export const TokenApi = {
     getTokenBalance: (tokenId) => http.get(`${ctx}/api/account/balance/${tokenId}`),
     getPendingList: (tokenId) => http.get(`${ctx}/api/token/pending/${tokenId}`),
     createOrder: (tokenId, order) => http.post(`${ctx}/api/token/order/${tokenId}`, order),
-    cancelOrder: (tokenId, orderId) => http.post(`${ctx}/api/token/order-cancel/${tokenId}/${orderId}`)
+    cancelOrder: (tokenId, orderId) => http.post(`${ctx}/api/token/order-cancel/${tokenId}/${orderId}`),
+    getCandles: (tokenId, unit = 1) => http.get(`${ctx}/api/market/candles/${tokenId}?unit=${unit}`),
 };
