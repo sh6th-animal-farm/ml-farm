@@ -44,7 +44,7 @@
 .order-card { display: flex; flex-direction: column; gap: 20px; height: 434px; }
 
 /* 호가/체결 (우측 하단) */
-.trade-card { display: flex; flex-direction: column; gap: 8px; height: 414px; }
+.trade-card { display: flex; flex-direction: column; gap: 8px; height: 508px; }
 
 /* 탭 메뉴 */
 .tab-menu { display: flex; height: 52px; background: var(--gray-100); border-radius: 6px; padding: 6px; flex-shrink: 0; }
@@ -74,6 +74,7 @@
 /* 거래 내역 */
 /* 컨테이너 및 기본 설정 */
 .history-summary { display: flex; justify-content: space-between; padding: 4px; font: var(--font-caption-01); border-bottom: 1px solid var(--gray-200); }
+.no-content { display: flex; height: 300px; justify-content: center; align-items: center; text-align:center; border: none; font: var(--font-body-01); color: var(--gray-500) }
 
 /* 리스트 스타일 초기화 */
 .transaction-list { list-style: none; margin-top: -12px; padding: 0; }

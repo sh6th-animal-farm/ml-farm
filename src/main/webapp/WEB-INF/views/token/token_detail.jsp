@@ -116,7 +116,7 @@
                         </div>
                         <div class="summary-row">
                             <span>총 주문 금액</span>
-                            <span style="color:var(--error)">1,400,000원</span>
+                            <span class="total-amount" style="color:var(--error)">0원</span>
                         </div>
                         <button class="btn-order btn-buy">매수</button>
                     </div>
@@ -146,8 +146,8 @@
                             <button class="perc-btn sell-perc">100%</button>
                         </div>
                         <div class="summary-row">
-                            <span>총 주문 금액</span>
-                            <span style="color:var(--info)">1,400,000원</span>
+                            <span>총 주문 수량</span>
+                            <span class="total-amount" style="color:var(--info)">0</span>
                         </div>
                         <button class="btn-order btn-sell">매도</button>
                     </div>
