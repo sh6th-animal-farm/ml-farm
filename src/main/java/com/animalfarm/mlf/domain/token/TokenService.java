@@ -59,7 +59,7 @@ public class TokenService {
 			});
 
 			return list;
-		} catch (RuntimeException e) {
+		} catch (Exception e) {
 			log.error("[Service Error] 토큰 목록 조회 실패: {}",e.getMessage());
 			return Collections.emptyList();
 		}
@@ -210,6 +210,25 @@ public class TokenService {
 
 		externalApiUtil.callApi(targetUrl, HttpMethod.POST, null, responseType);
 		return true;
+	}
+
+	public TokenListDTO selectTokenOhlcv(Long tokenId) {
+		try {
+			TokenListDTO token = externalApiUtil.callApi(
+				khUrl + "/market/ohlcv/" + tokenId,
+				HttpMethod.GET,
+				null,
+				new ParameterizedTypeReference<ApiResponse<TokenListDTO>>() {}
+			);
+
+			if (token == null) {
+				return null;
+			}
+			return token;
+		} catch (Exception e) {
+			log.error("[Service Error] 토큰 상세 정보 조회 실패: {}",e.getMessage());
+			return null;
+		}
 	}
 
 	public TokenDTO selectByProjectId(Long projectId) {
