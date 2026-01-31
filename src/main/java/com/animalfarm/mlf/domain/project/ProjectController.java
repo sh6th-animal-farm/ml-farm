@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.animalfarm.mlf.common.security.SecurityUtil;
 import com.animalfarm.mlf.domain.project.dto.FarmDTO;
+import com.animalfarm.mlf.domain.accounting.DividendService;
+import com.animalfarm.mlf.domain.accounting.dto.DividendSelectDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectDetailDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectInsertDTO;
@@ -24,6 +26,7 @@ import com.animalfarm.mlf.domain.project.dto.ProjectListDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectPictureDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectSearchReqDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectStarredDTO;
+import com.animalfarm.mlf.domain.user.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +39,8 @@ public class ProjectController {
 	
 	private final ProjectService projectService;
 	private final FarmService farmService;
+	@Autowired
+	DividendService dividendService;
 
 	@InitBinder
 	protected void initBinder(WebDataBinder binder) {
@@ -134,4 +139,42 @@ public class ProjectController {
 	public List<FarmDTO> selectAllFarm() {
 		return farmService.selectAllFarm();
 	}
+
+	@PostMapping("/dividend")
+	public ResponseEntity<String> processDividend(@RequestBody
+	Long projectId) {
+		try {
+			dividendService.runDividendBatch(projectId);
+			return ResponseEntity.ok("성공했습니다. DB를 확인해주세요.");
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+
+	@PostMapping("/dividend-mail")
+	public ResponseEntity<String> sendDividendEmail() {
+		try {
+			dividendService.sendEmail();
+			return ResponseEntity.ok("성공했습니다. DB를 확인해주세요.");
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+
+	@PostMapping("/dividend/poll/select")
+	public ResponseEntity<String> selectDividendType(@RequestBody
+	DividendSelectDTO dividendSelectDTO) {
+		Long dividendId = dividendSelectDTO.getDividendId();
+		String dividendType = dividendSelectDTO.getDividendType();
+		String address = dividendSelectDTO.getAddress();
+		try {
+			dividendService.processUserSelection(dividendId, dividendType, address);
+			// 성공 시 성공 메시지 반환
+			return ResponseEntity.ok("수령 방식 선택이 완료되었습니다.");
+		} catch (Exception e) {
+			// 실패 시 에러 메시지와 함께 400 또는 500 에러 반환
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+
 }

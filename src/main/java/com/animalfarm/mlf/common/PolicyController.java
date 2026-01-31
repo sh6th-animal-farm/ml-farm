@@ -1,4 +1,4 @@
-package com.animalfarm.mlf.domain.common;
+package com.animalfarm.mlf.common;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
