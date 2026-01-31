@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class SignUpViewController {
 
 	@GetMapping("/signup")
-	public String mainPage(Model model) {
+	public String SignUpPage(Model model) {
 		// 본문에 보여줄 JSP 경로만 지정
-		model.addAttribute("contentPage", "/WEB-INF/views/user/signup.jsp");
+		model.addAttribute("contentPage", "/WEB-INF/views/auth/signup.jsp");
 		return "layout"; // 항상 layout.jsp를 리턴
 	}
 }

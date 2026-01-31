@@ -1,0 +1,104 @@
+@charset "UTF-8";
+
+.carbon-card{
+  background:#fff;
+  border-radius:16px;
+  overflow:hidden;
+  border:1px solid rgba(0,0,0,0.06);
+  box-shadow:0 12px 30px rgba(0,0,0,0.08);
+}
+
+.carbon-img{
+  position:relative;
+  height:170px;
+  background:#e9ecef;
+  overflow:hidden;
+}
+.carbon-img img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+
+/* badge */
+.badge{
+  position:absolute;
+  left:12px;
+  top:12px;
+  display:inline-flex;
+  align-items:center;
+  padding:6px 12px;
+  border-radius:999px;
+  font-size:13px;
+  font-weight:900;
+  background:rgba(255,255,255,0.88);
+  border:1px solid rgba(0,0,0,0.06);
+  backdrop-filter: blur(6px);
+}
+.badge.blue{ color:#1F76D2; }
+.badge.green{ color:#2E7127; }
+
+.carbon-body{ padding:18px 18px 16px; }
+
+.carbon-title{
+  font-size:18px;
+  font-weight:900;
+  line-height:1.3;
+  margin:2px 0 14px;
+}
+
+.divider{
+  height:1px;
+  background:rgba(0,0,0,0.06);
+  margin:10px 0 14px;
+}
+
+.meta-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+  gap:10px;
+  font-size:13px;
+  color:#6b6b6b;
+}
+.meta-row .value{
+  color:#222;
+  font-weight:800;
+}
+
+.price-area{ margin-top:10px; text-align:right; }
+.price-area .price{
+  margin-top:6px;
+  font-size:26px;
+  font-weight:950;
+  color:#222;
+}
+
+/* action */
+.carbon-action{ padding:0 18px 18px; }
+.btn-action{
+  width:100%;
+  height:56px;
+  border-radius:12px;
+  border:0;
+  font-weight:900;
+  color:#fff;
+  cursor:pointer;
+}
+
+/* [기본] 평상시 검은색 버튼 */
+.btn-action.btn-dark {
+    background-color: #1f1f1f; 
+    color: #fff;
+    transition: background-color 0.3s ease;
+}
+
+/* [호버] JS에서 주입한 hover 클래스가 있을 때만 색상 변경 */
+.carbon-card .btn-action.hover-blue:hover {
+    background-color: #1F76D2;
+}
+
+.carbon-card .btn-action.hover-green:hover {
+    background-color: #4A9F2E;
+}

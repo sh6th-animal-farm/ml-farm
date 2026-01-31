@@ -9,6 +9,7 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -25,6 +26,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 @Configuration
 @EnableWebMvc
 @PropertySource("classpath:config/application.properties")
+@PropertySource("classpath:config/slack.properties")
+@PropertySource("classpath:config/kakao.properties")
 public class WebConfig implements WebMvcConfigurer {
 
 	// @Value를 해석하기 위해 반드시 필요한 빈입니다.
@@ -66,5 +69,18 @@ public class WebConfig implements WebMvcConfigurer {
 		// 실제 서버의 file:///data/uploads/ 경로에서 파일을 찾아라
 		registry.addResourceHandler("/uploads/**")
 			.addResourceLocations("file:///C:/mlfarm-data/uploads/");
+	}
+
+	@Bean
+	public RestTemplate restTemplate() {
+		return new RestTemplate();
+	}
+
+	@Bean
+	public ObjectMapper objectMapper() {
+		return Jackson2ObjectMapperBuilder.json()
+			.modules(new JavaTimeModule())
+			.featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+			.build();
 	}
 }

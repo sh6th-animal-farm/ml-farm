@@ -9,9 +9,11 @@
 
 <style>
 .status-badge {
+	display: inline-block;
 	padding: 4px 12px;
 	border-radius: var(--radius-s);
 	font: var(--font-button-02); 
+	text-align: center;
 }
 
 .announcement {
