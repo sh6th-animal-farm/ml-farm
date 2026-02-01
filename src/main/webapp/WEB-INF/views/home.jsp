@@ -124,7 +124,7 @@
             <div class="slide"><img src="https://img.icons8.com/color/96/amazon.png" alt="Amazon"></div>
             <div class="slide"><img src="https://img.icons8.com/color/96/nvidia.png" alt="Nvidia"></div>
             <div class="slide"><img src="https://img.icons8.com/color/96/meta--v1.png" alt="Meta"></div>
-            <div class="slide"><img src="https://img.icons8.com/color/96/intel.png" alt="Intel"></div>
+            <div class="slide"><img src="https://img.icons8.com/?size=100&id=TaJZJbJzrhhN&format=png&color=000000" alt="Intel"></div>
         </div>
     </div>
 </section>

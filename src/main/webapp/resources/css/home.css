@@ -231,13 +231,12 @@
 	align-items: center;
 	padding: 20px 24px;
 	background: white;
-	border: 1px solid var(--gray-100);
 	border-radius: var(--radius-m);
 	transition: 0.2s;
+	box-shadow: var(--shadow);
 }
 
 .top-item:hover {
-	border-color: var(--green-200);
 	background: var(--green-0);
 }
 
