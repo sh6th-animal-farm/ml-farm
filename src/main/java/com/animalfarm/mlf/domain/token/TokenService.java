@@ -107,6 +107,18 @@ public class TokenService {
 		return curPrice;
 	}
 
+	// 토큰 존재 여부 확인
+	public boolean checkTokenStatus(Long tokenId) {
+		boolean isOk = externalApiUtil.callApi(
+			khUrl + "/project/check/" + tokenId,
+			HttpMethod.GET,
+			null,
+			new ParameterizedTypeReference<ApiResponse<Boolean>>() {}
+		);
+
+		return isOk;
+	}
+
 	// 매수 호가 조회
 	public List<OrderPriceDTO> selectAllOrderBuyPrice(Long tokenId) {
 		List<OrderPriceDTO> orderBuyPriceList = externalApiUtil.callApi(
