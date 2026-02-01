@@ -33,79 +33,89 @@ public class SecurityConfig {
 	private final JwtAuthenticationEntryPoint entryPoint;
 	private final JwtAccessDeniedHandler accessDeniedHandler;
 
-	// [설정] true: 테스트 모드 (팀원 협업용), false: 실전 모드 (보안 강화)
-	private static final boolean IS_TEST_MODE = true;
+	// [중요] 실전 모드 ON (보안 규칙 적용)
+	private static final boolean IS_TEST_MODE = false;
 
 	@Bean
 	public WebSecurityCustomizer webSecurityCustomizer() {
-		// Swagger와 정적 리소스는 여기서 한 번에 '무시' 처리 (가장 깔끔)
+		// 정적 리소스(CSS, JS, 이미지)와 Swagger는 보안 필터 자체를 거치지 않음 (성능 최적화)
 		return (web) -> web.ignoring()
 			.antMatchers("/swagger-ui.html", "/swagger-resources/**", "/v2/api-docs/**", "/webjars/**",
-				"/resources/**");
+				"/resources/**", "/favicon.ico", "/error");
 	}
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-		// [서버의 정체성 선언: JWT 기반 무상태(Stateless) 서버]
-		// 이 설정이 완료되어야 스프링 시큐리티가 세션을 버리고 토큰 기반으로 작동합니다.
+		// 1. 기본 설정 (JWT 사용을 위해 세션/CSRF/FormLogin 비활성화)
 		http
-			// [팝업창 차단] 브라우저의 기본 로그인 ID/PW 팝업창을 사용하지 않음
 			.httpBasic().disable()
-
-			// [CSRF 방어 해제] 세션/쿠키를 사용하지 않으므로 CSRF 공격으로부터 자유로움 (REST API 최적화)
 			.csrf().disable()
-
-			// [cors 설정 추가]
 			.cors().configurationSource(corsConfigurationSource())
 			.and()
-
-			// [무상태성(Stateless) 강제] 가장 핵심 설정!
-			// 서버는 세션을 생성하지도 않고, 이미 존재하는 세션을 사용하지도 않음
 			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+			.and();
 
-			.and(); // 설정 체인을 이어가기 위한 구분자
-
-		// [인가 정책 설정]
+		// 2. 권한 규칙 설정
 		http.authorizeRequests()
-			// 1. 공용 API (Swagger permitAll 중복 제거됨)
+			// =========================================================
+			// [A] 누구나 접근 가능 (Public) - 로그인 불필요
+			// =========================================================
+
+			// 1. 인증/로그인 관련 API
 			.antMatchers("/api/auth/**").permitAll()
 
-			// 2. 요청하신 테스트 전용 경로 (권한 로직 실전 테스트용)
-			.antMatchers("/api/test/carbon").hasRole("ENTERPRISE") // ENTERPRISE 권한 필요
-			.antMatchers("/api/test/admin").hasRole("ADMIN") // ADMIN 권한 필요
-			.antMatchers("/api/test/auth").authenticated(); // 로그인만 하면 허용
+			// 2. 화면(View) 페이지 [이미지 명세 반영]
+			// 메인, 로그인/가입, 약관, 프로젝트 목록/상세, 토큰 목록/상세
+			.antMatchers("/", "/main", "/auth/**", "/terms/**").permitAll()
+			.antMatchers("/project/**").permitAll() // /project/list/fragment 포함됨
+			.antMatchers("/token/**").permitAll() // 토큰 거래소 화면
 
-		if (IS_TEST_MODE) {
-			// 3-A. [테스트 모드] 위에서 정의하지 않은 나머지 모든 요청은 팀원들을 위해 허용
-			http.authorizeRequests().anyRequest().permitAll();
-		} else {
-			// 3-B. [실전 모드] 실제 서비스 운영을 위한 엄격한 권한 설정
-			http.authorizeRequests()
-				// 1. 누구나 접근 가능한 경로 (로그인, 회원가입, 단순 조회)
-				.antMatchers("/api/auth/**").permitAll()
-				.antMatchers(HttpMethod.GET, "/api/carbon/**", "/api/project/**", "/api/token/**").permitAll()
+			// 3. 조회 전용 API (GET 요청만 허용) [API 명세 반영]
+			// 프로젝트 조회, 사진 조회, 위치 조회 등
+			.antMatchers(HttpMethod.GET, "/api/project/**").permitAll()
+			// 토큰 시세, 차트, 호가창 조회 등
+			.antMatchers(HttpMethod.GET, "/api/token/**").permitAll()
 
-				// 2. 관리자 전용 (이미지의 admin 태그 반영)
-				.antMatchers("/api/project/insert", "/api/project/update").hasRole("ADMIN")
+			// =========================================================
+			// [B] 권한별 접근 제어 (Role Based)
+			// =========================================================
 
-				// 3. 기업 회원 전용 (탄소 배출권 마켓 관련)
-				.antMatchers("/api/carbon/order/**", "/api/carbon/order-verification").hasRole("ENTERPRISE")
+			// 4. 관리자(ADMIN) 전용
+			// 어드민 페이지 전체, 프로젝트 생성/수정/삭제 API
+			.antMatchers("/admin/**").hasRole("ADMIN")
+			.antMatchers("/api/project/insert", "/api/project/update").hasRole("ADMIN")
+			.antMatchers(HttpMethod.DELETE, "/api/project/picture/**").hasRole("ADMIN")
 
-				// 4. 로그인한 유저 공통 (토큰 거래, 마이페이지, 청약)
-				.antMatchers("/api/token/order/**", "/api/my/**", "/api/project/subscription").authenticated()
+			// 5. 기업(ENTERPRISE) 전용 [탄소 마켓]
+			// 탄소 마켓 화면 및 관련 API 전체
+			.antMatchers("/carbon/**").hasRole("ENTERPRISE")
+			.antMatchers("/api/carbon/**").hasRole("ENTERPRISE")
 
-				.anyRequest().authenticated();
-		}
+			// =========================================================
+			// [C] 로그인한 사용자 공통 (Authenticated)
+			// =========================================================
 
+			// 6. 프로젝트 관련 액션 (청약, 좋아요, 좋아요 취소)
+			.antMatchers("/api/project/subscription", "/api/project/favorite/**", "/api/project/confirm-user")
+			.authenticated()
+
+			// 7. 토큰 거래 액션 (주문, 취소) 및 계좌 잔액 조회
+			.antMatchers("/api/token/order/**", "/api/token/order-cancel/**").authenticated()
+			.antMatchers("/api/accounts/**").authenticated() // 잔액 조회는 본인만!
+
+			// 8. 마이페이지 전체
+			.antMatchers("/api/my/**").authenticated()
+
+			// 9. 그 외 정의되지 않은 모든 요청은 로그인 필요
+			.anyRequest().authenticated();
+
+		// 3. 에러 핸들링 및 필터 추가
 		http
-			// 4. 예외 처리 핸들러 등록
 			.exceptionHandling()
-			.authenticationEntryPoint(entryPoint)
-			.accessDeniedHandler(accessDeniedHandler)
+			.authenticationEntryPoint(entryPoint) // 401 (로그인 필요)
+			.accessDeniedHandler(accessDeniedHandler) // 403 (권한 부족 - 예: 일반유저가 탄소페이지 접근)
 			.and()
-
-			// 5. JWT 필터 배치 (UsernamePasswordAuthenticationFilter 앞에 배치)
 			.addFilterBefore(new JwtAuthenticationFilter(jwtProvider, redisUtil),
 				UsernamePasswordAuthenticationFilter.class);
 
@@ -116,26 +126,20 @@ public class SecurityConfig {
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
 
-		// 허용할 도메인 (배포 주소 및 로컬 주소)
+		// 프론트엔드 도메인 허용
 		configuration.addAllowedOrigin("https://mlfarm.3jun.store");
-		configuration.addAllowedOrigin("http://localhost:9999"); // 로컬 테스트용 프론트 주소
-		configuration.addAllowedOrigin("http://localhost:5173"); // Vite 기본 주소
+		configuration.addAllowedOrigin("http://localhost:9999");
+		configuration.addAllowedOrigin("http://localhost:5173");
 
-		// 허용할 HTTP 메서드
-		configuration.addAllowedMethod("*");
-
-		// 허용할 헤더
-		configuration.addAllowedHeader("*");
-
-		// 자격 증명(쿠키, 인증 헤더 등) 허용
-		configuration.setAllowCredentials(true);
+		configuration.addAllowedMethod("*"); // GET, POST, PUT, DELETE 등 모두 허용
+		configuration.addAllowedHeader("*"); // 모든 헤더 허용
+		configuration.setAllowCredentials(true); // 쿠키/인증정보 포함 허용
 
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", configuration);
 		return source;
 	}
 
-	// 회원 가입시 비밀번호 암호화 하는 코드
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
