@@ -13,12 +13,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.animalfarm.mlf.common.ApiResponseDTO;
+import com.animalfarm.mlf.common.PagedResponseDTO;
 import com.animalfarm.mlf.domain.mypage.dto.CarbonHistoryDTO;
+import com.animalfarm.mlf.domain.mypage.dto.HoldingDTO;
 import com.animalfarm.mlf.domain.mypage.dto.PasswordUpdateRequestDTO;
 import com.animalfarm.mlf.domain.mypage.dto.ProfileDTO;
 import com.animalfarm.mlf.domain.mypage.dto.ProfileUpdateRequestDTO;
 import com.animalfarm.mlf.domain.mypage.dto.ProjectDTO;
-import com.animalfarm.mlf.domain.mypage.dto.HoldingDTO;
+import com.animalfarm.mlf.domain.mypage.dto.ProjectTabsDTO;
 import com.animalfarm.mlf.domain.mypage.dto.WalletDTO;
 
 @RestController
@@ -88,5 +90,28 @@ public class MypageController {
 				.body(new ApiResponseDTO<>("연동 가능한 강황증권 계좌를 찾을 수 없습니다.", null));
 		}
 	}
+	
+	@GetMapping("/projects/tabs")
+	public ResponseEntity<ProjectTabsDTO> getProjectTabs() {
+	    return ResponseEntity.ok(mypageService.getProjectTabs());
+	}
 
+	@GetMapping("/projects")
+	public ResponseEntity<PagedResponseDTO<ProjectDTO>> getProjects(
+	        @RequestParam(defaultValue = "JOIN") String type,
+	        @RequestParam(defaultValue = "ALL") String status,
+	        @RequestParam(defaultValue = "1") int page,
+	        @RequestParam(defaultValue = "10") int size
+	) {
+	    return ResponseEntity.ok(mypageService.getProjectCards(type, status, page, size));
+	}
+
+	@PatchMapping("/projects/star")
+	public ResponseEntity<Void> toggleStar(
+	        @RequestParam Long projectId,
+	        @RequestParam boolean starred
+	) {
+	    mypageService.setStarred(projectId, starred);
+	    return ResponseEntity.ok().build();
+	}
 }

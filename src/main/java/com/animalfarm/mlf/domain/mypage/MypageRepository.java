@@ -17,10 +17,7 @@ public interface MypageRepository {
 
 	ProfileDTO selectProfile(Long userId);
 
-	int updateProfile(@Param("userId")
-	Long userId,
-		@Param("req")
-		ProfileUpdateRequestDTO req);
+	int updateProfile(@Param("userId") Long userId, @Param("req") ProfileUpdateRequestDTO req);
 
 	// 현재 비밀번호 조회
 	String selectPasswordByUserId(Long userId);
@@ -48,4 +45,18 @@ public interface MypageRepository {
 		String randomAccessToken,
 		@Param("refreshToken")
 		String randomRefreshToken);
+
+	List<ProjectDTO> selectJoinedProjectCards(@Param("userId") Long userId, @Param("status") String status,
+			@Param("limit") int limit, @Param("offset") int offset);
+
+	long countJoinedProjectCards(@Param("userId") Long userId, @Param("status") String status);
+
+	List<ProjectDTO> selectStarredProjectCards(@Param("userId") Long userId, @Param("status") String status,
+			@Param("limit") int limit, @Param("offset") int offset);
+
+	long countStarredProjectCards(@Param("userId") Long userId, @Param("status") String status);
+
+	void upsertStarredProject(@Param("userId") Long userId, @Param("projectId") Long projectId,
+			@Param("starred") boolean starred);
+
 }
