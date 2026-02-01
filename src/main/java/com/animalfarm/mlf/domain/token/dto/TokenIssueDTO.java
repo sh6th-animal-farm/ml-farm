@@ -17,6 +17,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TokenIssueDTO {
+	private Long tokenId;
 	private String tokenName;
 	private String tickerSymbol;
 	private BigDecimal totalSupply;

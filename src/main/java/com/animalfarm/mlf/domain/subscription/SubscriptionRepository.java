@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import com.animalfarm.mlf.domain.subscription.dto.AllocationTokenDTO;
 import com.animalfarm.mlf.domain.subscription.dto.ProjectStartCheckDTO;
 import com.animalfarm.mlf.domain.subscription.dto.SubscriptionApplicationDTO;
 import com.animalfarm.mlf.domain.subscription.dto.SubscriptionHistDTO;
@@ -45,4 +46,8 @@ public interface SubscriptionRepository {
 	public abstract List<String> selectUserEmail(Long projectId);
 
 	public abstract Long selectUclId(Long userId);
+
+	public abstract AllocationTokenDTO selectAllocationInfo(Long projectId);
+
+	public abstract boolean approveSubscription(Long shId);
 }

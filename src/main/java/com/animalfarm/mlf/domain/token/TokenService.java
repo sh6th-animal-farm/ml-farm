@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.animalfarm.mlf.domain.project.dto.ProjectNewTokenDTO;
 import com.animalfarm.mlf.common.http.ApiResponse;
 import com.animalfarm.mlf.common.http.ExternalApiUtil;
 import com.animalfarm.mlf.domain.token.dto.OrderDTO;
@@ -244,4 +245,9 @@ public class TokenService {
 		return tokenRepository.selectByProjectId(projectId);
 	}
 
+	public void insertTokenLedger(List<ProjectNewTokenDTO> newTokenList) {
+		for (ProjectNewTokenDTO newToken : newTokenList) {
+			tokenRepository.insertTokenLedger(newToken);
+		}
+	}
 }
