@@ -232,11 +232,8 @@ public class TokenService {
 				null,
 				new ParameterizedTypeReference<ApiResponse<TokenListDTO>>() {}
 			);
-
-			if (token == null) {
-				return null;
-			}
-			return token;
+			
+			return token; // token이 null인 경우, null 반환
 		} catch (Exception e) {
 			log.error("[Service Error] 토큰 상세 정보 조회 실패: {}",e.getMessage());
 			return null;
