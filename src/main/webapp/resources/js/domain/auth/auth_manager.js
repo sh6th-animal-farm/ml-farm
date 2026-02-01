@@ -14,9 +14,16 @@ const AuthManager = {
         
         // AT를 로컬스토리지에서 가져오기
         const token = localStorage.getItem("accessToken");
-        // 인증이 제외되는 공개 페이지 (로그인, 회원가입)
-        const isPublicPage = window.location.pathname.includes("/auth/login") || 
-                           window.location.pathname.includes("/auth/signup");
+        // 인증이 제외되는 공개 페이지 목록을 백엔드 SecurityConfig와 맞춰줍니다.
+        const path = window.location.pathname;
+        const isPublicPage = 
+            path.includes("/auth/") ||      // 로그인, 회원가입 등
+            path.includes("/project/") ||   // 프로젝트 목록, 상세 (화면)
+            path.includes("/token/") ||     // 토큰 목록, 상세 (화면)
+            path.includes("/main") ||       // 메인 페이지
+            path === "/" ||                 // 루트 경로
+            path === ctx ||                 // 컨텍스트 루트
+            path === ctx + "/";
                            
         // 서버에 요청을 보내기 전, 토큰 자체가 이미 만료되었는지 '선제적으로' 체크합니다.
         // 공개 페이지가 아닌데 토큰이 없거나 만료되었다면 즉시 컷
