@@ -45,6 +45,14 @@
 			alias="allocationTokenDTO" />
 		<typeAlias type="com.animalfarm.mlf.domain.project.dto.ProjectNewTokenDTO"
 			alias="projectNewTokenDTO" />
+		<typeAlias type="com.animalfarm.mlf.domain.accounting.dto.RevenueSummaryDTO"
+			alias="revenueSummaryDTO" />
+		<typeAlias type="com.animalfarm.mlf.domain.accounting.dto.DividendDTO"
+			alias="dividendDTO" />
+		<typeAlias type="com.animalfarm.mlf.domain.user.dto.UserDTO"
+			alias="userDTO" />
+		<typeAlias type="com.animalfarm.mlf.domain.user.dto.UserCertificateLinkDTO"
+			alias="uclDTO" />
 		<typeAlias type="com.animalfarm.mlf.domain.subscription.dto.ProjectStartCheckDTO"
 			alias="projectStartCheckDTO" />
 		<typeAlias type="com.animalfarm.mlf.domain.refund.RefundDTO"

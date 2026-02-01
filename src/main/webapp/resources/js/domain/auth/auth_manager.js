@@ -79,6 +79,7 @@ const AuthManager = {
     setupAjaxInterceptor: function() {
         const originalFetch = window.fetch;
         window.fetch = async (...args) => {
+        
             try {
                 const response = await originalFetch(...args);
 

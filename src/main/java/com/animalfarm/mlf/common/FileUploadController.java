@@ -1,7 +1,8 @@
-package com.animalfarm.mlf.domain.common;
+package com.animalfarm.mlf.common;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -26,6 +27,7 @@ public class FileUploadController {
 	@PostMapping("/project-image")
 	public ResponseEntity<?> uploadProjectImage(@RequestParam("file")
 	MultipartFile file) {
+		System.out.println("현재 설정된 업로드 경로: " + uploadDir);
 		try {
 			if (file.isEmpty()) {
 				return ResponseEntity.badRequest().body("파일이 비어있습니다.");
@@ -37,7 +39,7 @@ public class FileUploadController {
 			}
 
 			// 2. 파일명 중복 방지 (UUID + 원본파일명)
-			String originalFileName = file.getOriginalFilename();
+			String originalFileName = Paths.get(file.getOriginalFilename()).getFileName().toString();
 			String uuid = UUID.randomUUID().toString();
 			String savedFileName = uuid + "_" + originalFileName;
 
