@@ -9,10 +9,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.animalfarm.mlf.domain.accounting.dto.DividendDTO;
-import com.animalfarm.mlf.domain.accounting.dto.DividendResponseDTO;
+import com.animalfarm.mlf.domain.accounting.dto.SnapshotResponseDTO;
 
 @Component
-public class DividendProcessor implements ItemProcessor<DividendResponseDTO, DividendDTO> {
+public class DividendProcessor implements ItemProcessor<SnapshotResponseDTO, DividendDTO> {
 
 	private final BigDecimal totalDividendAmount; // 정산 요약에서 나온 net_profit
 	private final BigDecimal totalIssueVolume; // 토큰 전체 발행량
@@ -27,7 +27,7 @@ public class DividendProcessor implements ItemProcessor<DividendResponseDTO, Div
 	}
 
 	@Override
-	public DividendDTO process(DividendResponseDTO snap) throws Exception {
+	public DividendDTO process(SnapshotResponseDTO snap) throws Exception {
 
 		BigDecimal taxRate = new BigDecimal("0.154");
 		BigDecimal amountBfTax = totalDividendAmount
@@ -43,6 +43,7 @@ public class DividendProcessor implements ItemProcessor<DividendResponseDTO, Div
 		return DividendDTO.builder()
 			.userId(snap.getUserId())
 			.rsId(snap.getRsId())
+			.projectId(snap.getProjectId())
 			.amountBfTax(amountBfTax)
 			.tax(tax)
 			.amountAftTax(amountAftTax)

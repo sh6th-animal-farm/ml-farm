@@ -15,10 +15,11 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class DividendResponseDTO {
+public class SnapshotResponseDTO {
 	private Long userId;
 	private Long walletId;
 	private Long tokenId;
 	private BigDecimal tokenBalance; // 보유 토큰 개수
 	private Long rsId; // 정산 요약 ID
+	private Long projectId;
 }

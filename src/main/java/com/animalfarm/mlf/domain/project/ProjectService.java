@@ -16,29 +16,28 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import com.animalfarm.mlf.common.HashManager;
 import com.animalfarm.mlf.common.http.ApiResponse;
 import com.animalfarm.mlf.common.http.ExternalApiUtil;
-import com.animalfarm.mlf.domain.accounting.DividendService;
-import com.animalfarm.mlf.domain.accounting.dto.DividendResponseDTO;
 import com.animalfarm.mlf.common.security.SecurityUtil;
+import com.animalfarm.mlf.domain.accounting.dto.SnapshotResponseDTO;
 import com.animalfarm.mlf.domain.project.dto.FarmDTO;
 import com.animalfarm.mlf.domain.project.dto.ImgEditable;
 import com.animalfarm.mlf.domain.project.dto.ProjectDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectDetailDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectInsertDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectListDTO;
-import com.animalfarm.mlf.domain.project.dto.ProjectNewTokenDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectPictureDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectSearchReqDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectStarredDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectStatusDTO;
+import com.animalfarm.mlf.domain.project.dto.TokenLedgerDTO;
 import com.animalfarm.mlf.domain.token.TokenRepository;
 import com.animalfarm.mlf.domain.token.dto.TokenIssueDTO;
 import com.animalfarm.mlf.domain.user.dto.WalletDTO;
 
-import lombok.extern.slf4j.Slf4j;
-
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -114,7 +113,7 @@ public class ProjectService {
 			String shortTime = timePart.substring(timePart.length() - 6);
 			String txId = "ISS_" + projectId + "_" + shortTime;
 
-			ProjectNewTokenDTO projectNewTokenDTO = ProjectNewTokenDTO.builder()
+			TokenLedgerDTO projectNewTokenDTO = TokenLedgerDTO.builder()
 				.tokenId(tokenId) // 토큰 번호
 				.fromUserId(null) // [요구사항 1-3] 보낸 사용자 null
 				.toUserId(1L) // [요구사항 1-2] 시스템 관리자(1)에게 배정
@@ -128,7 +127,7 @@ public class ProjectService {
 				.from_balanceAfter(BigDecimal.ZERO) // 송금 후 잔액 변동 없음 변경 필수
 				.to_balanceAfter(totalSupply) // 수금 후 잔액 변동 없음 변경 필수
 				.prevHashValue("0") // 이전 해시가 없으므로 "0"
-				.hashValue(createHash("0", tokenId, totalSupply)) // 해시 계산
+				.hashValue(HashManager.createHash("0", tokenId, totalSupply)) // 해시 계산
 				.build();
 
 			tokenRepository.insertTokenLedger(projectNewTokenDTO);
@@ -281,6 +280,16 @@ public class ProjectService {
 			return 0.0;
 		}
 	}
+
+	public List<SnapshotResponseDTO> getDividendSnapshot(Long projectId) {
+		String fullUrl = khUrl + "/api/project/dividend/before/" + projectId.toString();
+		try {
+			return externalApiUtil.callApi(fullUrl, HttpMethod.POST, null,
+				new ParameterizedTypeReference<ApiResponse<List<SnapshotResponseDTO>>>() {}, null);
+		} catch (Exception e) {
+			return new ArrayList<>();
+		}
+
 	
 	public WalletDTO selectMyWalletInfo(Long uclId) {
 	    String targetUrl = khUrl + "api/my/wallet/" + uclId;
@@ -322,6 +331,9 @@ public class ProjectService {
 			log.error("실패!!! : " + e.getMessage());
 		}
 	}
+	
+	public List<ProjectDTO> selectEndTargetProject() {
+		return projectRepository.selectEndTargetProject();
 	*/
 	public void postTokenIssue(ProjectInsertDTO projectInsertDTO) {
 	    TokenIssueDTO tokenIssueDTO = TokenIssueDTO.builder()

@@ -41,4 +41,6 @@ public class RefundDTO {
 
 	private OffsetDateTime createdAt; // 환불 발생 일시
 	private OffsetDateTime processedAt; // 환불 처리 완료 일시
+	
+	private BigDecimal currentBalance;
 }
