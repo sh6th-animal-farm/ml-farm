@@ -1,26 +1,21 @@
 package com.animalfarm.mlf.domain.token;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.animalfarm.mlf.domain.token.dto.CandleDTO;
-import com.animalfarm.mlf.domain.token.dto.TokenListDTO;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
-import com.animalfarm.mlf.domain.project.dto.ProjectNewTokenDTO;
 import com.animalfarm.mlf.common.http.ApiResponse;
 import com.animalfarm.mlf.common.http.ExternalApiUtil;
+import com.animalfarm.mlf.domain.project.dto.TokenLedgerDTO;
+import com.animalfarm.mlf.domain.token.dto.CandleDTO;
 import com.animalfarm.mlf.domain.token.dto.OrderDTO;
 import com.animalfarm.mlf.domain.token.dto.OrderPriceDTO;
 import com.animalfarm.mlf.domain.token.dto.TokenDTO;
@@ -28,6 +23,8 @@ import com.animalfarm.mlf.domain.token.dto.TokenDetailDTO;
 import com.animalfarm.mlf.domain.token.dto.TokenListDTO;
 import com.animalfarm.mlf.domain.token.dto.TokenPendingDTO;
 import com.animalfarm.mlf.domain.token.dto.TradePriceDTO;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -245,8 +242,8 @@ public class TokenService {
 		return tokenRepository.selectByProjectId(projectId);
 	}
 
-	public void insertTokenLedger(List<ProjectNewTokenDTO> newTokenList) {
-		for (ProjectNewTokenDTO newToken : newTokenList) {
+	public void insertTokenLedger(List<TokenLedgerDTO> newTokenList) {
+		for (TokenLedgerDTO newToken : newTokenList) {
 			tokenRepository.insertTokenLedger(newToken);
 		}
 	}
