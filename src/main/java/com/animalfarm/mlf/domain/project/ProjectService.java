@@ -286,7 +286,7 @@ public class ProjectService {
 	}
 
 	public List<SnapshotResponseDTO> getDividendSnapshot(Long projectId) {
-		String fullUrl = khUrl + "/api/project/dividend/before/" + projectId.toString();
+		String fullUrl = khUrl + "api/project/dividend/before/" + projectId.toString();
 		try {
 			return externalApiUtil.callApi(fullUrl, HttpMethod.POST, null,
 				new ParameterizedTypeReference<ApiResponse<List<SnapshotResponseDTO>>>() {}, null);
