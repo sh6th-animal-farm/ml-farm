@@ -181,3 +181,6 @@
 .search-icon-btn:hover {
     opacity: 0.7;
 }
+
+/* 트레이딩뷰 로고 제거 */
+.chart-container a { display: none !important; }
