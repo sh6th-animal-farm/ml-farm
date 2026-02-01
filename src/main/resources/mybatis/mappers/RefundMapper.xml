@@ -32,4 +32,24 @@
             NOW()
         )
 	</insert>
+	
+	<select id="selectRefundInfoByWalletIds" resultType="refundDTO">
+	    SELECT 
+	        u.user_id as userId,
+	        sh.sh_id as shId,
+	        ucl.ucl_id as uclId,
+	        #{projectId} as projectId,
+	        COALESCE(tb.balance, 0) as currentBalance
+	    FROM user_certificate_links ucl
+	    	INNER JOIN users u ON ucl.user_id = u.user_id
+	    	LEFT JOIN subscription_history sh ON u.user_id = sh.user_id 
+	        	AND sh.project_id = #{projectId}
+	    	LEFT JOIN token_balances tb ON u.user_id = tb.user_id 
+	        	AND tb.token_id = #{tokenId}
+       	WHERE ucl.ucl_id IN 
+		    <foreach item="id" collection="walletIds" open="(" separator="," close=")">
+		        #{id}
+		    </foreach>
+	</select>
+	
 </mapper>

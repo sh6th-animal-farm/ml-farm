@@ -278,4 +278,13 @@
 		on u.user_id = ucl.user_id 
 		where ucl.user_id = #{userId};
 	</select>
+	
+	<select id="selectEndTargetProjects" resultType="projectDTO">
+	    SELECT 
+	    	*
+	    FROM projects
+	    WHERE project_end_date <![CDATA[<]]>= CURRENT_DATE 
+	      AND project_status = 'INPROGRESS'
+	</select>
+
 </mapper>

@@ -23,5 +23,5 @@ public interface UserRepository {
 
 	UserDTO getUserById(Long userId);
 
-	UserCertificateLinkDTO getUclDTOByUserId(Long userId);
+	Long selectUserIdByUclId(Long walletId);
 }
