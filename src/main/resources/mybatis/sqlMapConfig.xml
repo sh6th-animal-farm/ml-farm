@@ -43,6 +43,10 @@
 			alias="subscriptionApplicationDTO" />
 		<typeAlias type="com.animalfarm.mlf.domain.project.dto.TokenLedgerDTO"
 			alias="tokenLedgerDTO" />
+		<typeAlias type="com.animalfarm.mlf.domain.subscription.dto.AllocationTokenDTO"
+			alias="allocationTokenDTO" />
+		<typeAlias type="com.animalfarm.mlf.domain.project.dto.ProjectNewTokenDTO"
+			alias="projectNewTokenDTO" />
 		<typeAlias type="com.animalfarm.mlf.domain.accounting.dto.RevenueSummaryDTO"
 			alias="revenueSummaryDTO" />
 		<typeAlias type="com.animalfarm.mlf.domain.accounting.dto.DividendDTO"

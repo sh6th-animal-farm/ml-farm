@@ -3,43 +3,47 @@
     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper	namespace="com.animalfarm.mlf.domain.subscription.SubscriptionRepository">
-	
+<mapper
+	namespace="com.animalfarm.mlf.domain.subscription.SubscriptionRepository">
+
 	<select id="select" resultType="subscriptionHistDTO">
 		select * from subscription_hists
 		where
 		project_id=#{projectId} and user_id=#{userId}
 	</select>
-	
+
 	<select id="selectPaid" resultType="subscriptionHistDTO">
-		select * from subscription_hists
+		select * from
+		subscription_hists
 		where
-		project_id=#{projectId} and user_id=#{userId} and payment_status = 'PAID'
+		project_id=#{projectId} and user_id=#{userId}
+		and payment_status = 'PAID'
 	</select>
-	
+
 	<update id="update" parameterType="subscriptionHistDTO">
 		UPDATE subscription_hists
-	    <set>
-	        <if test="subscriptionStatus != null">
-	            subscription_status = #{subscriptionStatus},
-	        </if>
-	        <if test="paymentStatus != null">
-	            payment_status = #{paymentStatus},
-	        </if>
-	        <if test="externalRefId != null">
-	            external_ref_id = #{externalRefId},
-	        </if>
-	        <if test="canceledAt != null">
-	            canceled_at = #{canceledAt},
-	        </if>
-	        <if test="subscriptionAmount != null">
-	            subscription_amount = #{subscriptionAmount},
-	        </if>
-	    </set>
-	    WHERE sh_id = #{shId}
+		<set>
+			<if test="subscriptionStatus != null">
+				subscription_status = #{subscriptionStatus},
+			</if>
+			<if test="paymentStatus != null">
+				payment_status = #{paymentStatus},
+			</if>
+			<if test="externalRefId != null">
+				external_ref_id = #{externalRefId},
+			</if>
+			<if test="canceledAt != null">
+				canceled_at = #{canceledAt},
+			</if>
+			<if test="subscriptionAmount != null">
+				subscription_amount = #{subscriptionAmount},
+			</if>
+		</set>
+		WHERE sh_id = #{shId}
 	</update>
 
-	<insert id="subscriptionApplication" parameterType="subscriptionApplicationDTO" useGeneratedKeys="true"
+	<insert id="subscriptionApplication"
+		parameterType="subscriptionApplicationDTO" useGeneratedKeys="true"
 		keyProperty="shId" keyColumn="sh_id">
 		insert into subscription_hists (
 		project_id,
@@ -61,19 +65,23 @@
 		#{paymentStatus}, external_ref_id = #{externalRefId} where sh_id =
 		#{shId}
 	</update>
-	
-	<update id="updatePlusAmount" parameterType="subscriptionApplicationDTO">
-		update projects set actual_amount = actual_amount + #{subscriptionAmount} where project_id = #{projectId}
+
+	<update id="updatePlusAmount"
+		parameterType="subscriptionApplicationDTO">
+		update projects set actual_amount = actual_amount +
+		#{subscriptionAmount} where project_id = #{projectId}
 	</update>
-	
+
 	<select id="selectUclId" resultType="Long">
-		select ucl.ucl_id  from users u join user_certificate_links ucl on u.user_id = ucl.user_id 
+		select ucl.ucl_id from users
+		u join user_certificate_links ucl on u.user_id = ucl.user_id
 		where u.user_id = #{userId};
 	</select>
-	
+
 	<!-- subscription인 것만 가져오기 --><!-- 현재 시간보다 마감일이 이전인 경우 -->
 	<!-- 프로젝트 id, 청약률, 토큰 id, 청약한 사람수 -->
-	<select id="selectExpiredSubscriptions" resultType="projectstartCheckDTO">
+	<select id="selectExpiredSubscriptions"
+		resultType="projectstartCheckDTO">
 		<![CDATA[
     		SELECT 
     		p.project_id AS project_id, 
@@ -93,54 +101,88 @@
 			GROUP BY p.project_id, p.subscription_rate, t.token_id;
 		]]>
 	</select>
-	
+
 	<!-- 토큰 소각일 업데이트 -->
 	<update id="updateTokenDelete">
-		update tokens set deleted_at = now() 
+		update tokens set deleted_at = now()
 		where token_id = #{tokenId}
 	</update>
-	
+
 	<!-- 프로젝트 테이블 Canceled 업데이트 -->
 	<update id="updateProjectCanceled">
-		update projects set project_status = 'CANCELED' 
+		update projects set project_status = 'CANCELED'
 		where project_id = #{projectId}
 	</update>
-	
+
 	<!-- 70-90이면 2일 늘리기 -->
 	<update id="updateProjectTwoDay">
-		UPDATE projects 
-		SET 
-    	subscription_end_date = subscription_end_date + INTERVAL '2 days',
-    	extension_count = 1
+		UPDATE projects
+		SET
+		subscription_end_date = subscription_end_date + INTERVAL '2 days',
+		extension_count = 1
 		WHERE project_id = #{projectId}
-  		AND project_status = 'SUBSCRIPTION'
-  		AND extension_count = 0
+		AND project_status = 'SUBSCRIPTION'
+		AND extension_count = 0
 	</update>
-	
+
 	<!-- 사용자 이메일 가져오기 -->
 	<select id="selectUserEmail" resultType="string">
-		SELECT DISTINCT u.email 
-    	FROM users u 
-    	JOIN subscription_hists sh ON u.user_id = sh.user_id 
-    	WHERE sh.project_id = #{projectId}
-      	AND sh.payment_status = 'PAID'
+		SELECT DISTINCT u.email
+		FROM users u
+		JOIN subscription_hists sh ON u.user_id = sh.user_id
+		WHERE sh.project_id = #{projectId}
+		AND sh.payment_status = 'PAID'
 	</select>
-	
+
 	<!-- 강황증권 api response 판단 후 -->
 	<!-- 청약 내역에 있는 user_id 가져오기 -->
 	<select id="selectSubscriberUserIds" resultType="long">
-		select distinct user_id from subscription_hists 
+		select distinct
+		user_id from subscription_hists
 		where project_id = #{projectId}
 	</select>
-	
+
 	<!-- 청약 내역 업데이트 -->
 	<!-- 환불 테이블 업데이트 -->
-	
+
 	<!-- 프로젝트 진행 업데이트 -->
 	<update id="updateProjectInProgress">
-    	UPDATE projects 
-    	SET project_status = 'INPROGRESS' 
-    	WHERE project_id = #{projectId}
-      	AND project_status = 'SUBSCRIPTION'
+		UPDATE projects
+		SET project_status = 'INPROGRESS'
+		WHERE project_id = #{projectId}
+		AND project_status = 'SUBSCRIPTION'
+	</update>
+
+	<select id="selectAllocationInfo" resultType="allocationTokenDTO">
+		SELECT
+		p.project_id,
+		p.min_amount_per_investor,
+		p.actual_amount, <!-- 목표 금액 -->
+		p.target_amount,
+		t.token_id,
+		t.total_supply,
+		<!-- 참여자 수 -->
+		COUNT(sh.user_id) as subscriber_count,
+		<!-- 참여자 리스트 (JSON 배열 형태) -->
+		JSONB_AGG(
+		JSONB_BUILD_OBJECT(
+		'shId', sh.sh_id,
+		'userId', sh.user_id,
+		'subscriptionAmount', sh.subscription_amount
+		)
+		) as investor_list
+		FROM projects p
+		JOIN tokens t ON p.project_id = t.project_id
+		JOIN subscription_hists sh ON p.project_id = sh.project_id
+		WHERE sh.payment_status = 'PAID'
+		AND p.project_id = #{projectId}
+		GROUP BY p.project_id, p.min_amount_per_investor, p.actual_amount,
+		p.target_amount, t.token_id, t.total_supply;
+	</select>
+	
+	<update id="approveSubscription">
+		update subscription_hists 
+		set subscription_status = 'APPROVED' 
+		where sh_id = #{shId};
 	</update>
 </mapper>

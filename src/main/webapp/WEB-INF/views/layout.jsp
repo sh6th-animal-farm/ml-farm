@@ -8,8 +8,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${param.title != null ? param.title : '마이리틀스마트팜'}</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/common.css">
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
     <script>
-        // 전역 변수로 선언 (보통 'ctx' 또는 'contextPath'라고 명명)
         const ctx = "${pageContext.request.contextPath}";
     </script>
 </head>

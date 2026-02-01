@@ -2,6 +2,7 @@ package com.animalfarm.mlf.config;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -29,6 +30,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 @PropertySource("classpath:config/slack.properties")
 @PropertySource("classpath:config/kakao.properties")
 public class WebConfig implements WebMvcConfigurer {
+
+	@Value("${file.upload.path}")
+	private String uploadPath;
 
 	// @Value를 해석하기 위해 반드시 필요한 빈입니다.
 	@Bean
@@ -67,8 +71,11 @@ public class WebConfig implements WebMvcConfigurer {
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		// 브라우저 주소창에 /uploads/ 로 시작하는 요청이 오면
 		// 실제 서버의 file:///data/uploads/ 경로에서 파일을 찾아라
+
+		String location = uploadPath.endsWith("/") ? uploadPath : uploadPath + "/";
+
 		registry.addResourceHandler("/uploads/**")
-			.addResourceLocations("file:///C:/mlfarm-data/uploads/");
+			.addResourceLocations("file:" + location);
 	}
 
 	@Bean

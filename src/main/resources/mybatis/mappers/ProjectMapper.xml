@@ -63,7 +63,7 @@
 		parameterType="projectSearchReqDTO" resultType="projectListDTO">
 		SELECT
 		p.*,
-		f.thumbnail_url,
+		f.*,
 		EXISTS (
 		SELECT 1
 		FROM starred_projects s

@@ -3,8 +3,11 @@ package com.animalfarm.mlf.domain.token;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import com.animalfarm.mlf.domain.token.dto.CandleDTO;
 import com.animalfarm.mlf.domain.token.dto.TokenListDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import com.animalfarm.mlf.domain.project.dto.ProjectNewTokenDTO;
 import com.animalfarm.mlf.common.http.ApiResponse;
 import com.animalfarm.mlf.common.http.ExternalApiUtil;
 import com.animalfarm.mlf.domain.token.dto.OrderDTO;
@@ -35,8 +39,8 @@ public class TokenService {
 	@Autowired
 	ExternalApiUtil externalApiUtil;
 
-	// @Value("${api.kh-stock.url}") // 강황증권 API 서버 주소 (배포)
-	@Value("http://localhost:9090/api") // 강황증권 API 서버 주소 (테스트)
+	@Value("${api.kh-stock.url}") // 강황증권 API 서버 주소 (배포)
+	// @Value("http://localhost:9090/api") // 강황증권 API 서버 주소 (테스트)
 	private String khUrl;
 
 	// 전체 토큰 시세 조회
@@ -56,7 +60,7 @@ public class TokenService {
 			});
 
 			return list;
-		} catch (RuntimeException e) {
+		} catch (Exception e) {
 			log.error("[Service Error] 토큰 목록 조회 실패: {}",e.getMessage());
 			return Collections.emptyList();
 		}
@@ -66,6 +70,30 @@ public class TokenService {
 	public TokenDetailDTO selectByTokenId(Long tokenId) {
 		String targetUrl = khUrl + "/my/market/" + tokenId; 	// [TODO] 강황증권 API 필요
 		return null;
+	}
+
+	// 토큰 차트 조회
+	public List<CandleDTO> selectCandles(Long tokenId, int unit, long start, long end) {
+		try {
+			List<CandleDTO> list = externalApiUtil.callApi(
+				khUrl + String.format("/market/candles/%d?unit=%d&start=%d&end=%d", tokenId, unit, start, end),
+				HttpMethod.GET,
+				null,
+				new ParameterizedTypeReference<ApiResponse<List<CandleDTO>>>() {}
+			);
+
+			if (list == null || list.isEmpty()) {
+				return Collections.emptyList();
+			}
+
+			return list.stream()
+				.sorted(Comparator.comparingLong(CandleDTO::getCandleTime))
+				.collect(Collectors.toList());
+
+		} catch (RuntimeException e) {
+			log.error("[Service Error] 토큰 목록 조회 실패: {}",e.getMessage());
+			return Collections.emptyList();
+		}
 	}
 
 	// 토큰 현재가 조회
@@ -78,6 +106,18 @@ public class TokenService {
 		);
 
 		return curPrice;
+	}
+
+	// 토큰 존재 여부 확인
+	public boolean checkTokenStatus(Long tokenId) {
+		boolean isOk = externalApiUtil.callApi(
+			khUrl + "/project/check/" + tokenId,
+			HttpMethod.GET,
+			null,
+			new ParameterizedTypeReference<ApiResponse<Boolean>>() {}
+		);
+
+		return isOk;
 	}
 
 	// 매수 호가 조회
@@ -185,8 +225,29 @@ public class TokenService {
 		return true;
 	}
 
+	public TokenListDTO selectTokenOhlcv(Long tokenId) {
+		try {
+			TokenListDTO token = externalApiUtil.callApi(
+				khUrl + "/market/ohlcv/" + tokenId,
+				HttpMethod.GET,
+				null,
+				new ParameterizedTypeReference<ApiResponse<TokenListDTO>>() {}
+			);
+			
+			return token; // token이 null인 경우, null 반환
+		} catch (Exception e) {
+			log.error("[Service Error] 토큰 상세 정보 조회 실패: {}",e.getMessage());
+			return null;
+		}
+	}
+
 	public TokenDTO selectByProjectId(Long projectId) {
 		return tokenRepository.selectByProjectId(projectId);
 	}
 
+	public void insertTokenLedger(List<ProjectNewTokenDTO> newTokenList) {
+		for (ProjectNewTokenDTO newToken : newTokenList) {
+			tokenRepository.insertTokenLedger(newToken);
+		}
+	}
 }

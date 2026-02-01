@@ -40,7 +40,6 @@ public class ProjectBatchScheduler {
 
 	@Scheduled(cron = "0 * * * * *")
 	public void runBatch() {
-		List<ProjectStatusDTO> status = projectService.selectStatus();
 		subscriptionService.projectStartCheck();
 	}
 	
