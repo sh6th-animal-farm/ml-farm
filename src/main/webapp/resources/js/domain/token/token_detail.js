@@ -314,8 +314,6 @@ async function handleOrder(event, side){
         return;
     }
 
-    console.log(orderDTO);
-
     // API 호출
     try {
         const result = await TokenApi.createOrder(orderDTO.tokenId, orderDTO);
