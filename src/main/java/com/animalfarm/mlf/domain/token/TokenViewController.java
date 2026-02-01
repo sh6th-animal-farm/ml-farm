@@ -32,6 +32,7 @@ public class TokenViewController {
 		}
 		model.addAttribute("tokenList", tokenService.selectAll());
 		model.addAttribute("contentPage", "/WEB-INF/views/token/token_list.jsp");
+		model.addAttribute("activeMenu", "token-market");
 
 		return "layout";
 	}
@@ -56,6 +57,7 @@ public class TokenViewController {
 		model.addAttribute("tradeList", mapper.writeValueAsString(tokenService.selectAllTradePrice(id)));
 		model.addAttribute("ohlcv", tokenService.selectTokenOhlcv(id));
 		model.addAttribute("contentPage", "/WEB-INF/views/token/token_detail.jsp");
+		model.addAttribute("activeMenu", "token-market");
 
 		return "layout";
 	}
