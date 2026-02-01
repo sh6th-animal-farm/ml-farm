@@ -131,7 +131,7 @@ public class ProjectService {
 				.hashValue(createHash("0", tokenId, totalSupply)) // 해시 계산
 				.build();
 
-			tokenReopsitory.insertTokenLedger(projectNewTokenDTO);
+			tokenRepository.insertTokenLedger(projectNewTokenDTO);
 			this.postTokenIssue(projectInsertDTO);
 
 			return true;
@@ -223,12 +223,18 @@ public class ProjectService {
 		System.out.println("checkAccount userId  " + userId);
 		// 1. 목적지 주소 생성 (외부 IP + 상세 경로)
 		String targetUrl = khUrl + "api/my/account/" + userId;
+		Long uclId = projectRepository.selectMyWalletId(userId);
+		if (uclId == null) {
+	        log.info("사용자 {}의 매핑된 uclId가 없습니다.", userId);
+	        return false; // 외부 API 호출할 필요도 없이 계좌 없음
+	    }
+		
 		try {
 			// 2. GET 방식으로 데이터 요청 (응답은 String으로 받는 예시)
 			Object payload = externalApiUtil.callApi(targetUrl, HttpMethod.GET, null,
 				new ParameterizedTypeReference<ApiResponse<Object>>() {});
 			System.out.println("응답 결과: " + payload);
-
+			
 			return payload != null;
 
 		} catch (Exception e) {
@@ -243,6 +249,11 @@ public class ProjectService {
 		Long uclId = projectRepository.selectMyWalletId(userId);
 		// 1. 목적지 주소 생성 (외부 IP + 상세 경로)
 		String targetUrl = khUrl + "api/my/wallet/" + uclId;
+		
+		if (uclId == null) {
+	        log.warn("조회 실패: 사용자 {}의 uclId가 존재하지 않습니다.", userId);
+	        return null; // 0.0 대신 null을 주어 '계좌 없음'과 '잔액 0원'을 구분하는 게 좋습니다.
+	    }
 		try {
 			// 2. GET 방식으로 데이터 요청 (응답은 String으로 받는 예시)
 			ResponseEntity<ApiResponse> responseEntity = restTemplate.getForEntity(targetUrl, ApiResponse.class);
