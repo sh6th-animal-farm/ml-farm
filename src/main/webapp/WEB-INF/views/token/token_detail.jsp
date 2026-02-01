@@ -7,7 +7,6 @@
     window.orderBuyList = ${orderBuyList};
     window.orderSellList = ${orderSellList};
     window.tradeList = ${tradeList};
-    window.candleList = ${candleList};
 
     window.ohlcv = {
         tokenName: "${ohlcv.tokenName != null ? ohlcv.tokenName : ''}",

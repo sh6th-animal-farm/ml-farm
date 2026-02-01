@@ -1,7 +1,10 @@
 // api/token_api.js
 import { http } from "../../api/http_client.js";
 
+const BASE_URL = 'http://54.167.85.125:9090/';
+
 export const TokenApi = {
+    WS_CONN: `${BASE_URL}/ws-stomp`,
     getToken: (projectId) => http.get(`${ctx}/api/token/${projectId}`),
     getTokenList: () => http.get(`${ctx}/api/market`),
     getCashBalance: () => http.get(`${ctx}/api/account/balance`),

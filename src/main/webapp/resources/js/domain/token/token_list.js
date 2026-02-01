@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 /* 웹소켓 연결 및 구독 */
-WebSocketManager.connect('http://localhost:9090/ws-stomp', function () {
+WebSocketManager.connect(TokenApi.WS_CONN, function () {
 
     // 1. 전체 토큰 리스트 구독
     WebSocketManager.subscribe('list', '/topic/tokenList', function (data) {
