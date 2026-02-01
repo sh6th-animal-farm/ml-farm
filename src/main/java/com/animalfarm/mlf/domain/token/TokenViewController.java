@@ -40,10 +40,10 @@ public class TokenViewController {
 	public String tokenDetailPage(@PathVariable Long id, Model model) throws JsonProcessingException {
 
 		// 유효하지 않은 토큰 번호인 경우 404 (Not Found)
-		boolean isOk = tokenService.checkTokenStatus(id);
-		if (!isOk) {
-			return "error/404";
-		}
+		// boolean isOk = tokenService.checkTokenStatus(id);
+		// if (!isOk) {
+		// 	return "error/404";
+		// }
 
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule()); // 자바 8 날짜/시간 모듈 등록
