@@ -33,7 +33,7 @@ pageEncoding="UTF-8"%> <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
         </li>
         <li>
           <a
-            href="${pageContext.request.contextPath}/notice"
+            href="${pageContext.request.contextPath}/notice/list"
             class="nav-item ${activeMenu == 'notice' ? 'active' : ''}"
             >공지사항</a
           >
