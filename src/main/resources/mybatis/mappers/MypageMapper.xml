@@ -1,150 +1,180 @@
-    <!-- 나의 프로젝트(기존) -->
-    <select id="selectMyProjects"
-        parameterType="long"
-        resultType="com.animalfarm.mlf.domain.mypage.dto.ProjectDTO">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-      SELECT DISTINCT ON (p.project_id)
-        p.project_id,
-        p.project_name,
-        p.project_round,
-        p.project_status,
-
-        p.announcement_start_date,
-        p.announcement_end_date,
-
-        p.subscription_start_date,
-        p.subscription_end_date,
-
-        p.project_start_date,
-        p.project_end_date,
-
-        sh.subscription_status,
-        sp.is_starred
-
-      FROM projects p
-
-      LEFT JOIN subscription_hists sh
-        ON sh.project_id = p.project_id
-       AND sh.user_id = #{user_id}
-       AND sh.deleted_at IS NULL
-
-      LEFT JOIN starred_projects sp
-        ON sp.project_id = p.project_id
-       AND sp.user_id = #{user_id}
-       AND sp.deleted_at IS NULL
-
-      WHERE p.deleted_at IS NULL
-
-      ORDER BY p.project_id, sh.subscription_date DESC
+<mapper
+	namespace="com.animalfarm.mlf.domain.mypage.MypageRepository">
+	
+	<select id="selectCarbonHistoryByUserId" resultType="com.animalfarm.mlf.domain.mypage.dto.CarbonHistoryDTO">
+	    SELECT 
+	        cp.cp_type,
+	        p.project_name,
+	        TO_CHAR(ch.date, 'YYYY. MM. DD') AS date_str,
+        	TO_CHAR(ch.date + INTERVAL '1 year', 'YYYY. MM. DD') AS end_date_str,
+	        ch.amount,
+	        ch.discounted_price AS price
+	    FROM carbon_hists ch
+	    INNER JOIN carbon_products cp ON ch.cp_id = cp.cp_id
+	    INNER JOIN projects p ON cp.project_id = p.project_id
+	    WHERE ch.user_id = #{userId}
+	    ORDER BY ch.date DESC
+	</select>
+	
+	<select id="selectProfile" parameterType="long"
+        resultType="com.animalfarm.mlf.domain.mypage.dto.ProfileDTO">
+	  SELECT
+	  user_name,
+	  investor_type,
+	  created_at,
+	  email,
+	  phone_number,
+	  address,
+	  push_yn,
+	  receive_email_yn
+	FROM users
+	WHERE user_id = #{userId}
+	  AND deleted_at IS NULL
+	</select>
+	
+	<update id="updateProfile">
+	  UPDATE users
+	  <set>
+	    <if test="req.address != null">address = #{req.address},</if>
+	    <if test="req.pushYn != null">push_yn = #{req.pushYn},</if>
+	    <if test="req.receiveEmailYn != null">receive_email_yn = #{req.receiveEmailYn},</if>
+	    updated_at = NOW()
+	  </set>
+	  WHERE user_id = #{userId}
+	    AND deleted_at IS NULL
+	</update>
+	
+	<!-- 현재 비밀번호 조회 -->
+    <select id="selectPasswordByUserId"
+            parameterType="long"
+            resultType="string">
+        SELECT password
+        FROM users
+        WHERE user_id = #{userId}
+          AND deleted_at IS NULL
     </select>
 
-    <!-- 지갑 연동 -->
-    <select id="getWalletIdByUserId" resultType="long">
-        SELECT ucl_id
-        FROM user_certificate_links
+    <!-- 비밀번호 업데이트 -->
+    <update id="updatePassword">
+        UPDATE users
+        SET password = #{password},
+            updated_at = NOW()
+        WHERE user_id = #{userId}
+          AND deleted_at IS NULL
+    </update>
+
+	<select id="getWalletIdByUserId" resultType="long">
+        SELECT ucl_id 
+        FROM user_certificate_links 
         WHERE user_id = #{userId}
     </select>
-
+    
+    
     <insert id="upsertUserWalletLink">
-        INSERT INTO user_certificate_links (
-            ucl_id,
-            user_id,
-            certificates_id,
-            access_token,
-            refresh_token,
-            token_expired_at,
-            refresh_token_expired_at,
-            created_at
-        )
-        VALUES (
-            #{walletId},
-            #{userId},
-            1,
-            #{accessToken},
-            #{refreshToken},
-            NOW() + INTERVAL '1 hour',
-            NOW() + INTERVAL '30 days',
-            NOW()
-        )
-        ON CONFLICT (user_id)
-        DO UPDATE SET
-            ucl_id = EXCLUDED.ucl_id,
-            certificates_id = 1,
-            access_token = EXCLUDED.access_token,
-            refresh_token = EXCLUDED.refresh_token,
-            token_expired_at = EXCLUDED.token_expired_at,
-            refresh_token_expired_at = EXCLUDED.refresh_token_expired_at,
-            updated_at = NOW()
-    </insert>
+	    INSERT INTO user_certificate_links (
+	        ucl_id, 
+	        user_id, 
+	        certificates_id, 
+	        access_token, 
+	        refresh_token, 
+	        token_expired_at, 
+	        refresh_token_expired_at,
+	        created_at
+	    )
+	    VALUES (
+	        #{walletId}, 
+	        #{userId}, 
+	        1, -- 증권사 번호 1 고정
+	        #{accessToken}, 
+	        #{refreshToken}, 
+	        NOW() + INTERVAL '1 hour',
+	        NOW() + INTERVAL '30 days',
+	        NOW()
+	    )
+	    ON CONFLICT (user_id) 
+	    DO UPDATE SET 
+	        ucl_id = EXCLUDED.ucl_id,
+	        certificates_id = 1,
+	        access_token = EXCLUDED.access_token,
+	        refresh_token = EXCLUDED.refresh_token,
+	        token_expired_at = EXCLUDED.token_expired_at,
+	        refresh_token_expired_at = EXCLUDED.refresh_token_expired_at,
+	        updated_at = NOW()
+	</insert>
 
-    <!-- JOIN 탭: 참여 프로젝트 카드 목록 -->
     <select id="selectJoinedProjectCards" resultType="com.animalfarm.mlf.domain.mypage.dto.ProjectDTO">
-      SELECT
-        p.project_id      AS projectId,
-        p.project_name    AS projectName,
-        p.project_status  AS projectStatus,
-        sh.subscription_status AS subscriptionStatus,
-        p.project_start_date AS projectStartDate,
-        p.project_end_date   AS projectEndDate
-      FROM projects p
-      JOIN subscription_hists sh
-        ON sh.project_id = p.project_id
-      WHERE sh.user_id = #{userId}
-        <if test="status != null and status != 'ALL'">
-          AND p.project_status = #{status}
-        </if>
-      ORDER BY p.project_id DESC
-      LIMIT #{limit} OFFSET #{offset}
-    </select>
-
-    <select id="countJoinedProjectCards" resultType="long">
-      SELECT COUNT(*)
-      FROM projects p
-      JOIN subscription_hists sh
-        ON sh.project_id = p.project_id
-      WHERE sh.user_id = #{userId}
-        <if test="status != null and status != 'ALL'">
-          AND p.project_status = #{status}
-        </if>
-    </select>
-
-    <!-- STAR 탭: 관심(찜) 프로젝트 카드 목록 -->
-    <select id="selectStarredProjectCards" resultType="com.animalfarm.mlf.domain.mypage.dto.ProjectDTO">
-      SELECT
-        p.project_id      AS projectId,
-        p.project_name    AS projectName,
-        p.project_status  AS projectStatus,
-        NULL              AS subscriptionStatus,
-        p.project_start_date AS projectStartDate,
-        p.project_end_date   AS projectEndDate
-      FROM projects p
-      JOIN starred_projects sp
-        ON sp.project_id = p.project_id
-      WHERE sp.user_id = #{userId}
-        AND sp.is_starred = TRUE
-        <if test="status != null and status != 'ALL'">
-          AND p.project_status = #{status}
-        </if>
-      ORDER BY p.project_id DESC
-      LIMIT #{limit} OFFSET #{offset}
-    </select>
-
-    <select id="countStarredProjectCards" resultType="long">
-      SELECT COUNT(*)
-      FROM projects p
-      JOIN starred_projects sp
-        ON sp.project_id = p.project_id
-      WHERE sp.user_id = #{userId}
-        AND sp.is_starred = TRUE
-        <if test="status != null and status != 'ALL'">
-          AND p.project_status = #{status}
-        </if>
-    </select>
-
-    <!-- 찜 토글 upsert -->
-    <insert id="upsertStarredProject">
-      INSERT INTO starred_projects (user_id, project_id, is_starred)
-      VALUES (#{userId}, #{projectId}, #{starred})
-      ON CONFLICT (user_id, project_id)
-      DO UPDATE SET is_starred = EXCLUDED.is_starred
-    </insert>
+	  SELECT
+	    p.project_id      AS projectId,
+	    p.project_name    AS projectName,
+	    p.project_status  AS projectStatus,
+	    sh.subscription_status AS subscriptionStatus,
+	    p.project_start_date AS projectStartDate,
+	    p.project_end_date   AS projectEndDate
+	  FROM projects p
+	  JOIN subscription_hists sh
+	    ON sh.project_id = p.project_id
+	  WHERE sh.user_id = #{userId}
+	    <if test="status != null and status != 'ALL'">
+	      AND p.project_status = #{status}
+	    </if>
+	  ORDER BY p.project_id DESC
+	  LIMIT #{limit} OFFSET #{offset}
+	</select>
+	
+	<select id="countJoinedProjectCards" resultType="long">
+	  SELECT COUNT(*)
+	  FROM projects p
+	  JOIN subscription_hists sh
+	    ON sh.project_id = p.project_id
+	  WHERE sh.user_id = #{userId}
+	    <if test="status != null and status != 'ALL'">
+	      AND p.project_status = #{status}
+	    </if>
+  	</select>
+	
+	<!-- STAR 탭: 관심(찜) 프로젝트 목록 -->
+	<select id="selectStarredProjectCards" resultType="com.animalfarm.mlf.domain.mypage.dto.ProjectDTO">
+	  SELECT
+	    p.project_id      AS projectId,
+	    p.project_name    AS projectName,
+	    p.project_status  AS projectStatus,
+	    NULL              AS subscriptionStatus,
+	    p.project_start_date AS projectStartDate,
+	    p.project_end_date   AS projectEndDate
+	  FROM projects p
+	  JOIN starred_projects sp
+	    ON sp.project_id = p.project_id
+	  WHERE sp.user_id = #{userId}
+	    AND sp.is_starred = TRUE
+	    <if test="status != null and status != 'ALL'">
+	      AND p.project_status = #{status}
+	    </if>
+	  ORDER BY p.project_id DESC
+	  LIMIT #{limit} OFFSET #{offset}
+ 	</select>
+	
+	<select id="countStarredProjectCards" resultType="long">
+	  SELECT COUNT(*)
+	  FROM projects p
+	  JOIN starred_projects sp
+	    ON sp.project_id = p.project_id
+	  WHERE sp.user_id = #{userId}
+	    AND sp.is_starred = TRUE
+	    <if test="status != null and status != 'ALL'">
+	      AND p.project_status = #{status}
+	    </if>
+	</select>
+	
+	<!-- 찜 토글 upsert -->
+	<insert id="upsertStarredProject">
+	  INSERT INTO starred_projects (user_id, project_id, is_starred)
+	  VALUES (#{userId}, #{projectId}, #{starred})
+	  ON CONFLICT (user_id, project_id)
+	  DO UPDATE SET is_starred = EXCLUDED.is_starred
+	</insert>
+</mapper>

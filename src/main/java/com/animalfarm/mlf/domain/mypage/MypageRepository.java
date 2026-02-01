@@ -29,8 +29,6 @@ public interface MypageRepository {
 		@Param("password")
 		String password);
 
-	List<ProjectDTO> selectMyProjects(@Param("user_id")
-	Long userId);
 	// 유저 ID로 지갑 번호(ucl_id) 존재 여부 & 가져오기
 	Long getWalletIdByUserId(@Param("userId")
 	Long userId);

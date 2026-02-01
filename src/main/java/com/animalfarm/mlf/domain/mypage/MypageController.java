@@ -56,10 +56,6 @@ public class MypageController {
 		return ResponseEntity.ok().build();
 	}
 
-	@GetMapping("/projects")
-	public ResponseEntity<List<ProjectDTO>> getMyProjects() {
-		return ResponseEntity.ok(mypageService.getMyProjects());
-	}
 	// 보유 토큰 조회
 	@GetMapping("/holdings")
 	public ResponseEntity<ApiResponseDTO<List<HoldingDTO>>> getHoldings(@RequestParam(defaultValue = "1")

@@ -7,12 +7,14 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+
 import org.springframework.web.client.RestTemplate;
 
 import com.animalfarm.mlf.common.ApiResponseDTO;
@@ -90,10 +92,6 @@ private static final DateTimeFormatter DF = DateTimeFormatter.ofPattern("yyyy. M
 		mypageRepository.updatePassword(userId, newEncodedPassword);
 	}
 
-	public List<ProjectDTO> getMyProjects() {
-		Long userId = SecurityUtil.getCurrentUserId();
-		return mypageRepository.selectMyProjects(userId);
-	}
 	// ---------------------------------------------------------
 	// 나의 지갑
 	// ---------------------------------------------------------
