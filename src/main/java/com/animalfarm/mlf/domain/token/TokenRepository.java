@@ -16,4 +16,6 @@ public interface TokenRepository {
 	Long selectWalletId(Long userId);
 
 	public abstract void insertTokenLedger(ProjectNewTokenDTO projectNewTokenDTO);
+
+	public abstract String selectLastHash();
 }
