@@ -70,6 +70,10 @@ public class ProjectService {
 	public List<ProjectListDTO> selectByCondition(ProjectSearchReqDTO searchDTO) {
 		return projectRepository.selectByCondition(searchDTO);
 	}
+	
+	public List<ProjectListDTO> selectByConditionForMain() {
+		return projectRepository.selectByConditionForMain();
+	}
 
 	public boolean getStarredStatus(ProjectStarredDTO projectStarredDTO) {
 		return projectRepository.getStarredStatus(projectStarredDTO);

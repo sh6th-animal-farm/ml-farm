@@ -86,6 +86,26 @@
 		</where>
 	</select>
 
+	<select id="selectByConditionForMain"
+		parameterType="projectSearchReqDTO" resultType="projectListDTO">
+		SELECT
+		p.*,
+		f.*,
+		EXISTS (
+		SELECT 1
+		FROM starred_projects s
+		WHERE s.project_id = p.project_id
+		AND s.user_id = #{userId}
+		AND
+		s.is_starred = true
+		) AS is_starred
+		FROM projects p
+		JOIN farms f on
+		p.farm_id = f.farm_id
+		AND p.project_status = 'SUBSCRIPTION'
+		LIMIT 3
+	</select>
+
 	<!-- 관심프로젝트 조회 -->
 	<select id="selectStarredProject"
 		parameterType="projectStarredDTO" resultType="boolean">

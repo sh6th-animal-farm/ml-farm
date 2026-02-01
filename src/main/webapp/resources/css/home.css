@@ -1,0 +1,330 @@
+@charset "UTF-8";
+
+:root { -
+	-point-green: var(--green-600); -
+	-light-bg: var(--green-0);
+}
+
+/* Layout Helpers */
+.container {
+	max-width: 1296px;
+	margin: 0 auto;
+	padding: 0 24px;
+}
+
+.section-header-flex {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-end;
+	margin-bottom: 32px;
+}
+
+.section-title {
+	font: var(--font-header-02);
+	color: var(--gray-900);
+}
+
+.btn-text-link {
+	font: var(--font-body-01);
+	color: var(--gray-500);
+	text-decoration: none;
+}
+
+/* 버튼 시스템 활용 */
+.btn-main {
+	padding: 18px 36px;
+	background-color: var(--green-600);
+	color: white;
+	border: none;
+	border-radius: var(--radius-l);
+	font: var(--font-button-01); /* 600 16px 적용 */
+	cursor: pointer;
+	transition: 0.2s;
+}
+
+.btn-sub {
+	padding: 18px 36px;
+	background-color: var(--gray-200);
+	color: var(--gray-700);
+	border: none;
+	border-radius: var(--radius-l);
+	font: var(--font-button-01); /* 600 16px 적용 */
+	margin-left: 12px;
+}
+/* Hero Section */
+.hero-minimal {
+	margin: 70px 0;
+	background-color: var(--white);
+}
+
+.hero-wrapper {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 60px;
+}
+
+.hero-text-content {
+	flex: 1;
+}
+
+.hero-chip {
+	display: inline-block;
+	margin-bottom: 24px;
+}
+
+.hero-main-title {
+	font: var(--font-header-01);
+	font-size: 48px;
+	color: var(--gray-900);
+	letter-spacing: -0.03em;
+	margin-bottom: 24px;
+	line-height: 1.2;
+}
+
+.hero-main-title .highlight {
+	color: var(--green-700);
+}
+
+.hero-desc {
+	font: var(--font-subtitle-03);
+	color: var(--gray-500);
+	margin-bottom: 40px;
+	line-height: 1.6;
+}
+
+.hero-action {
+	display: flex;
+	gap: 12px;
+}
+
+.hero-graphic {
+	flex: 1;
+	display: flex;
+	justify-content: flex-end;
+}
+
+.rounded-img {
+	width: 100%;
+	max-width: 520px;
+	height: 400px;
+	object-fit: cover;
+	border-radius: 60px 160px 60px 60px;
+	box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+}
+
+/* Stats Box */
+.stats-border-box {
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	background: var(--white);
+	border: 1px solid var(--gray-100);
+	border-radius: 32px;
+	padding: 40px;
+	margin-top: 50px;
+	position: relative;
+	z-index: 10;
+	box-shadow: var(--shadow);
+}
+
+.s-item {
+	text-align: center;
+	flex: 1;
+}
+
+.s-label {
+	font: var(--font-caption-02);
+	color: var(--gray-400);
+	display: block;
+	margin-bottom: 8px;
+}
+
+.s-value {
+	font: var(--font-header-01);
+	color: var(--gray-900);
+}
+
+.s-value.highlight {
+	color: var(--point-green);
+}
+
+.s-line {
+	width: 1px;
+	height: 40px;
+	background-color: var(--gray-100);
+}
+
+/* Project Cards */
+.project-on-subscription{
+	margin-top: 100px;
+}
+
+.project-card-list {
+	display: flex;
+	min-height: 450px;
+}
+
+
+/* Carbon Banner & Chart */
+.carbon-banner {
+	background-color: var(--gray-50);
+	padding: 100px 0;
+	border-radius: var(--radius-l);
+}
+
+.carbon-wrapper {
+	display: flex;
+	gap: 60px;
+	align-items: center;
+}
+
+.carbon-text {
+	flex: 5;
+}
+
+.carbon-chart-container {
+	flex: 7;
+}
+
+.section-desc {
+	font: var(--font-body-01);
+	color: var(--gray-600);
+	margin-bottom: 32px;
+	line-height: 1.6;
+}
+
+.chart-ui {
+	background: white;
+	border-radius: var(--radius-l);
+	padding: 24px;
+	height: 320px;
+	width: 100%;
+	box-shadow: var(--shadow);
+}
+
+.btn-outline-green {
+	padding: 12px 24px;
+	border: 1px solid var(--green-600);
+	color: var(--green-600);
+	background: transparent;
+	border-radius: var(--radius-m);
+	font: var(--font-button-01);
+	cursor: pointer;
+}
+
+/* Top List Ranking */
+
+.token-market-top-10 {
+	margin: 40px 0;
+}
+
+.top-list {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 16px;
+}
+
+.top-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 20px 24px;
+	background: white;
+	border: 1px solid var(--gray-100);
+	border-radius: var(--radius-m);
+	transition: 0.2s;
+}
+
+.top-item:hover {
+	border-color: var(--green-200);
+	background: var(--green-0);
+}
+
+.top-item-left {
+	display: flex;
+	align-items: center;
+	gap: 20px;
+}
+
+.top-rank {
+	font: var(--font-header-03);
+	color: var(--green-600);
+	width: 24px;
+}
+
+.top-name {
+	font: var(--font-body-03);
+	color: var(--gray-900);
+}
+
+.top-item-right {
+	text-align: right;
+}
+
+.price {
+	font: var(--font-subtitle-01);
+	color: var(--gray-900);
+}
+
+.change.plus {
+	font: var(--font-caption-03);
+	color: #E53935;
+} /* Red for plus */
+
+/* Sponsor Section Styles */
+.sponsor-section {
+    padding: 80px 0 120px 0;
+    background-color: var(--white);
+    overflow: hidden; /* 영역 밖으로 나가는 로고 숨김 */
+}
+
+.sponsor-title {
+    text-align: center;
+    font: var(--font-subtitle-01);
+    color: var(--gray-400);
+    margin-bottom: 48px;
+}
+
+.slider-wrapper {
+    width: 100%;
+    position: relative;
+    display: flex;
+}
+
+.slider-track {
+    display: flex;
+    width: calc(200px * 12); /* 로고너비(200px) * 로고개수(12개) */
+    animation: scroll 30s linear infinite; /* 30초 동안 무한 반복 */
+}
+
+.slider-track:hover {
+    animation-play-state: paused; /* 마우스 올리면 멈춤 */
+}
+
+.slide {
+    width: 200px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 40px;
+}
+
+.slide img {
+    height: 40px; /* 로고 높이 통일 */
+    filter: grayscale(100%); /* 기본은 무채색 */
+    opacity: 0.5;
+    transition: 0.3s;
+}
+
+.slide img:hover {
+    filter: grayscale(0%); /* 마우스 올리면 컬러 */
+    opacity: 1;
+}
+
+/* 무한 루프 애니메이션 핵심 */
+@keyframes scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(calc(-200px * 6)); } /* 처음 6개가 지나가면 다시 0%로 리셋 */
+}
