@@ -279,11 +279,11 @@
 		where ucl.user_id = #{userId};
 	</select>
 	
-	<select id="selectEndTargetProjects" resultType="projectDTO">
+	<select id="selectEndTargetProject" resultType="projectDTO">
 	    SELECT 
 	    	*
 	    FROM projects
-	    WHERE project_end_date <![CDATA[<]]>= CURRENT_DATE 
+	    WHERE project_end_date &lt;= CURRENT_DATE 
 	      AND project_status = 'INPROGRESS'
 	</select>
 

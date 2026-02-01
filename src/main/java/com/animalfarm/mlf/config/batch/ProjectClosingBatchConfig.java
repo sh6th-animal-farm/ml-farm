@@ -37,27 +37,17 @@ public class ProjectClosingBatchConfig {
     private final RefundAfterBurnProcessor refundProcessor;
     
     private final ProjectClosingService projectClosingService;
+    private final Step calculateDividendStep;
+    private final Step sendEmailStep;
 
     @Bean
     public Job projectClosingJob() {
         return jobBuilderFactory.get("projectClosingJob")
-                .start(executeFinalDividendStep())   // 1. 배당
+        		.start(calculateDividendStep)     	// 1. 배당금 계산
+        		.next(sendEmailStep)          		// 2. 이메일 전송
                 .next(requestTokenBurnStep())        // 2. 소각 API
                 .next(updateFinalStatusStep())       // 3. 환불 내역, 토큰 원장 기록
                 .next(completeProjectStep())         // 4. 프로젝트 상태 변경
-                .build();
-    }
-
-    // 최종 배당 (Tasklet 방식)
-    @Bean
-    public Step executeFinalDividendStep() {
-        return stepBuilderFactory.get("executeFinalDividendStep")
-                .tasklet((contribution, chunkContext) -> {
-                    log.info(">>> 최종 배당 작업을 실시합니다.");
-                    Long projectId = (Long) chunkContext.getStepContext().getJobParameters().get("projectId");
-                    projectClosingService.processFinalDividends(projectId);
-                    return RepeatStatus.FINISHED;
-                })
                 .build();
     }
 

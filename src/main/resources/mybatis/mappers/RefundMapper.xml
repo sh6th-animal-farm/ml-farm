@@ -42,7 +42,7 @@
 	        COALESCE(tb.balance, 0) as currentBalance
 	    FROM user_certificate_links ucl
 	    	INNER JOIN users u ON ucl.user_id = u.user_id
-	    	LEFT JOIN subscription_history sh ON u.user_id = sh.user_id 
+	    	LEFT JOIN subscription_hists sh ON u.user_id = sh.user_id 
 	        	AND sh.project_id = #{projectId}
 	    	LEFT JOIN token_balances tb ON u.user_id = tb.user_id 
 	        	AND tb.token_id = #{tokenId}
