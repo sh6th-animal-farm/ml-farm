@@ -3,6 +3,8 @@
 
 <%@ attribute name="items" type="java.util.List" required="true" %>
 <%@ attribute name="activeValue" type="java.lang.String" %>
+<%-- [수정 1] onClick 속성 정의 추가 (함수 이름을 문자열로 받음) --%>
+<%@ attribute name="onClick" type="java.lang.String" %>
 
 <div class="project-tabs">
     <c:forEach var="item" items="${items}" varStatus="status">
