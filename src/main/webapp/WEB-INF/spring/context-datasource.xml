@@ -20,7 +20,13 @@
 	<tx:annotation-driven
 		transaction-manager="transactionManager" />
 		
-	<context:property-placeholder location="classpath:/config/db.properties" />
+	<context:property-placeholder location="classpath:config/db.properties,
+              classpath:config/application-${spring.profiles.active:prod}.properties,
+              classpath:config/enterprise.properties,
+              classpath:config/mail.properties,
+              classpath:config/redis.properties"
+	    system-properties-mode="OVERRIDE" 
+    	ignore-unresolvable="true"/>
 	
 	<bean id="dataSourceOrigin" destroy-method="close"
 		class="org.apache.commons.dbcp2.BasicDataSource">

@@ -8,8 +8,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${param.title != null ? param.title : '마이리틀스마트팜'}</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/common.css">
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
     <script>
-        // 전역 변수로 선언 (보통 'ctx' 또는 'contextPath'라고 명명)
         const ctx = "${pageContext.request.contextPath}";
     </script>
 </head>
@@ -30,13 +30,17 @@
     <script src="${pageContext.request.contextPath}/resources/js/domain/auth/auth_manager.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            console.log("AuthManager: ", AuthManager);
             // 모든 페이지에서 AuthManager를 초기화합니다.
             if (typeof AuthManager !== 'undefined') {
                 AuthManager.init("${pageContext.request.contextPath}");
             }
         });
     </script>
+
+    <%-- SockJS, STOMP, WebSocket manager --%>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script src="${ctx}/resources/js/util/websocket_manager.js"></script>
     
 </body>
 </html>

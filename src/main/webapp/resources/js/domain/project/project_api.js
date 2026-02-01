@@ -1,11 +1,15 @@
 // api/project_api.js
 import { http } from "../../api/http_client.js";
 
+let commonUrl = `${ctx}/api/project`;
 export const ProjectApi = {
-  getAll: () => http.get(`${ctx}/api/projects/all`),
-  getPictures: (id) => http.get(`${ctx}/api/project/picture/${id}/all`),
-  insert: (data) => http.post(`${ctx}/api/projects/insert`, data),
-  update: (data) => http.post(`${ctx}/api/projects/update`, data),
+  getAll: () => http.get(`${commonUrl}}/all`),
+  getPictures: (id) => http.get(`${commonUrl}}/picture/${id}/all`),
+  insert: (data) => http.post(`${commonUrl}}/insert`, data),
+  update: (data) => http.post(`${commonUrl}}/update`, data),
   searchProjects: (query) => http.get(`${ctx}/project/list/fragment${query}`),
-  starProject: (data) => http.post(`${ctx}/api/projects/starred`, data),
+  starProject: (data) => http.post(`${commonUrl}}/starred`, data),
+  getAllFarm:() => http.get(`${commonUrl}}/farm/all`),
+  selectDividendPoll: (data) =>
+    http.post(`${commonUrl}/dividend/poll/select`, data),
 };

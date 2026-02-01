@@ -2,6 +2,7 @@
  * Design System: 1440px Standard Guide Implementation
  */
 
+@charset "UTF-8";
 @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css");
 
 :root {
@@ -168,7 +169,7 @@ body {
 
 header {
   height: var(--header-height);
-  background: #fff;
+  background: rgba(255, 255, 255, 0.85);
   border-bottom: 1px solid var(--gray-100);
   position: sticky;
   top: 0;
@@ -185,7 +186,7 @@ header {
   white-space: nowrap;
   letter-spacing: -0.02em;
   color: var(--gray-900); /* 기본색 */
-  cursor: default;
+  cursor: pointer;
 }
 
 a {
@@ -366,7 +367,7 @@ a {
   border: 1px solid var(--gray-100);
   border-radius: var(--radius-l);
   padding: 32px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+  box-shadow: var(--shadow);
 }
 
 /* Buttons */
@@ -430,7 +431,6 @@ textarea {
 input:focus {
   outline: none;
   border-color: var(--green-500);
-  box-shadow: 0 0 0 4px var(--green-0);
 }
 
 /* --- Footer Custom Styles --- */

@@ -11,6 +11,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.animalfarm.mlf.common.JwtProvider;
 import com.animalfarm.mlf.common.RedisUtil;
@@ -47,13 +50,17 @@ public class SecurityConfig {
 		// [서버의 정체성 선언: JWT 기반 무상태(Stateless) 서버]
 		// 이 설정이 완료되어야 스프링 시큐리티가 세션을 버리고 토큰 기반으로 작동합니다.
 		http
-			// 1. [팝업창 차단] 브라우저의 기본 로그인 ID/PW 팝업창을 사용하지 않음
+			// [팝업창 차단] 브라우저의 기본 로그인 ID/PW 팝업창을 사용하지 않음
 			.httpBasic().disable()
 
-			// 2. [CSRF 방어 해제] 세션/쿠키를 사용하지 않으므로 CSRF 공격으로부터 자유로움 (REST API 최적화)
+			// [CSRF 방어 해제] 세션/쿠키를 사용하지 않으므로 CSRF 공격으로부터 자유로움 (REST API 최적화)
 			.csrf().disable()
 
-			// 3. [무상태성(Stateless) 강제] 가장 핵심 설정!
+			// [cors 설정 추가]
+			.cors().configurationSource(corsConfigurationSource())
+			.and()
+
+			// [무상태성(Stateless) 강제] 가장 핵심 설정!
 			// 서버는 세션을 생성하지도 않고, 이미 존재하는 세션을 사용하지도 않음
 			.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
@@ -103,6 +110,29 @@ public class SecurityConfig {
 				UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
+	}
+
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration configuration = new CorsConfiguration();
+
+		// 허용할 도메인 (배포 주소 및 로컬 주소)
+		configuration.addAllowedOrigin("https://mlfarm.3jun.store");
+		configuration.addAllowedOrigin("http://localhost:9999"); // 로컬 테스트용 프론트 주소
+		configuration.addAllowedOrigin("http://localhost:5173"); // Vite 기본 주소
+
+		// 허용할 HTTP 메서드
+		configuration.addAllowedMethod("*");
+
+		// 허용할 헤더
+		configuration.addAllowedHeader("*");
+
+		// 자격 증명(쿠키, 인증 헤더 등) 허용
+		configuration.setAllowCredentials(true);
+
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", configuration);
+		return source;
 	}
 
 	// 회원 가입시 비밀번호 암호화 하는 코드

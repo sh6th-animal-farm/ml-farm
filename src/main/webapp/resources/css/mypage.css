@@ -1,0 +1,276 @@
+@charset "UTF-8";
+
+.mypage-container {
+    max-width: 1296px;
+    margin: 60px auto;
+    display: flex;
+    gap: 24px;
+}
+
+/* 왼쪽 사이드바 영역 */
+.sidebar-wrapper { width: 280px; flex-shrink: 0; }
+
+/* 오른쪽 본문 영역 */
+.content-wrapper { flex-grow: 1; }
+
+/* 카드 공통 스타일 */
+.info-card {
+    background: #fff;
+    border-radius: var(--radius-l);
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+}
+
+.card-title { font:var(--font-subtitle-01); margin-bottom: 24px; color: var(--gray-900); }
+
+/* 프로필 상단 요약 */
+.profile-summary { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.profile-summary .user-name { font: var(--font-header-03); }
+.badge-investor {
+    background: #E8F5E9; color: var(--green-600);
+    padding: 4px 10px; border-radius: 6px; font-size: 13px; font-weight: 600;
+}
+.join-date { color: var(--gray-400); font:var(--font-caption-01); }
+
+/* 입력 그룹 스타일 */
+.input-group-column { display: flex; flex-direction: column; gap: 4px;}
+.input-group { margin-block: 20px; position: relative; }
+.input-group:last-child { margin-bottom: 0; }
+.input-label { display: block; font-size: 13px; color: var(--gray-400); margin-bottom: 8px; }
+.input-value { font-size: 16px; font-weight: 600; color: var(--gray-900); }
+
+/* 수정 버튼 */
+.btn-edit {
+    position: absolute; right: 0; top: 50%; transform: translateY(-50%); border: none;
+    border-radius: var(--radius-s); cursor: pointer;
+}
+
+/* 스위치 스타일 (알림 설정) */
+.noti-setting-row {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-block: 20px; 
+}
+.setting-info .s-title { font:var(--font-body-02); margin-bottom: 4px; }
+.setting-info .s-desc { font:var(--font-caption-01); color: var(--gray-400); }
+
+/* 탈퇴 영역 */
+.delete-account {
+    border: 1px dashed var(--gray-200); border-radius: var(--radius-l);
+    padding: 24px; display: flex; justify-content: space-between; align-items: center;
+}
+.delete-info .d-title { font: var(--font-caption-02); margin-bottom: 4px; }
+.delete-info .d-desc { font: var(--font-caption-01); color: var(--gray-400); }
+.btn-withdraw { color: var(--gray-400); font: var(--font-caption-02); font-weight: 700; text-decoration: underline; background: none; border: none; cursor: pointer; }
+
+/* 더보기 버튼 */
+.btn-more { 
+    width: 100%; padding: 12px; background: #fff; box-shadow: var(--shadow); border:none;
+    border-radius: 12px; color: var(--gray-900); font-weight: 600; margin-top: 24px; cursor: pointer;
+}
+
+/* 모달 백드랍 */
+.modal-backdrop{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.35);
+  display: none;
+  z-index: 9999;
+}
+
+/* 모달 카드 */
+.modal-card{
+  width: min(520px, calc(100% - 32px));
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.25);
+  margin: 0 auto;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  padding: 18px;
+}
+
+.modal-header{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.modal-header h3{
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+#addrClose{
+  border: 0;
+  background: transparent;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.modal-body{
+  margin: 10px 0 14px;
+}
+
+.modal-input{
+  width: 100%;
+  height: 44px;
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  padding: 0 12px;
+  outline: none;
+}
+
+.modal-footer{
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.btn-cancel, .btn-save{
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  border: 1px solid #e6e6e6;
+  background: #fff;
+}
+
+.btn-save{
+  border-color: #2f7d32;
+  background: #2f7d32;
+  color: #fff;
+}
+
+/* =========================
+   비밀번호 모달 (modal / modal-content / hidden)
+   ========================= */
+
+/* display 토글용 */
+.hidden { display: none !important; }
+
+/* backdrop */
+.modal{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.35);
+  z-index: 9999;
+
+  /* 중앙 정렬 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* 스크롤 컨텐츠 대비 */
+  padding: 16px;
+}
+
+/* 모달 카드 */
+.modal-content{
+  width: min(520px, calc(100% - 32px));
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.25);
+  padding: 18px;
+}
+
+/* 헤더 */
+.modal-header{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.modal-header h3{
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+/* 닫기 버튼 */
+.modal-close{
+  border: 0;
+  background: transparent;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--gray-500);
+  padding: 6px 8px;
+  border-radius: 10px;
+}
+.modal-close:hover{ background: rgba(0,0,0,.06); }
+
+/* 폼 */
+.modal-body{ margin-top: 6px; }
+
+.form-row{
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.form-row label{
+  font-size: 13px;
+  color: var(--gray-500);
+}
+
+.form-row input{
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid var(--gray-200);
+  padding: 0 12px;
+  font-size: 14px;
+  outline: none;
+}
+
+.form-row input:focus{
+  border-color: var(--green-600);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, .15);
+}
+
+/* 에러 메시지 */
+.form-error{
+  margin-top: 8px;
+  font-size: 13px;
+  color: #e11d48;
+}
+
+/* 하단 버튼 영역 */
+.modal-footer{
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+/* 버튼 (프로젝트에 .btn이 이미 있으면 자동으로 그걸 씀)
+   없을 수도 있으니 최소 안전장치만 */
+.btn{
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid var(--gray-200);
+  background: #fff;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn.primary{
+  background: var(--green-600);
+  border-color: var(--green-600);
+  color: #fff;
+}
+
+.btn.ghost{
+  background: #fff;
+  color: var(--gray-900);
+}

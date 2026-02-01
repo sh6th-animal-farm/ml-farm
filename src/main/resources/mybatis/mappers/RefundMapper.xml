@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+
+<mapper
+	namespace="com.animalfarm.mlf.domain.refund.RefundRepository">
+	
+	<insert id="insertRefund" parameterType="refundDTO">
+        INSERT INTO refunds (
+            user_id,
+            project_id,
+            sh_id,
+            ucl_id,
+            amount,
+            refund_type,
+            reason_code,
+            status,
+            external_ref_id,
+            created_at
+        ) VALUES (
+            #{userId},
+            #{projectId},
+            #{shId},
+            #{uclId},
+            #{amount},
+            #{refundType},
+            #{reasonCode},
+            #{status},
+            #{externalRefId},
+            NOW()
+        )
+	</insert>
+	
+	<select id="selectRefundInfoByWalletIds" resultType="refundDTO">
+	    SELECT 
+	        u.user_id as userId,
+	        sh.sh_id as shId,
+	        ucl.ucl_id as uclId,
+	        #{projectId} as projectId,
+	        COALESCE(tb.balance, 0) as currentBalance
+	    FROM user_certificate_links ucl
+	    	INNER JOIN users u ON ucl.user_id = u.user_id
+	    	LEFT JOIN subscription_hists sh ON u.user_id = sh.user_id 
+	        	AND sh.project_id = #{projectId}
+	    	LEFT JOIN token_balances tb ON u.user_id = tb.user_id 
+	        	AND tb.token_id = #{tokenId}
+       	WHERE ucl.ucl_id IN 
+		    <foreach item="id" collection="walletIds" open="(" separator="," close=")">
+		        #{id}
+		    </foreach>
+	</select>
+	
+</mapper>

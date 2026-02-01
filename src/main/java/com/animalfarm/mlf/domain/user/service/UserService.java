@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.animalfarm.mlf.common.RedisUtil;
+import com.animalfarm.mlf.common.security.SecurityUtil;
 import com.animalfarm.mlf.domain.user.dto.SignUpRequestDTO;
 import com.animalfarm.mlf.domain.user.dto.UserDTO;
 import com.animalfarm.mlf.domain.user.repository.UserRepository;
@@ -79,4 +80,18 @@ public class UserService {
 	private boolean isBlank(String s) {
 		return s == null || s.isBlank();
 	}
+
+	public String selectAddress() {
+		return userRepository.selectAddress(SecurityUtil.getCurrentUserId());
+	}
+
+	public void updateAddress(String address) {
+		Long userId = SecurityUtil.getCurrentUserId();
+		userRepository.updateAddress(address, userId);
+	}
+
+	public UserDTO getUserById(Long userId) {
+		return userRepository.getUserById(userId);
+	}
+
 }

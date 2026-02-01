@@ -19,21 +19,21 @@ pageEncoding="UTF-8"%> <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
         </li>
         <li>
           <a
-            href="${pageContext.request.contextPath}/token-market"
+            href="${pageContext.request.contextPath}/token"
             class="nav-item ${activeMenu == 'token-market' ? 'active' : ''}"
             >토큰 거래소</a
           >
         </li>
         <li>
           <a
-            href="${pageContext.request.contextPath}/carbon-market"
+            href="${pageContext.request.contextPath}/carbon/list"
             class="nav-item ${activeMenu == 'carbon-market' ? 'active' : ''}"
             >탄소 마켓</a
           >
         </li>
         <li>
           <a
-            href="${pageContext.request.contextPath}/notice"
+            href="${pageContext.request.contextPath}/notice/list"
             class="nav-item ${activeMenu == 'notice' ? 'active' : ''}"
             >공지사항</a
           >
@@ -42,7 +42,7 @@ pageEncoding="UTF-8"%> <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
     </nav>
 
   <div class="auth-group">
-      <div id="guest-group" style="display: flex; align-items: center; gap: 24px;">
+      <div id="guest-group" style="display: none; align-items: center; gap: 24px;">
         <a href="${pageContext.request.contextPath}/auth/login" class="btn-login">로그인</a>
         <a href="${pageContext.request.contextPath}/auth/signup" class="btn-signup">회원가입</a>
       </div>
@@ -76,6 +76,21 @@ pageEncoding="UTF-8"%> <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
   </div>
 </header>
 <script>
+// DOMContentLoaded까지 기다리지 않고 로그인 상태를 판단하여 헤더 상태 바꾸기
+(function() {
+        const token = localStorage.getItem("accessToken");
+        // 로그인/회원가입 페이지인지는 체크 제외 (필요 시 window.location.pathname 확인)
+        const isPublicPage = window.location.pathname.includes("/auth/login") || 
+                           window.location.pathname.includes("/auth/signup");
+
+     	// 조건에 맞는 요소만 즉시 display를 설정
+        if (token && !isPublicPage) {
+            document.getElementById("user-group").style.display = "flex";
+        } else {
+            document.getElementById("guest-group").style.display = "flex";
+        }
+    })();
+
 function toggleDropdown(id) {
     // 다른 드롭다운 닫기
     document.querySelectorAll('.dropdown-content').forEach(dropdown => {

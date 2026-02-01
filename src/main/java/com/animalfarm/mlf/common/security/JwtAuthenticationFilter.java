@@ -38,19 +38,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		String token = resolveToken(request);
 
 		// 2. [검증 단계] 토큰이 존재하고 서명이 유효한지 확인합니다.
-		if (token != null && jwtProvider.validateToken(token)) {
-			// 3. [블랙리스트 확인] Redis를 조회해 로그아웃된 토큰인지 확인합니다.
-			if (!redisUtil.isBlackList(token)) {
-				// 4. [인증 승인] 이상이 없으면 시큐리티 세션에 인증 객체를 저장합니다.
-				Authentication auth = jwtProvider.getAuthentication(token);
-				SecurityContextHolder.getContext().setAuthentication(auth);
-				log.info("인증 성공: {}", auth.getName());
+		// [수정 포인트] 토큰이 존재할 때의 검증 로직을 강화합니다.
+		if (token != null) {
+			if (jwtProvider.validateToken(token)) {
+				if (!redisUtil.isBlackList(token)) {
+					Authentication auth = jwtProvider.getAuthentication(token);
+					SecurityContextHolder.getContext().setAuthentication(auth);
+					log.info("인증 성공: {}", auth.getName());
+				} else {
+					log.warn("블랙리스트에 등록된 토큰입니다.");
+					SecurityContextHolder.clearContext(); // 컨텍스트를 비워 인증되지 않은 상태로 만듦
+				}
+			} else {
+				// [중요] 토큰은 있으나 validateToken이 false(만료 등)인 경우
+				// 여기서 명확하게 컨텍스트를 비워야 EntryPoint(401)가 작동합니다.
+				log.warn("유효하지 않거나 만료된 토큰입니다.");
+				SecurityContextHolder.clearContext();
 			}
 		}
 
-		// 5. [필터 통과] 다음 단계로 요청을 넘깁니다.
+		// 5. [필터 통과] 여기서 에러를 직접 던지지 말고 다음 필터로 넘깁니다.
 		filterChain.doFilter(request, response);
-
 	}
 
 	/**

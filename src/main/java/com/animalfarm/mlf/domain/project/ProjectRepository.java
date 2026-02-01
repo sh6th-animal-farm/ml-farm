@@ -12,6 +12,7 @@ import com.animalfarm.mlf.domain.project.dto.ProjectListDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectPictureDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectSearchReqDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectStarredDTO;
+import com.animalfarm.mlf.domain.project.dto.ProjectStatusDTO;
 
 @Mapper
 public interface ProjectRepository {
@@ -19,6 +20,8 @@ public interface ProjectRepository {
 	public abstract List<ProjectDTO> selectAll();
 
 	public abstract List<ProjectListDTO> selectByCondition(ProjectSearchReqDTO projectSearchDTO);
+
+	public abstract List<ProjectListDTO> selectByConditionForMain();
 
 	public abstract ProjectDetailDTO selectDetail(Long projectId);
 
@@ -44,4 +47,14 @@ public interface ProjectRepository {
 
 	public abstract void deletePictureList(List<Long> deletedPictureIds);
 
+	public abstract List<ProjectStatusDTO> selectStatus();
+
+	public abstract void updateProjectStatus(ProjectStatusDTO projectStatusDTO);
+
+	public abstract ProjectDTO selectByProjectId(Long projectId);
+
+	public abstract Long selectMyWalletId(Long userId);
+	
+	public abstract List<ProjectDTO> selectEndTargetProject();
+	
 }
