@@ -7,6 +7,18 @@
     window.orderBuyList = ${orderBuyList};
     window.orderSellList = ${orderSellList};
     window.tradeList = ${tradeList};
+    window.candleList = ${candleList};
+
+    window.ohlcv = {
+        tokenName: "${ohlcv.tokenName != null ? ohlcv.tokenName : ''}",
+        tickerSymbol: "${ohlcv.tickerSymbol != null ? ohlcv.tickerSymbol : ''}",
+        marketPrice: ${ohlcv.marketPrice != null ? ohlcv.marketPrice : 0},
+        dailyTradeVolume: ${ohlcv.dailyTradeVolume != null ? ohlcv.dailyTradeVolume : 0},
+        openPrice: ${ohlcv.openPrice != null ? ohlcv.openPrice : 0},
+        highPrice: ${ohlcv.highPrice != null ? ohlcv.highPrice : 0},
+        lowPrice: ${ohlcv.lowPrice != null ? ohlcv.lowPrice : 0},
+        changeRate: ${ohlcv.changeRate != null ? ohlcv.changeRate : 0}
+    };
 
     console.log("tokenId: ", window.tokenId);
     console.log("호가(매수): ", window.orderBuyList);

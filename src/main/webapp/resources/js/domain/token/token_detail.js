@@ -1,9 +1,10 @@
 import {TokenApi} from "./token_api.js";
 
+const tokenId = window.tokenId;
+
 let candleSeries; // 캔들
 let volumeSeries; // 거래량
 let isChartReady = false; // 차트 초기화
-
 let isPageExiting = false;
 
 // 1. 페이지를 떠나기 직전에 플래그를 true로 바꾸고 alert을 무력화
@@ -90,7 +91,6 @@ WebSocketManager.connect('http://localhost:9090/ws-stomp', function() {
         }
         candleSeries.update(transformSingleCandle(data));
         volumeSeries.update(transformSingleVolume(data));
-        // syncTicker(data);
     });
 
     // 4. OHLCV 구독
@@ -720,6 +720,8 @@ async function initTradingChart(tokenId) {
     try {
         const response = await TokenApi.getCandles(tokenId);
 
+        console.log("캔들 로드 성공!", response);
+
         // 지정가 주문 가격을 페이지 들어왔을 때의 시가로 고정
         const curPrice = response[response.length - 1].closingPrice; // 가장 최근 캔들 데이터의 종가
         const priceInputs = document.querySelectorAll('.price-group .input-box');
@@ -761,14 +763,14 @@ if (window.tradeList) {
     renderTradeHistory(window.tradeList);
 }
 
-// 초기 로딩 시, 차트 렌더링
-if (window.tokenId) {
-    initTradingChart(window.tokenId);
-}
-
 // 상세 페이지의 웹소켓 구독 해제
 window.addEventListener('beforeunload', () => {
     if (typeof candle !== 'undefined' && candle) {
         candle.unsubscribe();
     }
 });
+
+// 초기 로딩 시, 차트 렌더링
+if (window.tokenId) {
+    initTradingChart(window.tokenId);
+}
