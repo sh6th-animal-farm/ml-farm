@@ -3,7 +3,8 @@ export const http = {
     async request(url, options = {}) {
         const defaultHeaders = {
             'Content-Type': 'application/json; charset=UTF-8',
-            'Accept': 'application/json'
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem("accessToken") || ""}`
         };
 
         const config = {

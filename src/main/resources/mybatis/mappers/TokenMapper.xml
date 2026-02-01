@@ -11,6 +11,14 @@
 		where project_id = #{projectId}
 	</select>
 
+	<select id="selectWalletId" resultType="Long">
+		SELECT ucl_id
+		FROM user_certificate_links
+		WHERE user_id = #{userId}
+		ORDER BY ucl_id DESC
+		LIMIT 1
+	</select>
+
 	<insert id="insertTokenLedger" parameterType="projectNewTokenDTO">
 		INSERT INTO token_ledger (
 		token_id,

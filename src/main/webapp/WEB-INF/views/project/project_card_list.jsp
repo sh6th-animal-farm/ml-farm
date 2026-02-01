@@ -13,7 +13,7 @@
 	                                        ? String.format('%tF ~ %tF', project.subscriptionStartDate, project.subscriptionEndDate) 
 	                                        : (statusEnum.name() == 'ANNOUNCEMENT' 
 	                                            ? String.format('%tF ~ %tF', project.announcementStartDate, project.announcementEndDate) 
-	                                            : '')}" />
+	                                   activeMenu         : '')}" />
 	        <c:set var="endTime" value="${statusEnum.name() == 'SUBSCRIPTION'
 	        								? project.subscriptionEndDate : statusEnum.name() == 'ANNOUNCEMENT'
 	        								? project.announcementEndDate : ''}"/>
