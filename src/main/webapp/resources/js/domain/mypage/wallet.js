@@ -81,7 +81,7 @@ function loadTokenHoldings(page) {
         // 연동 내역이 없거나 보유 토큰이 없는 경우
         if (!list || list.length === 0) {
             if (page === 1) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 60px; color: var(--gray-400);">보유 중인 토큰이 없습니다.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 60px; color: var(--gray-400);">보유 중인 토큰이 없습니다.</td></tr>';
             }
             if (btnMore) {
                 btnMore.style.display = "none";

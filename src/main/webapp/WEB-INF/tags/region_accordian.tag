@@ -31,7 +31,7 @@
         <c:set var="subRegions" value="${fn:trim(parts[1])}" />
         
         <div class="region-item ${mainRegion == '전국 전체' ? 'active' : ''}">
-            <div class="region-header ${mainRegion == '전국 전체' ? 'no-arrow' : ''}" onclick="toggleAccordion(this)">
+            <div class="region-header ${mainRegion == '전국 전체' ? 'no-arrow' : ''}" onclick="toggleAccordion(this); jumpToMainRegion('${mainRegion}')">
                 ${mainRegion}
                 <c:if test="${mainRegion != '전국 전체'}">
                     <span class="arrow">▼</span>
@@ -43,7 +43,7 @@
                 <div class="region-content">
                     <ul>
                         <c:forEach var="sub" items="${fn:split(subRegions, ',')}">
-                            <li>${sub}</li>
+                            <li onclick="event.stopPropagation(); jumpToSubRegion('${mainRegion}', '${sub}', event)">${sub}</li>
                         </c:forEach>
                     </ul>
                 </div>
@@ -65,6 +65,35 @@ function toggleAccordion(header) {
         item.classList.add('open');
         item.classList.add('active');
     }
+}
+
+function jumpToMainRegion(regionName) {
+	if (event.target.tagName === 'LI') return;
+	if (typeof REGION_COORDS === 'undefined') {
+        console.error("REGION_COORDS 상수가 정의되지 않았습니다.");
+        return;
+    }
+	const coord = REGION_COORDS[regionName];
+	if (coord && typeof moveToRegion === 'function') {
+	    moveToRegion(coord.lat, coord.lng, coord.level);
+	}
+}
+
+function jumpToSubRegion(mainRegion, subRegion, e) {
+	if (e && e.stopPropagation) {
+        e.stopPropagation();
+    } else if (window.event) {
+        window.event.cancelBubble = true; // IE 대비
+    }
+	var geocoder = new kakao.maps.services.Geocoder();
+    var address = mainRegion + " " + subRegion;
+	 geocoder.addressSearch(address, function(result, status) {
+	     if (status === kakao.maps.services.Status.OK) {
+	    	 const lat = result[0].y;
+             const lng = result[0].x;
+             moveToRegion(lat, lng, 7)
+	     }
+	 });
 }
 </script>
 

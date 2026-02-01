@@ -13,12 +13,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.animalfarm.mlf.common.ApiResponseDTO;
+import com.animalfarm.mlf.common.PagedResponseDTO;
 import com.animalfarm.mlf.domain.mypage.dto.CarbonHistoryDTO;
 import com.animalfarm.mlf.domain.mypage.dto.HoldingDTO;
 import com.animalfarm.mlf.domain.mypage.dto.MyTransactionHistDTO;
 import com.animalfarm.mlf.domain.mypage.dto.PasswordUpdateRequestDTO;
 import com.animalfarm.mlf.domain.mypage.dto.ProfileDTO;
 import com.animalfarm.mlf.domain.mypage.dto.ProfileUpdateRequestDTO;
+import com.animalfarm.mlf.domain.mypage.dto.ProjectDTO;
+import com.animalfarm.mlf.domain.mypage.dto.ProjectTabsDTO;
 import com.animalfarm.mlf.domain.mypage.dto.WalletDTO;
 
 @RestController
@@ -40,6 +43,7 @@ public class MypageController {
 		List<MyTransactionHistDTO> list = mypageService.getTransactionHistory(page, period, category);
 		return ResponseEntity.ok(new ApiResponseDTO<>("거래 내역 조회 성공", list));
 	}
+
 
 	// 탄소 구매 내역 조회
 	@GetMapping("/carbon-history")
@@ -65,7 +69,7 @@ public class MypageController {
 
 	// 연동하기
 	@GetMapping("/account/link")
-	public ResponseEntity<ApiResponseDTO<Long>> linkAccount() {
+	public ResponseEntity<ApiResponseDTO<Long>> linkAccounOt() {
 		Long result = mypageService.linkGangHwangAccount();
 
 		if (result != null && result == -1L) {
@@ -96,5 +100,29 @@ public class MypageController {
 	PasswordUpdateRequestDTO dto) {
 		mypageService.updatePassword(dto);
 		return ResponseEntity.ok().build();
+	}
+	
+	@GetMapping("/projects/tabs")
+	public ResponseEntity<ProjectTabsDTO> getProjectTabs() {
+	    return ResponseEntity.ok(mypageService.getProjectTabs());
+	}
+
+	@GetMapping("/projects")
+	public ResponseEntity<PagedResponseDTO<ProjectDTO>> getProjects(
+	        @RequestParam(defaultValue = "JOIN") String type,
+	        @RequestParam(defaultValue = "ALL") String status,
+	        @RequestParam(defaultValue = "1") int page,
+	        @RequestParam(defaultValue = "10") int size
+	) {
+	    return ResponseEntity.ok(mypageService.getProjectCards(type, status, page, size));
+	}
+
+	@PatchMapping("/projects/star")
+	public ResponseEntity<Void> toggleStar(
+	        @RequestParam Long projectId,
+	        @RequestParam boolean starred
+	) {
+	    mypageService.setStarred(projectId, starred);
+	    return ResponseEntity.ok().build();
 	}
 }

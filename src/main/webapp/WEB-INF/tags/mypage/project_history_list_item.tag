@@ -15,10 +15,21 @@
         <p class="p-date">${startDate} - ${endDate}</p>
     </div>
     <div class="status-group">
-        <t:status_badge status="inProgress" label="${status1}"/>
-        <c:if test="${status2!=null}">
-        	<t:status_badge status="inProgress" label="${status2}"/>
-        </c:if>
+        <c:choose>
+		  <!-- 1. 내 청약 상태가 있으면 그거만 -->
+		  <c:when test="${not empty project.subscriptionStatus}">
+		    <span class="badge badge-subscription">
+		      ${project.subscriptionStatus}
+		    </span>
+		  </c:when>
+		
+		  <!-- 2. 없으면 프로젝트 상태 -->
+		  <c:when test="${not empty project.projectStatus}">
+		    <span class="badge badge-project">
+		      ${project.projectStatus}
+		    </span>
+		  </c:when>
+		</c:choose>
     </div>
     <button class="detail-btn">
         <t:icon name="chevron_right" color="var(--gray-400)" size="20"/>
