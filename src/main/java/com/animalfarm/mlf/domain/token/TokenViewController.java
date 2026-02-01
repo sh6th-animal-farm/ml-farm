@@ -47,7 +47,6 @@ public class TokenViewController {
 		model.addAttribute("orderBuyList", mapper.writeValueAsString(tokenService.selectAllOrderBuyPrice(id)));
 		model.addAttribute("orderSellList", mapper.writeValueAsString(tokenService.selectAllOrderSellPrice(id)));
 		model.addAttribute("tradeList", mapper.writeValueAsString(tokenService.selectAllTradePrice(id)));
-//		model.addAttribute("candleList", mapper.writeValueAsString(tokenService.selectCandles(id, 1, 0, 9999999)));
 		model.addAttribute("ohlcv", tokenService.selectTokenOhlcv(id));
 		model.addAttribute("contentPage", "/WEB-INF/views/token/token_detail.jsp");
 
