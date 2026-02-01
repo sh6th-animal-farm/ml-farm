@@ -169,7 +169,7 @@ body {
 
 header {
   height: var(--header-height);
-  background: #fff;
+  background: rgba(255, 255, 255, 0.85);
   border-bottom: 1px solid var(--gray-100);
   position: sticky;
   top: 0;
@@ -186,7 +186,7 @@ header {
   white-space: nowrap;
   letter-spacing: -0.02em;
   color: var(--gray-900); /* 기본색 */
-  cursor: default;
+  cursor: pointer;
 }
 
 a {

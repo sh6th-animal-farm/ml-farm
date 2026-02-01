@@ -4,8 +4,8 @@ name: MLFarm Deploy
 # 어떤 사건(이벤트)이 발생했을 때 이 작업을 실행할지 정의합니다.
 on:
   push:
-    # develop 브랜치에 코드가 push(또는 머지)될 때만 자동으로 실행됩니다.
-    branches: ["develop"]
+    # develop 브랜치에 코드가 push(또는 머지)될 때만 자동으로 실행됩니다
+    branches: ["develop", "feat/cicd-test"]
 
 # 동일한 브랜치에서 새 푸시가 오면 기존 배포 작업을 취소하고 최신 것만 실행
 concurrency:
@@ -44,6 +44,9 @@ jobs:
           echo "${{ secrets.MAIL_PROPERTIES_CONTENT }}" > src/main/resources/config/mail.properties
           echo "${{ secrets.REDIS_PROPERTIES_CONTENT }}" > src/main/resources/config/redis.properties
           echo "${{ secrets.KH_HOLDINGS_PROPERTIES_CONTENT }}" > src/main/resources/config/kh-holding.properties
+          echo "${{ secrets.SLACK_PROPERTIES_CONTENT }}" > src/main/resources/config/slack.properties
+          echo "${{ secrets.PAYMENT_PROPERTIES_CONTENT }}" > src/main/resources/config/payment.properties
+          echo "${{ secrets.KAKAO_PROPERTIES_CONTENT }}" > src/main/resources/config/kakao.properties
 
       # 스프링 프로파일 local을 prod로 변환
       - name: Change Profile to Prod
@@ -87,12 +90,20 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.REMOTE_PORT }}
           script: |
+            sudo systemctl stop tomcat
             # 기존 ROOT 폴더와 war 파일 삭제 (깔끔한 재배포를 위해)
             sudo rm -rf /opt/apache-tomcat-9.0.113/webapps/ROOT
+            sudo rm -rf /opt/apache-tomcat-9.0.113/webapps/ROOT.war # 기존 WAR 삭제
+
             # 유저가 업로드할 파일들이 저장될 리눅스 경로를 생성합니다. (-p: 부모 폴더까지 한 번에)
             sudo mkdir -p /mlfarm-data/uploads
+
             # 톰캣 프로그램이 이 폴더에 파일을 쓰고 읽을 수 있도록 권한(소유자)을 변경합니다.
             sudo chown -R mlfarm:mlfarm /mlfarm-data/uploads
             sudo chown mlfarm:mlfarm /opt/apache-tomcat-9.0.113/webapps/ROOT.war
-            # 새로운 .war 파일이 반영되도록 톰캣 서비스를 재시작합니다.
+
+            # 톰캣 환경변수 설정 파일(setenv.sh)에 프로파일 주입
+            echo 'export JAVA_OPTS="$JAVA_OPTS -Dspring.profiles.active=prod"' | sudo tee /opt/apache-tomcat-9.0.113/bin/setenv.sh
+            sudo chmod +x /opt/apache-tomcat-9.0.113/bin/setenv.sh
+
             sudo systemctl restart tomcat

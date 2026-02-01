@@ -3,6 +3,7 @@ package com.animalfarm.mlf.domain.token;
 import java.math.BigDecimal;
 import java.util.List;
 
+import com.animalfarm.mlf.domain.token.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,9 +13,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.animalfarm.mlf.common.security.SecurityUtil;
-import com.animalfarm.mlf.domain.token.dto.OrderDTO;
-import com.animalfarm.mlf.domain.token.dto.TokenDTO;
-import com.animalfarm.mlf.domain.token.dto.TokenPendingDTO;
 
 @RestController
 public class TokenController {
@@ -22,8 +20,7 @@ public class TokenController {
 	TokenService tokenService;
 
 	@GetMapping("/api/token/{projectId}")
-	public TokenDTO selectDetail(@PathVariable("projectId")
-	Long projectId) {
+	public TokenDTO selectDetail(@PathVariable("projectId") Long projectId) {
 		return tokenService.selectByProjectId(projectId);
 	}
 
@@ -71,5 +68,24 @@ public class TokenController {
 	@PostMapping("/api/token/order-cancel/{tokenId}/{orderId}")
 	public boolean cancelOrder(@PathVariable Long tokenId, @PathVariable Long orderId) {
 		return tokenService.cancelOrder(tokenId, orderId);
+	}
+
+	// 캔들 조회
+	@GetMapping("/api/market/candles/{tokenId}")
+	public List<CandleDTO> selectCandles(
+			@PathVariable Long tokenId,
+			@RequestParam(defaultValue = "1") int unit,
+			@RequestParam(required = false) Long start,
+			@RequestParam(required = false) Long end) {
+
+		return tokenService.selectCandles(tokenId, unit,
+				start != null ? start : 0L,
+				end != null ? end : System.currentTimeMillis());
+	}
+
+	// OHLCV 조회
+	@GetMapping("/api/token/ohlcv/{tokenId}")
+	public TokenListDTO selectTokenOhlcv(@PathVariable Long tokenId) {
+		return tokenService.selectTokenOhlcv(tokenId);
 	}
 }

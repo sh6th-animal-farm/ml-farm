@@ -1,22 +1,21 @@
 package com.animalfarm.mlf.domain.token;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import com.animalfarm.mlf.domain.token.dto.TokenListDTO;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import com.animalfarm.mlf.common.http.ApiResponse;
 import com.animalfarm.mlf.common.http.ExternalApiUtil;
+import com.animalfarm.mlf.domain.project.dto.TokenLedgerDTO;
+import com.animalfarm.mlf.domain.token.dto.CandleDTO;
 import com.animalfarm.mlf.domain.token.dto.OrderDTO;
 import com.animalfarm.mlf.domain.token.dto.OrderPriceDTO;
 import com.animalfarm.mlf.domain.token.dto.TokenDTO;
@@ -24,6 +23,8 @@ import com.animalfarm.mlf.domain.token.dto.TokenDetailDTO;
 import com.animalfarm.mlf.domain.token.dto.TokenListDTO;
 import com.animalfarm.mlf.domain.token.dto.TokenPendingDTO;
 import com.animalfarm.mlf.domain.token.dto.TradePriceDTO;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -35,15 +36,15 @@ public class TokenService {
 	@Autowired
 	ExternalApiUtil externalApiUtil;
 
-	// @Value("${api.kh-stock.url}") // 강황증권 API 서버 주소 (배포)
-	@Value("http://localhost:9090/api") // 강황증권 API 서버 주소 (테스트)
+	@Value("${api.kh-stock.url}") // 강황증권 API 서버 주소 (배포)
+	// @Value("http://localhost:9090/api") // 강황증권 API 서버 주소 (테스트)
 	private String khUrl;
 
 	// 전체 토큰 시세 조회
 	public List<TokenListDTO> selectAll() {
 		try {
 			List<TokenListDTO> list = externalApiUtil.callApi(
-					khUrl + "/market",
+					khUrl + "api/market",
 					HttpMethod.GET,
 					null,
 					new ParameterizedTypeReference<ApiResponse<List<TokenListDTO>>>() {}
@@ -56,7 +57,7 @@ public class TokenService {
 			});
 
 			return list;
-		} catch (RuntimeException e) {
+		} catch (Exception e) {
 			log.error("[Service Error] 토큰 목록 조회 실패: {}",e.getMessage());
 			return Collections.emptyList();
 		}
@@ -64,14 +65,38 @@ public class TokenService {
 
 	// 토큰 상세 내역 조회
 	public TokenDetailDTO selectByTokenId(Long tokenId) {
-		String targetUrl = khUrl + "/my/market/" + tokenId; 	// [TODO] 강황증권 API 필요
+		String targetUrl = khUrl + "api/my/market/" + tokenId; 	// [TODO] 강황증권 API 필요
 		return null;
+	}
+
+	// 토큰 차트 조회
+	public List<CandleDTO> selectCandles(Long tokenId, int unit, long start, long end) {
+		try {
+			List<CandleDTO> list = externalApiUtil.callApi(
+				khUrl + String.format("api/market/candles/%d?unit=%d&start=%d&end=%d", tokenId, unit, start, end),
+				HttpMethod.GET,
+				null,
+				new ParameterizedTypeReference<ApiResponse<List<CandleDTO>>>() {}
+			);
+
+			if (list == null || list.isEmpty()) {
+				return Collections.emptyList();
+			}
+
+			return list.stream()
+				.sorted(Comparator.comparingLong(CandleDTO::getCandleTime))
+				.collect(Collectors.toList());
+
+		} catch (RuntimeException e) {
+			log.error("[Service Error] 토큰 목록 조회 실패: {}",e.getMessage());
+			return Collections.emptyList();
+		}
 	}
 
 	// 토큰 현재가 조회
 	public BigDecimal selectCurrentPrice(Long tokenId) {
 		BigDecimal curPrice = externalApiUtil.callApi(
-			khUrl + "/market/current/" + tokenId,
+			khUrl + "api/market/current/" + tokenId,
 			HttpMethod.GET,
 			null,
 			new ParameterizedTypeReference<ApiResponse<BigDecimal>>() {}
@@ -80,10 +105,22 @@ public class TokenService {
 		return curPrice;
 	}
 
+	// 토큰 존재 여부 확인
+	public boolean checkTokenStatus(Long tokenId) {
+		Boolean isOk = externalApiUtil.callApi(
+			khUrl + "api/project/check/" + tokenId,
+			HttpMethod.GET,
+			null,
+			new ParameterizedTypeReference<ApiResponse<Boolean>>() {}
+		);
+
+		return isOk;
+	}
+
 	// 매수 호가 조회
 	public List<OrderPriceDTO> selectAllOrderBuyPrice(Long tokenId) {
 		List<OrderPriceDTO> orderBuyPriceList = externalApiUtil.callApi(
-			khUrl + "/market/order/buy/" + tokenId,
+			khUrl + "api/market/order/buy/" + tokenId,
 			HttpMethod.GET,
 			null,
 			new ParameterizedTypeReference<ApiResponse<List<OrderPriceDTO>>>() {}
@@ -95,7 +132,7 @@ public class TokenService {
 	// 매도 호가 조회
 	public List<OrderPriceDTO> selectAllOrderSellPrice(Long tokenId) {
 		List<OrderPriceDTO> orderSellPriceList = externalApiUtil.callApi(
-			khUrl + "/market/order/sell/" + tokenId,
+			khUrl + "api/market/order/sell/" + tokenId,
 			HttpMethod.GET,
 			null,
 			new ParameterizedTypeReference<ApiResponse<List<OrderPriceDTO>>>() {}
@@ -107,7 +144,7 @@ public class TokenService {
 	// 체결가 조회
 	public List<TradePriceDTO> selectAllTradePrice(Long tokenId) {
 		List<TradePriceDTO> tradePriceList = externalApiUtil.callApi(
-			khUrl + "/market/trade/" + tokenId,
+			khUrl + "api/market/trade/" + tokenId,
 			HttpMethod.GET,
 			null,
 			new ParameterizedTypeReference<ApiResponse<List<TradePriceDTO>>>() {}
@@ -125,7 +162,7 @@ public class TokenService {
 	public BigDecimal selectCashBalance(Long userId) {
 		Long walletId = selectWalletId(userId);
 		if (walletId != null) {
-			String targetUrl = khUrl + "/order/balance/" + walletId;
+			String targetUrl = khUrl + "api/order/balance/" + walletId;
 			ParameterizedTypeReference<ApiResponse<BigDecimal>> responseType =
 				new ParameterizedTypeReference<ApiResponse<BigDecimal>>() {};
 
@@ -138,7 +175,7 @@ public class TokenService {
 	public BigDecimal selectTokenBalance(Long tokenId, Long userId) {
 		Long walletId = selectWalletId(userId);
 		if (walletId != null) {
-			String targetUrl = khUrl + "/order/balance/" + walletId + "/" + tokenId;
+			String targetUrl = khUrl + "api/order/balance/" + walletId + "/" + tokenId;
 			ParameterizedTypeReference<ApiResponse<BigDecimal>> responseType =
 				new ParameterizedTypeReference<ApiResponse<BigDecimal>>() {};
 
@@ -151,7 +188,7 @@ public class TokenService {
 	public List<TokenPendingDTO> selectAllPending(Long tokenId, Long userId) {
 		Long walletId = selectWalletId(userId);
 		if (walletId != null) {
-			String targetUrl = khUrl + "/market/" + tokenId + "/pending/" + walletId;
+			String targetUrl = khUrl + "api/market/" + tokenId + "/pending/" + walletId;
 			ParameterizedTypeReference<ApiResponse<List<TokenPendingDTO>>> responseType =
 				new ParameterizedTypeReference<ApiResponse<List<TokenPendingDTO>>>() {};
 
@@ -165,7 +202,7 @@ public class TokenService {
 		Long walletId = selectWalletId(userId);
 		if (walletId != null) {
 			orderDTO.setWalletId(walletId);
-			String targetUrl = khUrl + "/order";
+			String targetUrl = khUrl + "api/order";
 			ParameterizedTypeReference<ApiResponse<Void>> responseType =
 				new ParameterizedTypeReference<ApiResponse<Void>>() {};
 
@@ -177,7 +214,7 @@ public class TokenService {
 
 	// 주문 취소
 	public boolean cancelOrder(Long tokenId, Long orderId) {
-		String targetUrl = khUrl + "/order/cancel/" + tokenId + "/" + orderId;
+		String targetUrl = khUrl + "api/order/cancel/" + tokenId + "/" + orderId;
 		ParameterizedTypeReference<ApiResponse<Void>> responseType =
 			new ParameterizedTypeReference<ApiResponse<Void>>() {};
 
@@ -185,8 +222,29 @@ public class TokenService {
 		return true;
 	}
 
+	public TokenListDTO selectTokenOhlcv(Long tokenId) {
+		try {
+			TokenListDTO token = externalApiUtil.callApi(
+				khUrl + "api/market/ohlcv/" + tokenId,
+				HttpMethod.GET,
+				null,
+				new ParameterizedTypeReference<ApiResponse<TokenListDTO>>() {}
+			);
+			
+			return token; // token이 null인 경우, null 반환
+		} catch (Exception e) {
+			log.error("[Service Error] 토큰 상세 정보 조회 실패: {}",e.getMessage());
+			return null;
+		}
+	}
+
 	public TokenDTO selectByProjectId(Long projectId) {
 		return tokenRepository.selectByProjectId(projectId);
 	}
 
+	public void insertTokenLedger(List<TokenLedgerDTO> newTokenList) {
+		for (TokenLedgerDTO newToken : newTokenList) {
+			tokenRepository.insertTokenLedger(newToken);
+		}
+	}
 }

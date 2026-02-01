@@ -21,6 +21,8 @@ public interface ProjectRepository {
 
 	public abstract List<ProjectListDTO> selectByCondition(ProjectSearchReqDTO projectSearchDTO);
 
+	public abstract List<ProjectListDTO> selectByConditionForMain();
+
 	public abstract ProjectDetailDTO selectDetail(Long projectId);
 
 	public abstract boolean selectStarredProject(ProjectStarredDTO projectStarredDTO);
@@ -52,4 +54,7 @@ public interface ProjectRepository {
 	public abstract ProjectDTO selectByProjectId(Long projectId);
 
 	public abstract Long selectMyWalletId(Long userId);
+	
+	public abstract List<ProjectDTO> selectEndTargetProject();
+	
 }

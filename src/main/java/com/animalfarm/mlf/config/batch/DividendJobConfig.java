@@ -20,7 +20,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.animalfarm.mlf.batch.processor.DividendProcessor;
 import com.animalfarm.mlf.domain.accounting.dto.DividendDTO;
-import com.animalfarm.mlf.domain.accounting.dto.DividendResponseDTO;
+import com.animalfarm.mlf.domain.accounting.dto.SnapshotResponseDTO;
 import com.animalfarm.mlf.domain.project.ProjectService;
 
 @Configuration
@@ -57,32 +57,35 @@ public class DividendJobConfig {
 	@Bean
 	public Step calculateDividendStep() {
 		return stepBuilderFactory.get("calculateDividendStep")
-			.<DividendResponseDTO, DividendDTO>chunk(100)
+			.<SnapshotResponseDTO, DividendDTO>chunk(100)
 			.reader(dividendListItemReader(null, null)) // 파라미터 주입
 			.processor(dividendProcessor(null, null))
-			.writer(dividendWriter())
+			.writer(dividendJobWriter())
 			.build();
 	}
 
 	@Bean
 	@StepScope
-	public ListItemReader<DividendResponseDTO> dividendListItemReader(
+	public ListItemReader<SnapshotResponseDTO> dividendListItemReader(
 		@Value("#{jobParameters[projectId]}")
 		Long projectId,
 		@Value("#{jobParameters[rsId]}")
 		Long rsId) {
 
 		// 외부 API 호출
-		List<DividendResponseDTO> snapshot = projectService.getDividendSnapshot(projectId);
+		List<SnapshotResponseDTO> snapshot = projectService.getDividendSnapshot(projectId);
 
 		// 모든 DTO에 rsId 세팅
-		snapshot.forEach(s -> s.setRsId(rsId));
+		snapshot.forEach(s -> {
+			s.setRsId(rsId);
+			s.setProjectId(projectId);
+		});
 
 		return new ListItemReader<>(snapshot);
 	}
 
 	@Bean
-	public MyBatisBatchItemWriter<DividendDTO> dividendWriter() {
+	public MyBatisBatchItemWriter<DividendDTO> dividendJobWriter() {
 		return new MyBatisBatchItemWriterBuilder<DividendDTO>()
 			.sqlSessionFactory(sqlSessionFactory)
 			.statementId("com.animalfarm.mlf.domain.accounting.DividendRepository.insertDividend")

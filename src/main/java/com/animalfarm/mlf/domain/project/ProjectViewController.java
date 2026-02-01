@@ -31,13 +31,13 @@ public class ProjectViewController {
 	@Value("${api.kakako.javascript.key}")
 	String kakaoMapKey; 
 
-	@Autowired
-	ProjectService projectService;
+	private final ProjectService projectService;
+	private final ObjectMapper objectMapper;
+	
 	@Autowired
 	DividendService dividendService;
 	@Autowired
 	UserService userService;
-	private final ObjectMapper objectMapper;
 	
 	@GetMapping({"", "/"})
 	public String index() {
@@ -57,6 +57,7 @@ public class ProjectViewController {
 		model.addAttribute("projectData", projectService.selectDetail(id));
 		model.addAttribute("contentPage", "/WEB-INF/views/project/project_detail.jsp");
 		//model.addAttribute("myCash", projectService.selectMyWalletAmount());
+		model.addAttribute("activeMenu", "project");
 		return "layout";
 	}
 
@@ -75,6 +76,12 @@ public class ProjectViewController {
 	@GetMapping("/list/fragment")
 	public String projectListFragment(Model model, ProjectSearchReqDTO searchReqDTO) {
 		model.addAttribute("projectList", projectService.selectByCondition(searchReqDTO));
+		return "project/project_card_list";
+	}
+
+	@GetMapping("/list/fragment/main")
+	public String projectListFragmentForMain(Model model) {
+		model.addAttribute("projectList", projectService.selectByConditionForMain());
 		return "project/project_card_list";
 	}
 

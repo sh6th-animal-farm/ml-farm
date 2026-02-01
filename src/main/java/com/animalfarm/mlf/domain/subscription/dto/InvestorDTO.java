@@ -1,4 +1,4 @@
-package com.animalfarm.mlf.domain.accounting.dto;
+package com.animalfarm.mlf.domain.subscription.dto;
 
 import java.math.BigDecimal;
 
@@ -15,10 +15,8 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class DividendResponseDTO {
+public class InvestorDTO {
+	private Long shId;
 	private Long userId;
-	private Long walletId;
-	private Long tokenId;
-	private BigDecimal tokenBalance; // 보유 토큰 개수
-	private Long rsId; // 정산 요약 ID
+	private BigDecimal subscriptionAmount;
 }

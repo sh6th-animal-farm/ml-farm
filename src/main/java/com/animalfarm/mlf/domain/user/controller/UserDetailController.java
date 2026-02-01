@@ -35,13 +35,4 @@ public class UserDetailController {
         }
     }
 	
-	@GetMapping("/walletId")
-	public Long getWalletId() {
-		try {
-            Long userId = SecurityUtil.getCurrentUserId();
-            return userService.getWalletIdByUserId(userId);
-		} catch (Exception e) {
-			return -1L;
-		}
-	}
 }

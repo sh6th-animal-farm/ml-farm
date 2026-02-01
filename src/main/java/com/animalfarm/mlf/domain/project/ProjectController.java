@@ -35,13 +35,11 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/api/project")
 public class ProjectController {
 
-	@Autowired
-	ProjectService projectService;
-	@Autowired
-	DividendService dividendService;
-
+	private final ProjectService projectService;
 	private final FarmService farmService;
 
+	@Autowired
+	DividendService dividendService;
 
 	@InitBinder
 	protected void initBinder(WebDataBinder binder) {
@@ -101,18 +99,26 @@ public class ProjectController {
 	@PostMapping("/insert")
 	public ResponseEntity<String> insertProject(@RequestBody
 	ProjectInsertDTO projectInsertDTO) {
-		if (projectService.insertProject(projectInsertDTO)) {
-			try {
-				projectService.postTokenIssue(projectInsertDTO);
-				return ResponseEntity.ok("success");
-			} catch (Exception e) {
-				log.error("증권사 전송 중 오류 발생: {}", e.getMessage());
-				return ResponseEntity.ok("api_fail");
-			}
-		} else {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("프로젝트 등록 중 서버 오류가 발생했습니다.");
-		}
-
+		try {
+	        // 서비스에서 DB 저장 + API 호출을 한 번에 처리 (실패 시 서비스 내부에서 롤백됨)
+	        projectService.insertProject(projectInsertDTO);
+	        
+	        // 여기까지 무사히 왔다면 DB 커밋 완료 & API 전송 성공!
+	        return ResponseEntity.ok("success");
+	        
+	    } catch (RuntimeException e) {
+	        // 서비스에서 throw new RuntimeException 한 에러가 여기로 잡힙니다.
+	        // 이때 이미 DB는 롤백된 상태입니다.
+	        log.error("프로젝트 등록 실패 (DB 롤백 완료): {}", e.getMessage());
+	        
+	        // 사용자에게 에러 메시지를 전달 (예: "증권사 서비스 오류입니다.")
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                             .body("fail: " + e.getMessage());
+	                             
+	    } catch (Exception e) {
+	        log.error("예상치 못한 시스템 오류: {}", e.getMessage());
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("system_error");
+	    }
 	}
 
 	@PostMapping("/update")
@@ -135,26 +141,10 @@ public class ProjectController {
 	public boolean checkAccount(Long userId) {
 		return projectService.checkAccount();
 	}
-
-	@PostMapping("/dividend")
-	public ResponseEntity<String> processDividend(@RequestBody
-	Long projectId) {
-		try {
-			dividendService.runDividendBatch(projectId);
-			return ResponseEntity.ok("성공했습니다. DB를 확인해주세요.");
-		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}
-	}
-
-	@PostMapping("/dividend-mail")
-	public ResponseEntity<String> sendDividendEmail() {
-		try {
-			dividendService.sendEmail();
-			return ResponseEntity.ok("성공했습니다. DB를 확인해주세요.");
-		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}
+	
+	@GetMapping("/farm/all")
+	public List<FarmDTO> selectAllFarm() {
+		return farmService.selectAllFarm();
 	}
 
 	@PostMapping("/dividend/poll/select")
@@ -173,8 +163,4 @@ public class ProjectController {
 		}
 	}
 	
-	@GetMapping("/farm/all")
-	public List<FarmDTO> selectAllFarm() {
-		return farmService.selectAllFarm();
-	}
 }
