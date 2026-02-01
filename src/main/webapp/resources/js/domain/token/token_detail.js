@@ -68,7 +68,7 @@ function initTickerElements() {
 }
 
 /* 웹소켓 연결 및 구독 */
-WebSocketManager.connect('http://localhost:9090/ws-stomp', function() {
+WebSocketManager.connect(TokenApi.WS_CONN, function() {
 
     // 1. 체결 토픽 구독
     WebSocketManager.subscribe('trade', `/topic/trades/${tokenId}`, function(data) {
