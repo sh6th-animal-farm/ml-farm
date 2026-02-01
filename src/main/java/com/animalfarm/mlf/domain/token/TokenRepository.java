@@ -1,5 +1,6 @@
 package com.animalfarm.mlf.domain.token;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
@@ -19,4 +20,8 @@ public interface TokenRepository {
 	void insertTokenLedgerBatch(List<TokenLedgerDTO> tokenLedgerList);
 
 	String selectLastHash();
+
+	void updateDeletedAt(Long tokenId);
+
+	void updateTokenBalance(Long userId, Long tokenId, BigDecimal balanceAfter);
 }

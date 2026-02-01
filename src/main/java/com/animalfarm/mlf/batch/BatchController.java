@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.animalfarm.mlf.domain.project.ProjectBatchScheduler;
+
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -15,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 public class BatchController {
 
 	final DividendBatchService dividendBatchService;
+	final ProjectBatchScheduler projectBatchScheduler;
 
 	@GetMapping("/dividend/settlement")
 	public String runSettlement() {
@@ -46,6 +49,16 @@ public class BatchController {
 	public ResponseEntity<String> runCloseDividend() {
 		try {
 			dividendBatchService.runDividendClosingBatch();
+			return ResponseEntity.ok("성공했습니다. DB를 확인해주세요.");
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+		}
+	}
+	
+	@GetMapping("/project/close")
+	public ResponseEntity<String> runCloseProject() {
+		try {
+			projectBatchScheduler.runProjectClosingJob();
 			return ResponseEntity.ok("성공했습니다. DB를 확인해주세요.");
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

@@ -22,7 +22,7 @@ public class SubscriptionController {
 	SubscriptionService subscriptionService;
 
 	@PostMapping("/cancel")
-	public ResponseEntity<ApiResponse<Object>> cancelSubscription(@RequestBody
+	public ResponseEntity<ApiResponse<String>> cancelSubscription(@RequestBody
 	Long projectId) {
 		try {
 			boolean isSuccess = subscriptionService.selectAndCancel(projectId);

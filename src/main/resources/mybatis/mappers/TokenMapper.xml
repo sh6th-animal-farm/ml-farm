@@ -73,4 +73,18 @@
 	    ORDER BY created_at DESC, ledger_id DESC
 	    LIMIT 1
 	</select>
+	
+	<update id="updateDeletedAt">
+		update tokens
+		SET deleted_at=now()
+		where token_id=#{tokenId};
+	</update>
+	
+	<update id="updateTokenBalance">
+		UPDATE token_balances
+		SET balance = #{balanceAfter},
+			updated_at = NOW()
+		WHERE token_id = #{tokenId}
+		AND user_id = #{userId}
+	</update>
 </mapper>

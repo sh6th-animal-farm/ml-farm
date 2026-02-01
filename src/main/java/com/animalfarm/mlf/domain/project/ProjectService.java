@@ -292,4 +292,8 @@ public class ProjectService {
 			log.error("실패!!! : " + e.getMessage());
 		}
 	}
+	
+	public List<ProjectDTO> selectEndTargetProject() {
+		return projectRepository.selectEndTargetProject();
+	}
 }
