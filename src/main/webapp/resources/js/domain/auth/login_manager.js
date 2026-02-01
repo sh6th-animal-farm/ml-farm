@@ -14,7 +14,7 @@ async function login(event) {
         });
 
         if (!res.ok) {
-            alert("로그인 실패: 이메일 또는 비밀번호를 확인하세요.");
+            ToastManager.show("로그인 실패: 이메일 또는 비밀번호를 확인하세요.");
             return;
         }
 
@@ -32,10 +32,10 @@ async function login(event) {
         localStorage.setItem("loginStartTime", now);
         localStorage.setItem("lastActivityTime", now);
         
-        alert("로그인 성공!");
+        ToastManager.show("로그인 성공!");
         location.href = ctx + "/home";
     } catch (error) {
         console.error("로그인 중 에러 발생:", error);
-        alert("서버와 통신할 수 없습니다.");
+        ToastManager.show("서버와 통신할 수 없습니다.");
     }
 }

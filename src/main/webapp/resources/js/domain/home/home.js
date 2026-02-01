@@ -3,7 +3,6 @@ import { http } from "../../api/http_client.js";
 document.addEventListener('DOMContentLoaded', async function() {
     const cards = await http.get(`${ctx}/project/list/fragment/main`);
     let projectArea = document.querySelector(".project-card-list");
-    console.log(projectArea);
     projectArea.innerHTML = cards;
 
     const chartCtx = document.getElementById('kocChart').getContext('2d');

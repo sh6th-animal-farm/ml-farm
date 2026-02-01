@@ -14,7 +14,7 @@ window.addEventListener('beforeunload', () => {
 
     // 브라우저의 alert 함수를 빈 함수로 덮어씌워 버림 (강력 차단)
     window.alert = function() {
-        console.warn("페이지 이동 중 발생한 alert 무시됨:", arguments[0]);
+        console.warn("페이지 이동 중 발생한 ToastManager.show 무시됨:", arguments[0]);
     };
 });
 

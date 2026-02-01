@@ -42,7 +42,7 @@ async function searchKeyword() {
 
 async function starProject(userId, projectId, element) {
   if (!userId) {
-    alert("로그인이 필요한 서비스입니다."); //TODO: 처리 방식 변경
+    ToastManager.show("로그인이 필요한 서비스입니다."); //TODO: 처리 방식 변경
     return;
   }
 

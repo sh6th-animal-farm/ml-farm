@@ -99,7 +99,7 @@ window.confirmCropSelection = async function () {
   let finalAddress = document.getElementById("displayAddress").innerText;
 
   if (!finalAddress.trim() || finalAddress==="주소 등록이 필요합니다.") {
-    alert("새로운 주소를 입력해주세요.");
+    ToastManager.show("새로운 주소를 입력해주세요.");
     return;
   }
 
@@ -122,7 +122,7 @@ async function sendSelection(data) {
   try {
     const response = await ProjectApi.selectDividendPoll(data);
     if (response) {
-      alert(response.message || "처리가 완료되었습니다.");
+      ToastManager.show(response.message || "처리가 완료되었습니다.");
       location.href = ctx + "/mypage";
     }
   } catch (error) {

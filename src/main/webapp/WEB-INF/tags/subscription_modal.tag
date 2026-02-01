@@ -180,7 +180,7 @@
         const qty = document.getElementById('sub-quantity').value;
         // 실제 서버 전송 로직 (Ajax 등)을 여기에 구현
         console.log("청약 신청 수량:", qty);
-        alert(qty + "토큰 청약 신청이 완료되었습니다.");
+        ToastManager.show(qty + "토큰 청약 신청이 완료되었습니다.");
         closeSubscriptionModal(id);
     }
     
@@ -222,17 +222,17 @@
             console.log("서버 응답 결과:", status);
 
             if (status === "success") {
-                alert("✅ 청약 신청이 완료되었습니다!");
+                ToastManager.show("✅ 청약 신청이 완료되었습니다!");
                 location.href = ctx + "/project/" + projectId;
             } else if (status === "empty_payload") {
-                alert("❌ 청약 신청이 실패되었습니다!.");
+                ToastManager.show("❌ 청약 신청이 실패되었습니다!.");
             } else {
-                alert("⚠️ 신청 실패: " + status);
+                ToastManager.show("⚠️ 신청 실패: " + status);
             }
         })
         .catch(error => {
             console.error("Fetch 에러:", error);
-            alert("⚠️ 서버 연결 오류: " + error.message);
+            ToastManager.show("⚠️ 서버 연결 오류: " + error.message);
         });
     }
     

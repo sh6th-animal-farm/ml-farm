@@ -12,8 +12,8 @@ window.addEventListener('beforeunload', () => {
     isPageExiting = true;
 
     // 브라우저의 alert 함수를 빈 함수로 덮어씌워 버림 (강력 차단)
-    window.alert = function() {
-        console.warn("페이지 이동 중 발생한 alert 무시됨:", arguments[0]);
+    window.ToastManager.show = function() {
+        console.warn("페이지 이동 중 발생한 ToastManager.show 무시됨:", arguments[0]);
     };
 });
 
@@ -310,16 +310,16 @@ async function handleOrder(event, side){
     // 검증 실행
     const check = validateOrder(orderDTO);
     if (!check.valid) {
-        alert(check.msg);
+        ToastManager.show(check.msg);
         return;
     }
 
     // API 호출
     try {
         const result = await TokenApi.createOrder(orderDTO.tokenId, orderDTO);
-        if (result) alert("주문이 완료되었습니다.");
+        if (result) ToastManager.show("주문이 완료되었습니다.");
     } catch(e) {
-        alert("주문 처리 중 오류가 발생했습니다. 다시 시도해주세요.");
+        ToastManager.show("주문 처리 중 오류가 발생했습니다. 다시 시도해주세요.");
         console.error("주문 실패: ", e);
     }
 };
@@ -469,7 +469,7 @@ async function cancelOrder(orderId) {
 
     try {
         await TokenApi.cancelOrder(window.tokenId, orderId);
-        alert("주문이 취소되었습니다.");
+        ToastManager.show("주문이 취소되었습니다.");
         fetchPendingOrders();
     } catch (e) {
         console.error("취소 실패: ", e);

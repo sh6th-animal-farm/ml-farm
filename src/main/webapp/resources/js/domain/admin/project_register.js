@@ -151,11 +151,11 @@ function updateProject() {
     .then(text => {
         console.log(text);
 	    if(text === "success") {
-            alert("수정되었습니다.");
+            ToastManager.show("수정되었습니다.");
 	        window.location.href = `${ctx}/admin/project/new`;
 	    } else {
             const errorMsg = text;
-            alert("실패: " + errorMsg);
+            ToastManager.show("실패: " + errorMsg);
         }
 	});
 	
@@ -168,18 +168,18 @@ function insertProject() {
     .then(text => {
         // 백엔드에서 ResponseEntity.ok("success")를 보낸 경우
         if(text === "success") {
-            alert("✅ 프로젝트 등록 및 증권사 전송이 모두 완료되었습니다!");
+            ToastManager.show("✅ 프로젝트 등록 및 증권사 전송이 모두 완료되었습니다!");
             window.location.href = `${ctx}/admin/project/new`;
         } else {
             // 백엔드에서 throw new RuntimeException으로 던진 메시지가 text에 담겨옴
             // (예: "프로젝트 등록 실패: 증권사 서비스 오류...")
-            alert("❌ 등록 실패: " + text + "\n(데이터는 저장되지 않았습니다.)");
+            ToastManager.show("❌ 등록 실패: " + text + "\n(데이터는 저장되지 않았습니다.)");
         }
     })
     .catch(error => {
         // 네트워크 오류나 정말 예상치 못한 서버 에러 발생 시
         console.error(error);
-        alert("시스템 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+        ToastManager.show("시스템 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
     });
 }
 

@@ -243,12 +243,12 @@ function handleLinkAccount() {
         return res.json();
     })
     .then(data => {
-        alert(data.message); // "계좌 연동에 성공했습니다."
+        ToastManager.show(data.message); // "계좌 연동에 성공했습니다."
         location.reload();  // 성공하면 화면 새로고침해서 데이터 반영
     })
     .catch(err => {
         // "연동 가능한 강황증권 계좌를 찾을 수 없습니다." 알림 출력
-        alert(err.message); 
+        ToastManager.show(err.message); 
     });
 }
 
