@@ -289,6 +289,7 @@ public class ProjectService {
 		} catch (Exception e) {
 			return new ArrayList<>();
 		}
+	}
 
 	
 	public WalletDTO selectMyWalletInfo(Long uclId) {
@@ -331,10 +332,11 @@ public class ProjectService {
 			log.error("실패!!! : " + e.getMessage());
 		}
 	}
-	
+	*/
 	public List<ProjectDTO> selectEndTargetProject() {
 		return projectRepository.selectEndTargetProject();
-	*/
+	}
+	
 	public void postTokenIssue(ProjectInsertDTO projectInsertDTO) {
 	    TokenIssueDTO tokenIssueDTO = TokenIssueDTO.builder()
 	    	.tokenId(projectInsertDTO.getTokenId())

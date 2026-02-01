@@ -23,7 +23,7 @@ import com.animalfarm.mlf.common.http.ApiResponse;
 import com.animalfarm.mlf.common.http.ExternalApiUtil;
 import com.animalfarm.mlf.common.security.SecurityUtil;
 import com.animalfarm.mlf.domain.project.ProjectService;
-import com.animalfarm.mlf.domain.project.dto.ProjectNewTokenDTO;
+import com.animalfarm.mlf.domain.project.dto.TokenLedgerDTO;
 import com.animalfarm.mlf.domain.refund.RefundDTO;
 import com.animalfarm.mlf.domain.refund.RefundRepository;
 import com.animalfarm.mlf.domain.refund.RefundService;
@@ -362,7 +362,7 @@ public class SubscriptionService {
 		AllocationTokenDTO dto = subscriptionRepository.selectAllocationInfo(inprogressProjectId);
 		List<InvestorDTO> investors = dto.getInvestors();
 		List<AllocationRequestDTO> requestList = new ArrayList<AllocationRequestDTO>();
-		List<ProjectNewTokenDTO> newTokenList = new ArrayList<ProjectNewTokenDTO>();
+		List<TokenLedgerDTO> newTokenList = new ArrayList<TokenLedgerDTO>();
 		List<Long> shIdList = new ArrayList<Long>();
 		Long tokenId = dto.getTokenId();
 		Long projectId = dto.getProjectId();
@@ -417,7 +417,7 @@ public class SubscriptionService {
 				String shortTime = timePart.substring(timePart.length() - 6);
 				String txId = "SUB_" + projectId + "_" + shortTime;
 				String newHash = projectService.createHash(lastPrevHash, tokenId, resultTokenCount);
-				ProjectNewTokenDTO projectNewTokenDTO = ProjectNewTokenDTO.builder().tokenId(tokenId) // 토큰 번호
+				TokenLedgerDTO projectNewTokenDTO = TokenLedgerDTO.builder().tokenId(tokenId) // 토큰 번호
 						.fromUserId(1L) // 보낸 사용자 시스템사용자
 						.toUserId(sendData.getUserId()) // 사용자ID
 						.transactionId(txId) // 거래 고유 식별 번호
@@ -484,7 +484,7 @@ public class SubscriptionService {
 					String shortTime = timePart.substring(timePart.length() - 6);
 					String txId = "SUB_" + projectId + "_" + shortTime;
 					String newHash = projectService.createHash(lastPrevHash, tokenId, resultTokenCount);
-					ProjectNewTokenDTO projectNewTokenDTO = ProjectNewTokenDTO.builder().tokenId(tokenId) // 토큰 번호
+					TokenLedgerDTO projectNewTokenDTO = TokenLedgerDTO.builder().tokenId(tokenId) // 토큰 번호
 							.fromUserId(1L) // 보낸 사용자 시스템사용자
 							.toUserId(sendData.getUserId()) // 사용자ID
 							.transactionId(txId) // 거래 고유 식별 번호
@@ -562,7 +562,7 @@ public class SubscriptionService {
 					String shortTime = timePart.substring(timePart.length() - 6);
 					String txId = "SUB_" + projectId + "_" + shortTime;
 					String newHash = projectService.createHash(lastPrevHash, tokenId, resultTokenCount);
-					ProjectNewTokenDTO projectNewTokenDTO = ProjectNewTokenDTO.builder().tokenId(tokenId) // 토큰 번호
+					TokenLedgerDTO projectNewTokenDTO = TokenLedgerDTO.builder().tokenId(tokenId) // 토큰 번호
 							.fromUserId(1L) // [요구사항 1-3] 보낸 사용자 null
 							.toUserId(sendData.getUserId()) // [요구사항 1-2] 시스템 관리자(1)에게 배정
 							.transactionId(txId) // 거래 고유 식별 번호
@@ -614,7 +614,7 @@ public class SubscriptionService {
 				String shortTime = timePart.substring(timePart.length() - 6);
 				String txId = "SUB_" + projectId + "_" + shortTime;
 				String newHash = projectService.createHash(lastPrevHash, tokenId, resultTokenCount);
-				ProjectNewTokenDTO projectNewTokenDTO = ProjectNewTokenDTO.builder().tokenId(tokenId) // 토큰 번호
+				TokenLedgerDTO projectNewTokenDTO = TokenLedgerDTO.builder().tokenId(tokenId) // 토큰 번호
 						.fromUserId(1L) // [요구사항 1-3] 보낸 사용자 null
 						.toUserId(sendData.getUserId()) // [요구사항 1-2] 시스템 관리자(1)에게 배정
 						.transactionId(txId) // 거래 고유 식별 번호
