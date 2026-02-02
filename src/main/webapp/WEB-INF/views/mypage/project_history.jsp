@@ -39,30 +39,6 @@
     border-radius: 2px;
   }
 
-  .filter-group { display:flex; gap:8px; margin-bottom: 16px; }
-  /* t:menu_button이 button을 뽑든 a를 뽑든, 공통으로 맞추기 */
-  .filter-group button,
-  .filter-group a {
-    border: 0;
-    background: #F3F4F6;
-    color: var(--gray-500);
-    padding: 8px 14px;
-    border-radius: 999px;
-    cursor: pointer;
-    font: var(--font-caption-02);
-    font-weight: 700;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .filter-group .is-active,
-  .filter-group button.is-active,
-  .filter-group a.is-active {
-    background: #E8F5E9;
-    color: var(--green-600);
-  }
-
   .project-list {
     background: #fff;
     border-radius: var(--radius-l);
