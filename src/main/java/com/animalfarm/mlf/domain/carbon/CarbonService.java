@@ -33,7 +33,7 @@ public class CarbonService {
 	private RestTemplate restTemplate;
 
 	// 강황증권 API 서버 주소
-	private final String GANGHWANG_API_URL = "http://54.167.85.125:9090/";
+	private final String GANGHWANG_API_URL = "https://kh-holdings.cloud/";
 
 	// ---------------------------------------------------------
 	// 1. 공통 유틸리티 메서드 (내부 전용)
