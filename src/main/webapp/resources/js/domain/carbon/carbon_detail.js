@@ -248,20 +248,20 @@ function setSubmitEnabled(enabled) {
 async function submitCarbonOrder() {
   const q = __co.quote;
   if (!q) {
-    alert("견적을 먼저 불러와야 합니다.");
+    ToastManager.show("견적을 먼저 불러와야 합니다.");
     return;
   }
 
   // 약관 동의 체크 (버튼 enabled 조건이긴 하지만 한번 더 안전)
   const agree = !!document.getElementById("coAgree")?.checked;
   if (!agree) {
-    alert("약관에 동의해야 결제가 가능합니다.");
+    ToastManager.show("약관에 동의해야 결제가 가능합니다.");
     return;
   }
 
   // PortOne SDK 로드 확인
   if (typeof IMP === "undefined") {
-    alert("결제 모듈(PortOne)을 불러오지 못했습니다. JSP에 iamport.js를 추가했는지 확인하세요.");
+    ToastManager.show("결제 모듈(PortOne)을 불러오지 못했습니다. JSP에 iamport.js를 추가했는지 확인하세요.");
     return;
   }
 
@@ -270,13 +270,13 @@ async function submitCarbonOrder() {
   const channelKey = window.PORTONE_CHANNEL_KEY;
 
   if (!impCode || !channelKey) {
-    alert("PortOne 설정값(impCode/channelKey)이 없습니다. JSP에서 전역으로 내려주세요.");
+    ToastManager.show("PortOne 설정값(impCode/channelKey)이 없습니다. JSP에서 전역으로 내려주세요.");
     return;
   }
 
   const payAmount = Number(q.totalAmount ?? 0);
   if (!payAmount || payAmount < 1) {
-    alert("결제 금액이 올바르지 않습니다.");
+    ToastManager.show("결제 금액이 올바르지 않습니다.");
     return;
   }
 
@@ -313,20 +313,20 @@ async function submitCarbonOrder() {
 
           if (!verifyRes.ok) {
             const err = await verifyRes.json().catch(() => ({}));
-            alert("결제는 완료됐지만 서버 검증/주문처리에 실패했습니다: " + (err.message || verifyRes.status));
+            ToastManager.show("결제는 완료됐지만 서버 검증/주문처리에 실패했습니다: " + (err.message || verifyRes.status));
             return;
           }
 
-          alert("결제 완료!");
+          ToastManager.show("결제 완료!");
           closeOrderModal();
           // 필요하면 상세/잔여수량 새로고침
           // loadCarbonDetail(__co.cpId);
         } catch (e) {
           console.error(e);
-          alert("결제 완료 후 처리 중 오류가 발생했습니다.");
+          ToastManager.show("결제 완료 후 처리 중 오류가 발생했습니다.");
         }
       } else {
-        alert("결제 실패: " + (rsp.error_msg || "알 수 없는 오류"));
+        ToastManager.show("결제 실패: " + (rsp.error_msg || "알 수 없는 오류"));
       }
     }
   );

@@ -1,9 +1,9 @@
 import { http } from "../../api/http_client.js";
+import { TokenApi } from "../token/token_api.js";
 
 document.addEventListener('DOMContentLoaded', async function() {
     const cards = await http.get(`${ctx}/project/list/fragment/main`);
     let projectArea = document.querySelector(".project-card-list");
-    console.log(projectArea);
     projectArea.innerHTML = cards;
 
     const chartCtx = document.getElementById('kocChart').getContext('2d');
@@ -57,3 +57,49 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     });
 });
+
+// 토큰 거래소 TOP 10 실시간 변경
+WebSocketManager.connect(TokenApi.WS_CONN, function() {
+
+    // 토큰 목록 토픽 구독
+    WebSocketManager.subscribe('tokenList', `/topic/tokenList`, function (data) {
+        if (!data || !Array.isArray(data)) return;
+
+        window.tokenList = data;
+
+        const topListContainer = document.querySelector('.top-list');
+        if (!topListContainer) return;
+
+        // 거래대금 기준 내림차순 정렬 후 상위 10개만 추출
+        const topTen = [...data]
+            .sort((a, b) => b.dailyTradeVolume - a.dailyTradeVolume)
+            .slice(0, 10);
+
+        let html = '';
+        topTen.forEach((token, index) => {
+            const changeRate = parseFloat(token.changeRate || 0);
+
+            const colorStyle = changeRate > 0 ? 'color: var(--error)' : 'color: var(--info)';
+            const sign = changeRate > 0 ? '+' : '';
+
+            html += `
+                <div class="top-item">
+                    <div class="top-item-left">
+                        <span class="top-rank">${index + 1}</span>
+                        <span class="top-name">${token.tokenName}</span>
+                    </div>
+                    <div class="top-item-right">
+                        <div class="price">
+                            ${Number(token.marketPrice).toLocaleString()}원
+                        </div>
+                        <div class="change" style="${colorStyle}">
+                            ${sign}${changeRate.toFixed(2)}%
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        topListContainer.innerHTML = html;
+    });
+})

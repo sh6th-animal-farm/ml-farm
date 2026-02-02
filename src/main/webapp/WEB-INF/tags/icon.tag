@@ -58,11 +58,10 @@
     	</svg>
     </c:when>
     <c:when test="${name=='warning' }">
-	    <svg  width="${size}" height="${size}" class="${className}"  viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-			<path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-			<path d="M12 8V12" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-			<path d="M12 16H12.01" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-		</svg>
+	    <svg width="${size}" height="${size}" class="${className}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
+	    <!--!Font Awesome Free v7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.-->
+	    	<path fill="${color}" d="M320 496C342.1 496 360 513.9 360 536C360 558.1 342.1 576 320 576C297.9 576 280 558.1 280 536C280 513.9 297.9 496 320 496zM320 64C346.5 64 368 85.5 368 112C368 112.6 368 113.1 368 113.7L352 417.7C351.1 434.7 337 448 320 448C303 448 289 434.7 288 417.7L272 113.7C272 113.1 272 112.6 272 112C272 85.5 293.5 64 320 64z"/>
+	    </svg>
     </c:when>
     <c:when test="${ name=='seedling' }">
     	<svg width="${size}" height="${size}" class="${className}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
@@ -103,6 +102,11 @@
 	<c:when test="${ name=='trashcan' }">
 		<svg width="${size}" height="${size}" class="${className}" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 			<path fill="${color}" d="M7.5 4.8C7.5 4.32261 7.68964 3.86477 8.02721 3.52721C8.36477 3.18964 8.82261 3 9.3 3H14.7C15.1774 3 15.6352 3.18964 15.9728 3.52721C16.3104 3.86477 16.5 4.32261 16.5 4.8V6.6H20.1C20.3387 6.6 20.5676 6.69482 20.7364 6.8636C20.9052 7.03239 21 7.26131 21 7.5C21 7.73869 20.9052 7.96761 20.7364 8.1364C20.5676 8.30518 20.3387 8.4 20.1 8.4H19.1379L18.3576 19.3278C18.3253 19.7819 18.1221 20.2069 17.7889 20.5172C17.4557 20.8275 17.0174 21 16.5621 21H7.437C6.98173 21 6.54336 20.8275 6.2102 20.5172C5.87703 20.2069 5.67382 19.7819 5.6415 19.3278L4.863 8.4H3.9C3.66131 8.4 3.43239 8.30518 3.2636 8.1364C3.09482 7.96761 3 7.73869 3 7.5C3 7.26131 3.09482 7.03239 3.2636 6.8636C3.43239 6.69482 3.66131 6.6 3.9 6.6H7.5V4.8ZM9.3 6.6H14.7V4.8H9.3V6.6ZM6.6666 8.4L7.4379 19.2H16.563L17.3343 8.4H6.6666ZM10.2 10.2C10.4387 10.2 10.6676 10.2948 10.8364 10.4636C11.0052 10.6324 11.1 10.8613 11.1 11.1V16.5C11.1 16.7387 11.0052 16.9676 10.8364 17.1364C10.6676 17.3052 10.4387 17.4 10.2 17.4C9.96131 17.4 9.73239 17.3052 9.5636 17.1364C9.39482 16.9676 9.3 16.7387 9.3 16.5V11.1C9.3 10.8613 9.39482 10.6324 9.5636 10.4636C9.73239 10.2948 9.96131 10.2 10.2 10.2ZM13.8 10.2C14.0387 10.2 14.2676 10.2948 14.4364 10.4636C14.6052 10.6324 14.7 10.8613 14.7 11.1V16.5C14.7 16.7387 14.6052 16.9676 14.4364 17.1364C14.2676 17.3052 14.0387 17.4 13.8 17.4C13.5613 17.4 13.3324 17.3052 13.1636 17.1364C12.9948 16.9676 12.9 16.7387 12.9 16.5V11.1C12.9 10.8613 12.9948 10.6324 13.1636 10.4636C13.3324 10.2948 13.5613 10.2 13.8 10.2Z"/>
+		</svg>
+	</c:when>
+	
+	<c:when test="${ name=='check' }">
+		<svg width="${size}" height="${size}" class="${className}" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline>
 		</svg>
 	</c:when>
 
