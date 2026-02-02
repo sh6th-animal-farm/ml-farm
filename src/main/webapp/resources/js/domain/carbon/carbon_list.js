@@ -5,9 +5,9 @@
 document.addEventListener("DOMContentLoaded", function () {
     const params = new URLSearchParams(window.location.search);
     const category = params.get("category") || "ALL";
-    
+
     // AuthManager가 있으면 인증 체크부터 수행
-    if (typeof AuthManager !== 'undefined' && AuthManager.ensureAuth()) {
+    if (typeof AuthManager !== "undefined" && AuthManager.ensureAuth()) {
         loadCarbonList(category);
     }
 });
@@ -17,23 +17,28 @@ async function loadCarbonList(category) {
         // 탭 활성화 상태 동기화 (진한 녹색 적용)
         syncActiveMenu(category);
         const token = localStorage.getItem("accessToken");
-        const response = await fetch(`${ctx}/api/carbon/category?category=${category}`, {
-            method: "GET",
-            headers: {
-                "Authorization": "Bearer " + token,
-                "Content-Type": "application/json"
-            }
-        });
+        LoadingManager.show("carbonGrid");
+        const response = await fetch(
+            `${ctx}/api/carbon/category?category=${category}`,
+            {
+                method: "GET",
+                headers: {
+                    Authorization: "Bearer " + token,
+                    "Content-Type": "application/json",
+                },
+            },
+        );
+        LoadingManager.hide("carbonGrid");
 
         if (response.ok) {
             const result = await response.json();
-            renderFilteredList(result.payload); 
+            renderFilteredList(result.payload);
         }
     } catch (e) {
         console.error("리스트 로딩 실패", e);
+        LoadingManager.hide("carbonGrid");
     }
 }
-
 
 /**
  * [통합 및 유지] 메뉴 활성화 동기화 함수
@@ -42,11 +47,11 @@ async function loadCarbonList(category) {
 function syncActiveMenu(category) {
     const upperCat = category ? category.toUpperCase() : "ALL";
 
-    document.querySelectorAll(".filter-group .menu-btn").forEach(btn => {
+    document.querySelectorAll(".filter-group .menu-btn").forEach((btn) => {
         const label = btn.textContent.trim();
 
         // 텍스트 매칭 로직 보강
-        const isActive = 
+        const isActive =
             (upperCat === "ALL" && label.includes("전체")) ||
             (upperCat === "REDUCTION" && label.includes("감축")) ||
             (upperCat === "REMOVAL" && label.includes("제거"));
@@ -61,23 +66,27 @@ function syncActiveMenu(category) {
  */
 function renderFilteredList(dataList) {
     const grid = document.getElementById("carbonGrid");
-    const template = document.getElementById("cardTemplate").querySelector(".carbon-card");
-    
-    grid.innerHTML = ""; 
+    const template = document
+        .getElementById("cardTemplate")
+        .querySelector(".carbon-card");
+
+    grid.innerHTML = "";
 
     if (!dataList || dataList.length === 0) {
-        grid.innerHTML = '<div class="empty-state">보유하신 토큰과 관련된 상품이 없습니다.</div>';
+        grid.innerHTML =
+            '<div class="empty-state"><div class="empty-icon">!</div><p>구매 가능한 상품이 없습니다.</p></div>';
         return;
     }
 
-    dataList.forEach(item => {
+    dataList.forEach((item) => {
         const card = template.cloneNode(true);
         const benefit = item.userBenefit;
 
         // 1. [이미지 매핑] js-img 클래스를 찾아 src 주입
         const imgElement = card.querySelector(".js-img");
         if (imgElement) {
-            imgElement.src = item.thumbnailUrl || (ctx + "/resources/img/carbon_sample.jpg");
+            imgElement.src =
+                item.thumbnailUrl || ctx + "/resources/img/carbon_sample.jpg";
         }
 
         // 2. [제목 매핑] js-title
@@ -85,22 +94,23 @@ function renderFilteredList(dataList) {
         if (titleElement) {
             titleElement.textContent = item.cpTitle;
         }
-        
+
         // 3. [배지 매핑] js-badge (텍스트 + 컬러 클래스)
         const badge = card.querySelector(".js-badge");
         if (badge) {
-            badge.textContent = `${item.category === 'REMOVAL' ? '제거형' : '감축형'} · ${item.vintageYear}`;
+            badge.textContent = `${item.category === "REMOVAL" ? "제거형" : "감축형"} · ${item.vintageYear}`;
             // 기존 클래스 제거 후 새로 추가 (중복 방지)
             badge.classList.remove("blue", "green");
-            badge.classList.add(item.category === 'REMOVAL' ? "green" : "blue");
+            badge.classList.add(item.category === "REMOVAL" ? "green" : "blue");
         }
 
         // 4. [수량 매핑] js-amount
         const amountElement = card.querySelector(".js-amount");
         if (amountElement) {
-            amountElement.textContent = Number(item.cpAmount || 0).toLocaleString() + " tCO2e";
+            amountElement.textContent =
+                Number(item.cpAmount || 0).toLocaleString() + " tCO2e";
         }
-        
+
         // 5. [가격 및 혜택 매핑] js-benefit-area & js-price
         const benefitArea = card.querySelector(".js-benefit-area");
         const priceElement = card.querySelector(".js-price");
@@ -112,24 +122,25 @@ function renderFilteredList(dataList) {
                 <span style="color:#ff4d4f; font-weight:800; margin-left:5px;">${benefit.discountRate}% 할인</span>
             `;
             // 최종가 (P 단위 포함)
-            priceElement.textContent = Number(benefit.currentPrice).toLocaleString() + " P";
+            priceElement.textContent =
+                Number(benefit.currentPrice).toLocaleString() + " P";
         }
 
         // 6. [버튼 매핑] js-btn (이동 로직 + 컬러 클래스)
         const btn = card.querySelector(".js-btn");
         if (btn) {
             // 1. 기존 클래스 싹 비우고 기본 디자인과 검정색 배경 주입
-            btn.className = "btn-action js-btn btn-dark"; 
+            btn.className = "btn-action js-btn btn-dark";
 
             // 2. 카테고리에 따라 "호버했을 때만 바뀔 색상" 클래스 추가
-            if (item.category === 'REDUCTION') {
+            if (item.category === "REDUCTION") {
                 btn.classList.add("hover-blue");
-            } else if (item.category === 'REMOVAL') {
+            } else if (item.category === "REMOVAL") {
                 btn.classList.add("hover-green");
             }
 
             // 3. 이동 로직
-            btn.onclick = () => location.href = ctx + "/carbon/" + item.cpId;
+            btn.onclick = () => (location.href = ctx + "/carbon/" + item.cpId);
         }
 
         // 최종 결과물을 그리드에 추가
@@ -142,24 +153,24 @@ function renderFilteredList(dataList) {
  */
 function toggleGuide(event) {
     // 1. 클릭 이벤트가 부모 요소로 전달되어 툴팁이 바로 닫히는 것을 방지
-    event.stopPropagation(); 
-    
+    event.stopPropagation();
+
     const icon = document.getElementById("guideIcon");
     const tooltip = document.getElementById("guideTooltip");
 
     // 2. 아이콘 색상 토글 (회색 <-> 녹색)
     icon.classList.toggle("active");
-    
+
     // 3. 툴팁 표시 여부 토글
     const isVisible = tooltip.style.display === "block";
     tooltip.style.display = isVisible ? "none" : "block";
 }
 
 // [추가] 툴팁 외부 영역 클릭 시 자동으로 닫기 (사용자 편의성)
-document.addEventListener("click", function(e) {
+document.addEventListener("click", function (e) {
     const tooltip = document.getElementById("guideTooltip");
     const icon = document.getElementById("guideIcon");
-    
+
     if (tooltip && tooltip.style.display === "block") {
         // 클릭한 곳이 툴팁 내부가 아니라면 닫기
         if (!tooltip.contains(e.target) && e.target !== icon) {
