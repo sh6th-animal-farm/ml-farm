@@ -1,6 +1,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
 <%@ taglib prefix="mp" tagdir="/WEB-INF/tags/token" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
 <script>
     window.tokenId = ${tokenId};
@@ -19,10 +21,11 @@
         changeRate: ${ohlcv.changeRate != null ? ohlcv.changeRate : 0}
     };
 
-    console.log("tokenId: ", window.tokenId);
-    console.log("호가(매수): ", window.orderBuyList);
-    console.log("호가(매도): ", window.orderSellList);
-    console.log("체결: ", window.tradeList);
+    console.log("토큰 ID", window.tokenId);
+    console.log("토큰 목록", window.tokenList);
+    console.log("호가(매수)", window.orderBuyList);
+    console.log("호가(매도)", window.orderSellList);
+    console.log("체결", window.tradeList);
 </script>
 
 <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/token_detail.css"/>
@@ -43,47 +46,21 @@
                             <th style="text-align: right;">등락률</th>
                         </tr>
                         </thead>
-                        <tbody>
-                        <tr>
-                            <td>김포 스마트팜 A<span class="token-code">HSSJ01</span></td>
-                            <td style="text-align: right;">128,000</td>
-                            <td style="text-align: right; color: var(--error);">+0.76%</td>
-                        </tr>
-                        <tr>
-                            <td>평택 스마트팜 B<span class="token-code">HSSJ02</span></td>
-                            <td style="text-align: right;">14,500</td>
-                            <td style="text-align: right; color: var(--info);">-0.42%</td>
-                        </tr>
-                        <tr>
-                            <td>김포 스마트팜 A<span class="token-code">HSSJ03</span></td>
-                            <td style="text-align: right;">128,000</td>
-                            <td style="text-align: right; color: var(--error);">+0.76%</td>
-                        </tr>
-                        <tr>
-                            <td>평택 스마트팜 B<span class="token-code">HSSJ04</span></td>
-                            <td style="text-align: right;">14,500</td>
-                            <td style="text-align: right; color: var(--info);">-0.42%</td>
-                        </tr>
-                        <tr>
-                            <td>김포 스마트팜 A<span class="token-code">HSSJ01</span></td>
-                            <td style="text-align: right;">128,000</td>
-                            <td style="text-align: right; color: var(--error);">+0.76%</td>
-                        </tr>
-                        <tr>
-                            <td>평택 스마트팜 B<span class="token-code">HSSJ02</span></td>
-                            <td style="text-align: right;">14,500</td>
-                            <td style="text-align: right; color: var(--info);">-0.42%</td>
-                        </tr>
-                        <tr>
-                            <td>김포 스마트팜 A<span class="token-code">HSSJ03</span></td>
-                            <td style="text-align: right;">128,000</td>
-                            <td style="text-align: right; color: var(--error);">+0.76%</td>
-                        </tr>
-                        <tr>
-                            <td>평택 스마트팜 B<span class="token-code">HSSJ04</span></td>
-                            <td style="text-align: right;">14,500</td>
-                            <td style="text-align: right; color: var(--info);">-0.42%</td>
-                        </tr>
+                        <tbody id="token-list-body">
+                        <c:forEach var="token" items="${tokenList}">
+                            <tr id="token-row-${token.tokenId}" data-volume="${token.dailyTradeVolume}">
+                                <td style="font: var(--font-body-03);">
+                                    ${token.tokenName}
+                                    <span style="margin-left: 4px; font: var(--font-caption-02); color: var(--gray-400);">${token.tickerSymbol}</span>
+                                </td>
+                                <td class="price" style="text-align: right; font: var(--font-body-04);">
+                                    <fmt:formatNumber value="${token.marketPrice}" pattern="#,###"/>
+                                </td>
+                                <td class="rate" style="text-align: right; font: var(--font-body-03); color: ${token.changeRate > 0 ? 'var(--error)' : 'var(--info)'};">
+                                    ${token.changeRate}%
+                                </td>
+                            </tr>
+                        </c:forEach>
                         </tbody>
                     </table>
                 </div>

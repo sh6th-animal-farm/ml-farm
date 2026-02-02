@@ -1,34 +1,33 @@
 /* 1. 기본 레이아웃 및 컨테이너 */
 .token-list-container {
-    padding-block: 60px;
+    padding-block: 40px;
     max-width: 1296px;
     margin: 0 auto;
-    font-family: "Pretendard", sans-serif;
+    font-family: 'Pretendard', sans-serif;
 }
 .content-wrapper {
     display: flex;
     gap: 24px;
     align-items: flex-start;
 }
-.left-column {
-    flex: 2;
-    min-width: 0;
-}
-.right-column {
-    flex: 1;
-    min-width: 416px;
-}
-
+.left-column { flex: 2; min-width: 0; }
+.right-column { flex: 1; min-width: 416px; }
 /* 2. 상단 헤더 섹션 */
 .header-flex {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-end;
+    margin-bottom: 24px;
+}
+.section-header h2 {
+    font: var(--font-header-01);
+    font-weight: 600;
+    color: var(--gray-900);
+    margin: 0;
 }
 
 /* 4. 카드 및 컨테이너 스타일 */
-.table-token-list-wrapper,
-.chart-view-card {
+.table-token-list-wrapper, .chart-view-card {
     background-color: #ffffff;
     border-radius: 12px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
@@ -65,39 +64,17 @@
     box-sizing: border-box;
 }
 /* [중요] 컬럼 너비 강제 고정 (애니메이션 이동 시 비틀림 방지) */
-.token_table_main th:nth-child(1),
-.token_table_main td:nth-child(1) {
-    width: 80px;
-    text-align: center;
-} /* 순위 */
-.token_table_main th:nth-child(2),
-.token_table_main td:nth-child(2) {
-    flex: 1;
-    min-width: 150px;
-    text-align: left;
-} /* 종목 */
-.token_table_main th:nth-child(3),
-.token_table_main td:nth-child(3) {
-    width: 160px;
-    text-align: right;
-} /* 현재가 */
-.token_table_main th:nth-child(4),
-.token_table_main td:nth-child(4) {
-    width: 120px;
-    text-align: right;
-} /* 등락률 */
-.token_table_main th:nth-child(5),
-.token_table_main td:nth-child(5) {
-    width: 180px;
-    text-align: right;
-    padding-right: 24px !important;
-} /* 거래대금 */
+.token_table_main th:nth-child(1), .token_table_main td:nth-child(1) { width: 80px; text-align: center; } /* 순위 */
+.token_table_main th:nth-child(2), .token_table_main td:nth-child(2) { flex: 1; min-width: 150px; text-align: left; } /* 종목 */
+.token_table_main th:nth-child(3), .token_table_main td:nth-child(3) { width: 160px; text-align: right; } /* 현재가 */
+.token_table_main th:nth-child(4), .token_table_main td:nth-child(4) { width: 160px; text-align: right; } /* 등락률 */
+.token_table_main th:nth-child(5), .token_table_main td:nth-child(5) { width: 180px; text-align: right; padding-right: 24px !important; } /* 거래대금 */
 /* 6. 테이블 상세 스타일 */
 .token_table_main thead th {
     position: sticky;
     top: 0;
     z-index: 10;
-    background-color: #fafafa;
+    background-color: #FAFAFA;
     color: var(--gray-400);
     font-size: 14px;
     font-weight: 500;
@@ -108,30 +85,14 @@
     background-color: #fff;
     transition: background-color 0.3s ease;
 }
-.token_table_main tbody tr:hover {
-    background-color: var(--gray-50);
-}
+.token_table_main tbody tr:hover { background-color: var(--gray-50); }
 /* 텍스트 스타일 통합 */
-.token_table_main .token-name {
-    font: var(--font-body-03);
-    color: var(--gray-900);
-}
-.token_table_main .token-code {
-    font: var(--font-caption-01);
-    color: var(--gray-400);
-}
-.token_table_main .market-price {
-    font-weight: 700;
-}
-.tx-right {
-    text-align: right;
-}
-.text-plus {
-    color: var(--error) !important;
-}
-.text-minus {
-    color: var(--info) !important;
-}
+.token_table_main .token-name { font: var(--font-body-03); color: var(--gray-900); }
+.token_table_main .token-code { font: var(--font-caption-01); color: var(--gray-400); }
+.token_table_main .market-price { font-weight: 700; }
+.tx-right { text-align: right; }
+.text-plus { color: var(--error) !important; }
+.text-minus { color: var(--info) !important; }
 /* 7. 특수 요소 및 애니메이션 */
 .rate-badge {
     display: inline-block;
@@ -144,32 +105,18 @@
     font-weight: 700;
 }
 /* 순위 변동 하이라이트 효과 */
-.rank-up-highlight {
-    animation: rank-up-glow 1s ease-out forwards;
-}
-.rank-down-highlight {
-    animation: rank-down-glow 1s ease-out forwards;
-}
+.rank-up-highlight { animation: rank-up-glow 1s ease-out forwards; }
+.rank-down-highlight { animation: rank-down-glow 1s ease-out forwards; }
 @keyframes rank-up-glow {
-    0% {
-        background-color: rgba(255, 75, 75, 0.15);
-    }
-    100% {
-        background-color: transparent;
-    }
+    0% { background-color: rgba(255, 75, 75, 0.15); }
+    100% { background-color: transparent; }
 }
 @keyframes rank-down-glow {
-    0% {
-        background-color: rgba(75, 130, 255, 0.15);
-    }
-    100% {
-        background-color: transparent;
-    }
+    0% { background-color: rgba(75, 130, 255, 0.15); }
+    100% { background-color: transparent; }
 }
 /* 스크롤바 커스텀 */
-.token-table-scroll-container::-webkit-scrollbar {
-    width: 6px;
-}
+.token-table-scroll-container::-webkit-scrollbar { width: 6px; }
 .token-table-scroll-container::-webkit-scrollbar-thumb {
     background: var(--gray-300);
     border-radius: 10px;
@@ -184,7 +131,56 @@
     text-align: center;
 }
 
-/* 트레이딩뷰 로고 제거 */
-.chart-container a {
-    display: none !important;
+.search_box {
+    width: 100%;
+    max-width: 416px; /* right-column의 min-width와 동일하게 설정  */
+    margin-left: auto; /* 우측 정렬  */
 }
+
+.search_box .background-border {
+    display: flex;
+    align-items: center;
+    background: #FFFFFF;
+    border: 1px solid var(--gray-100);
+    border-radius: var(--radius-xl); /* 999px 캡슐형 */
+    padding: 8px 20px 8px 24px;   /* 이미지 비율에 맞춘 패딩 */
+    width: 100%;
+    max-width: 416px;
+    box-shadow: var(--shadow);    /* 가이드의 그림자 적용 */
+    transition: border-color 0.2s;
+}
+
+.search_box .background-border:focus-within {
+    border-color: var(--green-500);
+}
+
+.search_box .input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font: var(--font-body-01);    /* 16px Regular */
+    color: var(--gray-900);
+    background: transparent;
+}
+
+.search_box .input::placeholder {
+    color: var(--gray-300);
+}
+
+.search-icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s;
+}
+
+.search-icon-btn:hover {
+    opacity: 0.7;
+}
+
+/* 트레이딩뷰 로고 제거 */
+.chart-container a { display: none !important; }
