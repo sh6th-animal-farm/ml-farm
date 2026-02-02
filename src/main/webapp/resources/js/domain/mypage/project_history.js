@@ -13,7 +13,6 @@
     state.status = status;
     state.page = 1;
 
-    // 버튼 active 스타일 토글 (menu_button이 data-status 없을 수 있어서 텍스트로도 처리)
     const labelByStatus = {
       ALL: "전체보기",
       SUBSCRIPTION: "청약중",
@@ -25,7 +24,7 @@
     if (filtersEl) {
       filtersEl.querySelectorAll("button, a").forEach((b) => {
         const isTarget = targetLabel && b.textContent?.includes(targetLabel);
-        b.classList.toggle("is-active", !!isTarget);
+        b.classList.toggle("active", !!isTarget);
       });
     }
 
@@ -149,7 +148,7 @@
 	      const projectId = it.projectId ?? it.project_id ?? it.id ?? "";
 	
 	      // ✅ 대표 상태: 내 상태 우선
-	      const displayStatus = myStatus || projectStatus;
+	      const displayStatus = projectStatus || myStatus;
 	
 	      return `
 	        <div class="project-row">

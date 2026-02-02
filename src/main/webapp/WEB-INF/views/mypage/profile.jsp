@@ -6,6 +6,7 @@
 <link rel="stylesheet"
 	href="${pageContext.request.contextPath}/resources/css/mypage.css">
 
+<script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <div class="mypage-container">
 	<div class="sidebar-wrapper">
 		<jsp:include page="/WEB-INF/views/common/mypage_sidebar.jsp" />
@@ -88,22 +89,41 @@
 	</div>
 </div>
 <div id="addressModal" class="modal-backdrop" style="display: none;">
-	<div class="modal-card">
-		<div class="modal-header">
-			<h3>주소 수정</h3>
-			<button type="button" id="addrClose">×</button>
-		</div>
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>주소 수정</h3>
+      <button type="button" id="addrClose">×</button>
+    </div>
 
-		<div class="modal-body">
-			<input id="addrInput" type="text" class="modal-input"
-				placeholder="주소를 입력해주세요" />
-		</div>
+    <div class="modal-body">
+      <!-- 현재/선택 주소 표시 -->
+      <div class="current-address-box" style="margin-bottom: 12px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+          <div id="addrDisplay" style="word-break: break-word;">주소 등록이 필요합니다.</div>
+          <button type="button" class="btn-edit" id="addrSearchBtn">
+            <t:status_badge label="주소 검색" status="inProgress" />
+          </button>
+        </div>
+      </div>
 
-		<div class="modal-footer">
-			<button type="button" class="btn-cancel" id="addrCancel">취소</button>
-			<button type="button" class="btn-save" id="addrSave">저장</button>
-		</div>
-	</div>
+      <!-- 기본주소(hidden) -->
+      <input type="hidden" id="baseAddress" value="" />
+
+      <!-- 상세주소 입력 (주소 검색 후 노출) -->
+      <div id="addressInputArea" style="display:none;">
+        <input id="detailAddress" type="text" class="modal-input"
+               placeholder="상세주소를 입력해주세요" />
+        <p style="margin-top:6px; font-size:12px; color: var(--gray-600);">
+          상세주소 입력 시 위 주소가 자동으로 합쳐져요.
+        </p>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button type="button" class="btn-cancel" id="addrCancel">취소</button>
+      <button type="button" class="btn-save" id="addrSave">저장</button>
+    </div>
+  </div>
 </div>
 <!-- 비밀번호 수정 모달 -->
 <div id="pwModal" class="modal hidden" aria-hidden="true">
@@ -193,91 +213,153 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-  const token = localStorage.getItem("accessToken");
+	  const token = localStorage.getItem("accessToken");
 
-  // PATCH 공통
-  async function patchProfile(payload) {
-    const res = await fetch(ctx + "/api/mypage/profile", {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        "Authorization": token ? ("Bearer " + token) : ""
-      },
-      body: JSON.stringify(payload)
-    });
+	  // PATCH 공통
+	  async function patchProfile(payload) {
+	    const res = await fetch(ctx + "/api/mypage/profile", {
+	      method: "PATCH",
+	      headers: {
+	        "Content-Type": "application/json",
+	        "Accept": "application/json",
+	        "Authorization": token ? ("Bearer " + token) : ""
+	      },
+	      body: JSON.stringify(payload)
+	    });
+	    if (!res.ok) throw new Error("저장 실패: " + res.status);
+	  }
 
-    if (!res.ok) throw new Error("저장 실패: " + res.status);
-  }
+	  // =======================
+	  // ✅ 주소 모달 (신규 구조)
+	  // =======================
+	  const modal = document.getElementById("addressModal");
+	  const btnEditAddress = document.getElementById("btnEditAddress");
+	  const btnClose = document.getElementById("addrClose");
+	  const btnCancel = document.getElementById("addrCancel");
+	  const btnSave = document.getElementById("addrSave");
 
-  // ===== 주소 모달 =====
-  const modal = document.getElementById("addressModal");
-  const addrInput = document.getElementById("addrInput");
-  const btnEditAddress = document.getElementById("btnEditAddress");
-  const btnClose = document.getElementById("addrClose");
-  const btnCancel = document.getElementById("addrCancel");
-  const btnSave = document.getElementById("addrSave");
+	  const addrSearchBtn = document.getElementById("addrSearchBtn");
+	  const addrDisplay = document.getElementById("addrDisplay");
+	  const baseAddressEl = document.getElementById("baseAddress");
+	  const detailAddressEl = document.getElementById("detailAddress");
+	  const addressInputArea = document.getElementById("addressInputArea");
 
-  function openAddrModal() {
-    const cur = document.getElementById("p_address")?.innerText?.trim() ?? "";
-    addrInput.value = (cur === "-" ? "" : cur);
-    modal.style.display = "block";
-    setTimeout(() => addrInput.focus(), 0);
-  }
+	  function openAddrModal() {
+	    // 현재 프로필 주소를 모달에 표시
+	    const cur = document.getElementById("p_address")?.innerText?.trim() ?? "";
+	    const normalized = (cur && cur !== "-") ? cur : "주소 등록이 필요합니다.";
 
-  function closeAddrModal() {
-    modal.style.display = "none";
-  }
+	    addrDisplay.innerText = normalized;
 
-  if (btnEditAddress) btnEditAddress.onclick = openAddrModal;
-  if (btnClose) btnClose.onclick = closeAddrModal;
-  if (btnCancel) btnCancel.onclick = closeAddrModal;
+	    // 모달 열 때는 새로 검색하기 전까지 기본주소/상세주소 초기화
+	    baseAddressEl.value = "";
+	    detailAddressEl.value = "";
+	    addressInputArea.style.display = "none";
 
-  if (modal) {
-    modal.onclick = (e) => { if (e.target === modal) closeAddrModal(); };
-  }
+	    modal.style.display = "block";
+	  }
 
-  if (btnSave) {
-    btnSave.onclick = async () => {
-      try {
-        const v = addrInput.value.trim();
-        // 주소만 변경 → 나머지 필드는 null로 안 보내면 됨
-        await patchProfile({ address: v || null });
+	  function closeAddrModal() {
+	    modal.style.display = "none";
+	  }
 
-        // 화면 즉시 반영
-        const el = document.getElementById("p_address");
-        if (el) el.innerText = v || "-";
+	  // 상세주소 입력하면 위 표시가 자동으로 합쳐지게
+	  function combineAddress() {
+	    const base = (baseAddressEl.value || "").trim();
+	    const detail = (detailAddressEl.value || "").trim();
+	    if (!base) return; // 아직 주소검색 전이면 합치지 않음
+	    addrDisplay.innerText = detail ? (base + " " + detail) : base;
+	  }
 
-        closeAddrModal();
-      } catch (e) {
-        console.error(e);
-        alert("주소 저장 실패");
-      }
-    };
-  }
+	  // 주소검색(daum.Postcode)
+	  function openDaumPostcode() {
+	    if (!window.daum || !daum.Postcode) {
+	      alert("주소 검색 스크립트가 로드되지 않았습니다.");
+	      return;
+	    }
 
-  // ===== 토글 즉시 저장 =====
-  function bindToggle(rowId, fieldName) {
-    const row = document.getElementById(rowId);
-    if (!row) return;
+	    new daum.Postcode({
+	      oncomplete: function (data) {
+	        let addr = (data.userSelectedType === "R")
+	          ? data.roadAddress
+	          : data.jibunAddress;
 
-    const input = row.querySelector('input[type="checkbox"]');
-    if (!input) return;
+	        // (선택) extra address
+	        let extraAddr = "";
+	        if (data.bname && /[동|로|가]$/g.test(data.bname)) extraAddr += data.bname;
+	        if (data.buildingName && data.apartment === "Y") {
+	          extraAddr += (extraAddr ? ", " + data.buildingName : data.buildingName);
+	        }
+	        if (extraAddr) addr += " (" + extraAddr + ")";
 
-    input.onchange = async () => {
-      const next = input.checked;
-      try {
-        await patchProfile({ [fieldName]: next });
-      } catch (e) {
-        console.error(e);
-        alert("설정 저장 실패");
-        input.checked = !next; // 롤백
-      }
-    };
-  }
+	        baseAddressEl.value = addr;
+	        addrDisplay.innerText = addr;
 
-  bindToggle("row-push", "pushYn");
-  bindToggle("row-email", "receiveEmailYn");
+	        addressInputArea.style.display = "block";
+	        detailAddressEl.value = "";
+	        detailAddressEl.focus();
+	      }
+	    }).open();
+	  }
+
+	  // 이벤트 바인딩
+	  btnEditAddress?.addEventListener("click", openAddrModal);
+	  btnClose?.addEventListener("click", closeAddrModal);
+	  btnCancel?.addEventListener("click", closeAddrModal);
+
+	  modal?.addEventListener("click", (e) => {
+	    if (e.target === modal) closeAddrModal();
+	  });
+
+	  addrSearchBtn?.addEventListener("click", openDaumPostcode);
+	  detailAddressEl?.addEventListener("input", combineAddress);
+
+	  btnSave?.addEventListener("click", async () => {
+	    try {
+	      const finalAddress = (addrDisplay?.innerText || "").trim();
+
+	      if (!finalAddress || finalAddress === "주소 등록이 필요합니다.") {
+	        alert("주소 검색 후 저장해주세요.");
+	        return;
+	      }
+
+	      await patchProfile({ address: finalAddress });
+
+	      // 화면 즉시 반영
+	      const el = document.getElementById("p_address");
+	      if (el) el.innerText = finalAddress;
+
+	      closeAddrModal();
+	    } catch (e) {
+	      console.error(e);
+	      alert("주소 저장 실패");
+	    }
+	  });
+
+	  // =======================
+	  // ✅ 토글 즉시 저장 (기존 그대로)
+	  // =======================
+	  function bindToggle(rowId, fieldName) {
+	    const row = document.getElementById(rowId);
+	    if (!row) return;
+
+	    const input = row.querySelector('input[type="checkbox"]');
+	    if (!input) return;
+
+	    input.onchange = async () => {
+	      const next = input.checked;
+	      try {
+	        await patchProfile({ [fieldName]: next });
+	      } catch (e) {
+	        console.error(e);
+	        alert("설정 저장 실패");
+	        input.checked = !next; // 롤백
+	      }
+	    };
+	  }
+
+	  bindToggle("row-push", "pushYn");
+	  bindToggle("row-email", "receiveEmailYn");
 });
 
 document.addEventListener("DOMContentLoaded", () => {
