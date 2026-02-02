@@ -1,7 +1,9 @@
 package com.animalfarm.mlf.domain.project;
 
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -52,14 +54,20 @@ public class ProjectViewController {
 	Long id, Model model, @RequestHeader(value = "X-Requested-With", required = false)
 	String requestedWith) {
 
+		boolean isApplied = false;
+
+		// [2] 신청하기 버튼을 눌러서 '잔액'이 필요할 때 (fetch 요청)
 		if ("fetch".equals(requestedWith)) {
-			Double balance = projectService.selectMyWalletAmount();
-			return ResponseEntity.ok(balance); // 여기서 서비스 호출!
+			isApplied = subscriptionService.checkUserApplied(id);
+			Map<String, Object> response = new HashMap<>();
+			response.put("balance", projectService.selectMyWalletAmount());
+			response.put("isApplied", isApplied);
+			return ResponseEntity.ok(response);
 		}
 
+		model.addAttribute("isApplied", isApplied);
 		model.addAttribute("projectData", projectService.selectDetail(id));
 		model.addAttribute("contentPage", "/WEB-INF/views/project/project_detail.jsp");
-		//model.addAttribute("myCash", projectService.selectMyWalletAmount());
 		model.addAttribute("activeMenu", "project");
 		return "layout";
 	}

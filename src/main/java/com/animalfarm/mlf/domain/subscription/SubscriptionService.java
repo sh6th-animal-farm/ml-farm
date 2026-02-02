@@ -110,7 +110,7 @@ public class SubscriptionService {
 			// 유틸리티에서 던진 구체적인 에러 메시지("잔액 부족" 등)가 이곳으로 전달됨
 			log.error("[Service] 청약 취소 실패. 재시도 큐에 등록합니다. 사유: {}", e.getMessage());
 
-			Object[] params = new Object[] { subscriptionHistDTO.getExternalRefId() };
+			Object[] params = new Object[] {subscriptionHistDTO.getExternalRefId()};
 
 			ApiRetryService apiRetryService = applicationContext.getBean(ApiRetryService.class);
 			apiRetryService.registerRetry(ApiType.SUB_CANCEL, subscriptionHistDTO, params, idempotencyKey);
@@ -119,6 +119,32 @@ public class SubscriptionService {
 		}
 
 		return true;
+	}
+
+	public boolean checkUserApplied(Long projectId) {
+		try {
+			// 1. SecurityUtil로 로그인 유저 ID 가져오기
+			Long userId = SecurityUtil.getCurrentUserId();
+			System.out.println("projectId : " + projectId);
+			System.out.println("userId : " + userId);
+			// 2. 비회원이면 더 볼 것도 없이 false
+			if (userId == null) {
+				return false;
+			}
+			// 3. DB 조회 (이미 만들어두신 selectPaid 쿼리 호출)
+			// 결과가 null이 아니면(청약 내역이 있으면) true 반환
+			System.out.println("dto 받아오기 전");
+			SubscriptionHistDTO dto = subscriptionRepository.selectPaid(userId, projectId);
+			System.out.println("dto " + dto);
+			return dto != null;
+		} catch (Exception e) {
+			// 3. 에러 발생 시(비회원 등) 로그만 남기고 false 반환
+			// 이제 서버 콘솔에 빨간 에러가 도배되지 않고 조용히 처리됩니다.
+			System.out.println("비회원 또는 로그인 만료 사용자입니다. (청약 여부: false)");
+			System.out.println("에러 발생 원인: " + e.getClass().getName());
+			log.error("청약 여부 확인 중 예외 발생: {}", e.getMessage());
+			return false;
+		}
 	}
 
 	// 증권사 환불 요청 성공 이후 작업
@@ -315,7 +341,7 @@ public class SubscriptionService {
 				// 유틸리티에서 던진 구체적인 에러 메시지("잔액 부족" 등)가 이곳으로 전달됨
 				log.error("[Service] 청약 취소 실패. 재시도 큐에 등록합니다. 사유: {}", e.getMessage());
 
-				Object[] params = new Object[] { subscriptionHistDTO.getExternalRefId() };
+				Object[] params = new Object[] {subscriptionHistDTO.getExternalRefId()};
 
 				ApiRetryService apiRetryService = applicationContext.getBean(ApiRetryService.class);
 				apiRetryService.registerRetry(ApiType.SUB_CANCEL, subscriptionHistDTO, params, idempotencyKey);

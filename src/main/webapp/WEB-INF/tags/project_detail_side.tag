@@ -93,8 +93,13 @@
                         <c:when test="${projectData.projectStatus eq 'SUBSCRIPTION' && daysLeft < 0}">
                              <button class="btn" style="width: 100%; background: #757575; color: #fff; font: var(--font-button-01); padding: 24px 0; border-radius: var(--radius-m); cursor: not-allowed; border:none;" disabled>청약이 종료되었습니다</button>
                         </c:when>
+                        <c:when test="${isApplied}">
+        					<button id="main-sub-btn" class="btn" style="width: 100%; background: #ffa000; color: #ff4d4f; border: 1.5px solid #ff4d4f; font: var(--font-button-01); padding: 24px 0; border-radius: var(--radius-m); cursor: pointer;"  onclick="handleCancelSubscription()">
+           						청약 신청 취소하기
+        					</button>
+    					</c:when>
                         <c:otherwise>
-                            <button class="btn" style="width: 100%; background: var(--green-600); color: #fff; font: var(--font-button-01); padding: 24px 0; border-radius: var(--radius-m); cursor: pointer; border:none;" onclick="handleSubscriptionClick()">청약 신청하기</button>
+                            <button id="main-sub-btn" class="btn" style="width: 100%; background: var(--gray-600); color: #fff; font: var(--font-button-01); padding: 24px 0; border-radius: var(--radius-m); cursor: wait; border:none;" onclick="handleSubscriptionClick()">상태 확인 중</button>
                         </c:otherwise>
                     </c:choose>
                     <p style="text-align: center; font: var(--font-caption-01); color: var(--gray-400); margin-top: 24px;">* 본 자산은 세준 증권 원장에 실시간 기록됩니다.</p>
@@ -131,6 +136,107 @@
     </div>
 </aside>
 <script>
+$(document).ready(function() {
+    const token = localStorage.getItem('accessToken');
+    // 토큰이 아예 없으면 서버에 물어볼 필요도 없이 바로 신청하기 버튼 활성화
+    if (!token) {
+        updateButtonToApply(); 
+        return;
+    }
+    // 토큰이 있을 때만 서버에 재확인
+    syncUserProjectStatus();
+});
+
+async function syncUserProjectStatus() {
+    const token = localStorage.getItem('accessToken');
+    try {
+        const response = await fetch(window.location.href, {
+            headers: { 
+                "Authorization": "Bearer " + token,
+                "X-Requested-With": "fetch" 
+            }
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            if (data.isApplied === true) {
+                updateButtonToCancel();
+            } else {
+                updateButtonToApply(); // 신청 안했으면 신청 버튼으로 활성화
+            }
+        }
+    } catch (e) {
+        updateButtonToApply(); // 에러 시 기본 신청 버튼으로
+    }
+}
+
+function updateButtonToCancel() {
+    const $btn = $('#main-sub-btn');
+    if ($btn.length > 0) {
+        $btn.text("청약 신청 취소하기")
+            .css({
+                "background": "#fff",
+                "color": "#ff4d4f",
+                "border": "1.5px solid #ff4d4f"
+            })
+            // 기존 handleSubscriptionClick 대신 취소 함수로 교체
+            .attr("onclick", "handleCancelSubscription()"); 
+    }
+}
+
+async function handleCancelSubscription() {
+    // 1. 경고/확인 모달 오픈
+    ModalManager.open({
+        type: "Warning", // 경고 스타일 적용
+        title: "청약 취소 확인",
+        content: "정말로 청약을 취소하시겠습니까? 취소 시 환불 처리는 즉시 진행됩니다.",
+        buttonCount: "two", // 확인/취소 버튼 두 개
+        confirmText: "취소하기",
+        cancelText: "돌아가기",
+        onConfirm: async function() {
+            // 유저가 '취소하기'를 눌렀을 때 실행될 로직
+            const token = localStorage.getItem('accessToken');
+            const projectId = ${projectData.projectId};
+
+            try {
+                const response = await fetch("/api/subscription/cancel", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + token
+                    },
+                    body: JSON.stringify(projectId)
+                });
+
+                if (response.ok) {
+                    // ✅ 성공 시: 토스트 알림 후 새로고침
+                    ToastManager.show("청약이 취소되었습니다.");
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    // ✅ 실패 시: 실패 모달 오픈
+                    const result = await response.json();
+                    ModalManager.open({
+                        type: "Failure",
+                        title: "처리 실패",
+                        content: result.message || "오류가 발생했습니다.",
+                        buttonCount: "one"
+                    });
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                ModalManager.open({
+                    type: "Failure",
+                    title: "통신 오류",
+                    content: "서버 연결에 실패했습니다.",
+                    buttonCount: "one"
+                });
+            }
+        }
+    });
+}
+
 function getUserIdFromToken() {
     const token = localStorage.getItem('accessToken'); // 토큰 저장 키 확인
     if (!token) return null;
@@ -174,5 +280,32 @@ function handleSubscriptionClick() {
             document.getElementById('noAccountModal').style.display = 'flex';
         }
     });
+}
+
+//[신청하기 버튼으로 활성화]
+function updateButtonToApply() {
+    $('#main-sub-btn')
+        .text("청약 신청하기")
+        .prop("disabled", false)
+        .css({
+            "background": "var(--green-600)",
+            "color": "#fff",
+            "cursor": "pointer"
+        })
+        .attr("onclick", "handleSubscriptionClick()");
+}
+
+// [취소하기 버튼으로 변경 및 활성화]
+function updateButtonToCancel() {
+    $('#main-sub-btn')
+        .text("청약 신청 취소하기")
+        .prop("disabled", false)
+        .css({
+            "background": "#fff",
+            "color": "#ff4d4f",
+            "border": "1.5px solid #ff4d4f",
+            "cursor": "pointer"
+        })
+        .attr("onclick", "handleCancelSubscription()");
 }
 </script>
