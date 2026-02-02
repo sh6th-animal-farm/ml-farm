@@ -46,5 +46,6 @@ tagdir="/WEB-INF/tags" %>
         <script src="${ctx}/resources/js/main.js"></script>
         <script src="${ctx}/resources/js/util/websocket_manager.js"></script>
         <script src="${ctx}/resources/js/util/modal_toast_manager.js"></script>
+        <script src="${ctx}/resources/js/util/loading_manager.js"></script>
     </body>
 </html>
