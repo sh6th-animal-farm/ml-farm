@@ -6,13 +6,32 @@ let candleSeries; // 캔들
 let volumeSeries; // 거래량
 let isChartReady = false; // 차트 초기화
 let isPageExiting = false;
+let tokenList = []; // 토큰 목록
 
-// 1. 페이지를 떠나기 직전에 플래그를 true로 바꾸고 alert을 무력화
+// 페이지 로드 후 실행
+document.addEventListener('DOMContentLoaded', () => {
+
+    // 토큰 목록 행에 클릭 이벤트 추가
+    const tbody = document.getElementById('token-list-body');
+    tbody.addEventListener('click', (event) => {
+        const row = event.target.closest('tr');
+
+        if (row && row.id && row.id.startsWith('token-row-')) {
+            const tokenId = row.id.replace('token-row-', '');
+            location.href = `/token/${tokenId}`; // 상세 페이지로 이동
+        }
+    });
+
+    // 토큰 목록 그리기
+    TokenListManager.init();
+});
+
+// 페이지를 떠나기 직전에 플래그를 true로 바꾸고 alert을 무력화
 window.addEventListener('beforeunload', () => {
     isPageExiting = true;
 
     // 브라우저의 alert 함수를 빈 함수로 덮어씌워 버림 (강력 차단)
-    window.alert = function() {
+    window.alert = function () {
         console.warn("페이지 이동 중 발생한 alert 무시됨:", arguments[0]);
     };
 });
@@ -45,6 +64,87 @@ const transformSingleVolume = (data) => ({
         : 'rgba(8, 153, 129, 0.3)'
 });
 
+// 종목 리스트 변환 (실시간 데이터용, 배열)
+const TokenListManager = {
+    cache: new Map(),
+    tbody: null,
+
+    init() {
+        this.tbody = document.getElementById('token-list-body');
+        // DB 조회를 통해 HTML에 그려진 기존 행들을 캐시에 등록
+        document.querySelectorAll('#token-list-body tr').forEach(row => {
+            const id = row.id.replace('token-row-', '');
+            this.cache.set(id.toString(), row);
+        });
+    },
+
+    sync(data) {
+        let row = this.cache.get(data.tokenId.toString());
+
+        if (!row) {
+            // 1. 목록에 없으면 새로 생성
+            row = this.createNewRow(data);
+            this.cache.set(data.tokenId.toString(), row);
+            this.tbody.appendChild(row); // 일단 맨 뒤에 붙이고 reorder에서 정렬
+        }
+
+        // 2. 데이터 업데이트
+        this.updateUI(row, data);
+
+        // 3. 거래대금 순 정렬
+        this.reorder(row, data.dailyTradeVolume);
+    },
+
+    createNewRow(data) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>
+                <span class="token-name">${data.tokenName}</span>
+                <span class="token-code">${data.tokenCode}</span>
+            </td>
+            <td class="price" style="text-align: right;"></td>
+            <td class="rate" style="text-align: right;"></td>
+        `;
+        return tr;
+    },
+
+    updateUI(row, data) {
+        const priceTd = row.querySelector('.price');
+        const rateTd = row.querySelector('.rate');
+
+        const isUp = data.changeRate > 0;
+        const color = isUp ? 'var(--error)' : 'var(--info)';
+
+        // 현재가 업데이트 (천단위 콤마)
+        priceTd.innerText = Number(data.marketPrice).toLocaleString();
+
+        // 등락률 업데이트
+        rateTd.innerText = `${isUp ? '+' : '-'}${data.changeRate.toFixed(2)}%`;
+        rateTd.style.color = color;
+
+        // 정렬 기준값(거래대금) 업데이트
+        row.dataset.volume = data.dailyTradeVolume;
+    },
+
+    reorder(row, currentVolume) {
+        const rows = Array.from(this.tbody.querySelectorAll('tr'));
+
+        // 나보다 거래대금이 작은 첫 번째 행을 찾음
+        const target = rows.find(r => {
+            if (r === row) return false;
+            return parseFloat(r.dataset.volume || 0) < parseFloat(currentVolume);
+        });
+
+        if (target) {
+            // 나보다 작은 행이 있으면 그 행 바로 위에 삽입
+            this.tbody.insertBefore(row, target);
+        } else {
+            // 내가 작거나 목록에 나밖에 없으면 맨 뒤에 삽입
+            this.tbody.appendChild(row);
+        }
+    }
+};
+
 // Ticker 상태 관리 객체
 const tickerState = {
     referencePrice: 0, // 전일 종가
@@ -68,16 +168,16 @@ function initTickerElements() {
 }
 
 /* 웹소켓 연결 및 구독 */
-WebSocketManager.connect(TokenApi.WS_CONN, function() {
+WebSocketManager.connect(TokenApi.WS_CONN, function () {
 
     // 1. 체결 토픽 구독
-    WebSocketManager.subscribe('trade', `/topic/trades/${tokenId}`, function(data) {
+    WebSocketManager.subscribe('trade', `/topic/trades/${tokenId}`, function (data) {
         console.log('[WebSocket - 체결]', data);
         addNewTrade(data);
     });
 
     // 2. 주문 토픽 구독
-    WebSocketManager.subscribe('order', `/topic/orders/${tokenId}`, function(data) {
+    WebSocketManager.subscribe('order', `/topic/orders/${tokenId}`, function (data) {
         console.log('[WebSocket - 호가]', data);
         updateOrderBook(data);
     });
@@ -97,6 +197,12 @@ WebSocketManager.connect(TokenApi.WS_CONN, function() {
     WebSocketManager.subscribe('ohlcv', `/topic/tokenList/${tokenId}`, function (data) {
         console.log('[WebSocket - OHLCV]', data);
         syncTicker(data);
+    });
+
+    // 5. 전체 토큰 리스트 구독
+    WebSocketManager.subscribe('tokenList', `/topic/tokenList`, function (data) {
+        console.log('[WebSocket - 토큰 목록]', data);
+        TokenListManager.sync(data);
     });
 });
 
@@ -150,7 +256,7 @@ document.querySelectorAll('.tab-menu').forEach(tabMenu => {
 
 /* 시장가, 지정가 인풋박스 */
 document.querySelectorAll('.order-type').forEach(select => {
-    select.addEventListener('change', function() {
+    select.addEventListener('change', function () {
         const tabContent = this.closest('.tab-content');
         const isBuyTab = this.closest('#buy-tab') !== null;
         const orderType = this.value; // LIMIT 또는 MARKET
@@ -164,12 +270,12 @@ document.querySelectorAll('.order-type').forEach(select => {
                 // 시장가 매수: 가격, 수량 X / 총액 O
                 priceGroup.style.display = 'none';
                 volumeGroup.style.display = 'none';
-                if(amountGroup) amountGroup.style.display = 'flex';
+                if (amountGroup) amountGroup.style.display = 'flex';
             } else {
                 // 시장가 매도: 가격, 총액 X / 수량 O
                 priceGroup.style.display = 'none';
                 volumeGroup.style.display = 'flex';
-                if(amountGroup) amountGroup.style.display = 'none';
+                if (amountGroup) amountGroup.style.display = 'none';
             }
         } else {
             // 지정가: 가격, 수량 O / 총액 X
@@ -213,7 +319,7 @@ function updateOrderTotal(tabContent) {
 
 // 인풋박스 입력 시 실시간 계산 및 업데이트
 document.querySelectorAll('.tab-content .input-box').forEach(input => {
-    input.addEventListener('input', function() {
+    input.addEventListener('input', function () {
         const tabContent = this.closest('.tab-content');
         updateOrderTotal(tabContent);
     });
@@ -285,7 +391,7 @@ document.querySelector('.btn-buy').addEventListener('click', (e) => handleOrder(
 document.querySelector('.btn-sell').addEventListener('click', (e) => handleOrder(e, 'SELL'));
 
 /* 매수, 매도 주문 처리 */
-async function handleOrder(event, side){
+async function handleOrder(event, side) {
     const container = event.target.closest('.tab-content-wrapper');
     const orderType = container.querySelector('.order-type').value; // LIMIT or MARKET
 
@@ -318,7 +424,7 @@ async function handleOrder(event, side){
     try {
         const result = await TokenApi.createOrder(orderDTO.tokenId, orderDTO);
         if (result) alert("주문이 완료되었습니다.");
-    } catch(e) {
+    } catch (e) {
         alert("주문 처리 중 오류가 발생했습니다. 다시 시도해주세요.");
         console.error("주문 실패: ", e);
     }
@@ -326,7 +432,7 @@ async function handleOrder(event, side){
 
 /* 주문 검증 */
 function validateOrder(dto) {
-    const { orderSide, orderType, orderPrice, orderVolume, totalPrice } = dto;
+    const {orderSide, orderType, orderPrice, orderVolume, totalPrice} = dto;
 
     // 1. 계좌 연동 여부 검증
     // -> 서비스 함수에서 처리
@@ -337,7 +443,7 @@ function validateOrder(dto) {
     // 2. 숫자 형식 및 음수 체크
     if (isNaN(orderPrice) || isNaN(orderVolume) || isNaN(totalPrice) ||
         orderPrice < 0 || orderVolume < 0 || totalPrice < 0) {
-        return { valid: false, msg: "올바른 값을 입력해주세요." };
+        return {valid: false, msg: "올바른 값을 입력해주세요."};
     }
 
     // 3. 매수 조건 검증
@@ -347,9 +453,9 @@ function validateOrder(dto) {
         if (orderType === 'LIMIT') {
             // 지정가 매수: 가격 * 수량으로 총액 계산
             if (orderPrice <= 0) {
-                return { valid: false, msg: "가격을 입력해주세요." };
+                return {valid: false, msg: "가격을 입력해주세요."};
             } else if (orderVolume <= 0) {
-                return { valid: false, msg: "수량을 입력해주세요." };
+                return {valid: false, msg: "수량을 입력해주세요."};
             }
 
             finalBuyAmount = orderPrice * orderVolume;
@@ -360,7 +466,7 @@ function validateOrder(dto) {
 
         // 최소 금액 1,000원 검증
         if (finalBuyAmount < 1000) {
-            return { valid: false, msg: "최소 주문 금액은 1,000원입니다." };
+            return {valid: false, msg: "최소 주문 금액은 1,000원입니다."};
         }
     }
 
@@ -368,16 +474,16 @@ function validateOrder(dto) {
     else if (orderSide === 'SELL') {
         // 지정가 매도 시 가격 입력 체크
         if (orderType === 'LIMIT' && orderPrice <= 0) {
-            return { valid: false, msg: "가격을 입력해주세요." };
+            return {valid: false, msg: "가격을 입력해주세요."};
         }
 
         // 최소 수량 0.00001개 검증 (시장가/지정가 공통)
         if (orderVolume < 0.00001) {
-            return { valid: false, msg: "최소 주문 수량은 0.00001개입니다." };
+            return {valid: false, msg: "최소 주문 수량은 0.00001개입니다."};
         }
     }
 
-    return { valid: true };
+    return {valid: true};
 };
 
 /* 미체결 내역 조회 */
@@ -465,7 +571,7 @@ function createPendingRowHtml(item) {
 
 /* 주문 취소 */
 async function cancelOrder(orderId) {
-    if(!confirm("주문을 취소하시겠습니까?")) return;
+    if (!confirm("주문을 취소하시겠습니까?")) return;
 
     try {
         await TokenApi.cancelOrder(window.tokenId, orderId);
@@ -625,7 +731,7 @@ function updateOrderList(list, data) {
             list[index].totalVolume = data.updatedVolume;
         } else {
             // 기존 가격이 없으면 새로 추가
-            list.push({ price: data.price, totalVolume: data.updatedVolume });
+            list.push({price: data.price, totalVolume: data.updatedVolume});
         }
     } else if (data.action === 'DELETE') {
         if (index > -1) {
@@ -634,6 +740,22 @@ function updateOrderList(list, data) {
         }
     }
 }
+
+// 호가창 클릭 시, 주문 가격을 해당 가격으로
+document.getElementById('order-hist-body')?.addEventListener('click', (e) => {
+    const row = e.target.closest('tr');
+    if (row) {
+        // 가격 추출
+        const priceText = row.cells[1].innerText.replace(/,/g, '');
+        const priceInputs = document.querySelectorAll('.price-group .input-box');
+        priceInputs.forEach(input => {
+            input.value = Number(priceText).toLocaleString();
+        });
+
+        // 주문 총액 재계산
+        document.querySelectorAll('.tab-content').forEach(tab => updateOrderTotal(tab));
+    }
+});
 
 // OHLCV
 function syncTicker(data) {
@@ -645,7 +767,7 @@ function syncTicker(data) {
     const rate = Number(data.changeRate || 0);
     const volume = Number(data.dailyTradeVolume || 0);
 
-    const { elements, lastPrice } = tickerState;
+    const {elements, lastPrice} = tickerState;
     if (!elements || !elements.price) return;
 
     // 가격 변화 애니메이션
@@ -678,17 +800,17 @@ function syncTicker(data) {
 async function initTradingChart(tokenId) {
     const chartContainer = document.querySelector('.token-chart');
 
-    if(!chartContainer) {
+    if (!chartContainer) {
         return;
     }
 
     // 1. 차트 인스턴스 생성
     const chart = LightweightCharts.createChart(chartContainer, {
-        layout: { backgroundColor: '#fff', textColor: '#333' },
-        grid: { vertLines: { color: '#f0f0f0' }, horzLines: { color: '#f0f0f0' } },
+        layout: {backgroundColor: '#fff', textColor: '#333'},
+        grid: {vertLines: {color: '#f0f0f0'}, horzLines: {color: '#f0f0f0'}},
         // grid: { vertLines: { visible: false }, horzLines: { visible: false } },
-        timeScale: { timeVisible: true, secondsVisible: false },
-        localization: { locale: 'ko-KR' },
+        timeScale: {timeVisible: true, secondsVisible: false},
+        localization: {locale: 'ko-KR'},
     });
 
     // 캔들 디자인
@@ -703,7 +825,7 @@ async function initTradingChart(tokenId) {
 
     // 거래량 시리즈
     volumeSeries = chart.addSeries(LightweightCharts.HistogramSeries, {
-        priceFormat: { type: 'volume' },
+        priceFormat: {type: 'volume'},
         priceScaleId: '',
     });
 
@@ -723,7 +845,7 @@ async function initTradingChart(tokenId) {
         // 지정가 주문 가격을 페이지 들어왔을 때의 시가로 고정
         const curPrice = response[response.length - 1].closingPrice; // 가장 최근 캔들 데이터의 종가
         const priceInputs = document.querySelectorAll('.price-group .input-box');
-        priceInputs.forEach(input => input.value = curPrice);
+        priceInputs.forEach(input => input.value = Number(curPrice).toFixed(4));
 
         const chartData = transformCandleData(response);
         const volumeData = transformVolumeData(response);

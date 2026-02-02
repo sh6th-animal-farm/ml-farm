@@ -51,11 +51,12 @@ public class TokenViewController {
 		mapper.disable(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS); // 날짜를 'yyyy-MM-ddThh:mm:ss' 형태로 변환
 
 		model.addAttribute("tokenId", id);
-		model.addAttribute("tokenDetail", tokenService.selectByTokenId(id));
+		// model.addAttribute("tokenDetail", tokenService.selectByTokenId(id));
+		model.addAttribute("ohlcv", tokenService.selectTokenOhlcv(id));
+		model.addAttribute("tokenList", tokenService.selectAll());
 		model.addAttribute("orderBuyList", mapper.writeValueAsString(tokenService.selectAllOrderBuyPrice(id)));
 		model.addAttribute("orderSellList", mapper.writeValueAsString(tokenService.selectAllOrderSellPrice(id)));
 		model.addAttribute("tradeList", mapper.writeValueAsString(tokenService.selectAllTradePrice(id)));
-		model.addAttribute("ohlcv", tokenService.selectTokenOhlcv(id));
 		model.addAttribute("contentPage", "/WEB-INF/views/token/token_detail.jsp");
 		model.addAttribute("activeMenu", "token-market");
 

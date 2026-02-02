@@ -67,7 +67,7 @@
 .token_table_main th:nth-child(1), .token_table_main td:nth-child(1) { width: 80px; text-align: center; } /* 순위 */
 .token_table_main th:nth-child(2), .token_table_main td:nth-child(2) { flex: 1; min-width: 150px; text-align: left; } /* 종목 */
 .token_table_main th:nth-child(3), .token_table_main td:nth-child(3) { width: 160px; text-align: right; } /* 현재가 */
-.token_table_main th:nth-child(4), .token_table_main td:nth-child(4) { width: 120px; text-align: right; } /* 등락률 */
+.token_table_main th:nth-child(4), .token_table_main td:nth-child(4) { width: 160px; text-align: right; } /* 등락률 */
 .token_table_main th:nth-child(5), .token_table_main td:nth-child(5) { width: 180px; text-align: right; padding-right: 24px !important; } /* 거래대금 */
 /* 6. 테이블 상세 스타일 */
 .token_table_main thead th {
