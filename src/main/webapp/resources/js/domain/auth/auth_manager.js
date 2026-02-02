@@ -103,7 +103,7 @@ const AuthManager = {
 
                 // 서버의 JwtAccessDeniedHandler가 보낸 403 응답을 체크
                 if (response.status === 403) {
-                    alert("권한이 부족합니다.");
+                    ToastManager.show("권한이 부족합니다.");
                 }
 
                 // 3. 만약 서버가 500 에러를 던졌는데, 에러 내용에 '만료'나 '로그인' 키워드가 있다면 로그아웃 처리합니다.

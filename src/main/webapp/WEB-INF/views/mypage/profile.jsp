@@ -251,7 +251,7 @@ document.addEventListener("DOMContentLoaded", () => {
         closeAddrModal();
       } catch (e) {
         console.error(e);
-        alert("주소 저장 실패");
+        ToastManager.show("주소 저장 실패");
       }
     };
   }
@@ -270,7 +270,7 @@ document.addEventListener("DOMContentLoaded", () => {
         await patchProfile({ [fieldName]: next });
       } catch (e) {
         console.error(e);
-        alert("설정 저장 실패");
+        ToastManager.show("설정 저장 실패");
         input.checked = !next; // 롤백
       }
     };
@@ -350,7 +350,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return showPwError(data?.message || "비밀번호 변경 실패. 현재 비밀번호를 확인해주세요.");
       }
 
-      alert("비밀번호가 변경됐습니다.");
+      ToastManager.show("비밀번호가 변경됐습니다.");
       closePwModal();
     } catch (err) {
       console.error(err);

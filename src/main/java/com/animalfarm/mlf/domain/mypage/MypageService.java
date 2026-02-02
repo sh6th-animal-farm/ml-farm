@@ -41,7 +41,7 @@ public class MypageService {
 
 	// 강황증권 API 서버 주소
 
-	private String GANGHWANG_API_URL = "http://kh-holdings.cloud/";
+	private final String GANGHWANG_API_URL = "http://kh-holdings.cloud/";
 
 	// ---------------------------------------------------------
 	// 거래 내역 조회
