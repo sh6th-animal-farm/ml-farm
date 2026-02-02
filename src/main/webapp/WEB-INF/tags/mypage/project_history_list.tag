@@ -16,7 +16,7 @@
                     status1="${project.status1}" 
                     status2="${project.status2}" 
                     endDate="${project.endDate}" 
-                    onclick="location.href='${pageContext.request.contextPath}/project/detail?id=${project.projectId}'"
+                    href="${pageContext.request.contextPath}/project/${project.projectId}"
                 />
             </c:forEach>
         </c:when>

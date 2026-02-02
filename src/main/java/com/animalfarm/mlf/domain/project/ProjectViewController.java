@@ -1,7 +1,7 @@
 package com.animalfarm.mlf.domain.project;
 
-import java.util.List;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,14 +14,14 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.animalfarm.mlf.domain.accounting.DividendService;
+import com.animalfarm.mlf.domain.accounting.dto.DividendDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectListDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectSearchReqDTO;
+import com.animalfarm.mlf.domain.user.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
-import com.animalfarm.mlf.domain.accounting.DividendService;
-import com.animalfarm.mlf.domain.accounting.dto.DividendDTO;
-import com.animalfarm.mlf.domain.user.service.UserService;
 
 @Controller
 @RequiredArgsConstructor
@@ -38,7 +38,7 @@ public class ProjectViewController {
 	DividendService dividendService;
 	@Autowired
 	UserService userService;
-
+	
 	@GetMapping({"", "/"})
 	public String index() {
 		return "redirect:/project/list";

@@ -23,7 +23,7 @@
     
     	<div class="header-with-btn">
 	    	<t:section_header title="탄소 배출권 구매 내역" subtitle="회원님이 구매하신 탄소 배출권의 상세 내역을 확인하세요." />
-            <button class="btn-market" onclick="location.href='${pageContext.request.contextPath}/market'">마켓으로 이동 ❯</button>
+            <button class="btn-market" onclick="location.href='${pageContext.request.contextPath}/carbon/list'">마켓으로 이동 ❯</button>
     	</div>
     	
         <mp:carbon_history_table carbonList="${carbonList}"/>

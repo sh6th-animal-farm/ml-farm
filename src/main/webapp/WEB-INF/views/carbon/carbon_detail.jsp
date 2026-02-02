@@ -40,8 +40,7 @@
             </div>
         </div>
 
-        <%-- 프로젝트 보러가기 버튼 --%>
-        <a href="#" class="btn-view-project">프로젝트 보러가기</a>
+        <button type="button" id="btnGoProject" class="btn-view-project">프로젝트 보러가기</button>
     </main>
 
     <aside class="content-side">
