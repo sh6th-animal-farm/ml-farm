@@ -34,7 +34,7 @@ export const http = {
     } catch (error) {
       console.error(`[API Error] ${url}:`, error);
       // 여기서 디자인 가이드에 따른 공통 알림(모달/토스트) 호출 가능
-      alert("요청 처리 중 오류가 발생했습니다.\n" + error.message);
+      ToastManager.show("요청 처리 중 오류가 발생했습니다.\n" + error.message);
       throw error;
     }
   },
