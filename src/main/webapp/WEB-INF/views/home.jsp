@@ -91,15 +91,21 @@
 				class="btn-text-link">전체보기 ></a>
 		</div>
 		<div class="top-list">
-			<c:forEach var="i" begin="1" end="10">
-				<div class="top-item">
+			<c:forEach var="token" items="${tokenList}" varStatus="status" begin="0" end="9">
+				<div class="top-item" onclick="location.href='/token/${token.tokenId}'" style="cursor: pointer;">
 					<div class="top-item-left">
-						<span class="top-rank">${i}</span> <span class="top-name">경기
-							가평 토마토 ${i}호</span>
+						<span class="top-rank">${status.count}</span>
+						<span class="top-name">${token.tokenName}</span>
 					</div>
 					<div class="top-item-right">
-						<div class="price">5,400원</div>
-						<div class="change plus">+3.2%</div>
+						<div class="price">
+							<fmt:formatNumber value="${token.marketPrice}" type="number" />원
+						</div>
+						<c:set var="rateColor" value="${token.changeRate > 0 ? 'var(--error)' : 'var(--info)'}" />
+						<div style="color: ${rateColor}; font: var(--font-caption-02);">
+							<c:if test="${token.changeRate > 0}">+</c:if>
+							<fmt:formatNumber value="${token.changeRate}" pattern="0.00" />%
+						</div>
 					</div>
 				</div>
 			</c:forEach>

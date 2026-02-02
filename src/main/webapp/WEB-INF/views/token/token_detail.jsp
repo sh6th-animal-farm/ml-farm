@@ -57,7 +57,7 @@
                                     <fmt:formatNumber value="${token.marketPrice}" pattern="#,###"/>
                                 </td>
                                 <td class="rate" style="text-align: right; font: var(--font-body-03); color: ${token.changeRate > 0 ? 'var(--error)' : 'var(--info)'};">
-                                    ${token.changeRate}%
+                                    ${token.changeRate > 0 ? '+' : '-'} ${token.changeRate}%
                                 </td>
                             </tr>
                         </c:forEach>
