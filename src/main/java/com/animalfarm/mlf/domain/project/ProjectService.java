@@ -70,6 +70,10 @@ public class ProjectService {
 	public List<ProjectListDTO> selectByCondition(ProjectSearchReqDTO searchDTO) {
 		return projectRepository.selectByCondition(searchDTO);
 	}
+	
+	public List<ProjectListDTO> selectByConditionForMain() {
+		return projectRepository.selectByConditionForMain();
+	}
 
 	public boolean getStarredStatus(ProjectStarredDTO projectStarredDTO) {
 		return projectRepository.getStarredStatus(projectStarredDTO);
@@ -282,13 +286,14 @@ public class ProjectService {
 	}
 
 	public List<SnapshotResponseDTO> getDividendSnapshot(Long projectId) {
-		String fullUrl = khUrl + "/api/project/dividend/before/" + projectId.toString();
+		String fullUrl = khUrl + "api/project/dividend/before/" + projectId.toString();
 		try {
 			return externalApiUtil.callApi(fullUrl, HttpMethod.POST, null,
 				new ParameterizedTypeReference<ApiResponse<List<SnapshotResponseDTO>>>() {}, null);
 		} catch (Exception e) {
 			return new ArrayList<>();
 		}
+	}
 
 	
 	public WalletDTO selectMyWalletInfo(Long uclId) {
@@ -331,10 +336,11 @@ public class ProjectService {
 			log.error("실패!!! : " + e.getMessage());
 		}
 	}
-	
+	*/
 	public List<ProjectDTO> selectEndTargetProject() {
 		return projectRepository.selectEndTargetProject();
-	*/
+	}
+	
 	public void postTokenIssue(ProjectInsertDTO projectInsertDTO) {
 	    TokenIssueDTO tokenIssueDTO = TokenIssueDTO.builder()
 	    	.tokenId(projectInsertDTO.getTokenId())
