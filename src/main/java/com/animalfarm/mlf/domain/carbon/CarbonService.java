@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -33,8 +34,9 @@ public class CarbonService {
 	private RestTemplate restTemplate;
 
 	// 강황증권 API 서버 주소
-	private final String GANGHWANG_API_URL = "http://54.167.85.125:9090/";
-
+	// 프로퍼티 파일의 값을 읽어옵니다.
+	@Value("${api.kh-stock.url}")
+	private String GANGHWANG_API_URL;
 	// ---------------------------------------------------------
 	// 1. 공통 유틸리티 메서드 (내부 전용)
 	// ---------------------------------------------------------

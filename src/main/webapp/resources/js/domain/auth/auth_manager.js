@@ -19,8 +19,12 @@ const AuthManager = {
         const isPublicPage = 
             path.includes("/auth/") ||      // 로그인, 회원가입 등
             path.includes("/project/") ||   // 프로젝트 목록, 상세 (화면)
-            path.includes("/token/") ||     // 토큰 목록, 상세 (화면)
+            path.includes("/token") ||     // 토큰 목록, 상세 (화면)
+            path.includes("/home") ||       // 메인 페이지
             path.includes("/main") ||       // 메인 페이지
+            path.includes("/policy") ||     // 약관
+            path.includes("/notice/list") ||// 공지사항
+            path.includes("/carbon/list") ||// 탄소
             path === "/" ||                 // 루트 경로
             path === ctx ||                 // 컨텍스트 루트
             path === ctx + "/";
@@ -99,8 +103,13 @@ const AuthManager = {
 
                 // 서버의 JwtAccessDeniedHandler가 보낸 403 응답을 체크
                 if (response.status === 403) {
-                    alert("권한이 부족합니다.");
-                }
+				    try {
+				        const data = await response.clone().json();
+				        alert(data.message); // "기업 회원만 이용 가능한 서비스입니다." 출력됨
+				    } catch(e) {
+				        alert("권한이 부족합니다.");
+				    }
+				}
 
                 // 3. 만약 서버가 500 에러를 던졌는데, 에러 내용에 '만료'나 '로그인' 키워드가 있다면 로그아웃 처리합니다.
                 // (서버에서 예외 처리가 미흡하여 500이 터지는 경우를 대비한 2중 방어선)

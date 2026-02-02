@@ -66,16 +66,19 @@ public class SecurityConfig {
 			.antMatchers("/api/auth/**").permitAll()
 
 			// 2. 화면(View) 페이지 [이미지 명세 반영]
-			// 메인, 로그인/가입, 약관, 프로젝트 목록/상세, 토큰 목록/상세
-			.antMatchers("/", "/main", "/auth/**", "/terms/**").permitAll()
+			// 메인, 로그인/가입, 약관, 공지사항, 프로젝트 목록/상세, 토큰 목록/상세
+			.antMatchers("/", "/main", "/home", "/auth/**", "/policy", "/notice/list").permitAll()
 			.antMatchers("/project/**").permitAll() // /project/list/fragment 포함됨
 			.antMatchers("/token/**").permitAll() // 토큰 거래소 화면
+			.antMatchers("/token").permitAll() // 토큰 거래소 화면
+			.antMatchers("/carbon/**").permitAll() // 탄소 마켓 화면
 
 			// 3. 조회 전용 API (GET 요청만 허용) [API 명세 반영]
 			// 프로젝트 조회, 사진 조회, 위치 조회 등
 			.antMatchers(HttpMethod.GET, "/api/project/**").permitAll()
 			// 토큰 시세, 차트, 호가창 조회 등
 			.antMatchers(HttpMethod.GET, "/api/token/**").permitAll()
+			.antMatchers(HttpMethod.GET, "/api/token").permitAll()
 
 			// =========================================================
 			// [B] 권한별 접근 제어 (Role Based)
@@ -88,8 +91,7 @@ public class SecurityConfig {
 			.antMatchers(HttpMethod.DELETE, "/api/project/picture/**").hasRole("ADMIN")
 
 			// 5. 기업(ENTERPRISE) 전용 [탄소 마켓]
-			// 탄소 마켓 화면 및 관련 API 전체
-			.antMatchers("/carbon/**").hasRole("ENTERPRISE")
+			// 탄소 마켓 관련 API 전체
 			.antMatchers("/api/carbon/**").hasRole("ENTERPRISE")
 
 			// =========================================================
@@ -105,7 +107,7 @@ public class SecurityConfig {
 			.antMatchers("/api/accounts/**").authenticated() // 잔액 조회는 본인만!
 
 			// 8. 마이페이지 전체
-			.antMatchers("/api/my/**").authenticated()
+			.antMatchers("/api/mypage/**").authenticated()
 
 			// 9. 그 외 정의되지 않은 모든 요청은 로그인 필요
 			.anyRequest().authenticated();
