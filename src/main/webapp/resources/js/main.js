@@ -1,7 +1,7 @@
 const PendingManager = {
     // 다음에 띄울 알림 저장
-    setPending: function (message, type = "TOAST") {
-        const data = { message, type, timestamp: Date.now() };
+    setPending: function (config, type = "TOAST") {
+        const data = { config: config, type, timestamp: Date.now() };
         localStorage.setItem("mlf-pending-action", JSON.stringify(data));
     },
 
@@ -16,9 +16,26 @@ const PendingManager = {
             // 너무 오래된 정보(예: 1분 전)는 무시 (선택 사항)
             if (Date.now() - data.timestamp < 60000) {
                 if (data.type === "TOAST") {
-                    ToastManager.show(data.message);
+                    // 토스트는 보통 문자열만 받으므로 config가 메시지 문자열일 경우 처리
+                    const msg =
+                        typeof data.config === "object"
+                            ? data.config.message
+                            : data.config;
+                    ToastManager.show(msg);
                 } else if (data.type === "MODAL") {
-                    ModalManager.alert("알림", data.message);
+                    ModalManager.open(data.config);
+                } else if (data.type === "ALERT_MODAL") {
+                    ModalManager.alert(
+                        data.config.title,
+                        data.config.content,
+                        data.config.onConfirm,
+                    );
+                } else if (data.type === "CONFIRM_MODAL") {
+                    ModalManager.confirm(
+                        data.config.title,
+                        data.config.content,
+                        data.config.onConfirm,
+                    );
                 }
             }
         } catch (e) {
@@ -36,5 +53,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (typeof AuthManager !== "undefined") {
         AuthManager.init("${pageContext.request.contextPath}");
     }
+
     PendingManager.checkAndRun();
 });
