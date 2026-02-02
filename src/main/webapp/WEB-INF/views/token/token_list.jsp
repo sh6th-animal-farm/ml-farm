@@ -11,17 +11,8 @@
 
 <div class="token-list-container">
     <div class="content-wrapper header-flex">
-        <div class="section-header">
-            <h2>실시간 차트</h2>
-        </div>
-        <div class="search_box">
-            <form class="background-border" role="search">
-                <input type="search" id="search-input" class="input" placeholder="검색어를 입력하세요"/>
-                <button class="search-icon-btn" onclick="searchKeyword()">
-                    <t:icon name="search" size="20" color="var(--gray-900)"/>
-                </button>
-            </form>
-        </div>
+        <t:section_header title="토큰 거래소" subtitle="실시간 차트를 확인해보세요." />
+		<t:search_bar width="416px"/>
     </div>
     <div class="content-wrapper">
         <div class="left-column">

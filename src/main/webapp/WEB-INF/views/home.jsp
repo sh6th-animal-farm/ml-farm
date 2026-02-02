@@ -49,7 +49,7 @@
 			<div class="s-line"></div>
 			<div class="s-item">
 				<span class="s-label">연 평균 수익률</span> <span
-					class="s-value highlight">14.2%</span>
+					class="s-value">14.2%</span>
 			</div>
 		</div>
 	</div>

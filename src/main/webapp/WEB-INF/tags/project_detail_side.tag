@@ -147,7 +147,7 @@ function handleSubscriptionClick() {
     
     // 1. 로그인 체크 (atob를 이용한 payload 검증은 detail.js에서 이미 하므로 토큰 존재여부만 체크)
     if (!token) {
-        alert("로그인이 필요한 서비스입니다.");
+        ToastManager.show("로그인이 필요한 서비스입니다.");
         return;
     }
 
