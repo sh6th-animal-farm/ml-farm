@@ -119,7 +119,7 @@ const TokenListManager = {
         priceTd.innerText = Number(data.marketPrice).toLocaleString();
 
         // 등락률 업데이트
-        rateTd.innerText = `${isUp ? '+' : '-'}${data.changeRate.toFixed(2)}%`;
+        rateTd.innerText = `${isUp ? '+' : ''}${data.changeRate.toFixed(2)}%`;
         rateTd.style.color = color;
 
         // 정렬 기준값(거래대금) 업데이트
