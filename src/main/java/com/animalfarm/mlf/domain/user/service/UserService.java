@@ -1,9 +1,11 @@
 package com.animalfarm.mlf.domain.user.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.animalfarm.mlf.common.RedisUtil;
 import com.animalfarm.mlf.common.security.SecurityUtil;
@@ -90,8 +92,18 @@ public class UserService {
 		userRepository.updateAddress(address, userId);
 	}
 
-	public UserDTO getUserById(Long userId) {
-		return userRepository.getUserById(userId);
+	public String getMyName() {
+		Long userId = SecurityUtil.getCurrentUserId();
+		if (userId == null) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
+		}
+
+		String name = userRepository.selectUserNameById(userId);
+		if (name == null || name.isBlank()) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자 이름이 없습니다.");
+		}
+
+		return name;
 	}
 
 }

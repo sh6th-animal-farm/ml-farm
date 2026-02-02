@@ -1,11 +1,11 @@
 /* js/domain/auth/auth_manager.js */
 
 const AuthManager = {
-    // 토큰 갱신 주기: Access Token이 1시간(60분)이므로, 50~55분마다 갱신 권장
-    refreshInterval: 55 * 60 * 1000, // 55분 (운영 환경에 맞춰 상향)
-    // 자동 로그아웃 시간: 사용자가 아무 활동이 없을 때 로그아웃시킬 시간 
-    logoutTime: 3 * 60 * 60 * 1000, // 3시간 (미활동 시 세션 만료)
-    lastRefreshTime: Date.now(),
+  // 토큰 갱신 주기: Access Token이 1시간(60분)이므로, 50~55분마다 갱신 권장
+  refreshInterval: 55 * 60 * 1000, // 55분
+  // 자동 로그아웃 시간: 사용자가 아무 활동이 없을 때 로그아웃시킬 시간
+  logoutTime: 3 * 60 * 60 * 1000, // 3시간 (미활동 시 세션 만료)
+  lastRefreshTime: Date.now(),
 
     // 초기화 함수: JSP에서 ctx를 전달받아 실행
     init: function() {
@@ -103,13 +103,8 @@ const AuthManager = {
 
                 // 서버의 JwtAccessDeniedHandler가 보낸 403 응답을 체크
                 if (response.status === 403) {
-				    try {
-				        const data = await response.clone().json();
-				        alert(data.message); // "기업 회원만 이용 가능한 서비스입니다." 출력됨
-				    } catch(e) {
-				        alert("권한이 부족합니다.");
-				    }
-				}
+                    alert("권한이 부족합니다.");
+                }
 
                 // 3. 만약 서버가 500 에러를 던졌는데, 에러 내용에 '만료'나 '로그인' 키워드가 있다면 로그아웃 처리합니다.
                 // (서버에서 예외 처리가 미흡하여 500이 터지는 경우를 대비한 2중 방어선)

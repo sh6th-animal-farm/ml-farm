@@ -33,15 +33,14 @@ public class SecurityConfig {
 	private final JwtAuthenticationEntryPoint entryPoint;
 	private final JwtAccessDeniedHandler accessDeniedHandler;
 
-	// [중요] 실전 모드 ON (보안 규칙 적용)
-	private static final boolean IS_TEST_MODE = false;
-
 	@Bean
 	public WebSecurityCustomizer webSecurityCustomizer() {
+
 		// 정적 리소스(CSS, JS, 이미지)와 Swagger는 보안 필터 자체를 거치지 않음 (성능 최적화)
 		return (web) -> web.ignoring()
 			.antMatchers("/swagger-ui.html", "/swagger-resources/**", "/v2/api-docs/**", "/webjars/**",
 				"/resources/**", "/favicon.ico", "/error");
+
 	}
 
 	@Bean
@@ -61,7 +60,6 @@ public class SecurityConfig {
 			// =========================================================
 			// [A] 누구나 접근 가능 (Public) - 로그인 불필요
 			// =========================================================
-
 			// 1. 인증/로그인 관련 API
 			.antMatchers("/api/auth/**").permitAll()
 
@@ -83,21 +81,18 @@ public class SecurityConfig {
 			// =========================================================
 			// [B] 권한별 접근 제어 (Role Based)
 			// =========================================================
-
 			// 4. 관리자(ADMIN) 전용
 			// 어드민 페이지 전체, 프로젝트 생성/수정/삭제 API
 			.antMatchers("/admin/**").hasRole("ADMIN")
 			.antMatchers("/api/project/insert", "/api/project/update").hasRole("ADMIN")
 			.antMatchers(HttpMethod.DELETE, "/api/project/picture/**").hasRole("ADMIN")
-
+			
 			// 5. 기업(ENTERPRISE) 전용 [탄소 마켓]
 			// 탄소 마켓 관련 API 전체
 			.antMatchers("/api/carbon/**").hasRole("ENTERPRISE")
-
 			// =========================================================
 			// [C] 로그인한 사용자 공통 (Authenticated)
 			// =========================================================
-
 			// 6. 프로젝트 관련 액션 (청약, 좋아요, 좋아요 취소)
 			.antMatchers("/api/project/subscription", "/api/project/favorite/**", "/api/project/confirm-user")
 			.authenticated()
@@ -126,13 +121,12 @@ public class SecurityConfig {
 
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
-		CorsConfiguration configuration = new CorsConfiguration();
 
+		CorsConfiguration configuration = new CorsConfiguration();
 		// 프론트엔드 도메인 허용
 		configuration.addAllowedOrigin("https://mlfarm.3jun.store");
 		configuration.addAllowedOrigin("http://localhost:9999");
 		configuration.addAllowedOrigin("http://localhost:5173");
-
 		configuration.addAllowedMethod("*"); // GET, POST, PUT, DELETE 등 모두 허용
 		configuration.addAllowedHeader("*"); // 모든 헤더 허용
 		configuration.setAllowCredentials(true); // 쿠키/인증정보 포함 허용
@@ -140,10 +134,12 @@ public class SecurityConfig {
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", configuration);
 		return source;
+
 	}
 
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
+
 }

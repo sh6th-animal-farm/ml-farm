@@ -53,4 +53,9 @@
     	WHERE ucl_id = #{uclId}
     </select>
 
+	<select id="selectUserNameById" parameterType="long" resultType="string">
+	  SELECT user_name
+	  FROM users
+	  WHERE user_id = #{userId}
+	</select>
 </mapper>
