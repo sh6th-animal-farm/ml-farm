@@ -65,11 +65,12 @@ public class SecurityConfig {
 
 			// 2. 화면(View) 페이지 [이미지 명세 반영]
 			// 메인, 로그인/가입, 약관, 공지사항, 프로젝트 목록/상세, 토큰 목록/상세
-			.antMatchers("/", "/main", "/home", "/auth/**", "/policy", "/notice/list").permitAll()
+			.antMatchers("/", "/main", "/auth/**", "/policy", "/notice/list").permitAll()
 			.antMatchers("/project/**").permitAll() // /project/list/fragment 포함됨
-			.antMatchers("/token/**").permitAll() // 토큰 거래소 화면
+			.antMatchers("/token/**").permitAll() // 토큰 거래소 상세 화면
 			.antMatchers("/token").permitAll() // 토큰 거래소 화면
 			.antMatchers("/carbon/**").permitAll() // 탄소 마켓 화면
+			.antMatchers("/mypage/**").permitAll() // 마이페이지 화면
 
 			// 3. 조회 전용 API (GET 요청만 허용) [API 명세 반영]
 			// 프로젝트 조회, 사진 조회, 위치 조회 등
@@ -77,6 +78,7 @@ public class SecurityConfig {
 			// 토큰 시세, 차트, 호가창 조회 등
 			.antMatchers(HttpMethod.GET, "/api/token/**").permitAll()
 			.antMatchers(HttpMethod.GET, "/api/token").permitAll()
+			.antMatchers(HttpMethod.GET, "/api/accounts/**").permitAll()
 
 			// =========================================================
 			// [B] 권한별 접근 제어 (Role Based)
@@ -86,7 +88,7 @@ public class SecurityConfig {
 			.antMatchers("/admin/**").hasRole("ADMIN")
 			.antMatchers("/api/project/insert", "/api/project/update").hasRole("ADMIN")
 			.antMatchers(HttpMethod.DELETE, "/api/project/picture/**").hasRole("ADMIN")
-			
+
 			// 5. 기업(ENTERPRISE) 전용 [탄소 마켓]
 			// 탄소 마켓 관련 API 전체
 			.antMatchers("/api/carbon/**").hasRole("ENTERPRISE")
@@ -94,12 +96,13 @@ public class SecurityConfig {
 			// [C] 로그인한 사용자 공통 (Authenticated)
 			// =========================================================
 			// 6. 프로젝트 관련 액션 (청약, 좋아요, 좋아요 취소)
-			.antMatchers("/api/project/subscription", "/api/project/favorite/**", "/api/project/confirm-user")
+			.antMatchers("/api/project/subscription", "/api/project/favorite", "/api/project/favorite/**",
+				"/api/project/confirm-user")
 			.authenticated()
 
 			// 7. 토큰 거래 액션 (주문, 취소) 및 계좌 잔액 조회
 			.antMatchers("/api/token/order/**", "/api/token/order-cancel/**").authenticated()
-			.antMatchers("/api/accounts/**").authenticated() // 잔액 조회는 본인만!
+			//.antMatchers("/api/accounts/**").authenticated() // 잔액 조회는 본인만!
 
 			// 8. 마이페이지 전체
 			.antMatchers("/api/mypage/**").authenticated()

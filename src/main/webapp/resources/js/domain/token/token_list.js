@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const id = row.id.replace("token-row-", "");
 
-            location.href = `/mlf/token/${id}`;
+            location.href = `/token/${id}`;
         }
     });
 
