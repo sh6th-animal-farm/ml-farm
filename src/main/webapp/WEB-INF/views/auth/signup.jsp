@@ -314,7 +314,7 @@
             <span style="font-size:64px;display:block;margin-bottom:24px;color:var(--green-600);"><i class="fa-solid fa-leaf"></i></span>
             <h2 class="auth-title">가입을 축하드립니다!</h2>
             <p class="auth-desc">로그인 페이지로 이동하여 서비스를 이용해보세요.</p>
-            <button class="btn-main" type="button" onclick="location.href='<%=request.getContextPath()%>/users/login'">로그인하러 가기</button>
+            <button class="btn-main" type="button" onclick="location.href='<%=request.getContextPath()%>/auth/login'">로그인하러 가기</button>
           </div>
 
         </div>
