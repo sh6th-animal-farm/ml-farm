@@ -1,7 +1,7 @@
 async function openSubscriptionModal(modalId) {
     const token = localStorage.getItem("accessToken");
     if (!token) {
-        alert("로그인이 필요한 서비스입니다.");
+        ToastManager.show("로그인이 필요한 서비스입니다.");
         return;
     }
 
@@ -36,7 +36,7 @@ async function openSubscriptionModal(modalId) {
             if(typeof updateModalUI === 'function') updateModalUI(1);
 
         } else {
-            alert("지갑 정보를 불러올 수 없습니다. 다시 시도해주세요.");
+            ToastManager.show("지갑 정보를 불러올 수 없습니다. 다시 시도해주세요.");
         }
     } catch (error) {
         console.error("잔액 조회 중 오류:", error);
@@ -68,6 +68,6 @@ function calculateTotal(quantity, unitPrice) {
 
 function submitSubscription(modalId) {
   // 실제 청약 API 호출 로직
-  alert("청약 신청이 완료되었습니다.");
+  ToastManager.show("청약 신청이 완료되었습니다.");
   closeSubscriptionModal(modalId);
 }

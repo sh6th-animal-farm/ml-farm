@@ -32,7 +32,7 @@ public class MypageService {
 	private RestTemplate restTemplate;
 
 	// 강황증권 API 서버 주소
-	private final String GANGHWANG_API_URL = "http://54.167.85.125:9090/";
+	private final String GANGHWANG_API_URL = "https://kh-holdings.cloud/";
 
 	// ---------------------------------------------------------
 	// 탄소 구매 내역 조회

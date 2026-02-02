@@ -22,8 +22,8 @@ document.getElementById("pollForm").onsubmit = async function (e) {
   } else {
     if (!confirm(typeName + " 수령으로 확정하시겠습니까?")) return;
 
-  const dividendIdEl = document.querySelector('input[name="dividendId"]');
-  const dividendId = dividendIdEl ? dividendIdEl.value : null;
+    const dividendIdEl = document.querySelector('input[name="dividendId"]');
+    const dividendId = dividendIdEl ? dividendIdEl.value : null;
 
     const requestData = {
       dividendId: dividendId,
@@ -98,8 +98,8 @@ window.combineAddress = function () {
 window.confirmCropSelection = async function () {
   let finalAddress = document.getElementById("displayAddress").innerText;
 
-  if (!finalAddress.trim() || finalAddress==="주소 등록이 필요합니다.") {
-    alert("새로운 주소를 입력해주세요.");
+  if (!finalAddress.trim() || finalAddress === "주소 등록이 필요합니다.") {
+    ToastManager.show("새로운 주소를 입력해주세요.");
     return;
   }
 
@@ -122,7 +122,7 @@ async function sendSelection(data) {
   try {
     const response = await ProjectApi.selectDividendPoll(data);
     if (response) {
-      alert(response.message || "처리가 완료되었습니다.");
+      PendingManager.setPending(response.message || "처리가 완료되었습니다.");
       location.href = ctx + "/mypage";
     }
   } catch (error) {
@@ -134,16 +134,17 @@ window.closeAddressModal = function () {
   document.getElementById("addressModal").style.display = "none";
 };
 
-document.addEventListener("DOMContentLoaded", async ()=>{
+document.addEventListener("DOMContentLoaded", async () => {
   let user = null;
-  try{
+  try {
     user = await AuthApi.getUser();
     if (!user) {
-      location.href = ctx + "/auth/login"
+      location.href = ctx + "/auth/login";
     }
   } catch (e) {
-      location.href = ctx + "/auth/login"
+    location.href = ctx + "/auth/login";
   }
 
-  document.getElementById("displayAddress").innerText = user.address || "주소 등록이 필요합니다.";
-})
+  document.getElementById("displayAddress").innerText =
+    user.address || "주소 등록이 필요합니다.";
+});
