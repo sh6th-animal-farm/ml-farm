@@ -50,8 +50,6 @@
   }
 
   function pickTabs(json) {
-    // 너 서비스: new ProjectTabsDTO(joined, starred)
-    // 필드명이 joined/starred 일 수도, joinCount/starCount 일 수도 있어서 다 커버
     const obj = json?.payload ?? json?.data ?? json ?? {};
     const joined =
       obj.joined ?? obj.joinCount ?? obj.joinedCount ?? obj.tabJoinCount ?? 0;
@@ -91,7 +89,6 @@
       if (joinCountEl) joinCountEl.textContent = joined;
       if (starCountEl) starCountEl.textContent = starred;
     } catch (e) {
-      // ✅ 조용히 0으로 처리 + 콘솔만
       console.warn("[tabs] fetch failed:", e.message);
       if (joinCountEl) joinCountEl.textContent = "0";
       if (starCountEl) starCountEl.textContent = "0";
