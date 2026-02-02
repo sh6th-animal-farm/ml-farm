@@ -46,7 +46,7 @@
         <div class="input-section">
             <label>청약 수량 입력</label>
             <div class="token-input-wrapper">
-                <input type="number" id="sub-quantity" value="1" min="1" oninput="calculateTotal(this.value, ${price})">
+                <input type="number" id="sub-quantity" value="1" min="0.0001" step="0.0001" oninput="calculateTotal(this.value, ${price})">
                 <span class="unit">토큰</span>
             </div>
             <div class="error-container">
@@ -93,8 +93,17 @@
         const minInfo = document.getElementById('min-info'); // 최소 금액 안내 문구
         const submitBtn = document.querySelector('.submit-btn');
         
+    	// 1. 소수점 4자리까지만 입력 가능하도록 제어 (정규식)
+        if (val.includes('.')) {
+            const parts = val.split('.');
+            if (parts[1].length > 4) {
+                input.value = parseFloat(val).toFixed(4); // 4자리 넘어가면 자름
+                val = input.value;
+            }
+        }
+        
         // 입력값 정제
-        let quantity = parseInt(val);
+        let quantity = parseFloat(val);
         if (isNaN(quantity) || quantity <= 0) {
             updateModalUI(0);
             submitBtn.disabled = true;
@@ -102,11 +111,11 @@
         }
         
         // 현재 총액 계산
-        const currentTotalPrice = quantity * unitPrice;
+        const currentTotalPrice = Math.round(quantity * unitPrice);
         
         // 최대 가능 수량 계산 (한도 vs 잔액)
         const maxAvailableAmount = Math.min(currentRemainLimit, myBalance);
-        const maxQuantity = Math.floor(maxAvailableAmount / unitPrice);
+        const maxQuantity = maxAvailableAmount / unitPrice;
 
         let isError = false;
         let msg = "";
@@ -144,10 +153,10 @@
 
     function updateModalUI(quantity) {
         // 1. 이번 청약 금액 계산
-        const totalAmount = quantity * unitPrice;
+        const totalAmount = Math.round(quantity * unitPrice);
         
         // 2. 콤마 포맷팅 처리
-        document.getElementById('display-quantity').innerText = quantity.toLocaleString() + ' 토큰';
+        document.getElementById('display-quantity').innerText = quantity.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 4 }) + ' 토큰';
         document.getElementById('display-total-price').innerText = totalAmount.toLocaleString();
         
      	// 2. 퍼센트 계산 로직
@@ -187,7 +196,7 @@
  // '청약 신청 완료' 버튼을 눌렀을 때 실행되는 함수
     function submitSubscription(projectId) {
         const quantity = document.getElementById('sub-quantity').value; // 입력한 숫자
-        const totalPrice = quantity * unitPrice;
+        const totalPrice = Math.round(quantity * unitPrice);
         
      	// 1. 로컬 스토리지에서 토큰을 가져옵니다.
         const token = localStorage.getItem("accessToken");
