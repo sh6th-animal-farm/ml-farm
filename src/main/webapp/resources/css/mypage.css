@@ -347,19 +347,24 @@
 
 /* 프로젝트 상태 */
 .project-row .badge.green {
-  background: #ECF8EC;
+  background: var(--green-0);
   color: var(--green-600);
 }
 
 /* 내 상태(청약중 등) */
 .project-row .badge.yellow {
-  background: #EBF5FF;
-  color: #4FAAFF;
+  background: var(--warning-light);
+  color: var(--warning);
 }
 
 .project-row .badge.blue {
-  background: #EEF4FF;
-  color: #2563EB;
+  background: var(--info-light);
+  color: var(--info);
+}
+
+.badge.gray {
+  background: var(--gray-100);
+  color: var(--gray-600);
 }
 
 /* common.css 버튼이랑 높이만 맞춰줌 */
