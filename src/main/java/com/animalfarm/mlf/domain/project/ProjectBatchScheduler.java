@@ -40,6 +40,7 @@ public class ProjectBatchScheduler {
 
 	@Scheduled(cron = "0 * * * * *")
 	public void runBatch() {
+		projectService.selectStatus();
 		subscriptionService.projectStartCheck();
 	}
 	

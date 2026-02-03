@@ -38,8 +38,9 @@ public class MypageService {
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
-	
+
 	// 강황증권 API 서버 주소
+
 	private final String GANGHWANG_API_URL = "https://kh-holdings.cloud/";
 
 	// ---------------------------------------------------------
@@ -86,7 +87,7 @@ public class MypageService {
 	// ---------------------------------------------------------
 
 	private static final DateTimeFormatter DF = DateTimeFormatter.ofPattern("yyyy. MM. dd");
-	
+
 	public List<CarbonHistoryDTO> getCarbonHistory() {
 		Long userId = SecurityUtil.getCurrentUserId();
 		return mypageRepository.selectCarbonHistoryByUserId(userId);
@@ -230,76 +231,93 @@ public class MypageService {
 		// 4. 비밀번호 업데이트
 		mypageRepository.updatePassword(userId, newEncodedPassword);
 	}
-	
+
 	private String mapProjectStatus(String s) {
-	    if (s == null) return "-";
-	    switch (s) {
-	        case "SUBSCRIPTION": return "청약중";
-	        case "ANNOUNCEMENT": return "공고중";
-	        case "INPROGRESS":   return "진행중";
-	        case "ENDED":        return "종료";
-	        case "PREPARING":    return "준비중";
-	        default:             return s;
-	    }
+		if (s == null) {
+			return "-";
+		}
+		switch (s) {
+			case "SUBSCRIPTION":
+				return "청약중";
+			case "ANNOUNCEMENT":
+				return "공고중";
+			case "INPROGRESS":
+				return "진행중";
+			case "ENDED":
+				return "종료";
+			case "PREPARING":
+				return "준비중";
+			default:
+				return s;
+		}
 	}
 
 	private String mapSubscriptionStatus(String s) {
-	    if (s == null) return null;
-	    switch (s) {
-	        case "PENDING":  return "청약중";
-	        case "APPROVED": return "당첨";
-	        case "REJECTED": return "낙첨";
-	        case "CANCELED": return "취소";
-	        default:         return s;
-	    }
+		if (s == null) {
+			return null;
+		}
+		switch (s) {
+			case "PENDING":
+				return "청약중";
+			case "APPROVED":
+				return "당첨";
+			case "REJECTED":
+				return "낙첨";
+			case "CANCELED":
+				return "취소";
+			default:
+				return s;
+		}
 	}
 
 	private String fmt(OffsetDateTime dt) {
-	    return dt == null ? "-" : dt.format(DF);
+		return dt == null ? "-" : dt.format(DF);
 	}
-	
+
 	private void decorate(ProjectDTO p, boolean joinedTab) {
-	    p.setPeriodText(fmt(p.getProjectStartDate()) + " - " + fmt(p.getProjectEndDate()));
-	    p.setStatusText1(mapProjectStatus(p.getProjectStatus()));
-	    p.setStatusText2(joinedTab ? mapSubscriptionStatus(p.getSubscriptionStatus()) : null);
+		p.setPeriodText(fmt(p.getProjectStartDate()) + " - " + fmt(p.getProjectEndDate()));
+		p.setStatusText1(mapProjectStatus(p.getProjectStatus()));
+		p.setStatusText2(joinedTab ? mapSubscriptionStatus(p.getSubscriptionStatus()) : null);
 	}
 
 	public ProjectTabsDTO getProjectTabs() {
-	    Long userId = SecurityUtil.getCurrentUserId();
-	    // 탭 카운트는 전체 기준(필터 ALL)
-	    int joined = (int) mypageRepository.countJoinedProjectCards(userId, "ALL");
-	    int starred = (int) mypageRepository.countStarredProjectCards(userId, "ALL");
-	    return new ProjectTabsDTO(joined, starred);
+		Long userId = SecurityUtil.getCurrentUserId();
+		// 탭 카운트는 전체 기준(필터 ALL)
+		int joined = (int)mypageRepository.countJoinedProjectCards(userId, "ALL");
+		int starred = (int)mypageRepository.countStarredProjectCards(userId, "ALL");
+		return new ProjectTabsDTO(joined, starred);
 	}
 
 	@Transactional(readOnly = true)
 	public PagedResponseDTO<ProjectDTO> getProjectCards(String type, String status, int page, int size) {
-	    Long userId = SecurityUtil.getCurrentUserId();
-	    int limit = Math.max(1, Math.min(size, 30));
-	    int offset = Math.max(0, (page - 1) * limit);
+		Long userId = SecurityUtil.getCurrentUserId();
+		int limit = Math.max(1, Math.min(size, 30));
+		int offset = Math.max(0, (page - 1) * limit);
 
-	    boolean joinedTab = "JOIN".equalsIgnoreCase(type);
-	    List<ProjectDTO> list;
-	    long total;
+		boolean joinedTab = "JOIN".equalsIgnoreCase(type);
+		List<ProjectDTO> list;
+		long total;
 
-	    if (joinedTab) {
-	        list = mypageRepository.selectJoinedProjectCards(userId, status, limit, offset);
-	        total = mypageRepository.countJoinedProjectCards(userId, status);
-	    } else {
-	        list = mypageRepository.selectStarredProjectCards(userId, status, limit, offset);
-	        total = mypageRepository.countStarredProjectCards(userId, status);
-	    }
+		if (joinedTab) {
+			list = mypageRepository.selectJoinedProjectCards(userId, status, limit, offset);
+			total = mypageRepository.countJoinedProjectCards(userId, status);
+		} else {
+			list = mypageRepository.selectStarredProjectCards(userId, status, limit, offset);
+			total = mypageRepository.countStarredProjectCards(userId, status);
+		}
 
-	    for (ProjectDTO p : list) decorate(p, joinedTab);
+		for (ProjectDTO p : list) {
+			decorate(p, joinedTab);
+		}
 
-	    boolean hasNext = (offset + list.size()) < total;
-	    return new PagedResponseDTO<>(list, page, limit, total, hasNext);
+		boolean hasNext = (offset + list.size()) < total;
+		return new PagedResponseDTO<>(list, page, limit, total, hasNext);
 	}
 
 	@Transactional
 	public void setStarred(Long projectId, boolean starred) {
-	    Long userId = SecurityUtil.getCurrentUserId();
-	    mypageRepository.upsertStarredProject(userId, projectId, starred);
+		Long userId = SecurityUtil.getCurrentUserId();
+		mypageRepository.upsertStarredProject(userId, projectId, starred);
 	}
 
 }

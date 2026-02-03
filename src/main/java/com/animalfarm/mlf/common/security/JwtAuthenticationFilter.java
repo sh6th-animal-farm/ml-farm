@@ -7,8 +7,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -25,10 +27,23 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @RequiredArgsConstructor
+@Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	private final JwtProvider jwtProvider;
 	private final RedisUtil redisUtil;
+
+	public void handle(HttpServletRequest request, HttpServletResponse response,
+		AccessDeniedException accessDeniedException) throws IOException, ServletException {
+
+		log.warn("권한 부족 접근: {}", accessDeniedException.getMessage());
+
+		response.setContentType("application/json;charset=UTF-8");
+		response.setStatus(HttpServletResponse.SC_FORBIDDEN); // 403
+
+		// 프론트에서 이 메시지를 띄워줄 겁니다.
+		response.getWriter().println("{ \"error\": \"403\", \"message\": \"기업 회원만 이용 가능한 서비스입니다.\" }");
+	}
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)

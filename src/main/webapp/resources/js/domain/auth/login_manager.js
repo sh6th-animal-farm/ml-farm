@@ -33,8 +33,8 @@ async function login(event) {
         const now = Date.now();
         localStorage.setItem("loginStartTime", now);
         localStorage.setItem("lastActivityTime", now);
-        
-        alert("로그인 성공!");
+
+        PendingManager.setPending("로그인 성공!");
         location.href = ctx + "/main";
     } catch (error) {
         console.error("로그인 중 에러 발생:", error);
