@@ -29,19 +29,26 @@ const AuthManager = {
             path === "/" ||                 // 루트 경로
             path === ctx ||                 // 컨텍스트 루트
             path === ctx + "/";
+
+        // 로그인은 필요하지만, ROLE은 서버가 판단해야 하는 페이지들
+        const isAuthRequiredPage =
+            path.startsWith(ctx + "/admin") ||   // 🔥 admin 페이지
+            path.startsWith(ctx + "/mypage") ||
+            path.startsWith(ctx + "/carbon");
                            
         // 서버에 요청을 보내기 전, 토큰 자체가 이미 만료되었는지 '선제적으로' 체크합니다.
         // 공개 페이지가 아닌데 토큰이 없거나 만료되었다면 즉시 컷
-        if (!isPublicPage) {
+        if (!isPublicPage && isAuthRequiredPage) {
+            // admin / mypage / carbon 같은 "로그인 필수 페이지"만 검사
             if (!token || this.isTokenExpired(token)) {
-                console.warn("보호된 리소스 접근: 인증 정보가 없거나 만료되었습니다.");
-                this.forceLogout(); 
-                return; 
+                console.warn("인증 필요 페이지 접근: 로그인 정보 없음 또는 만료");
+                this.forceLogout();
+                return;
             }
         } else {
-            // [수정] 공개 페이지인데 토큰이 만료된 경우, 쫓아내지 않고 데이터만 정리 (비로그인 UI 유지용)
+            // 공개 페이지는 토큰이 만료돼도 쫓아내지 않음
             if (token && this.isTokenExpired(token)) {
-                this.clearStorageOnly(); 
+                this.clearStorageOnly();
             }
         }
 

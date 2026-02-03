@@ -72,6 +72,8 @@ public class SecurityConfig {
 			.antMatchers("/carbon/**").permitAll() // 탄소 마켓 화면
 			.antMatchers("/mypage/**").permitAll() // 마이페이지 화면
 			.antMatchers("/market/**").permitAll() // 토큰 캔들
+			.antMatchers("/admin").permitAll()
+			.antMatchers("/admin/**").permitAll()
 
 			// 3. 조회 전용 API (GET 요청만 허용) [API 명세 반영]
 			// 프로젝트 조회, 사진 조회, 위치 조회 등
@@ -80,14 +82,14 @@ public class SecurityConfig {
 			.antMatchers(HttpMethod.GET, "/api/token/**").permitAll()
 			.antMatchers(HttpMethod.GET, "/api/token").permitAll()
 			.antMatchers(HttpMethod.GET, "/api/accounts/**").permitAll()
-			.antMatchers(HttpMethod.GET,"/api/market/**").permitAll() // 토큰 캔들
+			.antMatchers(HttpMethod.GET, "/api/market/**").permitAll() // 토큰 캔들
 
 			// =========================================================
 			// [B] 권한별 접근 제어 (Role Based)
 			// =========================================================
 			// 4. 관리자(ADMIN) 전용
 			// 어드민 페이지 전체, 프로젝트 생성/수정/삭제 API
-			.antMatchers("/admin/**").hasRole("ADMIN")
+			.antMatchers("/api/admin/**").hasRole("ADMIN")
 			.antMatchers("/api/project/insert", "/api/project/update").hasRole("ADMIN")
 			.antMatchers(HttpMethod.DELETE, "/api/project/picture/**").hasRole("ADMIN")
 
