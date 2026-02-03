@@ -116,7 +116,7 @@
                             <span style="color: var(--error); font: var(--font-caption-01);">▲ 0.0%</span>
                         </div>
                     </div>
-                    <button class="btn" style="width: 100%; background: var(--gray-900); color: #fff; font: var(--font-button-01); padding: 20px; border-radius: var(--radius-m); border:none; cursor:pointer;">토큰 거래소 바로가기</button>
+                    <button class="btn" onclick="location.href='${pageContext.request.contextPath}/token/${projectData.tokenId}'" style="width: 100%; background: var(--gray-900); color: #fff; font: var(--font-button-01); padding: 20px; border-radius: var(--radius-m); border:none; cursor:pointer;">토큰 거래소 바로가기</button>
                 </c:when>
 
                 <%-- [3] 종료/취소 --%>
