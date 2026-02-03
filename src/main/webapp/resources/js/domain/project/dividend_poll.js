@@ -144,12 +144,28 @@ document.addEventListener("DOMContentLoaded", async () => {
     let user = null;
     try {
         user = await AuthApi.getUser();
-        alert("user: " + JSON.stringify(user));
         if (!user) {
+            PendingManager.setPending(
+                {
+                    type: "Warning",
+                    title: "로그인 필요",
+                    content:
+                        "배당금 수령 방식을 선택하려면 로그인이 필요합니다.",
+                },
+                "MODAL",
+            );
             location.href = ctx + "/auth/login";
         }
     } catch (e) {
         location.href = ctx + "/auth/login";
+        PendingManager.setPending(
+            {
+                type: "Warning",
+                title: "로그인 필요",
+                content: "배당금 수령 방식을 선택하려면 로그인이 필요합니다.",
+            },
+            "MODAL",
+        );
     }
 
     document.getElementById("displayAddress").innerText =
