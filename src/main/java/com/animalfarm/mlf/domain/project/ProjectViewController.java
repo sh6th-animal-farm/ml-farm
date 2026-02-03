@@ -1,7 +1,9 @@
 package com.animalfarm.mlf.domain.project;
 
-import java.util.List;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,30 +16,33 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.animalfarm.mlf.domain.accounting.DividendService;
+import com.animalfarm.mlf.domain.accounting.dto.DividendDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectListDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectSearchReqDTO;
+import com.animalfarm.mlf.domain.subscription.SubscriptionService;
+import com.animalfarm.mlf.domain.user.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
-import com.animalfarm.mlf.domain.accounting.DividendService;
-import com.animalfarm.mlf.domain.accounting.dto.DividendDTO;
-import com.animalfarm.mlf.domain.user.service.UserService;
 
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/project")
 public class ProjectViewController {
-	
+
 	@Value("${api.kakako.javascript.key}")
-	String kakaoMapKey; 
+	String kakaoMapKey;
 
 	private final ProjectService projectService;
 	private final ObjectMapper objectMapper;
-	
+
 	@Autowired
 	DividendService dividendService;
 	@Autowired
 	UserService userService;
+	@Autowired
+	SubscriptionService subscriptionService;
 
 	@GetMapping({"", "/"})
 	public String index() {
@@ -49,14 +54,20 @@ public class ProjectViewController {
 	Long id, Model model, @RequestHeader(value = "X-Requested-With", required = false)
 	String requestedWith) {
 
+		boolean isApplied = false;
+
+		// [2] 신청하기 버튼을 눌러서 '잔액'이 필요할 때 (fetch 요청)
 		if ("fetch".equals(requestedWith)) {
-			Double balance = projectService.selectMyWalletAmount();
-			return ResponseEntity.ok(balance); // 여기서 서비스 호출!
+			isApplied = subscriptionService.checkUserApplied(id);
+			Map<String, Object> response = new HashMap<>();
+			response.put("balance", projectService.selectMyWalletAmount());
+			response.put("isApplied", isApplied);
+			return ResponseEntity.ok(response);
 		}
 
+		model.addAttribute("isApplied", isApplied);
 		model.addAttribute("projectData", projectService.selectDetail(id));
 		model.addAttribute("contentPage", "/WEB-INF/views/project/project_detail.jsp");
-		//model.addAttribute("myCash", projectService.selectMyWalletAmount());
 		model.addAttribute("activeMenu", "project");
 		return "layout";
 	}
@@ -66,7 +77,7 @@ public class ProjectViewController {
 		model.addAttribute("contentPage", "/WEB-INF/views/project/project_list.jsp");
 		model.addAttribute("activeMenu", "project");
 		List<ProjectListDTO> projectList = projectService.selectByCondition(searchReqDTO);
-	    String projectListJson = objectMapper.writeValueAsString(projectList);
+		String projectListJson = objectMapper.writeValueAsString(projectList);
 		model.addAttribute("projectList", projectList);
 		model.addAttribute("projectListJson", projectListJson);
 		model.addAttribute("kakaoMapKey", kakaoMapKey);

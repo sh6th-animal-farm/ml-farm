@@ -73,15 +73,27 @@ public class ExternalApiUtil {
 			String errorBody = e.getResponseBodyAsString();
 			log.error("[API Fail] Status: {}, Body: {}", e.getStatusCode(), errorBody);
 
+			String finalMessage = "서비스 오류가 발생했습니다."; // 기본값
+
 			try {
-				// ApiResponse 구조에 맞게 읽어옴
+				// 파싱 시도
 				ApiResponse<?> apiResponse = objectMapper.readValue(errorBody, ApiResponse.class);
-				// 증권사가 보낸 "잔액 부족", "이미 소각됨" 등의 실질적 메시지를 던짐
-				throw new RuntimeException(apiResponse.getMessage());
+				finalMessage = apiResponse.getMessage();
 			} catch (Exception parseException) {
-				// 파싱 실패 시 기본 에러 메시지
-				throw new RuntimeException("서비스 오류가 발생했습니다. (Status: " + e.getRawStatusCode() + ")");
+				// 파싱 실패 시 에러 메시지 직접 추출
+				log.warn("JSON 파싱 실패, 직접 문자열 추출 시도");
+				if (errorBody.contains("\"message\":\"")) {
+					finalMessage = errorBody.split("\"message\":\"")[1].split("\",\"")[0];
+				}
 			}
+
+			// 추출된 메시지 정제 (MyBatis 로그 제거)
+			if (finalMessage != null && finalMessage.contains("ERROR:")) {
+				String[] parts = finalMessage.split("ERROR:");
+				finalMessage = parts[parts.length - 1].split("\n")[0].replace("\"", "").trim();
+			}
+
+			throw new RuntimeException(finalMessage);
 
 		} catch (Exception e) {
 			log.error("[API System Error] URL: {}, Message: {}", url, e.getMessage());

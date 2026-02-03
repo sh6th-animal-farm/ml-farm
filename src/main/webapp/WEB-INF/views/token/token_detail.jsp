@@ -161,6 +161,7 @@
                 <div id="order-tab" class="scroll active">
                     <table class="hoga-table">
                         <thead>
+                        </thead>
                         <tbody id="order-hist-body">
                         </tbody>
                     </table>

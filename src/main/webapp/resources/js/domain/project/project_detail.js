@@ -15,7 +15,8 @@ async function openSubscriptionModal(modalId) {
 
         if (response.ok) {
             // 서버 서비스 로직이 리턴한 Double(잔액) 값
-            const balance = await response.json(); 
+            const data = await response.json();
+            const balance = data.balance;
             
             // 2. 모달 내 잔액 텍스트 업데이트
             const balanceEl = document.getElementById("modal-wallet-balance");

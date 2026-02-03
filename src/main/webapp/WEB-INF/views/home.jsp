@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/home.css" />
 <script src="${pageContext.request.contextPath}/resources/js/util/timer.js"></script>
 <script type="module" src="${pageContext.request.contextPath}/resources/js/domain/home/home.js"></script>
+
 <main class="main-content">
 	<section class="hero-minimal">
 		<div class="container">
@@ -21,8 +22,8 @@
 						어렵기만 했던 스마트팜 투자, 이제 STO 조각 투자로<br> 수익과 탄소배출권까지 한 번에 관리하세요.
 					</p>
 					<div class="hero-action">
-						<button class="btn-main">지금 시작하기</button>
-						<button class="btn-sub">이용 가이드</button>
+						<a class="btn-main" href="${pageContext.request.contextPath}/auth/signup">지금 시작하기</a>
+						<button class="btn-sub" onclick="ToastManager.show('가이드 준비중입니다.')">이용 가이드</button>
 					</div>
 				</div>
 
@@ -61,6 +62,7 @@
 				class="btn-text-link">전체보기 ></a>
 		</div>
 		<div class="project-card-list">
+			<jsp:include page="/WEB-INF/views/project/project_card_list.jsp" />
 		</div>
 	</section>
 
@@ -73,7 +75,7 @@
 					</h2>
 					<p class="section-desc">우리의 스마트팜은 지열 히트펌프 설치 등을 통해 탄소 배출을 획기적으로
 						줄입니다. 여기서 발생한 KOC(국내 상쇄 배출권) 수익은 모두 투자자에게 돌아갑니다.</p>
-					<button class="btn-outline-green">마켓 데이터 보기</button>
+					<a class="btn-outline-green" href="${pageContext.request.contextPath}/carbon/list">마켓 데이터 보기</a>
 				</div>
 				<div class="carbon-chart-container">
 					<div class="chart-ui">

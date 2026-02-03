@@ -115,8 +115,11 @@
 .trade-dir { color: var(--gray-400); }
 
 /* 호가 컬러 */
-.hoga-sell { color: var(--error); font-weight: 600; }
-.hoga-buy { color: var(--info); font-weight: 600; }
+.hoga-sell { color: var(--info); font-weight: 600; }
+.hoga-buy { color: var(--error); font-weight: 600; }
+
+/* 호가 한 행 */
+.order-hist-row { cursor: pointer; }
 
 /* 트레이딩뷰 로고 제거 */
 .token-chart a { display: none !important; }

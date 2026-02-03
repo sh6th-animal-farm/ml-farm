@@ -25,12 +25,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 		org.springframework.security.core.AuthenticationException authException) throws IOException, ServletException {
 
-		log.error("인증 실패: 로그인이 필요한 서비스입니다. - {}", authException.getMessage());
-
-		// [보안 응답 설정] 클라이언트에게 401 에러를 JSON 형태로 전달합니다.
 		response.setContentType("application/json;charset=UTF-8");
-		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-		response.getWriter().println("{ \"error\": \"401\", \"message\": \"로그인이 필요한 서비스입니다.\" }");
-
+		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401
 	}
 }

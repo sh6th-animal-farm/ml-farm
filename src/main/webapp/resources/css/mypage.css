@@ -132,24 +132,40 @@
   gap: 10px;
 }
 
-.btn-cancel, .btn-save{
-  height: 36px;
-  padding: 0 14px;
-  border-radius: 10px;
-  cursor: pointer;
-  border: 1px solid #e6e6e6;
-  background: #fff;
+#addressModal .current-address-box > div{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
 }
 
-.btn-save{
-  border-color: #2f7d32;
-  background: #2f7d32;
-  color: #fff;
+#addressModal #addrDisplay{
+  flex:1;
+  min-width:0;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  line-height:1.4;
 }
 
-/* =========================
-   비밀번호 모달 (modal / modal-content / hidden)
-   ========================= */
+#addressModal #addrSearchBtn{
+  flex-shrink:0;
+  position:static;
+  transform:none;
+}
+
+#addressModal .current-address-box{
+  padding:10px 12px;
+  border:1px solid var(--gray-200);
+  border-radius:12px;
+  background:#fff;
+}
+
+#addressModal .current-address-box.is-long #addrDisplay{
+  white-space:normal;
+  overflow:visible;
+  text-overflow:unset;
+}
 
 /* display 토글용 */
 .hidden { display: none !important; }
@@ -255,7 +271,7 @@
 /* 버튼 (프로젝트에 .btn이 이미 있으면 자동으로 그걸 씀)
    없을 수도 있으니 최소 안전장치만 */
 .btn{
-  height: 44px;
+  height: 36px;
   padding: 0 14px;
   border-radius: 12px;
   border: 1px solid var(--gray-200);
@@ -273,4 +289,129 @@
 .btn.ghost{
   background: #fff;
   color: var(--gray-900);
+}
+
+#mpProjectList {
+  background: #fff;
+  border-radius: var(--radius-l);
+  box-shadow: var(--shadow);
+  padding: 0 24px;
+}
+
+/* 한 줄 아이템 */
+.project-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.project-row:last-child {
+  border-bottom: none;
+}
+
+/* 왼쪽 영역 */
+.project-row .left {
+  display: flex;
+  flex-direction: column;
+}
+
+.project-row .title {
+  font: var(--font-body-02);
+  font-weight: 800;
+  color: var(--gray-900);
+}
+
+.project-row .sub {
+  margin-top: 6px;
+  font: var(--font-caption-01);
+  color: var(--gray-400);
+}
+
+/* 오른쪽 영역 */
+.project-row .right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* 상태 뱃지 */
+.project-row .badge {
+  padding: 6px 12px;
+  border-radius: 10px;
+  font: var(--font-caption-02);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+/* 프로젝트 상태 */
+.project-row .badge.green {
+  background: var(--green-0);
+  color: var(--green-600);
+}
+
+/* 내 상태(청약중 등) */
+.project-row .badge.yellow {
+  background: var(--warning-light);
+  color: var(--warning);
+}
+
+.project-row .badge.blue {
+  background: var(--info-light);
+  color: var(--info);
+}
+
+.badge.gray {
+  background: var(--gray-100);
+  color: var(--gray-600);
+}
+
+/* common.css 버튼이랑 높이만 맞춰줌 */
+.project-row .btn {
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 12px;
+}
+
+/* 모바일 */
+@media (max-width: 768px) {
+  #mpProjectList {
+    padding: 0 16px;
+  }
+
+  .project-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .project-row .right {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+.project-row .btn-arrow {
+  width: auto;
+  height: auto;
+  padding: 4px;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 0;
+  cursor: pointer;
+}
+
+.project-row .btn-arrow .chevron {
+  display: inline-block;   
+  width: 10px;
+  height: 10px;
+  border-right: 2px solid var(--gray-400);
+  border-bottom: 2px solid var(--gray-400);
+  transform: rotate(-45deg);
+}
+
+.filter-group {
+	margin-bottom: 16px;
 }

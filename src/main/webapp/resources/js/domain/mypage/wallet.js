@@ -80,7 +80,7 @@ function loadTokenHoldings(page) {
       if (!list || list.length === 0) {
         if (page === 1) {
           tbody.innerHTML =
-            '<tr><td colspan="5" style="text-align: center; padding: 60px; color: var(--gray-400);">보유 중인 토큰이 없습니다.</td></tr>';
+            '<tr><td colspan="4" style="text-align: center; padding: 60px; color: var(--gray-400);">보유 중인 토큰이 없습니다.</td></tr>';
         }
         if (btnMore) {
           btnMore.style.display = "none";
@@ -111,7 +111,7 @@ function loadTokenHoldings(page) {
 function renderEmptyWallet() {
   document.querySelector(".bank-name").textContent = "연동된 계좌가 없습니다.";
   document.querySelector(".account-number").textContent = "-";
-  document.querySelector(".total-amount").childNodes[0].textContent = "0 ";
+  document.querySelector(".total-amount").childNodes[0].textContent = "- ";
 
   const emptyIds = [
     "totalAsset",

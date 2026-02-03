@@ -1,0 +1,285 @@
+/* global ctx */
+(() => {
+  const state = { type: "JOIN", status: "ALL", page: 1, size: 10 };
+
+  const tabsEl = document.getElementById("projectTabs");
+  const filtersEl = document.getElementById("projectFilters");
+  const listEl = document.getElementById("mpProjectList");
+  const moreBtn = document.getElementById("mpMoreBtn"); // 너는 +더보기 버튼 쓸 수도
+  const joinCountEl = document.getElementById("tabJoinCount");
+  const starCountEl = document.getElementById("tabStarCount");
+
+  // =========================
+  // 상태 정규화 + 뱃지 매핑
+  // =========================
+  function normalizeStatus(raw) {
+	  const origin = String(raw ?? "").trim();
+	  const s = origin.toUpperCase();
+	
+	  // ======================
+	  // 1️⃣ 서버 ENUM 우선 처리
+	  // ======================
+	  if (s === "SUBSCRIPTION") {
+	    return { text: "청약중", cls: "yellow" };
+	  }
+	  if (s === "ANNOUNCEMENT") {
+	    return { text: "공고중", cls: "blue" };
+	  }
+	  if (s === "PROGRESS" || s === "IN_PROGRESS") {
+	    return { text: "진행중", cls: "green" };
+	  }
+	  if (s === "ENDED" || s === "COMPLETED") {
+	    return { text: "종료됨", cls: "gray" };
+	  }
+	  if (s === "CANCELED" || s === "CANCELLED") {
+	    return { text: "취소됨", cls: "gray" };
+	  }
+	
+	  // ======================
+	  // 2️⃣ 한글 상태 fallback
+	  // ======================
+	  if (origin.includes("청약")) return { text: "청약중", cls: "yellow" };
+	  if (origin.includes("공고")) return { text: "공고중", cls: "blue" };
+	  if (origin.includes("진행")) return { text: "진행중", cls: "green" };
+	  if (origin.includes("종료")) return { text: "종료됨", cls: "gray" };
+	  if (origin.includes("취소")) return { text: "취소됨", cls: "gray" };
+	
+	  // ======================
+	  // 3️⃣ 최후 fallback
+	  // ======================
+	  return { text: origin, cls: "gray" };
+	}
+
+
+  window.mpSetStatus = function (status) {
+    state.status = status;
+    state.page = 1;
+
+    // ✅ 필터 라벨도 "COMPLETED" 기준으로 통일
+    const labelByStatus = {
+      ALL: "전체보기",
+      SUBSCRIPTION: "청약중",
+      ANNOUNCEMENT: "공고중",
+      ENDED: "COMPLETED",
+      // 만약 필터에 CANCEL이 생기면 여기 추가하면 됨:
+      // CANCELED: "CANCELED",
+    };
+
+    const targetLabel = labelByStatus[status];
+    if (filtersEl) {
+      filtersEl.querySelectorAll("button, a").forEach((b) => {
+        const isTarget = targetLabel && b.textContent?.includes(targetLabel);
+        b.classList.toggle("active", !!isTarget);
+      });
+    }
+
+    loadList(true);
+  };
+
+  // ====== 공통: 안전 파서 ======
+  function pickItems(json) {
+    // 1) 배열이면 그대로
+    if (Array.isArray(json)) return json;
+
+    // 2) PagedResponseDTO 예상 케이스들
+    if (json && Array.isArray(json.items)) return json.items;
+    if (json && Array.isArray(json.content)) return json.content;
+    if (json && Array.isArray(json.list)) return json.list;
+
+    // 3) ApiResponseDTO(payload) 케이스
+    if (json && json.payload) return pickItems(json.payload);
+    if (json && json.data) return pickItems(json.data);
+
+    return [];
+  }
+
+  function pickTabs(json) {
+    const obj = json?.payload ?? json?.data ?? json ?? {};
+    const joined =
+      obj.joined ?? obj.joinCount ?? obj.joinedCount ?? obj.tabJoinCount ?? 0;
+    const starred =
+      obj.starred ?? obj.starCount ?? obj.starredCount ?? obj.tabStarCount ?? 0;
+
+    return {
+      joined: Number(joined) || 0,
+      starred: Number(starred) || 0,
+    };
+  }
+
+  async function apiGet(url) {
+    const token = localStorage.getItem("accessToken");
+    const res = await fetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        Authorization: token ? "Bearer " + token : "",
+      },
+    });
+
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      throw new Error(`GET ${url} failed (${res.status}) ${text}`);
+    }
+    return res.json();
+  }
+
+  // ====== 탭 카운트 로드 (alert 절대 없음) ======
+  async function fetchTabs() {
+    try {
+      const json = await apiGet(ctx + "/api/mypage/projects/tabs");
+      const { joined, starred } = pickTabs(json);
+
+      if (joinCountEl) joinCountEl.textContent = joined;
+      if (starCountEl) starCountEl.textContent = starred;
+    } catch (e) {
+      console.warn("[tabs] fetch failed:", e.message);
+      if (joinCountEl) joinCountEl.textContent = "0";
+      if (starCountEl) starCountEl.textContent = "0";
+    }
+  }
+
+  // ====== 리스트 로드 ======
+  async function loadList(reset) {
+    try {
+      const url =
+        ctx +
+        `/api/mypage/projects?type=${encodeURIComponent(state.type)}` +
+        `&status=${encodeURIComponent(state.status)}` +
+        `&page=${state.page}&size=${state.size}`;
+
+      const json = await apiGet(url);
+      const items = pickItems(json);
+
+      if (reset) listEl.innerHTML = "";
+
+      renderItems(items);
+
+      // hasNext / total 같은 거 쓰고 싶으면 여기서 안전 처리
+      const hasNext = (json?.hasNext ?? json?.payload?.hasNext ?? false) === true;
+
+      if (moreBtn) moreBtn.style.display = hasNext ? "block" : "none";
+    } catch (e) {
+      console.warn("[list] load failed:", e.message);
+      listEl.innerHTML = `<div class="empty-box">데이터를 불러오지 못했어요.</div>`;
+      if (moreBtn) moreBtn.style.display = "none";
+    }
+  }
+
+  function escapeHtml(s) {
+    return String(s ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#39;");
+  }
+
+  function renderItems(items) {
+    if (!Array.isArray(items) || items.length === 0) {
+      listEl.innerHTML = `<div class="mp-empty">데이터가 없습니다.</div>`;
+      return;
+    }
+
+    const html = items
+      .map((it) => {
+        const name = escapeHtml(it.projectName ?? it.name ?? "-");
+        const period = escapeHtml(it.periodText ?? it.period ?? "");
+        const projectStatusRaw = it.statusText1 ?? it.status1 ?? "";
+        const projectId = it.projectId ?? it.project_id ?? it.id ?? "";
+
+        // ✅ 상태/색상/표시 텍스트 통일
+        const status = normalizeStatus(projectStatusRaw);
+        const statusText = escapeHtml(status.text);
+
+        return `
+          <div class="project-row" data-project-id="${escapeHtml(projectId)}">
+            <div class="left">
+              <div class="title">${name}</div>
+              <div class="sub">${period}</div>
+            </div>
+
+            <div class="right">
+              ${
+                statusText
+                  ? `<span class="badge ${status.cls}">${statusText}</span>`
+                  : ``
+              }
+              <button class="btn-arrow" type="button" aria-label="상세 이동">
+                <span class="chevron"></span>
+              </button>
+            </div>
+          </div>
+        `;
+      })
+      .join("");
+
+    // ❗ 카드 감싸지 말고 그대로 리스트
+    listEl.innerHTML = html;
+
+    listEl.querySelectorAll(".btn-arrow").forEach((btn) => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        const pid = btn
+          .closest(".project-row")
+          ?.getAttribute("data-project-id");
+        if (!pid) return;
+        location.href = ctx + "/project/" + pid;
+      };
+    });
+  }
+
+  // ====== 이벤트 바인딩 ======
+  function bindTabs() {
+    if (!tabsEl) return;
+    tabsEl.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-type]");
+      if (!btn) return;
+
+      state.type = btn.getAttribute("data-type");
+      state.page = 1;
+
+      tabsEl
+        .querySelectorAll("[data-type]")
+        .forEach((b) => b.classList.remove("is-active"));
+      btn.classList.add("is-active");
+
+      loadList(true);
+    });
+  }
+
+  function bindFilters() {
+    if (!filtersEl) return;
+    filtersEl.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-status]");
+      if (!btn) return;
+
+      state.status = btn.getAttribute("data-status");
+      state.page = 1;
+
+      filtersEl
+        .querySelectorAll("[data-status]")
+        .forEach((b) => b.classList.remove("is-active"));
+      btn.classList.add("is-active");
+
+      loadList(true);
+    });
+  }
+
+  function bindMore() {
+    if (!moreBtn) return;
+    moreBtn.onclick = async () => {
+      state.page += 1;
+      await loadList(false);
+    };
+  }
+
+  // ====== init ======
+  document.addEventListener("DOMContentLoaded", async () => {
+    bindTabs();
+    bindFilters();
+    bindMore();
+
+    await fetchTabs();
+    await loadList(true);
+  });
+})();

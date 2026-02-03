@@ -1,10 +1,34 @@
-import { http } from "../../api/http_client.js";
+import { ProjectApi } from "../project/project_api.js";
 import { TokenApi } from "../token/token_api.js";
 
+async function initStarredStatus() {
+    // 화면에 있는 모든 프로젝트 카드에서 ID 추출
+    const cards = document.querySelectorAll('.project-card');
+    
+    // 각 카드별로 서버에 관심 여부 확인 (비동기)
+    cards.forEach(async (card) => {
+        const projectId = card.getAttribute('onclick').match(/\d+/)[0]; 
+        
+        try {
+            const isStarred = await ProjectApi.getIsStarred(projectId);
+            
+            if (isStarred) {
+                // 관심 프로젝트라면 하트 아이콘의 색상을 빨간색으로 변경
+                const heartIcon = card.querySelector(`.heart-icon-${projectId}`);
+                if (heartIcon) {
+                    heartIcon.classList.add('active')
+                    card.querySelector('.interest-btn').setAttribute('data-starred', 'true');
+                }
+            }
+        } catch (e) {
+            // 로그인 안 한 경우 false가 오거나 에러가 날 수 있으나 무시 (기본 흰하트 유지)
+        }
+    });
+}
+
+
 document.addEventListener('DOMContentLoaded', async function() {
-    const cards = await http.get(`${ctx}/project/list/fragment/main`);
-    let projectArea = document.querySelector(".project-card-list");
-    projectArea.innerHTML = cards;
+    initStarredStatus();
 
     const chartCtx = document.getElementById('kocChart').getContext('2d');
     new Chart(chartCtx, {
