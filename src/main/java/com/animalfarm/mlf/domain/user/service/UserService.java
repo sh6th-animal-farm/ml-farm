@@ -92,6 +92,10 @@ public class UserService {
 		userRepository.updateAddress(address, userId);
 	}
 
+	public UserDTO getUserById(Long userId) {
+		return userRepository.getUserById(userId);
+	}
+
 	public String getMyName() {
 		Long userId = SecurityUtil.getCurrentUserId();
 		if (userId == null) {
