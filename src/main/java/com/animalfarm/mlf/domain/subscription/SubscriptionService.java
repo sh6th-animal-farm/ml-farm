@@ -311,6 +311,10 @@ public class SubscriptionService {
 
 	public void selectAndAllCancel(Long projectId) throws Exception {
 		List<Long> userIds = subscriptionRepository.selectSubscriberUserIds(projectId);
+		if (userIds == null || userIds.isEmpty()) {
+			log.info("[Service] 청약 참여자가 없습니다. 환불 절차 없이 폐기를 진행합니다. 프로젝트 ID: {}", projectId);
+			return; // 정상 종료하여 다음 로직(tokenClosed 등)이 실행되게 함
+		}
 		for (Long userId : userIds) {
 			// 청약 내역 조회
 			SubscriptionHistDTO subscriptionHistDTO = subscriptionRepository.selectPaid(userId, projectId);
