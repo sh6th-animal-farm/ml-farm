@@ -19,8 +19,10 @@
             <c:when test="${not empty tokenList && tokenList.size() > 0}">
                 <c:forEach var="token" items="${tokenList}">
                     <tr>
-                        <td><div class="token-name">${token.tokenName}</div></td>
-                        <td><div class="token-code-cell">${token.tickerSymbol}</div> </td>
+                        <td>
+                        	<div class="token-name">${token.tokenName}</div>
+                        	<div class="token-code">${token.tickerSymbol}</div>
+                    	</td>
                         <td style="text-align: right;">
                             <%-- 수익률이 0보다 크면 text-plus, 작으면 text-minus 적용 --%>
                             <div class="token-name ${token.profitLoss >= 0 ? 'text-plus' : 'text-minus'}">

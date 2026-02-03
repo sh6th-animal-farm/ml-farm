@@ -1,68 +1,126 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags"%>
-<%@ taglib prefix="mp" tagdir="/WEB-INF/tags/mypage"%>
-<%@ page import="java.util.*" %>
-<%
-	/* 상단 참여한 프로젝트, 관심 프로젝트 탭에 들어갈 숫자 가져와서 List 생성 */
-    List<Map<String, Object>> projectTabs = new ArrayList<>();
-    
-    Map<String, Object> tab1 = new HashMap<>();
-    tab1.put("title", "참여한 프로젝트");
-    tab1.put("count", 8);
-    tab1.put("value", "JOIN");
-    projectTabs.add(tab1);
-    
-    Map<String, Object> tab2 = new HashMap<>();
-    tab2.put("title", "관심 프로젝트");
-    tab2.put("count", 14);
-    tab2.put("value", "LIKE");
-    projectTabs.add(tab2);
-    
-    request.setAttribute("projectTabs", projectTabs);
-%>
+
 <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/mypage.css">
+
+<script>
+  window.ctx = "${pageContext.request.contextPath}";
+</script>
+
 <style>
-    /* 프로젝트 내역 전용 추가 스타일 */
-    
-    .filter-group { display: flex; gap: 4px; margin-bottom: 24px; }
-    .project-list { background: #fff; display: flex; flex-direction: column; padding-inline: 24px; border-radius: var(--radius-l); box-shadow: var(--shadow);  }
-	
+  .content-wrapper { padding-top: 8px; }
+
+  .mp-tabs {
+    display: flex;
+    gap: 24px;
+    align-items: flex-end;
+    margin: 10px 0 16px;
+    border-bottom: 1px solid var(--gray-200);
+  }
+  .mp-tab {
+    border: none;
+    background: transparent;
+    padding: 10px 0 12px;
+    cursor: pointer;
+    color: var(--gray-400);
+    font: var(--font-body-02);
+    font-weight: 700;
+    position: relative;
+  }
+  .mp-tab .mp-tab-count { margin-left: 6px; font-weight: 800; }
+  .mp-tab.is-active { color: var(--green-600); }
+  .mp-tab.is-active::after{
+    content:"";
+    position:absolute;
+    left:0; right:0; bottom:-1px;
+    height:2px;
+    background: var(--green-600);
+    border-radius: 2px;
+  }
+
+  .project-list {
+    background: #fff;
+    border-radius: var(--radius-l);
+    box-shadow: var(--shadow);
+    padding: 6px 24px;
+  }
+
+  .mp-item {
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--gray-100);
+  }
+  .mp-item:last-child { border-bottom: none; }
+
+  .mp-item-title { font: var(--font-body-02); font-weight: 800; color: var(--gray-900); }
+  .mp-item-period { margin-top: 6px; font: var(--font-caption-01); color: var(--gray-400); }
+
+  .mp-item-right { display:flex; align-items:center; gap: 10px; }
+
+  .mp-badge {
+    padding: 6px 12px;
+    border-radius: 999px;
+    font: var(--font-caption-02);
+    font-weight: 800;
+    white-space: nowrap;
+  }
+  .mp-badge.blue { background:#EAF1FF; color:#3B6EDC; }
+  .mp-badge.green { background:#ECF8EC; color:#3AA65C; }
+  .mp-badge.yellow { background:#FFF5E0; color:#E3A300; }
+  .mp-badge.gray { background:#F2F2F2; color:#666; }
+
+  .btn-token {
+    border: 0;
+    background: #111827;
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 13px;
+  }
+
+  .mp-empty {
+    padding: 24px 0;
+    text-align: center;
+    color: var(--gray-400);
+    font: var(--font-body-02);
+  }
 
 </style>
 
 <div class="mypage-container">
-    <div class="sidebar-wrapper">
-        <jsp:include page="/WEB-INF/views/common/mypage_sidebar.jsp" />
+  <div class="sidebar-wrapper">
+    <jsp:include page="/WEB-INF/views/common/mypage_sidebar.jsp" />
+  </div>
+
+  <div class="content-wrapper">
+    <t:section_header title="나의 프로젝트" subtitle="참여 중이거나 관심 있는 농업 재생 프로젝트 현황입니다." />
+
+    <!-- 탭: JS가 count 채우고 active 토글 -->
+    <div class="mp-tabs" id="projectTabs">
+      <button class="mp-tab is-active" type="button" data-type="JOIN">
+        참여한 프로젝트 <span class="mp-tab-count" id="tabJoinCount">0</span>
+      </button>
+      <button class="mp-tab" type="button" data-type="STAR">
+        관심 프로젝트 <span class="mp-tab-count" id="tabStarCount">0</span>
+      </button>
     </div>
 
-    <div class="content-wrapper">
-		<t:section_header title="나의 프로젝트" subtitle="참여 중이거나 관심 있는 농업 재생 프로젝트 현황입니다." />
-		
-		<t:category_tab 
-		    items="${projectTabs}" 
-		    activeValue="${empty param.type ? 'JOIN' : param.type}" 
-		/>
-        
-        <div class="filter-group">
-            <t:menu_button label="전체보기" 
-                       active="${empty param.projectStatus}" 
-                       onClick=""/>
-        	<t:menu_button label="청약중" 
-                       active="${param.projectStatus == 'SUBSCRIPTION'}" 
-                       onClick=""/>
-        	<t:menu_button label="공고중" 
-                       active="${param.projectStatus == 'ANNOUNCEMENT'}" 
-                       onClick=""/>
-        	<t:menu_button label="종료됨" 
-                       active="${param.projectStatus == 'COMPLETED'}" 
-                       onClick=""/>
-        </div>
-		
-		<mp:project_history_list projectList="${projectList }"/>
-
-		<c:if test="${projectList.length>0}">
-        	<button class="btn-more"  onclick="">+ 더보기</button>
-		</c:if>
+    <div class="filter-group" id="projectFilters">
+      <t:menu_button label="전체보기" active="true"  onClick="window.mpSetStatus('ALL')" />
+      <t:menu_button label="청약중"   active="false" onClick="window.mpSetStatus('SUBSCRIPTION')" />
+      <t:menu_button label="공고중"   active="false" onClick="window.mpSetStatus('ANNOUNCEMENT')" />
+      <t:menu_button label="종료됨"   active="false" onClick="window.mpSetStatus('ENDED')" />
     </div>
+
+    <div class="project-list" id="mpProjectList"></div>
+
+    <button class="btn-more" id="mpMoreBtn" type="button" style="display:none;">+ 더보기</button>
+  </div>
 </div>
+
+<script defer src="${pageContext.request.contextPath}/resources/js/domain/mypage/project_history.js"></script>

@@ -7,11 +7,26 @@ import org.apache.ibatis.annotations.Param;
 import com.animalfarm.mlf.domain.mypage.dto.CarbonHistoryDTO;
 import com.animalfarm.mlf.domain.mypage.dto.ProfileDTO;
 import com.animalfarm.mlf.domain.mypage.dto.ProfileUpdateRequestDTO;
+import com.animalfarm.mlf.domain.mypage.dto.ProjectDTO;
 
 @Mapper
 public interface MypageRepository {
 
 	List<CarbonHistoryDTO> selectCarbonHistoryByUserId(Long userId);
+
+	ProfileDTO selectProfile(Long userId);
+
+	int updateProfile(@Param("userId") Long userId, @Param("req") ProfileUpdateRequestDTO req);
+
+	// 현재 비밀번호 조회
+	String selectPasswordByUserId(Long userId);
+
+	// 비밀번호 업데이트
+	int updatePassword(
+		@Param("userId")
+		Long userId,
+		@Param("password")
+		String password);
 
 	// 유저 ID로 지갑 번호(ucl_id) 존재 여부 & 가져오기
 	Long getWalletIdByUserId(@Param("userId")
@@ -28,20 +43,17 @@ public interface MypageRepository {
 		@Param("refreshToken")
 		String randomRefreshToken);
 
-	ProfileDTO selectProfile(Long userId);
+	List<ProjectDTO> selectJoinedProjectCards(@Param("userId") Long userId, @Param("status") String status,
+			@Param("limit") int limit, @Param("offset") int offset);
 
-	int updateProfile(@Param("userId")
-	Long userId,
-		@Param("req")
-		ProfileUpdateRequestDTO req);
+	long countJoinedProjectCards(@Param("userId") Long userId, @Param("status") String status);
 
-	// 현재 비밀번호 조회
-	String selectPasswordByUserId(Long userId);
+	List<ProjectDTO> selectStarredProjectCards(@Param("userId") Long userId, @Param("status") String status,
+			@Param("limit") int limit, @Param("offset") int offset);
 
-	// 비밀번호 업데이트
-	int updatePassword(
-		@Param("userId")
-		Long userId,
-		@Param("password")
-		String password);
+	long countStarredProjectCards(@Param("userId") Long userId, @Param("status") String status);
+
+	void upsertStarredProject(@Param("userId") Long userId, @Param("projectId") Long projectId,
+			@Param("starred") boolean starred);
+
 }

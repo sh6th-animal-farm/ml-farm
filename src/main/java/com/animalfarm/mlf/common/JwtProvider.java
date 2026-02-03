@@ -45,6 +45,7 @@ public class JwtProvider {
 	 */
 	private final long accessTokenExp = 60 * 60 * 1000L; //1시간
 	private final long refreshTokenExp = 14L * 24 * 60 * 60 * 1000L; //14일
+	
 
 	@PostConstruct
 	protected void init() {

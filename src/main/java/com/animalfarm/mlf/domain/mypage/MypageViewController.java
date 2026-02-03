@@ -5,6 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping("/mypage")
@@ -42,9 +43,14 @@ public class MypageViewController {
 	}
 
 	@GetMapping("/transaction-history")
-	public String transactionHistoryPage(Model model) {
+	public String transactionHistoryPage(
+		@RequestParam(defaultValue = "1")
+		int page,
+		Model model) {
+
 		model.addAttribute("contentPage", "/WEB-INF/views/mypage/transaction_history.jsp");
 		model.addAttribute("menu", "transaction");
+
 		return "layout";
 	}
 

@@ -35,7 +35,7 @@ async function login(event) {
         localStorage.setItem("lastActivityTime", now);
 
         PendingManager.setPending("로그인 성공!");
-        location.href = ctx + "/home";
+        location.href = ctx + "/main";
     } catch (error) {
         console.error("로그인 중 에러 발생:", error);
         PendingManager.setPending("서버와 통신할 수 없습니다.");

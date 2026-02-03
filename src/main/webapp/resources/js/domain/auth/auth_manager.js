@@ -1,11 +1,11 @@
 /* js/domain/auth/auth_manager.js */
 
 const AuthManager = {
-    // 토큰 갱신 주기: Access Token이 1시간(60분)이므로, 50~55분마다 갱신 권장
-    refreshInterval: 55 * 60 * 1000, // 55분 (운영 환경에 맞춰 상향)
-    // 자동 로그아웃 시간: 사용자가 아무 활동이 없을 때 로그아웃시킬 시간 
-    logoutTime: 3 * 60 * 60 * 1000, // 3시간 (미활동 시 세션 만료)
-    lastRefreshTime: Date.now(),
+  // 토큰 갱신 주기: Access Token이 1시간(60분)이므로, 50~55분마다 갱신 권장
+  refreshInterval: 55 * 60 * 1000, // 55분
+  // 자동 로그아웃 시간: 사용자가 아무 활동이 없을 때 로그아웃시킬 시간
+  logoutTime: 3 * 60 * 60 * 1000, // 3시간 (미활동 시 세션 만료)
+  lastRefreshTime: Date.now(),
 
     // 초기화 함수: JSP에서 ctx를 전달받아 실행
     init: function() {
@@ -14,9 +14,20 @@ const AuthManager = {
         
         // AT를 로컬스토리지에서 가져오기
         const token = localStorage.getItem("accessToken");
-        // 인증이 제외되는 공개 페이지 (로그인, 회원가입)
-        const isPublicPage = window.location.pathname.includes("/auth/login") || 
-                           window.location.pathname.includes("/auth/signup");
+        // 인증이 제외되는 공개 페이지 목록을 백엔드 SecurityConfig와 맞춰줍니다.
+        const path = window.location.pathname;
+        const isPublicPage = 
+            path.includes("/auth/") ||      // 로그인, 회원가입 등
+            path.includes("/project/") ||   // 프로젝트 목록, 상세 (화면)
+            path.includes("/token") ||     // 토큰 목록, 상세 (화면)
+            path.includes("/home") ||       // 메인 페이지
+            path.includes("/main") ||       // 메인 페이지
+            path.includes("/policy") ||     // 약관
+            path.includes("/notice/list") ||// 공지사항
+            path.includes("/carbon/list") ||// 탄소
+            path === "/" ||                 // 루트 경로
+            path === ctx ||                 // 컨텍스트 루트
+            path === ctx + "/";
                            
         // 서버에 요청을 보내기 전, 토큰 자체가 이미 만료되었는지 '선제적으로' 체크합니다.
         // 공개 페이지가 아닌데 토큰이 없거나 만료되었다면 즉시 컷
@@ -26,13 +37,18 @@ const AuthManager = {
                 this.forceLogout(); 
                 return; 
             }
+        } else {
+            // [수정] 공개 페이지인데 토큰이 만료된 경우, 쫓아내지 않고 데이터만 정리 (비로그인 UI 유지용)
+            if (token && this.isTokenExpired(token)) {
+                this.clearStorageOnly(); 
+            }
         }
 
         // 로그인 상태라면 UI 렌더링 및 타이머 가동
         this.renderAuthUI(token, isPublicPage); // UI 렌더링 상태 결정
 
-        // 로그인 페이지가 아니고 토큰이 있을 때만 타이머 가동
-        if (token && !isPublicPage) {
+        // [수정] 토큰이 있을 때만 타이머 가동 (비로그인 시 불필요한 에러 방지)
+        if (token && !this.isTokenExpired(token)) {
             setInterval(() => this.silentRefresh(), this.refreshInterval);
             
             ["click", "keydown", "mousemove","scroll"].forEach(e =>
@@ -40,12 +56,8 @@ const AuthManager = {
                     localStorage.setItem("lastActivityTime", Date.now());
                 })
             );
-            // setTimeout은 한 번 실행되면 끝이지만, 활동에 따라 로그아웃은 미뤄져야 하기 때문입니다.
             setInterval(() => this.checkAutoLogout(), 1000);
         }
-        // 모든 fetch 응답을 감시하는 로직 (인터셉터 대용)
-        this.setupAjaxInterceptor();
-
     },
 
     // JWT의 Payload를 디코딩하여 만료 시간(exp)을 현재 시간과 비교합니다.
@@ -76,6 +88,20 @@ const AuthManager = {
         return true;
     },
 
+    // JWT 토큰의 payload를 해석해 만료 여부 반환
+    isTokenExpired: function(token) {
+        try {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const payload = JSON.parse(window.atob(base64));
+            
+            const exp = payload.exp * 1000; // 초 단위를 밀리초로
+            return Date.now() >= exp;
+        } catch (e) {
+            return true; // 해석 불가능한 토큰도 만료된 것으로 간주
+        }
+    },
+
     setupAjaxInterceptor: function() {
         const originalFetch = window.fetch;
         window.fetch = async (...args) => {
@@ -85,9 +111,21 @@ const AuthManager = {
 
                 // [중앙 집중 처리] 모든 페이지의 fetch 응답은 이곳을 거칩니다.
                 // 서버의 JwtAuthenticationEntryPoint가 보낸 401 응답을 체크
+                // 401(인증실패) 발생 시 무조건 로그아웃시키던 로직 변경
                 if (response.status === 401) {
-                    console.error("인증 실패(401): 로그인 페이지로 리다이렉트합니다.");
-                    this.forceLogout(); // 세션 정리 및 리다이렉트
+                    const path = window.location.pathname;
+                    // 현재 페이지가 공개 페이지라면 튕겨내지 않음 (토큰만 지움)
+                    const isPublic = path.includes("/token") || path.includes("/project") || path === "/" || path.includes("/main");
+                    
+                    if (isPublic) {
+                        console.warn("비로그인 상태 또는 토큰 만료 (공개 페이지이므로 유지)");
+                        this.clearStorageOnly();
+                        this.renderAuthUI(null, true); 
+                        return response; // 튕기지 않고 응답 리턴
+                    } else {
+                        console.error("인증 실패: 로그인 페이지로 리다이렉트");
+                        this.forceLogout();
+                    }
                 }
 
                 // 서버의 JwtAccessDeniedHandler가 보낸 403 응답을 체크
@@ -121,7 +159,7 @@ const AuthManager = {
 		// 요소가 존재하는지 확인 후 처리 (에러 방지)
         if (!guestGroup || !userGroup) return;
 		
-        if (token && !isPublicPage) {
+        if (token && !this.isTokenExpired(token)) {
             // 로그인 상태: guest 숨기고 user 보여줌
             if (guestGroup) guestGroup.style.display = "none";
             if (userGroup) userGroup.style.display = "flex";
@@ -174,6 +212,15 @@ const AuthManager = {
         } catch (e) { console.error("Refresh fail", e); }
     },
 
+    // 리다이렉트 없이 저장소 데이터만 삭제하는 함수 추가
+    clearStorageOnly: function() {
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        localStorage.removeItem("loginStartTime");
+        localStorage.removeItem("lastActivityTime");
+        localStorage.removeItem("userName");
+    },
+
     forceLogout: async function() {
         const at = localStorage.getItem("accessToken");
         if (at) {
@@ -184,10 +231,7 @@ const AuthManager = {
                 });
             } catch (e) { console.error("Logout API error", e); }
         }
-        localStorage.removeItem("accessToken");
-		localStorage.removeItem("refreshToken");
-		localStorage.removeItem("loginStartTime");
-		localStorage.removeItem("lastActivityTime");
+        this.clearStorageOnly();
 		
         location.href = ctx + "/auth/login"; // 로그인 페이지 경로 확인 필요
     }
