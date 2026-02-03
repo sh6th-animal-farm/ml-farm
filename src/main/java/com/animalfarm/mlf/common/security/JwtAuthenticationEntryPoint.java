@@ -27,8 +27,5 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
 		response.setContentType("application/json;charset=UTF-8");
 		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401
-
-		// 깔끔한 JSON 응답
-		response.getWriter().print("로그인이 필요한 서비스입니다.");
 	}
 }

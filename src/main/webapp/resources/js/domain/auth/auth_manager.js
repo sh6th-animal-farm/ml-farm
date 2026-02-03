@@ -1,47 +1,49 @@
 /* js/domain/auth/auth_manager.js */
 
 const AuthManager = {
-  // 토큰 갱신 주기: Access Token이 1시간(60분)이므로, 50~55분마다 갱신 권장
-  refreshInterval: 55 * 60 * 1000, // 55분
-  // 자동 로그아웃 시간: 사용자가 아무 활동이 없을 때 로그아웃시킬 시간
-  logoutTime: 3 * 60 * 60 * 1000, // 3시간 (미활동 시 세션 만료)
-  lastRefreshTime: Date.now(),
+    // 토큰 갱신 주기: Access Token이 1시간(60분)이므로, 50~55분마다 갱신 권장
+    refreshInterval: 55 * 60 * 1000, // 55분
+    // 자동 로그아웃 시간: 사용자가 아무 활동이 없을 때 로그아웃시킬 시간
+    logoutTime: 3 * 60 * 60 * 1000, // 3시간 (미활동 시 세션 만료)
+    lastRefreshTime: Date.now(),
 
     // 초기화 함수: JSP에서 ctx를 전달받아 실행
-    init: function() {
+    init: function () {
         // 인터셉터를 최상단에서 가장 먼저 설정하여 모든 요청을 감시합니다.
         this.setupAjaxInterceptor();
-        
+
         // AT를 로컬스토리지에서 가져오기
         const token = localStorage.getItem("accessToken");
         // 인증이 제외되는 공개 페이지 목록을 백엔드 SecurityConfig와 맞춰줍니다.
         const path = window.location.pathname;
-        const isPublicPage = 
-            path.includes("/auth/") ||      // 로그인, 회원가입 등
-            path.includes("/project/") ||   // 프로젝트 목록, 상세 (화면)
-            path.includes("/token") ||     // 토큰 목록, 상세 (화면)
-            path.includes("/home") ||       // 메인 페이지
-            path.includes("/main") ||       // 메인 페이지
-            path.includes("/policy") ||     // 약관
-            path.includes("/notice/list") ||// 공지사항
-            path.includes("/carbon/list") ||// 탄소
-            path.includes("/market") ||     // 토큰 캔들
-            path === "/" ||                 // 루트 경로
-            path === ctx ||                 // 컨텍스트 루트
+        const isPublicPage =
+            path.includes("/auth/") || // 로그인, 회원가입 등
+            path.includes("/project/") || // 프로젝트 목록, 상세 (화면)
+            path.includes("/token") || // 토큰 목록, 상세 (화면)
+            path.includes("/home") || // 메인 페이지
+            path.includes("/main") || // 메인 페이지
+            path.includes("/policy") || // 약관
+            path.includes("/notice/list") || // 공지사항
+            path.includes("/carbon/list") || // 탄소
+            path.includes("/market") || // 토큰 캔들
+            path === "/" || // 루트 경로
+            path === ctx || // 컨텍스트 루트
             path === ctx + "/";
 
         // 로그인은 필요하지만, ROLE은 서버가 판단해야 하는 페이지들
         const isAuthRequiredPage =
-            path.startsWith(ctx + "/admin") ||   // 🔥 admin 페이지
+            path.startsWith(ctx + "/admin") || // 🔥 admin 페이지
             path.startsWith(ctx + "/mypage") ||
             path.startsWith(ctx + "/carbon");
-                           
+
         // 서버에 요청을 보내기 전, 토큰 자체가 이미 만료되었는지 '선제적으로' 체크합니다.
         // 공개 페이지가 아닌데 토큰이 없거나 만료되었다면 즉시 컷
         if (!isPublicPage && isAuthRequiredPage) {
             // admin / mypage / carbon 같은 "로그인 필수 페이지"만 검사
             if (!token || this.isTokenExpired(token)) {
-                console.warn("인증 필요 페이지 접근: 로그인 정보 없음 또는 만료");
+                console.warn(
+                    "인증 필요 페이지 접근: 로그인 정보 없음 또는 만료",
+                );
                 this.forceLogout();
                 return;
             }
@@ -58,25 +60,25 @@ const AuthManager = {
         // [수정] 토큰이 있을 때만 타이머 가동 (비로그인 시 불필요한 에러 방지)
         if (token && !this.isTokenExpired(token)) {
             setInterval(() => this.silentRefresh(), this.refreshInterval);
-            
-            ["click", "keydown", "mousemove","scroll"].forEach(e =>
+
+            ["click", "keydown", "mousemove", "scroll"].forEach((e) =>
                 document.addEventListener(e, () => {
                     localStorage.setItem("lastActivityTime", Date.now());
-                })
+                }),
             );
             setInterval(() => this.checkAutoLogout(), 1000);
         }
     },
 
     // JWT의 Payload를 디코딩하여 만료 시간(exp)을 현재 시간과 비교합니다.
-    isTokenExpired: function(token) {
+    isTokenExpired: function (token) {
         try {
             // JWT는 [헤더].[페이로드].[서명] 구조이며, 페이로드는 1번 인덱스에 있습니다.
-            const base64Url = token.split('.')[1];
-            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const base64Url = token.split(".")[1];
+            const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
             // 브라우저 내장 함수 atob를 사용하여 base64를 디코딩합니다.
             const payload = JSON.parse(window.atob(base64));
-            
+
             // exp값은 초(second) 단위이므로 1000을 곱해 밀리초로 변환합니다.
             const expTime = payload.exp * 1000;
             return Date.now() >= expTime;
@@ -87,7 +89,7 @@ const AuthManager = {
     },
 
     // 현재 로그인 상태인지 확인하고, 아니면 쫓아내는 함수
-    ensureAuth: function() {
+    ensureAuth: function () {
         const token = localStorage.getItem("accessToken");
         if (!token || this.isTokenExpired(token)) {
             this.forceLogout();
@@ -97,12 +99,12 @@ const AuthManager = {
     },
 
     // JWT 토큰의 payload를 해석해 만료 여부 반환
-    isTokenExpired: function(token) {
+    isTokenExpired: function (token) {
         try {
-            const base64Url = token.split('.')[1];
-            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const base64Url = token.split(".")[1];
+            const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
             const payload = JSON.parse(window.atob(base64));
-            
+
             const exp = payload.exp * 1000; // 초 단위를 밀리초로
             return Date.now() >= exp;
         } catch (e) {
@@ -110,10 +112,9 @@ const AuthManager = {
         }
     },
 
-    setupAjaxInterceptor: function() {
+    setupAjaxInterceptor: function () {
         const originalFetch = window.fetch;
         window.fetch = async (...args) => {
-        
             try {
                 const response = await originalFetch(...args);
 
@@ -123,12 +124,18 @@ const AuthManager = {
                 if (response.status === 401) {
                     const path = window.location.pathname;
                     // 현재 페이지가 공개 페이지라면 튕겨내지 않음 (토큰만 지움)
-                    const isPublic = path.includes("/token") || path.includes("/project") || path === "/" || path.includes("/main");
-                    
+                    const isPublic =
+                        path.includes("/token") ||
+                        path.includes("/project") ||
+                        path === "/" ||
+                        path.includes("/main");
+
                     if (isPublic) {
-                        console.warn("비로그인 상태 또는 토큰 만료 (공개 페이지이므로 유지)");
+                        console.warn(
+                            "비로그인 상태 또는 토큰 만료 (공개 페이지이므로 유지)",
+                        );
                         this.clearStorageOnly();
-                        this.renderAuthUI(null, true); 
+                        this.renderAuthUI(null, true);
                         return response; // 튕기지 않고 응답 리턴
                     } else {
                         console.error("인증 실패: 로그인 페이지로 리다이렉트");
@@ -136,9 +143,19 @@ const AuthManager = {
                     }
                 }
 
-                // 서버의 JwtAccessDeniedHandler가 보낸 403 응답을 체크
-                if (response.status === 403) {
-                    ToastManager.show("권한이 부족합니다.");
+                // 서버의 JwtAccessDeniedHandler가 보낸 401, 403 응답을 체크
+                if (response.status === 401) {
+                    ModalManager.open({
+                        type: "Warning",
+                        title: "로그인 필요",
+                        content: "로그인이 먼저 필요한 서비스입니다.",
+                    }); // 텍스트 화면 대신 alert 실행
+                } else if (response.status === 403) {
+                    ModalManager.open({
+                        type: "Warning",
+                        title: "권한 없음",
+                        content: "이용할 권한이 없습니다.",
+                    }); // 텍스트 화면 대신 alert 실행
                 }
 
                 // 3. 만약 서버가 500 에러를 던졌는데, 에러 내용에 '만료'나 '로그인' 키워드가 있다면 로그아웃 처리합니다.
@@ -146,7 +163,10 @@ const AuthManager = {
                 if (response.status === 500) {
                     const cloneRes = response.clone();
                     const errorText = await cloneRes.text();
-                    if (errorText.includes("만료") || errorText.includes("로그인")) {
+                    if (
+                        errorText.includes("만료") ||
+                        errorText.includes("로그인")
+                    ) {
                         this.forceLogout();
                     }
                 }
@@ -155,18 +175,18 @@ const AuthManager = {
             } catch (e) {
                 console.error("서버 연결 실패:", e);
                 throw e;
-            } 
+            }
         };
     },
-    
+
     // 로그인 상태에 따라 헤더 메뉴를 전환하는 함수
-    renderAuthUI: function(token, isPublicPage) {
+    renderAuthUI: function (token, isPublicPage) {
         const guestGroup = document.getElementById("guest-group");
         const userGroup = document.getElementById("user-group");
-	
-		// 요소가 존재하는지 확인 후 처리 (에러 방지)
+
+        // 요소가 존재하는지 확인 후 처리 (에러 방지)
         if (!guestGroup || !userGroup) return;
-		
+
         if (token && !this.isTokenExpired(token)) {
             // 로그인 상태: guest 숨기고 user 보여줌
             if (guestGroup) guestGroup.style.display = "none";
@@ -178,10 +198,12 @@ const AuthManager = {
         }
     },
 
-    checkAutoLogout: function() {
+    checkAutoLogout: function () {
         const now = Date.now();
-        const lastActivity = parseInt(localStorage.getItem("lastActivityTime") || now);
-        
+        const lastActivity = parseInt(
+            localStorage.getItem("lastActivityTime") || now,
+        );
+
         // 마지막 활동으로부터 3시간이 지났다면 강제 로그아웃
         if (now - lastActivity >= this.logoutTime) {
             console.log("세션 만료 로그아웃");
@@ -189,7 +211,7 @@ const AuthManager = {
         }
     },
 
-	silentRefresh: async function() {
+    silentRefresh: async function () {
         const rt = localStorage.getItem("refreshToken");
 
         // RT가 없으면 그냥 끝내는 게 아니라, 로그아웃
@@ -202,26 +224,33 @@ const AuthManager = {
         try {
             const res = await fetch(ctx + "/api/auth/refresh", {
                 method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({refreshToken: rt})
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ refreshToken: rt }),
             });
 
             if (res.ok) {
                 const data = await res.json();
                 localStorage.setItem("accessToken", data.accessToken);
                 localStorage.setItem("refreshToken", data.refreshToken);
-                
-                this.lastRefreshTime = Date.now(); 
-                console.log("토큰 갱신 완료: " + new Date(this.lastRefreshTime).toLocaleTimeString());
+
+                this.lastRefreshTime = Date.now();
+                console.log(
+                    "토큰 갱신 완료: " +
+                        new Date(this.lastRefreshTime).toLocaleTimeString(),
+                );
             } else {
-                console.warn("❌ [실패] 리프레시 토큰이 만료되었거나 서버 응답이 없습니다.");
+                console.warn(
+                    "❌ [실패] 리프레시 토큰이 만료되었거나 서버 응답이 없습니다.",
+                );
                 this.forceLogout();
             }
-        } catch (e) { console.error("Refresh fail", e); }
+        } catch (e) {
+            console.error("Refresh fail", e);
+        }
     },
 
     // 리다이렉트 없이 저장소 데이터만 삭제하는 함수 추가
-    clearStorageOnly: function() {
+    clearStorageOnly: function () {
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
         localStorage.removeItem("loginStartTime");
@@ -229,18 +258,20 @@ const AuthManager = {
         localStorage.removeItem("userName");
     },
 
-    forceLogout: async function() {
+    forceLogout: async function () {
         const at = localStorage.getItem("accessToken");
         if (at) {
             try {
                 await fetch(ctx + "/api/auth/logout", {
                     method: "POST",
-                    headers: { "Authorization": "Bearer " + at }
+                    headers: { Authorization: "Bearer " + at },
                 });
-            } catch (e) { console.error("Logout API error", e); }
+            } catch (e) {
+                console.error("Logout API error", e);
+            }
         }
         this.clearStorageOnly();
-		
+
         location.href = ctx + "/auth/login"; // 로그인 페이지 경로 확인 필요
-    }
+    },
 };

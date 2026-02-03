@@ -9,6 +9,7 @@ export const ProjectApi = {
   update: (data) => http.post(`${commonUrl}/update`, data),
   searchProjects: (query) => http.get(`${ctx}/project/list/fragment${query}`),
   starProject: (data) => http.post(`${commonUrl}/starred`, data),
+  getIsStarred: (projectId) => http.get(`${commonUrl}/starred?projectId=${projectId}`),
   getAllFarm:() => http.get(`${commonUrl}/farm/all`),
   selectDividendPoll: (data) =>
     http.post(`${commonUrl}/dividend/poll/select`, data),
