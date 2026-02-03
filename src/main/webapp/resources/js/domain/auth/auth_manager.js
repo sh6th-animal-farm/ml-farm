@@ -25,6 +25,7 @@ const AuthManager = {
             path.includes("/policy") ||     // 약관
             path.includes("/notice/list") ||// 공지사항
             path.includes("/carbon/list") ||// 탄소
+            path.includes("/market") ||     // 토큰 캔들
             path === "/" ||                 // 루트 경로
             path === ctx ||                 // 컨텍스트 루트
             path === ctx + "/";
