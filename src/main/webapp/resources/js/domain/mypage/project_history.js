@@ -8,16 +8,61 @@
   const moreBtn = document.getElementById("mpMoreBtn"); // 너는 +더보기 버튼 쓸 수도
   const joinCountEl = document.getElementById("tabJoinCount");
   const starCountEl = document.getElementById("tabStarCount");
-  
+
+  // =========================
+  // 상태 정규화 + 뱃지 매핑
+  // =========================
+  function normalizeStatus(raw) {
+	  const origin = String(raw ?? "").trim();
+	  const s = origin.toUpperCase();
+	
+	  // ======================
+	  // 1️⃣ 서버 ENUM 우선 처리
+	  // ======================
+	  if (s === "SUBSCRIPTION") {
+	    return { text: "청약중", cls: "yellow" };
+	  }
+	  if (s === "ANNOUNCEMENT") {
+	    return { text: "공고중", cls: "blue" };
+	  }
+	  if (s === "PROGRESS" || s === "IN_PROGRESS") {
+	    return { text: "진행중", cls: "green" };
+	  }
+	  if (s === "ENDED" || s === "COMPLETED") {
+	    return { text: "종료됨", cls: "gray" };
+	  }
+	  if (s === "CANCELED" || s === "CANCELLED") {
+	    return { text: "취소됨", cls: "gray" };
+	  }
+	
+	  // ======================
+	  // 2️⃣ 한글 상태 fallback
+	  // ======================
+	  if (origin.includes("청약")) return { text: "청약중", cls: "yellow" };
+	  if (origin.includes("공고")) return { text: "공고중", cls: "blue" };
+	  if (origin.includes("진행")) return { text: "진행중", cls: "green" };
+	  if (origin.includes("종료")) return { text: "종료됨", cls: "gray" };
+	  if (origin.includes("취소")) return { text: "취소됨", cls: "gray" };
+	
+	  // ======================
+	  // 3️⃣ 최후 fallback
+	  // ======================
+	  return { text: origin, cls: "gray" };
+	}
+
+
   window.mpSetStatus = function (status) {
     state.status = status;
     state.page = 1;
 
+    // ✅ 필터 라벨도 "COMPLETED" 기준으로 통일
     const labelByStatus = {
       ALL: "전체보기",
       SUBSCRIPTION: "청약중",
       ANNOUNCEMENT: "공고중",
-      ENDED: "종료됨",
+      ENDED: "COMPLETED",
+      // 만약 필터에 CANCEL이 생기면 여기 추가하면 됨:
+      // CANCELED: "CANCELED",
     };
 
     const targetLabel = labelByStatus[status];
@@ -130,58 +175,58 @@
   }
 
   function renderItems(items) {
-	  if (!Array.isArray(items) || items.length === 0) {
-	    listEl.innerHTML = `<div class="mp-empty">데이터가 없습니다.</div>`;
-	    return;
-	  }
-	
-	  const html = items.map((it) => {
-	  const name = escapeHtml(it.projectName ?? it.name ?? "-");
-	  const period = escapeHtml(it.periodText ?? it.period ?? "");
-	  const projectStatusRaw = it.statusText1 ?? it.status1 ?? "";
-	  const projectStatus = escapeHtml(projectStatusRaw);
-	  const projectId = it.projectId ?? it.project_id ?? it.id ?? "";
-	
-	  // ✅ 상태별 클래스 (includes로 안전 처리)
-	  let badgeClass = "";
-	  if (projectStatusRaw.includes("청약")) badgeClass = "yellow";
-	  else if (projectStatusRaw.includes("공고")) badgeClass = "blue";
-	  else if (projectStatusRaw.includes("진행")) badgeClass = "green";
-	
-	  return `
-	    <div class="project-row" data-project-id="${projectId}">
-	      <div class="left">
-	        <div class="title">${name}</div>
-	        <div class="sub">${period}</div>
-	      </div>
-	
-	      <div class="right">
-	        ${
-	          projectStatus
-	            ? `<span class="badge ${badgeClass}">${projectStatus}</span>`
-	            : ``
-	        }
-	        <button class="btn-arrow" type="button" aria-label="상세 이동">
-	          <span class="chevron"></span>
-	        </button>
-	      </div>
-	    </div>
-	  `;
-	});
-	
-	  // ❗ 카드 감싸지 말고 그대로 리스트
-	  listEl.innerHTML = html;
-	
-	  listEl.querySelectorAll(".btn-arrow").forEach((btn) => {
-		  btn.onclick = (e) => {
-		    e.stopPropagation();
-		    const pid = btn.closest(".project-row")?.getAttribute("data-project-id");
-		    if (!pid) return;
-		    location.href = ctx + "/project/" + pid;
-		  };
-		});
-	}
+    if (!Array.isArray(items) || items.length === 0) {
+      listEl.innerHTML = `<div class="mp-empty">데이터가 없습니다.</div>`;
+      return;
+    }
 
+    const html = items
+      .map((it) => {
+        const name = escapeHtml(it.projectName ?? it.name ?? "-");
+        const period = escapeHtml(it.periodText ?? it.period ?? "");
+        const projectStatusRaw = it.statusText1 ?? it.status1 ?? "";
+        const projectId = it.projectId ?? it.project_id ?? it.id ?? "";
+
+        // ✅ 상태/색상/표시 텍스트 통일
+        const status = normalizeStatus(projectStatusRaw);
+        const statusText = escapeHtml(status.text);
+
+        return `
+          <div class="project-row" data-project-id="${escapeHtml(projectId)}">
+            <div class="left">
+              <div class="title">${name}</div>
+              <div class="sub">${period}</div>
+            </div>
+
+            <div class="right">
+              ${
+                statusText
+                  ? `<span class="badge ${status.cls}">${statusText}</span>`
+                  : ``
+              }
+              <button class="btn-arrow" type="button" aria-label="상세 이동">
+                <span class="chevron"></span>
+              </button>
+            </div>
+          </div>
+        `;
+      })
+      .join("");
+
+    // ❗ 카드 감싸지 말고 그대로 리스트
+    listEl.innerHTML = html;
+
+    listEl.querySelectorAll(".btn-arrow").forEach((btn) => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        const pid = btn
+          .closest(".project-row")
+          ?.getAttribute("data-project-id");
+        if (!pid) return;
+        location.href = ctx + "/project/" + pid;
+      };
+    });
+  }
 
   // ====== 이벤트 바인딩 ======
   function bindTabs() {
@@ -193,7 +238,9 @@
       state.type = btn.getAttribute("data-type");
       state.page = 1;
 
-      tabsEl.querySelectorAll("[data-type]").forEach((b) => b.classList.remove("is-active"));
+      tabsEl
+        .querySelectorAll("[data-type]")
+        .forEach((b) => b.classList.remove("is-active"));
       btn.classList.add("is-active");
 
       loadList(true);
@@ -209,7 +256,9 @@
       state.status = btn.getAttribute("data-status");
       state.page = 1;
 
-      filtersEl.querySelectorAll("[data-status]").forEach((b) => b.classList.remove("is-active"));
+      filtersEl
+        .querySelectorAll("[data-status]")
+        .forEach((b) => b.classList.remove("is-active"));
       btn.classList.add("is-active");
 
       loadList(true);
