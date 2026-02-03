@@ -3,12 +3,11 @@ package com.animalfarm.mlf.domain.user.repository;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import com.animalfarm.mlf.domain.user.dto.UserCertificateLinkDTO;
 import com.animalfarm.mlf.domain.user.dto.UserDTO;
 
 @Mapper
 public interface UserRepository {
-	
+
 	UserDTO findByEmail(String email);
 
 	int insertUser(UserDTO user);
@@ -24,4 +23,7 @@ public interface UserRepository {
 	UserDTO getUserById(Long userId);
 
 	Long selectUserIdByUclId(Long walletId);
+
+	String selectUserNameById(@Param("userId")
+	Long userId);
 }

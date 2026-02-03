@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,9 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.animalfarm.mlf.common.security.SecurityUtil;
-import com.animalfarm.mlf.domain.project.dto.FarmDTO;
 import com.animalfarm.mlf.domain.accounting.DividendService;
 import com.animalfarm.mlf.domain.accounting.dto.DividendSelectDTO;
+import com.animalfarm.mlf.domain.project.dto.FarmDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectDetailDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectInsertDTO;
@@ -35,9 +34,10 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequestMapping("/api/project")
 public class ProjectController {
-	
+
 	private final ProjectService projectService;
 	private final FarmService farmService;
+
 	@Autowired
 	DividendService dividendService;
 
@@ -162,5 +162,5 @@ public class ProjectController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}
 	}
-
+	
 }

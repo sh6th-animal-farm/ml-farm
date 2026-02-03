@@ -68,45 +68,71 @@ pageEncoding="UTF-8"%> <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
 	            <a href="javascript:void(0)" onclick="AuthManager.forceLogout()" class="logout-text">로그아웃</a>
 	        </div>
 	    </div>
-        <div class="name-text">
-        	${name}마리팜 님
-        </div>
+        <div class="name-text"></div>
       </div>
     </div>
   </div>
 </header>
 <script>
-// DOMContentLoaded까지 기다리지 않고 로그인 상태를 판단하여 헤더 상태 바꾸기
-(function() {
-        const token = localStorage.getItem("accessToken");
-        // 로그인/회원가입 페이지인지는 체크 제외 (필요 시 window.location.pathname 확인)
-        const isPublicPage = window.location.pathname.includes("/auth/login") || 
-                           window.location.pathname.includes("/auth/signup");
+  async function fetchMyName() {
+    const token = localStorage.getItem("accessToken");
 
-     	// 조건에 맞는 요소만 즉시 display를 설정
-        if (token && !isPublicPage) {
-            document.getElementById("user-group").style.display = "flex";
-        } else {
-            document.getElementById("guest-group").style.display = "flex";
-        }
-    })();
-
-function toggleDropdown(id) {
-    // 다른 드롭다운 닫기
-    document.querySelectorAll('.dropdown-content').forEach(dropdown => {
-        if (dropdown.id !== id) dropdown.classList.remove('show');
+    const res = await fetch(ctx + "/api/user/me/name", {
+      method: "GET",
+      headers: {
+        "Authorization": token ? "Bearer " + token : "",
+        "Content-Type": "application/json"
+      }
     });
-    
-    // 클릭한 드롭다운 토글
-    document.getElementById(id).classList.toggle('show');
-}
 
-// 메뉴 외부 클릭 시 닫기
-window.onclick = function(event) {
-    if (!event.target.closest('.dropdown-wrapper')) {
-        document.querySelectorAll('.dropdown-content').forEach(dropdown => {
-            dropdown.classList.remove('show');
-        });
+    if (!res.ok) throw new Error("name api failed: " + res.status);
+    return (await res.text()).trim();
+  }
+
+  (async function () {
+    const token = localStorage.getItem("accessToken");
+    const isPublicPage =
+      location.pathname.includes("/auth/login") ||
+      location.pathname.includes("/auth/signup");
+
+    const guestGroup = document.getElementById("guest-group");
+    const userGroup = document.getElementById("user-group");
+    const nameEl = userGroup ? userGroup.querySelector(".name-text") : null;
+
+    if (token && !isPublicPage) {
+      userGroup.style.display = "flex";
+
+      const cached = localStorage.getItem("userName");
+      if (cached && nameEl) {
+        nameEl.textContent = cached + " 님";
+        return;
+      }
+
+      try {
+        const name = await fetchMyName();
+        const safe = name || "사용자";
+        localStorage.setItem("userName", safe);
+        if (nameEl) nameEl.textContent = safe + " 님";
+      } catch (e) {
+        console.warn("[header] name fetch failed", e);
+        if (nameEl) nameEl.textContent = "사용자 님";
+      }
+    } else {
+      guestGroup.style.display = "flex";
     }
-}
+  })();
+
+  function toggleDropdown(id) {
+    document.querySelectorAll(".dropdown-content").forEach((d) => {
+      if (d.id !== id) d.classList.remove("show");
+    });
+    document.getElementById(id).classList.toggle("show");
+  }
+
+  window.onclick = function (event) {
+    if (!event.target.closest(".dropdown-wrapper")) {
+      document.querySelectorAll(".dropdown-content").forEach((d) => d.classList.remove("show"));
+    }
+  };
 </script>
+
