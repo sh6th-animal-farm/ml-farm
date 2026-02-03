@@ -32,7 +32,7 @@
 		<%-- 3. 태그 호출 --%>
 		<t:project_card status="${statusEnum}"
 			title="${project.projectName} ${project.projectRound}회차"
-			id="${project.projectId}" isStarred="${project.isStarred}"
+			id="${project.projectId}" isStarred="false"
 			thumbnailUrl="${project.thumbnailUrl}" endTime="${endTime}"
 			upperDate="${upperDate}" lowerDate="${lowerDate}"
 			percent="${project.subscriptionRate}" />
@@ -81,7 +81,19 @@
 	border: none;
 	background-color: transparent;
 	cursor: pointer;
-	filter: drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.5));
+	filter: drop-shadow(1px 0 0 var(--gray-100)) 
+            drop-shadow(-1px 0 0 var(--gray-100)) 
+            drop-shadow(0 1px 0 var(--gray-100)) 
+            drop-shadow(0 -1px 0 var(--gray-100));
+}
+
+.interest-btn path {
+	fill: white;
+    transition: fill 0.3s ease;
+}
+
+.interest-btn .active path {
+    fill: var(--error); /* 활성화 시 색상 */
 }
 
 .card-content {
