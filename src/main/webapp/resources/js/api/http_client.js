@@ -14,15 +14,26 @@ export const http = {
 
     try {
       const response = await fetch(url, config);
-      console.log(response);
-      // 공통 에러 처리 (상태 코드 체크)
+      const text = await response.text();
+
+      // 1. 서버 에러(400, 500 등)가 발생한 경우
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || "서버 응답 오류");
+        let errorMsg = "서버 내부 오류가 발생했습니다.";
+
+        try {
+          const errorJson = JSON.parse(text);
+          // 서버가 던진 JSON 파싱 시도
+          errorMsg = errorJson.message || errorMsg;
+        } catch (e) {
+          // JSON 파싱 실패 시, 원본 메시지
+          if (text && text.length < 100) errorMsg = text;
+        }
+
+        throw new Error(errorMsg);
       }
 
+      // 2. 정상 응답(200 OK)인 경우
       // 응답 본문이 있는지 먼저 확인
-      const text = await response.text();
       if (!text) return null; // 빈 응답 처리
 
       // 본문이 JSON 형태인지 시도해보고, 아니면 텍스트 그대로 반환
@@ -34,7 +45,7 @@ export const http = {
     } catch (error) {
       console.error(`[API Error] ${url}:`, error);
       // 여기서 디자인 가이드에 따른 공통 알림(모달/토스트) 호출 가능
-      ToastManager.show("요청 처리 중 오류가 발생했습니다.\n" + error.message);
+      // ToastManager.show("요청 처리 중 오류가 발생했습니다.\n" + error.message);
       throw error;
     }
   },

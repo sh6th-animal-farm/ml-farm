@@ -427,7 +427,7 @@ async function handleOrder(event, side) {
             ToastManager.show("주문이 완료되었습니다.");
         }
     } catch (e) {
-        ToastManager.show("주문에 실패하였습니다.")
+        ToastManager.show(e.message);
         console.error("주문 실패: ", e);
     }
 };
@@ -702,7 +702,7 @@ function createOrderRowHtml(item, type) {
     const formattedVolume = Number(item.totalVolume).toFixed(4);
 
     return `
-        <tr>
+        <tr class="order-hist-row">
             <td class="trade-dir ${dirClass}">${sideText}</td>
             <td class="${sideClass}" style="text-align: right;">${formattedPrice}</td>
             <td style="text-align: right;">${formattedVolume}</td>
