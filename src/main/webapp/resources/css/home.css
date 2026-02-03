@@ -50,6 +50,7 @@
 	border-radius: var(--radius-l);
 	font: var(--font-button-01); /* 600 16px 적용 */
 	margin-left: 12px;
+	cursor: pointer;
 }
 /* Hero Section */
 .hero-minimal {

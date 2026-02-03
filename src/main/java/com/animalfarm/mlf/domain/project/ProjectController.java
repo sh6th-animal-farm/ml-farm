@@ -26,6 +26,7 @@ import com.animalfarm.mlf.domain.project.dto.ProjectListDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectPictureDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectSearchReqDTO;
 import com.animalfarm.mlf.domain.project.dto.ProjectStarredDTO;
+import com.animalfarm.mlf.domain.user.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -81,26 +82,33 @@ public class ProjectController {
 
 	//관심 프로젝트인지 조회
 	@GetMapping("/starred")
-	public boolean getStarredStatus(@RequestParam
-	Long userId,
-		@RequestParam
-		Long projectId) {
-		ProjectStarredDTO projectStarredDTO = ProjectStarredDTO.builder()
-			.userId(userId)
-			.projectId(projectId)
-			.build();
-		return projectService.getStarredStatus(projectStarredDTO);
+	public boolean getStarredStatus(@RequestParam Long projectId) {
+		try {
+			Long userId = SecurityUtil.getCurrentUserId();
+			ProjectStarredDTO projectStarredDTO = ProjectStarredDTO.builder()
+				.userId(userId)
+				.projectId(projectId)
+				.build();
+			return projectService.getStarredStatus(projectStarredDTO);
+		} catch (Exception e) {
+			return false;
+		}
 	}
 
 	//관심 프로젝트 신규 등록
 	@PostMapping("/starred")
-	public Boolean upsertStrarredProject(@RequestBody
-	ProjectStarredDTO projectStarredDTO) {
-		Boolean curStatus = null;
-		if (projectService.upsertStrarredProject(projectStarredDTO)) {
-			curStatus = projectService.getStarredStatus(projectStarredDTO);
+	public Boolean upsertStrarredProject(@RequestBody Long projectId) {
+		try {
+			Long userId = SecurityUtil.getCurrentUserId();
+			ProjectStarredDTO projectStarredDTO = ProjectStarredDTO.builder()
+				.userId(userId)
+				.projectId(projectId)
+				.build();
+			projectService.upsertStrarredProject(projectStarredDTO);
+			return projectService.getStarredStatus(projectStarredDTO);
+		} catch (Exception e) {
+			return false;
 		}
-		return curStatus;
 	}
 
 	@PostMapping("/insert")
