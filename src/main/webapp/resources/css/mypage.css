@@ -132,21 +132,6 @@
   gap: 10px;
 }
 
-.btn-cancel, .btn-save{
-  height: 36px;
-  padding: 0 14px;
-  border-radius: 10px;
-  cursor: pointer;
-  border: 1px solid #e6e6e6;
-  background: #fff;
-}
-
-.btn-save{
-  border-color: #2f7d32;
-  background: #2f7d32;
-  color: #fff;
-}
-
 #addressModal .current-address-box > div{
   display:flex;
   align-items:center;
@@ -286,7 +271,7 @@
 /* 버튼 (프로젝트에 .btn이 이미 있으면 자동으로 그걸 씀)
    없을 수도 있으니 최소 안전장치만 */
 .btn{
-  height: 44px;
+  height: 36px;
   padding: 0 14px;
   border-radius: 12px;
   border: 1px solid var(--gray-200);
@@ -368,8 +353,13 @@
 
 /* 내 상태(청약중 등) */
 .project-row .badge.yellow {
-  background: #FFF5E0;
-  color: #E3A300;
+  background: #EBF5FF;
+  color: #4FAAFF;
+}
+
+.project-row .badge.blue {
+  background: #EEF4FF;
+  color: #2563EB;
 }
 
 /* common.css 버튼이랑 높이만 맞춰줌 */

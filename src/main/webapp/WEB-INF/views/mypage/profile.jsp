@@ -120,8 +120,8 @@
     </div>
 
     <div class="modal-footer">
-      <button type="button" class="btn-cancel" id="addrCancel">취소</button>
-      <button type="button" class="btn-save" id="addrSave">저장</button>
+      <button type="button" class="btn ghost" id="addrCancel">취소</button>
+      <button type="button" class="btn primary" id="addrSave">저장</button>
     </div>
   </div>
 </div>
