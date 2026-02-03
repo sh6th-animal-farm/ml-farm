@@ -82,7 +82,7 @@ public class SubscriptionService {
 		Long userId = SecurityUtil.getCurrentUserId();
 
 		// 청약 내역 조회
-		SubscriptionHistDTO subscriptionHistDTO = subscriptionRepository.select(userId, projectId);
+		SubscriptionHistDTO subscriptionHistDTO = subscriptionRepository.selectPaid(userId, projectId);
 		if (subscriptionHistDTO == null) {
 			throw new Exception("청약 내역이 존재하지 않습니다.");
 		}
@@ -96,8 +96,7 @@ public class SubscriptionService {
 		try {
 			// 취소 및 환불 요청
 			refundDTO = externalApiUtil.callApi(url, HttpMethod.POST, subscriptionHistDTO,
-					new ParameterizedTypeReference<ApiResponse<RefundDTO>>() {
-					}, idempotencyKey);
+				new ParameterizedTypeReference<ApiResponse<RefundDTO>>() {}, idempotencyKey);
 
 			if (refundDTO == null) {
 				throw new Exception("환불 처리에 실패했습니다.");
@@ -111,7 +110,7 @@ public class SubscriptionService {
 			// 유틸리티에서 던진 구체적인 에러 메시지("잔액 부족" 등)가 이곳으로 전달됨
 			log.error("[Service] 청약 취소 실패. 재시도 큐에 등록합니다. 사유: {}", e.getMessage());
 
-			Object[] params = new Object[] { subscriptionHistDTO.getExternalRefId() };
+			Object[] params = new Object[] {subscriptionHistDTO.getExternalRefId()};
 
 			ApiRetryService apiRetryService = applicationContext.getBean(ApiRetryService.class);
 			apiRetryService.registerRetry(ApiType.SUB_CANCEL, subscriptionHistDTO, params, idempotencyKey);
@@ -120,6 +119,32 @@ public class SubscriptionService {
 		}
 
 		return true;
+	}
+
+	public boolean checkUserApplied(Long projectId) {
+		try {
+			// 1. SecurityUtil로 로그인 유저 ID 가져오기
+			Long userId = SecurityUtil.getCurrentUserId();
+			System.out.println("projectId : " + projectId);
+			System.out.println("userId : " + userId);
+			// 2. 비회원이면 더 볼 것도 없이 false
+			if (userId == null) {
+				return false;
+			}
+			// 3. DB 조회 (이미 만들어두신 selectPaid 쿼리 호출)
+			// 결과가 null이 아니면(청약 내역이 있으면) true 반환
+			System.out.println("dto 받아오기 전");
+			SubscriptionHistDTO dto = subscriptionRepository.selectPaid(userId, projectId);
+			System.out.println("dto " + dto);
+			return dto != null;
+		} catch (Exception e) {
+			// 3. 에러 발생 시(비회원 등) 로그만 남기고 false 반환
+			// 이제 서버 콘솔에 빨간 에러가 도배되지 않고 조용히 처리됩니다.
+			System.out.println("비회원 또는 로그인 만료 사용자입니다. (청약 여부: false)");
+			System.out.println("에러 발생 원인: " + e.getClass().getName());
+			log.error("청약 여부 확인 중 예외 발생: {}", e.getMessage());
+			return false;
+		}
 	}
 
 	// 증권사 환불 요청 성공 이후 작업
@@ -151,7 +176,7 @@ public class SubscriptionService {
 	// 환불 내역, 청약 내역 DB 수정
 	@Transactional(rollbackFor = Exception.class)
 	public void updateRefundAndSubsTable(RefundDTO refundDTO, SubscriptionHistDTO subscriptionHistDTO)
-			throws Exception {
+		throws Exception {
 		if (refundRepository.insertRefund(refundDTO) <= 0) {
 			throw new Exception("내부 환불 내역 기록 실패 (DB 오류)");
 		}
@@ -171,7 +196,7 @@ public class SubscriptionService {
 		Long uclId = subscriptionRepository.selectUclId(dto.getUserId());
 		dto.setUclId(uclId);
 		String targetUrl = KH_BASE_URL + "api/project/application/" + dto.getTokenId() + "?subscriptionId="
-				+ dto.getShId() + "&walletId=" + dto.getUclId() + "&amount=" + dto.getSubscriptionAmount();
+			+ dto.getShId() + "&walletId=" + dto.getUclId() + "&amount=" + dto.getSubscriptionAmount();
 
 		try {
 			// [API 호출 전] DB 커넥션 안 잡음
@@ -302,8 +327,7 @@ public class SubscriptionService {
 			try {
 				// 취소 및 환불 요청
 				refundDTO = externalApiUtil.callApi(url, HttpMethod.POST, subscriptionHistDTO,
-						new ParameterizedTypeReference<ApiResponse<RefundDTO>>() {
-						}, idempotencyKey);
+					new ParameterizedTypeReference<ApiResponse<RefundDTO>>() {}, idempotencyKey);
 
 				if (refundDTO == null) {
 					throw new Exception("환불 처리에 실패했습니다.");
@@ -317,7 +341,7 @@ public class SubscriptionService {
 				// 유틸리티에서 던진 구체적인 에러 메시지("잔액 부족" 등)가 이곳으로 전달됨
 				log.error("[Service] 청약 취소 실패. 재시도 큐에 등록합니다. 사유: {}", e.getMessage());
 
-				Object[] params = new Object[] { subscriptionHistDTO.getExternalRefId() };
+				Object[] params = new Object[] {subscriptionHistDTO.getExternalRefId()};
 
 				ApiRetryService apiRetryService = applicationContext.getBean(ApiRetryService.class);
 				apiRetryService.registerRetry(ApiType.SUB_CANCEL, subscriptionHistDTO, params, idempotencyKey);
@@ -340,7 +364,7 @@ public class SubscriptionService {
 
 	// 증권사 환불 요청 성공 이후 작업
 	private void projectFailRefundRequest(SubscriptionHistDTO subscriptionHistDTO, RefundDTO refundDTO)
-			throws Exception {
+		throws Exception {
 		refundDTO.setShId(subscriptionHistDTO.getShId());
 		refundDTO.setProjectId(subscriptionHistDTO.getProjectId());
 		refundDTO.setUclId(refundDTO.getWalletId());
@@ -373,12 +397,12 @@ public class SubscriptionService {
 		final int MONEY_SCALE = 0;
 		final int TOKEN_SCALE = 4;
 		BigDecimal standardAmount = ((dto.getTargetAmount().divide(dto.getSubscriberCount(), MONEY_SCALE,
-				RoundingMode.FLOOR)).max(dto.getMinAmountPerInvestor()));
+			RoundingMode.FLOOR)).max(dto.getMinAmountPerInvestor()));
 		BigDecimal maxAmount = investors.stream().map(investor -> investor.getSubscriptionAmount())
-				.max((a, b) -> a.compareTo(b)).orElse(BigDecimal.ZERO);
+			.max((a, b) -> a.compareTo(b)).orElse(BigDecimal.ZERO);
 
 		BigDecimal minAmount = investors.stream().map(investor -> investor.getSubscriptionAmount())
-				.min((a, b) -> a.compareTo(b)).orElse(BigDecimal.ZERO);
+			.min((a, b) -> a.compareTo(b)).orElse(BigDecimal.ZERO);
 		System.out.println("standardAmount : " + standardAmount);
 		if (minAmount.compareTo(standardAmount) >= 0) {
 			// [Case 01] 모든 참여자가 '기준 금액' 이상 신청
@@ -389,18 +413,18 @@ public class SubscriptionService {
 				Long userId = sendData.getUserId();
 				BigDecimal subscriptionAmount = sendData.getSubscriptionAmount();
 				BigDecimal pricePerToken = dto.getTargetAmount().divide(dto.getTotalSupply(), MONEY_SCALE,
-						RoundingMode.FLOOR);
+					RoundingMode.FLOOR);
 				Long uclId = subscriptionRepository.selectUclId(userId);
 				BigDecimal resultTokenCount = standardAmount.divide(pricePerToken, TOKEN_SCALE, RoundingMode.FLOOR);
 				BigDecimal subscriptionTokenCount = subscriptionAmount.divide(pricePerToken, TOKEN_SCALE,
-						RoundingMode.FLOOR);
+					RoundingMode.FLOOR);
 				// 강황 증권 api로 현재 나의 지갑 조회
 				WalletDTO walletInfo = projectService.selectMyWalletInfo(uclId);
 				BigDecimal myTotalBalance = walletInfo.getTotalBalance();
 				System.out.println("userId : " + userId);
 
 				AllocationRequestDTO allocationRequestDTO = AllocationRequestDTO.builder().subscriptionId(shId)
-						.walletId(uclId).passPrice(pricePerToken).passVolume(resultTokenCount).build();
+					.walletId(uclId).passPrice(pricePerToken).passVolume(resultTokenCount).build();
 
 				requestList.add(allocationRequestDTO);
 
@@ -418,20 +442,20 @@ public class SubscriptionService {
 				String txId = "SUB_" + projectId + "_" + shortTime;
 				String newHash = projectService.createHash(lastPrevHash, tokenId, resultTokenCount);
 				TokenLedgerDTO projectNewTokenDTO = TokenLedgerDTO.builder().tokenId(tokenId) // 토큰 번호
-						.fromUserId(1L) // 보낸 사용자 시스템사용자
-						.toUserId(sendData.getUserId()) // 사용자ID
-						.transactionId(txId) // 거래 고유 식별 번호
-						.externalRefId(990803L) // 증권사 참조 ID (일단 동일하게 세팅)
-						.orderAmount(subscriptionTokenCount) // 주문 수량
-						.contractAmount(resultTokenCount) // 체결 수량
-						.status("COMPLETED") // 발행 완료 상태
-						.fee(BigDecimal.ZERO) // 최초 발행 수수료 0
-						.transactionType("SUBSCRIPTION") // 거래 종류: 발행
-						.from_balanceAfter(adminTotalBalance) // 송금 후 잔액 시스템 관리자 잔액
-						.to_balanceAfter(myTotalBalance.add(standardAmount)) // 수금 후 잔액 현재 잔액 + 기준 금액
-						.prevHashValue(lastPrevHash) // 이전 해시가 없으므로 "0"
-						.hashValue(newHash) // 해시 계산
-						.build();
+					.fromUserId(1L) // 보낸 사용자 시스템사용자
+					.toUserId(sendData.getUserId()) // 사용자ID
+					.transactionId(txId) // 거래 고유 식별 번호
+					.externalRefId(990803L) // 증권사 참조 ID (일단 동일하게 세팅)
+					.orderAmount(subscriptionTokenCount) // 주문 수량
+					.contractAmount(resultTokenCount) // 체결 수량
+					.status("COMPLETED") // 발행 완료 상태
+					.fee(BigDecimal.ZERO) // 최초 발행 수수료 0
+					.transactionType("SUBSCRIPTION") // 거래 종류: 발행
+					.from_balanceAfter(adminTotalBalance) // 송금 후 잔액 시스템 관리자 잔액
+					.to_balanceAfter(myTotalBalance.add(standardAmount)) // 수금 후 잔액 현재 잔액 + 기준 금액
+					.prevHashValue(lastPrevHash) // 이전 해시가 없으므로 "0"
+					.hashValue(newHash) // 해시 계산
+					.build();
 				newTokenList.add(projectNewTokenDTO);
 				lastPrevHash = newHash;
 			}
@@ -448,7 +472,7 @@ public class SubscriptionService {
 			BigDecimal targetAmount = dto.getTargetAmount(); // 프로젝트 목표 금액
 			BigDecimal tokenTotalSupply = dto.getTotalSupply(); // 토큰 총 발행량
 			BigDecimal pricePerToken = dto.getTargetAmount().divide(dto.getTotalSupply(), MONEY_SCALE,
-					RoundingMode.FLOOR); // 토큰 1개당 가격
+				RoundingMode.FLOOR); // 토큰 1개당 가격
 			BigDecimal totalExcessAmount = BigDecimal.ZERO; // 총 초과 금액
 			BigDecimal remainingTokens = tokenTotalSupply; // 나머지 토큰 수
 			List<InvestorDTO> highValueInvestors = new ArrayList<InvestorDTO>();
@@ -460,7 +484,7 @@ public class SubscriptionService {
 					BigDecimal subscriptionAmount = sendData.getSubscriptionAmount();
 					Long uclId = subscriptionRepository.selectUclId(userId);
 					BigDecimal resultTokenCount = subscriptionAmount.divide(pricePerToken, TOKEN_SCALE,
-							RoundingMode.FLOOR);
+						RoundingMode.FLOOR);
 					// 강황 증권 api로 현재 나의 지갑 조회
 					WalletDTO walletInfo = projectService.selectMyWalletInfo(uclId);
 					BigDecimal myTotalBalance = walletInfo.getTotalBalance();
@@ -469,7 +493,7 @@ public class SubscriptionService {
 					targetAmount = targetAmount.subtract(subscriptionAmount); // 목표 금액 - 기준 금액 미만 신청자 금액
 					remainingTokens = remainingTokens.subtract(resultTokenCount); // 토큰 총 발행량 - 기준 금액 미만 신청자 토큰
 					AllocationRequestDTO allocationRequestDTO = AllocationRequestDTO.builder().subscriptionId(shId)
-							.walletId(uclId).passPrice(pricePerToken).passVolume(resultTokenCount).build();
+						.walletId(uclId).passPrice(pricePerToken).passVolume(resultTokenCount).build();
 
 					requestList.add(allocationRequestDTO);
 
@@ -485,20 +509,20 @@ public class SubscriptionService {
 					String txId = "SUB_" + projectId + "_" + shortTime;
 					String newHash = projectService.createHash(lastPrevHash, tokenId, resultTokenCount);
 					TokenLedgerDTO projectNewTokenDTO = TokenLedgerDTO.builder().tokenId(tokenId) // 토큰 번호
-							.fromUserId(1L) // 보낸 사용자 시스템사용자
-							.toUserId(sendData.getUserId()) // 사용자ID
-							.transactionId(txId) // 거래 고유 식별 번호
-							.externalRefId(990803L) // 증권사 참조 ID (일단 동일하게 세팅)
-							.orderAmount(resultTokenCount) // 주문 수량
-							.contractAmount(resultTokenCount) // 체결 수량
-							.status("COMPLETED") // 발행 완료 상태
-							.fee(BigDecimal.ZERO) // 최초 발행 수수료 0
-							.transactionType("SUBSCRIPTION") // 거래 종류: 발행
-							.from_balanceAfter(adminTotalBalance) // 송금 후 잔액 시스템 관리자 잔액
-							.to_balanceAfter(myTotalBalance.add(subscriptionAmount)) // 수금 후 잔액 증권사에서 보내줌
-							.prevHashValue(lastPrevHash) // 이전 해시값
-							.hashValue(newHash) // 해시 계산
-							.build();
+						.fromUserId(1L) // 보낸 사용자 시스템사용자
+						.toUserId(sendData.getUserId()) // 사용자ID
+						.transactionId(txId) // 거래 고유 식별 번호
+						.externalRefId(990803L) // 증권사 참조 ID (일단 동일하게 세팅)
+						.orderAmount(resultTokenCount) // 주문 수량
+						.contractAmount(resultTokenCount) // 체결 수량
+						.status("COMPLETED") // 발행 완료 상태
+						.fee(BigDecimal.ZERO) // 최초 발행 수수료 0
+						.transactionType("SUBSCRIPTION") // 거래 종류: 발행
+						.from_balanceAfter(adminTotalBalance) // 송금 후 잔액 시스템 관리자 잔액
+						.to_balanceAfter(myTotalBalance.add(subscriptionAmount)) // 수금 후 잔액 증권사에서 보내줌
+						.prevHashValue(lastPrevHash) // 이전 해시값
+						.hashValue(newHash) // 해시 계산
+						.build();
 					newTokenList.add(projectNewTokenDTO);
 					lastPrevHash = newHash;
 				} else {
@@ -527,7 +551,7 @@ public class SubscriptionService {
 					Long uclId = subscriptionRepository.selectUclId(userId);
 					BigDecimal userExcessAmount = subscriptionAmount.subtract(standardAmount);
 					BigDecimal subscriptionTokenCount = subscriptionAmount.divide(pricePerToken, TOKEN_SCALE,
-							RoundingMode.FLOOR);
+						RoundingMode.FLOOR);
 					// 강황 증권 api로 현재 나의 지갑 조회
 					WalletDTO walletInfo = projectService.selectMyWalletInfo(uclId);
 					BigDecimal myTotalBalance = walletInfo.getTotalBalance();
@@ -537,15 +561,15 @@ public class SubscriptionService {
 					// 추가 금액 계산 (보너스 파이 * 내 초과율)
 					if (totalExcessAmount.compareTo(BigDecimal.ZERO) > 0) {
 						extraAmount = targetAmount.multiply(userExcessAmount).divide(totalExcessAmount, MONEY_SCALE,
-								RoundingMode.FLOOR);
+							RoundingMode.FLOOR);
 					}
 
 					// 최종 금액 = 기준 금액 + 추가 금액
 					BigDecimal finalUserAmount = standardAmount.add(extraAmount);
 					BigDecimal resultTokenCount = (finalUserAmount.divide(pricePerToken, TOKEN_SCALE,
-							RoundingMode.FLOOR));
+						RoundingMode.FLOOR));
 					AllocationRequestDTO allocationRequestDTO = AllocationRequestDTO.builder().subscriptionId(shId)
-							.walletId(uclId).passPrice(pricePerToken).passVolume(resultTokenCount).build();
+						.walletId(uclId).passPrice(pricePerToken).passVolume(resultTokenCount).build();
 
 					requestList.add(allocationRequestDTO);
 
@@ -563,20 +587,20 @@ public class SubscriptionService {
 					String txId = "SUB_" + projectId + "_" + shortTime;
 					String newHash = projectService.createHash(lastPrevHash, tokenId, resultTokenCount);
 					TokenLedgerDTO projectNewTokenDTO = TokenLedgerDTO.builder().tokenId(tokenId) // 토큰 번호
-							.fromUserId(1L) // [요구사항 1-3] 보낸 사용자 null
-							.toUserId(sendData.getUserId()) // [요구사항 1-2] 시스템 관리자(1)에게 배정
-							.transactionId(txId) // 거래 고유 식별 번호
-							.externalRefId(990803L) // 증권사 참조 ID (일단 동일하게 세팅)
-							.orderAmount(subscriptionTokenCount) // 주문 수량
-							.contractAmount(resultTokenCount) // 체결 수량
-							.status("COMPLETED") // 발행 완료 상태
-							.fee(BigDecimal.ZERO) // 최초 발행 수수료 0
-							.transactionType("SUBSCRIPTION") // 거래 종류: 발행
-							.from_balanceAfter(adminTotalBalance) // 송금 후 잔액 시스템 관리자 잔액
-							.to_balanceAfter(myTotalBalance.add(finalUserAmount)) // 수금 후 잔액 증권사에서 보내줌
-							.prevHashValue(lastPrevHash) // 이전 해시가 없으므로 "0"
-							.hashValue(newHash) // 해시 계산
-							.build();
+						.fromUserId(1L) // [요구사항 1-3] 보낸 사용자 null
+						.toUserId(sendData.getUserId()) // [요구사항 1-2] 시스템 관리자(1)에게 배정
+						.transactionId(txId) // 거래 고유 식별 번호
+						.externalRefId(990803L) // 증권사 참조 ID (일단 동일하게 세팅)
+						.orderAmount(subscriptionTokenCount) // 주문 수량
+						.contractAmount(resultTokenCount) // 체결 수량
+						.status("COMPLETED") // 발행 완료 상태
+						.fee(BigDecimal.ZERO) // 최초 발행 수수료 0
+						.transactionType("SUBSCRIPTION") // 거래 종류: 발행
+						.from_balanceAfter(adminTotalBalance) // 송금 후 잔액 시스템 관리자 잔액
+						.to_balanceAfter(myTotalBalance.add(finalUserAmount)) // 수금 후 잔액 증권사에서 보내줌
+						.prevHashValue(lastPrevHash) // 이전 해시가 없으므로 "0"
+						.hashValue(newHash) // 해시 계산
+						.build();
 					newTokenList.add(projectNewTokenDTO);
 					lastPrevHash = newHash;
 				}
@@ -590,7 +614,7 @@ public class SubscriptionService {
 				Long userId = sendData.getUserId();
 				BigDecimal subscriptionAmount = sendData.getSubscriptionAmount();
 				BigDecimal pricePerToken = dto.getTargetAmount().divide(dto.getTotalSupply(), MONEY_SCALE,
-						RoundingMode.FLOOR);
+					RoundingMode.FLOOR);
 				Long uclId = subscriptionRepository.selectUclId(userId);
 				BigDecimal resultTokenCount = subscriptionAmount.divide(pricePerToken, TOKEN_SCALE, RoundingMode.FLOOR);
 				// 강황 증권 api로 현재 나의 지갑 조회
@@ -599,7 +623,7 @@ public class SubscriptionService {
 				System.out.println("userId : " + userId);
 
 				AllocationRequestDTO allocationRequestDTO = AllocationRequestDTO.builder().subscriptionId(shId)
-						.walletId(uclId).passPrice(pricePerToken).passVolume(resultTokenCount).build();
+					.walletId(uclId).passPrice(pricePerToken).passVolume(resultTokenCount).build();
 
 				requestList.add(allocationRequestDTO);
 
@@ -615,20 +639,20 @@ public class SubscriptionService {
 				String txId = "SUB_" + projectId + "_" + shortTime;
 				String newHash = projectService.createHash(lastPrevHash, tokenId, resultTokenCount);
 				TokenLedgerDTO projectNewTokenDTO = TokenLedgerDTO.builder().tokenId(tokenId) // 토큰 번호
-						.fromUserId(1L) // [요구사항 1-3] 보낸 사용자 null
-						.toUserId(sendData.getUserId()) // [요구사항 1-2] 시스템 관리자(1)에게 배정
-						.transactionId(txId) // 거래 고유 식별 번호
-						.externalRefId(990803L) // 증권사 참조 ID (일단 동일하게 세팅)
-						.orderAmount(resultTokenCount) // 주문 수량
-						.contractAmount(resultTokenCount) // 체결 수량
-						.status("COMPLETED") // 발행 완료 상태
-						.fee(BigDecimal.ZERO) // 최초 발행 수수료 0
-						.transactionType("SUBSCRIPTION") // 거래 종류: 발행
-						.from_balanceAfter(adminTotalBalance) // 송금 후 잔액 시스템 관리자 잔액
-						.to_balanceAfter(myTotalBalance.add(subscriptionAmount)) // 수금 후 잔액 증권사에서 보내줌
-						.prevHashValue(lastPrevHash) // 이전 해시가 없으므로 "0"
-						.hashValue(newHash) // 해시 계산
-						.build();
+					.fromUserId(1L) // [요구사항 1-3] 보낸 사용자 null
+					.toUserId(sendData.getUserId()) // [요구사항 1-2] 시스템 관리자(1)에게 배정
+					.transactionId(txId) // 거래 고유 식별 번호
+					.externalRefId(990803L) // 증권사 참조 ID (일단 동일하게 세팅)
+					.orderAmount(resultTokenCount) // 주문 수량
+					.contractAmount(resultTokenCount) // 체결 수량
+					.status("COMPLETED") // 발행 완료 상태
+					.fee(BigDecimal.ZERO) // 최초 발행 수수료 0
+					.transactionType("SUBSCRIPTION") // 거래 종류: 발행
+					.from_balanceAfter(adminTotalBalance) // 송금 후 잔액 시스템 관리자 잔액
+					.to_balanceAfter(myTotalBalance.add(subscriptionAmount)) // 수금 후 잔액 증권사에서 보내줌
+					.prevHashValue(lastPrevHash) // 이전 해시가 없으므로 "0"
+					.hashValue(newHash) // 해시 계산
+					.build();
 				newTokenList.add(projectNewTokenDTO);
 				lastPrevHash = newHash;
 			}
@@ -640,9 +664,9 @@ public class SubscriptionService {
 		// 2. 1대1 매칭을 위한 Map 생성 (Key: uclId / Value: InvestorDTO)
 		// 루프 밖에서 한 번만 생성해서 속도를 높입니다.
 		Map<Long, InvestorDTO> investorMap = investors.stream()
-				.collect(Collectors.toMap(inv -> subscriptionRepository.selectUclId(inv.getUserId()), // 우리 쪽 지갑 ID
-						inv -> inv, (existing, replacement) -> existing // 혹시 모를 중복 방어
-				));
+			.collect(Collectors.toMap(inv -> subscriptionRepository.selectUclId(inv.getUserId()), // 우리 쪽 지갑 ID
+				inv -> inv, (existing, replacement) -> existing // 혹시 모를 중복 방어
+			));
 
 		List<RefundDTO> refundList = new ArrayList<>();
 
@@ -657,12 +681,12 @@ public class SubscriptionService {
 
 				if (refundAmount.compareTo(BigDecimal.ZERO) > 0) {
 					RefundDTO refund = RefundDTO.builder().userId(investor.getUserId()).projectId(projectId) // 상단에서 선언한
-							.shId(investor.getShId()).uclId(res.getWalletId()) // 증권사 지갑 ID
-							.amount(refundAmount).refundType("PARTIAL") // 일부 배정 후 남은 금액이므로 PARTIAL
-							.reasonCode("PRO_RATA_RESIDUE") // 비례 배분 후 잔여금 사유
-							.status("SUCCESS") // 이제 막 생성했으니 대기 상태
-							.externalRefId(res.getPassTxId()) // 증권사가 준 트랜잭션 ID 기록
-							.build();
+						.shId(investor.getShId()).uclId(res.getWalletId()) // 증권사 지갑 ID
+						.amount(refundAmount).refundType("PARTIAL") // 일부 배정 후 남은 금액이므로 PARTIAL
+						.reasonCode("PRO_RATA_RESIDUE") // 비례 배분 후 잔여금 사유
+						.status("SUCCESS") // 이제 막 생성했으니 대기 상태
+						.externalRefId(res.getPassTxId()) // 증권사가 준 트랜잭션 ID 기록
+						.build();
 					refundList.add(refund);
 				}
 
@@ -683,8 +707,7 @@ public class SubscriptionService {
 		String url = KH_BASE_URL + "api/project/result/" + tokenId;
 		try {
 			List<AllocationResultDTO> response = externalApiUtil.callApi(url, HttpMethod.POST, allocationTokenDTO,
-					new ParameterizedTypeReference<ApiResponse<List<AllocationResultDTO>>>() {
-					});
+				new ParameterizedTypeReference<ApiResponse<List<AllocationResultDTO>>>() {});
 			log.info("배정 완료 데이터 전송 성공: tokenId={}", tokenId);
 			return response;
 		} catch (Exception e) {

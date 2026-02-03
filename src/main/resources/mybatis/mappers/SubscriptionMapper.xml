@@ -16,8 +16,9 @@
 		select * from
 		subscription_hists
 		where
-		project_id=#{projectId} and user_id=#{userId}
+		user_id = #{userId} and project_id = #{projectId}
 		and payment_status = 'PAID'
+		LIMIT 1
 	</select>
 
 	<update id="update" parameterType="subscriptionHistDTO">
