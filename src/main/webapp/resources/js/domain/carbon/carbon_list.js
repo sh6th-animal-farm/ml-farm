@@ -6,14 +6,21 @@ document.addEventListener("DOMContentLoaded", function () {
     // 1. URL 파라미터 미리 파싱
     const params = new URLSearchParams(window.location.search);
     const category = params.get("category") || "ALL";
-    
+
     // 2. [핵심] AuthManager를 통한 선제적 차단
-    if (typeof AuthManager !== 'undefined') {
+    if (typeof AuthManager !== "undefined") {
         const token = localStorage.getItem("accessToken");
-        
+
         // 토큰이 아예 없거나 만료된 경우
         if (!token || AuthManager.isTokenExpired(token)) {
-            alert("로그인이 필요한 서비스입니다."); // 텍스트 화면 대신 alert 실행
+            PendingManager.setPending(
+                {
+                    type: "Warning",
+                    title: "로그인 필요",
+                    content: "로그인이 먼저 필요한 서비스입니다.",
+                },
+                "MODAL",
+            );
             AuthManager.forceLogout(); // 로그인 페이지로 리다이렉트
             return; // API 호출(loadCarbonList)을 아예 시작하지 않음
         }
