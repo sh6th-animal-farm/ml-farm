@@ -353,8 +353,13 @@
 
 /* 내 상태(청약중 등) */
 .project-row .badge.yellow {
-  background: #FFF5E0;
-  color: #E3A300;
+  background: #EBF5FF;
+  color: #4FAAFF;
+}
+
+.project-row .badge.blue {
+  background: #EEF4FF;
+  color: #2563EB;
 }
 
 /* common.css 버튼이랑 높이만 맞춰줌 */

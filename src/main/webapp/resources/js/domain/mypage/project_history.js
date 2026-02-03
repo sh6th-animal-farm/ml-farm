@@ -71,7 +71,6 @@
       },
     });
 
-    // ❗️여기서 alert 금지: 조용히 throw
     if (!res.ok) {
       const text = await res.text().catch(() => "");
       throw new Error(`GET ${url} failed (${res.status}) ${text}`);
@@ -104,7 +103,7 @@
         `&page=${state.page}&size=${state.size}`;
 
       const json = await apiGet(url);
-      const items = pickItems(json); // ✅ 여기서 무조건 배열로 정규화
+      const items = pickItems(json);
 
       if (reset) listEl.innerHTML = "";
 
@@ -120,10 +119,7 @@
       if (moreBtn) moreBtn.style.display = "none";
     }
   }
-  
-  
 
-  // ====== 렌더 ======
   function escapeHtml(s) {
     return String(s ?? "")
       .replaceAll("&", "&amp;")
@@ -139,51 +135,51 @@
 	    return;
 	  }
 	
-	  const html = items
-	    .map((it) => {
-	      const name = escapeHtml(it.projectName ?? it.name ?? "-");
-	      const period = escapeHtml(it.periodText ?? it.period ?? "");
-	      const projectStatus = escapeHtml(it.statusText1 ?? it.status1 ?? "");
-	      const myStatus = escapeHtml(it.statusText2 ?? it.status2 ?? "");
-	      const projectId = it.projectId ?? it.project_id ?? it.id ?? "";
+	  const html = items.map((it) => {
+	  const name = escapeHtml(it.projectName ?? it.name ?? "-");
+	  const period = escapeHtml(it.periodText ?? it.period ?? "");
+	  const projectStatusRaw = it.statusText1 ?? it.status1 ?? "";
+	  const projectStatus = escapeHtml(projectStatusRaw);
+	  const projectId = it.projectId ?? it.project_id ?? it.id ?? "";
 	
-	      // ✅ 대표 상태: 내 상태 우선
-	      const displayStatus = projectStatus || myStatus;
+	  // ✅ 상태별 클래스 (includes로 안전 처리)
+	  let badgeClass = "";
+	  if (projectStatusRaw.includes("청약")) badgeClass = "yellow";
+	  else if (projectStatusRaw.includes("공고")) badgeClass = "blue";
+	  else if (projectStatusRaw.includes("진행")) badgeClass = "green";
 	
-	      return `
-	        <div class="project-row">
-	          <div class="left">
-	            <div class="title">${name}</div>
-	            <div class="sub">${period}</div>
-	          </div>
+	  return `
+	    <div class="project-row" data-project-id="${projectId}">
+	      <div class="left">
+	        <div class="title">${name}</div>
+	        <div class="sub">${period}</div>
+	      </div>
 	
-	          <div class="right">
-	            ${
-	              displayStatus
-	                ? `<span class="badge ${myStatus ? "yellow" : "green"}">${displayStatus}</span>`
-	                : ``
-	            }
-	            <button class="btn-arrow" type="button" aria-label="상세 이동">
-  					<span class="chevron"></span>
-				</button>
-	          </div>
-	        </div>
-	      `;
-	    })
-	    .join("");
+	      <div class="right">
+	        ${
+	          projectStatus
+	            ? `<span class="badge ${badgeClass}">${projectStatus}</span>`
+	            : ``
+	        }
+	        <button class="btn-arrow" type="button" aria-label="상세 이동">
+	          <span class="chevron"></span>
+	        </button>
+	      </div>
+	    </div>
+	  `;
+	});
 	
 	  // ❗ 카드 감싸지 말고 그대로 리스트
 	  listEl.innerHTML = html;
 	
-	  // 버튼 이벤트
-	  listEl.querySelectorAll(".btn-trade").forEach((btn) => {
-	    btn.onclick = (e) => {
-	      e.stopPropagation();
-	      const pid = btn.getAttribute("data-project-id");
-	      if (!pid) return;
-	      location.href = ctx + "/projects/" + pid;
-	    };
-	  });
+	  listEl.querySelectorAll(".btn-arrow").forEach((btn) => {
+		  btn.onclick = (e) => {
+		    e.stopPropagation();
+		    const pid = btn.closest(".project-row")?.getAttribute("data-project-id");
+		    if (!pid) return;
+		    location.href = ctx + "/project/" + pid;
+		  };
+		});
 	}
 
 
