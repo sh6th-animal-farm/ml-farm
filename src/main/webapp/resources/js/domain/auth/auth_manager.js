@@ -64,7 +64,7 @@ const AuthManager = {
             ["click", "keydown", "mousemove", "scroll"].forEach((e) =>
                 document.addEventListener(e, () => {
                     localStorage.setItem("lastActivityTime", Date.now());
-                }),
+                })
             );
             setInterval(() => this.checkAutoLogout(), 1000);
         }
