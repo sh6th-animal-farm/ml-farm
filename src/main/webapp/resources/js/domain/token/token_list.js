@@ -2,10 +2,8 @@ import { TokenApi } from "./token_api.js";
 
 let sideChart = null;
 let sideSeries = null;
-
 let detailSubscription = null;
 let hoverTimer = null;
-
 let isPageExiting = false;
 
 // 1. 페이지를 떠나기 직전에 플래그를 true로 바꾸고 alert을 무력화
@@ -23,7 +21,8 @@ const TokenUIManager = {
 
     // 신규 생성 또는 업데이트
     sync(data) {
-        let row = this.cache.get(data.tokenId);
+        const tokenId = String(data.tokenId);
+        let row = this.cache.get(tokenId);
 
         if (!row) {
             row = createNewTokenRow(data);
@@ -50,7 +49,7 @@ const TokenUIManager = {
 document.addEventListener("DOMContentLoaded", () => {
     // DB 및 Redis에서 가져온 기존 행들을 캐시에 먼저 등록
     document.querySelectorAll('tr[id^="token-row-"]').forEach((row) => {
-        const id = row.id.replace("token-row-", "");
+        const id = String(row.id.replace("token-row-", ""));
         TokenUIManager.cache.set(id, row);
     });
 
@@ -88,10 +87,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // 0.5초(500ms) 후에 구독 함수 실행
             hoverTimer = setTimeout(() => {
+                document.querySelectorAll('.active-row').forEach(el => el.classList.remove('active-row'));
+
+                row.classList.add('active-row');
+
                 console.log(`${id}번 토큰 정보 로드`);
                 subscribeToTokenDetail(id);
                 renderSideChart(id);
-            }, 100);
+            }, 200);
         }
     });
 
@@ -269,27 +272,35 @@ function formatVolume(value) {
 function reorderTable() {
     const tbody = document.querySelector(".token_table_main tbody");
     if (!tbody) return;
-    const rows = Array.from(tbody.querySelectorAll('tr[id^="token-row-"]'));
 
-    // 1. 행의 현재 위치 기록
+    const rows = Array.from(tbody.querySelectorAll('tr[id^="token-row-"]'));
+    if (rows.length === 0) return;
+
+    // 1. 행의 화면의 ID 순서 기록
+    const currentOrder = rows.map(row => row.id);
+
+    // 2. 정렬 로직
+    const sortedRows = [...rows].sort((a, b) => {
+        const volA = parseFloat(a.querySelector(".daily-volume")?.getAttribute("data-value") || 0);
+        const volB = parseFloat(b.querySelector(".daily-volume")?.getAttribute("data-value") || 0);
+        return volB - volA;
+    });
+
+    const newOrder = sortedRows.map(row => row.id);
+
+    const isOrderChanged = currentOrder.some((id, index) => id !== newOrder[index]);
+    if (!isOrderChanged) {
+        return;
+    }
+
+    // 3. 행의 현재 위치 기록 (애니메이션 시작점)
     const firstPositions = new Map();
     rows.forEach((row) =>
         firstPositions.set(row.id, row.getBoundingClientRect().top),
     );
 
-    // 2. 정렬 로직
-    rows.sort((a, b) => {
-        const volA = parseFloat(
-            a.querySelector(".daily-volume")?.getAttribute("data-value") || 0,
-        );
-        const volB = parseFloat(
-            b.querySelector(".daily-volume")?.getAttribute("data-value") || 0,
-        );
-        return volB - volA;
-    });
-
-    // 3. DOM 순서 변경 및 순위 업데이트 (Last)
-    rows.forEach((row, index) => {
+    // 4. DOM 순서 변경 및 순위 업데이트 (Last)
+    sortedRows.forEach((row, index) => {
         const rankEl = row.querySelector(".ranking-num");
         const oldRank = rankEl ? parseInt(rankEl.innerText) : 0;
         const newRank = index + 1;
@@ -315,9 +326,9 @@ function reorderTable() {
         tbody.appendChild(row);
     });
 
-    // 4. 역변환 애니메이션 (Invert & Play)
+    // 5. 역변환 애니메이션 (Invert & Play)
     requestAnimationFrame(() => {
-        rows.forEach((row) => {
+        sortedRows.forEach((row) => {
             const firstTop = firstPositions.get(row.id);
             const lastTop = row.getBoundingClientRect().top;
             const deltaY = firstTop - lastTop;
@@ -332,6 +343,23 @@ function reorderTable() {
                     row.style.transform = "translateY(0)";
                 });
             }
+        });
+        // 브라우저가 위의 스타일 변화를 인지하도록 한 프레임 쉽니다.
+        requestAnimationFrame(() => {
+            sortedRows.forEach((row) => {
+                const deltaY = firstPositions.get(row.id) - row.getBoundingClientRect().top;
+                if (deltaY !== 0) {
+                    // 부드럽게 원래 위치(0)로 복귀
+                    row.style.transition = "transform 0.6s cubic-bezier(0.2, 0, 0, 1)";
+                    row.style.transform = "translateY(0)";
+
+                    // 애니메이션 완료 후 스타일 정리 (Clean-up)
+                    row.addEventListener('transitionend', () => {
+                        row.style.transition = "";
+                        row.style.transform = "";
+                    }, { once: true });
+                }
+            });
         });
     });
 }
