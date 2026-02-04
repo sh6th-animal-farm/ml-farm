@@ -37,7 +37,7 @@ public class TokenService {
 	ExternalApiUtil externalApiUtil;
 
 	@Value("${api.kh-stock.url}") // 강황증권 API 서버 주소 (배포)
-	// @Value("http://localhost:9090/api") // 강황증권 API 서버 주소 (테스트)
+	 // @Value("http://localhost:9090/") // 강황증권 API 서버 주소 (테스트)
 	private String khUrl;
 
 	// 전체 토큰 시세 조회
@@ -50,11 +50,11 @@ public class TokenService {
 					new ParameterizedTypeReference<ApiResponse<List<TokenListDTO>>>() {}
 			);
 
-			list.forEach(dto -> {
-				if (dto.getMarketPrice() == null) dto.setMarketPrice(BigDecimal.ZERO);
-				if (dto.getDailyTradeVolume() == null) dto.setDailyTradeVolume(BigDecimal.ZERO);
-				if (dto.getChangeRate() == null) dto.setChangeRate(BigDecimal.ZERO);
-			});
+//			list.forEach(dto -> {
+//				if (dto.getMarketPrice() == null) dto.setMarketPrice(BigDecimal.ZERO);
+//				if (dto.getDailyTradeVolume() == null) dto.setDailyTradeVolume(BigDecimal.ZERO);
+//				if (dto.getChangeRate() == null) dto.setChangeRate(BigDecimal.ZERO);
+//			});
 
 			return list;
 		} catch (Exception e) {
