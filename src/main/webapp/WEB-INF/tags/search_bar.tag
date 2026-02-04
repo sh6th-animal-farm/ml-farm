@@ -2,12 +2,12 @@
 <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
 <%@ attribute name="width" required="false" %>
 
-<div class="search-container col-4" style="width:${width};">
-    <input type="text" placeholder="검색어를 입력해주세요" onkeyup="if(window.event.keyCode==13){searchKeyword()}" class="search-input">
-    <button class="search-icon-btn" onclick="searchKeyword()">
-        <t:icon name="search" size="20" color="var(--gray-900)"/>
-    </button>
-</div>
+<%--<div class="search-container col-4" style="width:${width};">--%>
+<%--    <input type="text" placeholder="검색어를 입력해주세요" onkeyup="if(window.event.keyCode==13){searchKeyword()}" class="search-input">--%>
+<%--    <button class="search-icon-btn" onclick="searchKeyword()">--%>
+<%--        <t:icon name="search" size="20" color="var(--gray-900)"/>--%>
+<%--    </button>--%>
+<%--</div>--%>
 
 <style>
 .search-container {

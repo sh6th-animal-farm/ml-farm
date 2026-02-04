@@ -50,11 +50,11 @@ public class TokenService {
 					new ParameterizedTypeReference<ApiResponse<List<TokenListDTO>>>() {}
 			);
 
-//			list.forEach(dto -> {
-//				if (dto.getMarketPrice() == null) dto.setMarketPrice(BigDecimal.ZERO);
-//				if (dto.getDailyTradeVolume() == null) dto.setDailyTradeVolume(BigDecimal.ZERO);
-//				if (dto.getChangeRate() == null) dto.setChangeRate(BigDecimal.ZERO);
-//			});
+			list.forEach(dto -> {
+				if (dto.getMarketPrice() == null) dto.setMarketPrice(BigDecimal.ZERO);
+				if (dto.getDailyTradeVolume() == null) dto.setDailyTradeVolume(BigDecimal.ZERO);
+				if (dto.getChangeRate() == null) dto.setChangeRate(BigDecimal.ZERO);
+			});
 
 			return list;
 		} catch (Exception e) {

@@ -29,14 +29,14 @@
                 </div>
             </div>
         </div>
-        <div class="right-header">
-            <div class="period-tab">
-                <button class="period-btn active">1M</button>
-                <button class="period-btn">1H</button>
-                <button class="period-btn">3H</button>
-                <button class="period-btn">24H</button>
-            </div>
-        </div>
+<%--        <div class="right-header">--%>
+<%--            <div class="period-tab">--%>
+<%--                <button class="period-btn active">1M</button>--%>
+<%--                <button class="period-btn">1H</button>--%>
+<%--                <button class="period-btn">3H</button>--%>
+<%--                <button class="period-btn">24H</button>--%>
+<%--            </div>--%>
+<%--        </div>--%>
     </div>
     <div class="token-chart"></div>
 </div>
