@@ -13,7 +13,11 @@ import lombok.RequiredArgsConstructor;
 public class FarmService {
 	private final FarmRepository farmRepository;
 	
-	List<FarmDTO> selectAllFarm() {
+	public List<FarmDTO> selectAllFarm() {
 		return farmRepository.selectAllFarm();
+	}
+
+	public void registerFarm(FarmDTO farmDTO) {
+		farmRepository.insertFarm(farmDTO);
 	}
 }

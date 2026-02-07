@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="t" tagdir="/WEB-INF/tags"%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -166,6 +167,8 @@
 		</div>
 	</div>
 
+	<t:global_modal />
+	<div id="toastContainer" class="toast-container"></div>
 	<script type="module"
 		src="${pageContext.request.contextPath}/resources/js/domain/admin/project_register.js?v=<%=System.currentTimeMillis()%>"></script>
 </body>

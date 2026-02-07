@@ -9,4 +9,36 @@
 		SELECT * from farms;
 	</select>
 	
+	<insert id="insertFarm" parameterType="farmDTO">
+        INSERT INTO farms (
+            farm_name,
+            address_sido,
+            address_sigungu,
+            address_street,
+            address_details,
+            latitude,
+            longitude,   altitude,
+            farm_type,
+            area,
+            description,
+            open_at,
+            thumbnail_url,
+            created_at
+        ) VALUES (
+            #{farmName},
+            #{addressSido},
+            #{addressSigungu},
+            #{addressStreet},
+            #{addressDetails},
+            #{latitude},
+            #{longitude}, #{altitude},
+            #{farmType},
+            #{area},
+            #{description},
+            #{openAt},
+            #{thumbnailUrl},
+            NOW()
+        )
+    </insert>
+	
 </mapper>

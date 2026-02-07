@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="t" tagdir="/WEB-INF/tags"%>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -21,7 +22,7 @@
                 <button type="button" class="btn-load" onclick="openModal()">농장 정보 불러오기</button>
             </div>
 
-            <form action="${pageContext.request.contextPath}/admin/farm/insert" method="post" enctype="multipart/form-data">
+            <form method="post">
                 
                 <div class="form-card">
                     <div class="section-title">기본 정보</div>
@@ -88,27 +89,9 @@
             </form>
         </div>
     </main>
-    
 
-    <div id="projectModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span>지난 프로젝트 목록 선택</span>
-                <span style="cursor:pointer" onclick="closeModal()">&times;</span>
-            </div>
-            <ul class="project-list">
-                <li class="project-item" onclick="selectProject({id: 1, name: '청라 1호 토마토', round: 1, farm: 1, target: 500000000, min: 100000, max: 10000000, roi: 12.5, mgr: 2})">
-                    <strong>청라 1호 토마토 (1차)</strong><br>
-                    <small>농장 ID: 1 | 목표액: 5억 | 수익률: 12.5%</small>
-                </li>
-                <li class="project-item" onclick="selectProject({id: 2, name: '김제 오이 공모', round: 2, farm: 2, target: 300000000, min: 50000, max: 5000000, roi: 10.2, mgr: 1})">
-                    <strong>김제 오이 공모 (2차)</strong><br>
-                    <small>농장 ID: 2 | 목표액: 3억 | 수익률: 10.2%</small>
-                </li>
-            </ul>
-        </div>
-    </div>
-
-    <script src="${pageContext.request.contextPath}/resources/js/admin.js"></script>
+	<t:global_modal />
+	<div id="toastContainer" class="toast-container"></div>
+    <script type="module" src="${pageContext.request.contextPath}/resources/js/domain/admin/farm_register.js"></script>
 </body>
 </html>
