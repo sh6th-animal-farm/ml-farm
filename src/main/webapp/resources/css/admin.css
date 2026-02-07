@@ -25,6 +25,8 @@ body {
 .sidebar {
 	width: var(--sidebar-width);
 	height: 100vh;
+	display: flex;
+    flex-direction: column;
 	background: var(--gray-900);
 	color: white;
 	position: fixed;
@@ -52,6 +54,30 @@ body {
 	background: rgba(74, 159, 46, 0.1);
 	color: var(--green-600);
 	border-right: 4px solid var(--green-600);
+}
+
+.sidebar-footer {
+    margin-top: auto; /* 핵심: 남은 공간을 다 채워서 푸터를 아래로 보냄 */
+    padding: 20px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1); /* 구분선 */
+}
+
+.home-link {
+    display: flex !important;
+    align-items: center;
+    gap: 10px;
+    color: rgba(255, 255, 255, 0.8) !important;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.home-link:hover {
+    background-color: var(--green-600) !important; /* 마우스 올리면 메인 컬러로 */
+    color: #fff !important;
+}
+
+.home-link i, .home-link svg {
+    opacity: 0.7;
 }
 
 .spinner {

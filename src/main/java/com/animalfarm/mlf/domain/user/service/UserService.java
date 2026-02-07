@@ -110,4 +110,18 @@ public class UserService {
 		return name;
 	}
 
+	public String getMyRole() {
+		Long userId = SecurityUtil.getCurrentUserId();
+		if (userId == null) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
+		}
+
+		String role = userRepository.selectUserRoleById(userId);
+		if (role == null || role.isBlank()) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "사용자 권한이 없습니다.");
+		}
+
+		return role;
+	}
+
 }

@@ -35,9 +35,15 @@ public class UserDetailController {
 		}
 	}
 
-	@GetMapping(value = "/me/name", produces = "text/plain; charset=UTF-8")
+	@GetMapping("/me/name")
 	public ResponseEntity<String> getMyName() {
 		return ResponseEntity.ok(userService.getMyName());
 	}
+	
+	@GetMapping("/me/role")
+	public ResponseEntity<String> getMyRole() {
+		return ResponseEntity.ok(userService.getMyRole());
+	}
+	
 
 }

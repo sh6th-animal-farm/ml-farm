@@ -73,56 +73,68 @@ pageEncoding="UTF-8"%> <%@ taglib prefix="t" tagdir="/WEB-INF/tags" %>
     </div>
   </div>
 </header>
-<script>
-  async function fetchMyName() {
-    const token = localStorage.getItem("accessToken");
-
-    const res = await fetch(ctx + "/api/user/me/name", {
-      method: "GET",
-      headers: {
-        "Authorization": token ? "Bearer " + token : "",
-        "Content-Type": "application/json"
-      }
-    });
-
-    if (!res.ok) throw new Error("name api failed: " + res.status);
-    return (await res.text()).trim();
-  }
-
+<script type="module">
+import { AuthApi } from "${pageContext.request.contextPath}/resources/js/api/auth_api.js";
   (async function () {
     const token = localStorage.getItem("accessToken");
     const isPublicPage =
       location.pathname.includes("/auth/login") ||
       location.pathname.includes("/auth/signup");
 
-    const guestGroup = document.getElementById("guest-group");
+    if (!token || isPublicPage) {
+      const guestGroup = document.getElementById("guest-group");
+      if (guestGroup) guestGroup.style.display = "flex";
+      return;
+    }
+
     const userGroup = document.getElementById("user-group");
     const nameEl = userGroup ? userGroup.querySelector(".name-text") : null;
 
-    if (token && !isPublicPage) {
-      userGroup.style.display = "flex";
+    userGroup.style.display = "flex";
 
-      const cached = localStorage.getItem("userName");
-      if (cached && nameEl) {
-        nameEl.textContent = cached + " 님";
-        return;
-      }
+    const cachedName = localStorage.getItem("userName");
+    const cachedRole = localStorage.getItem("userRole");
+    if (cachedName && nameEl) {
+      nameEl.textContent = cachedName + " 님";
+    }
 
+    if (!cachedName) {
+        AuthApi.getUserName().then(name => {
+            const safeName = name || "사용자";
+            localStorage.setItem("userName", safeName);
+            if (nameEl) nameEl.textContent = safeName + " 님";
+        }).catch(e => console.warn("[header] name fetch fail", e));
+    }
+
+    let role = cachedRole;
+    if (!cachedRole) {
       try {
-        const name = await fetchMyName();
-        const safe = name || "사용자";
-        localStorage.setItem("userName", safe);
-        if (nameEl) nameEl.textContent = safe + " 님";
+        role = await AuthApi.getUserRole();
+        localStorage.setItem("userRole", role);
       } catch (e) {
-        console.warn("[header] name fetch failed", e);
-        if (nameEl) nameEl.textContent = "사용자 님";
+        console.warn("[header] role fetch failed", e);
       }
-    } else {
-      guestGroup.style.display = "flex";
+    }
+    
+    const safeRole = role || "USER"
+    if (safeRole === "ADMIN") {
+      const profileDropdown = document.getElementById("profile-dropdown");
+      const logoutLink = profileDropdown.querySelector(".logout-text");
+      
+      // 이미 관리자 페이지 링크가 있는지 확인 (중복 추가 방지)
+      if (!profileDropdown.querySelector(".admin-menu-link")) {
+        const adminLink = document.createElement("a");
+        adminLink.href = "${pageContext.request.contextPath}/admin"; // 관리자 메인 경로
+        adminLink.textContent = "관리자 페이지";
+        adminLink.classList.add("admin-menu-link");
+        
+        // 로그아웃 링크 바로 앞에 삽입
+        profileDropdown.insertBefore(adminLink, logoutLink);
+      }
     }
   })();
 
-  function toggleDropdown(id) {
+  window.toggleDropdown = function (id) {
     document.querySelectorAll(".dropdown-content").forEach((d) => {
       if (d.id !== id) d.classList.remove("show");
     });

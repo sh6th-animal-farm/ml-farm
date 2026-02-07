@@ -11,10 +11,6 @@
 	href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
 <link rel="stylesheet"
 	href="${pageContext.request.contextPath}/resources/css/admin.css">
-<script>
-	// 전역 변수로 선언 (보통 'ctx' 또는 'contextPath'라고 명명)
-	const ctx = "${pageContext.request.contextPath}";
-</script>
 </head>
 <body>
 	<jsp:include page="../common/admin_sidebar.jsp" />
