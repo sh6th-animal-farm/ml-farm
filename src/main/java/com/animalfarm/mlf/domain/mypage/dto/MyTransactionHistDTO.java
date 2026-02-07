@@ -10,6 +10,7 @@ import lombok.Setter;
 @Setter
 public class MyTransactionHistDTO {
 
+	private Long transactionId; // 거래 번호
 	private OffsetDateTime createdAt; // 거래 시각
 	private String transactionType; // 거래 유형(BUY, SELL, PASS, FAIL, DIVIDEND, BURN)
 	private String tokenName; // 토큰 이름
