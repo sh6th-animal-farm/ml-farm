@@ -304,3 +304,27 @@ input:focus {
 .project-item:hover {
 	background: var(--gray-50);
 }
+
+/* 읽기 전용 입력창 스타일 */
+.readonly-input {
+    background-color: #f2f2f2; /* Gray 100 */
+    color: #707070;           /* Gray 400 */
+    cursor: not-allowed;
+    border: 1px solid #e1e1e1;
+}
+
+.input-with-btn {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-search {
+    white-space: nowrap;
+    padding: 0 15px;
+    background: var(--green-600); /* Green 500 */
+    color: white;
+    border: none;
+	font: var(--font-button-02);
+    border-radius: var(--radius-s);
+    cursor: pointer;
+}
