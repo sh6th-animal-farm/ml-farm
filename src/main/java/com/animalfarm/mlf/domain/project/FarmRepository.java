@@ -11,4 +11,6 @@ public interface FarmRepository {
 
 	public List<FarmDTO> selectAllFarm();
 
+	public void insertFarm(FarmDTO farmDTO);
+
 }

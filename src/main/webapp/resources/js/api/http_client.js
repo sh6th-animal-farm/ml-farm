@@ -19,7 +19,13 @@ export const http = {
       // 1. 서버 에러(400, 500 등)가 발생한 경우
       if (!response.ok) {
         let errorMsg = "서버 내부 오류가 발생했습니다.";
-
+        console.log(response);
+        if (response.status === 401)  {
+          errorMsg = "로그인이 필요합니다.";
+        } else if (response.status === 403) {
+          errorMsg = "권한이 없습니다.";
+        }
+        
         try {
           const errorJson = JSON.parse(text);
           // 서버가 던진 JSON 파싱 시도
