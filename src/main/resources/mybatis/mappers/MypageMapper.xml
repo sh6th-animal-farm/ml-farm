@@ -181,16 +181,30 @@
 	<!-- 거래 번호로 토큰 이름 및 종목 코드 조회 -->
 	<select id="findTokenInfoByTxId" resultType="com.animalfarm.mlf.domain.mypage.dto.TokenInfoDTO">
 		SELECT
-			tl.external_ref_id AS externalRefId,
+			th.external_ref_id AS externalRefId,
 			t.token_name AS tokenName,
 			t.ticker_symbol AS tickerSymbol
-		FROM token_ledger tl
-		JOIN tokens t
-			ON tl.token_id = t.token_id
-		WHERE tl.external_ref_id IN
-		<foreach item="id" collection="txIdList" open="(" separator="," close=")">
-			#{id}
-		</foreach>
+		FROM (
+			SELECT external_ref_id, token_id
+			FROM token_ledger
+			WHERE external_ref_id IN
+			<foreach item="id" collection="txIdList" open="(" separator="," close=")">
+				#{id}
+			</foreach>
+
+			UNION ALL
+
+			SELECT
+			r.external_ref_id::bigint AS externalRefId,
+			tt.token_id
+			FROM refunds r
+			INNER JOIN tokens tt ON r.project_id = tt.project_id
+			WHERE r.external_ref_id IN
+			<foreach item="id" collection="txIdList" open="(" separator="," close=")">
+				#{id}::text
+			</foreach>
+		) th
+		JOIN tokens t ON th.token_id = t.token_id
 	</select>
 
 </mapper>
