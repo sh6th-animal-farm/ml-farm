@@ -8,6 +8,7 @@ import com.animalfarm.mlf.domain.mypage.dto.CarbonHistoryDTO;
 import com.animalfarm.mlf.domain.mypage.dto.ProfileDTO;
 import com.animalfarm.mlf.domain.mypage.dto.ProfileUpdateRequestDTO;
 import com.animalfarm.mlf.domain.mypage.dto.ProjectDTO;
+import com.animalfarm.mlf.domain.mypage.dto.TokenInfoDTO;
 
 @Mapper
 public interface MypageRepository {
@@ -56,4 +57,6 @@ public interface MypageRepository {
 	void upsertStarredProject(@Param("userId") Long userId, @Param("projectId") Long projectId,
 			@Param("starred") boolean starred);
 
+	// 거래 번호로 토큰 이름 및 종목 코드 조회
+	List<TokenInfoDTO> findTokenInfoByTxId(@Param("txIdList") List<Long> txIdList);
 }
