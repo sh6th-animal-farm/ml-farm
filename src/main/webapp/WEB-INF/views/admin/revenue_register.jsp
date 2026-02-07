@@ -67,6 +67,6 @@
     </main>
 
     
-    <script src="${pageContext.request.contextPath}/resources/js/admin.js"></script>
+    <script src="${pageContext.request.contextPath}/resources/js/domain/admin/revenue_register.js"></script>
 </body>
 </html>

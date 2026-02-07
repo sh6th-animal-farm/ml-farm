@@ -6,6 +6,10 @@ const DateUtil = {
      */
     toOffsetDateTime: function(localDateTime) {
         if (!localDateTime) return null;
+        // 날짜만 있는 경우(2026-02-07) 뒤에 시간과 타임존을 강제로 붙여줌
+        if (localDateTime.length === 10) {
+            return `${localDateTime}T00:00:00+09:00`;
+        }
         // 초(00)와 한국 시차(+09:00)를 결합
         return `${localDateTime}:00+09:00`;
     },

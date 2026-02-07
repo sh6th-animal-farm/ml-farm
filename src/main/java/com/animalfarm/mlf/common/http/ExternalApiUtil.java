@@ -1,5 +1,7 @@
 package com.animalfarm.mlf.common.http;
 
+import java.util.Map;
+
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -7,7 +9,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
@@ -47,7 +48,7 @@ public class ExternalApiUtil {
 		// 1. 헤더 설정 (JSON 통신 표준화)
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
-
+	    
 		// 멱등성 키가 존재할 때만 헤더에 추가
 		if (idempotencyKey != null && !idempotencyKey.isEmpty()) {
 			headers.set("X-Idempotency-Key", idempotencyKey);
@@ -100,4 +101,29 @@ public class ExternalApiUtil {
 			throw new RuntimeException("시스템 오류로 API를 호출할 수 없습니다.");
 		}
 	}
+	
+	public <T> T callExternalApi(String url, HttpMethod method, Object body,
+			ParameterizedTypeReference<T> responseType, Map<String, String> customHeaders) {
+
+		    HttpHeaders headers = new HttpHeaders();
+		    headers.setContentType(MediaType.APPLICATION_JSON);
+		    
+		    if (customHeaders != null) {
+		        customHeaders.forEach(headers::set);
+		    }
+
+		    HttpEntity<Object> entity = new HttpEntity<>(body, headers);
+
+		    try {
+		        // ApiResponse<T>가 아닌 일반 T 타입으로 받음
+		        ResponseEntity<T> response = restTemplate.exchange(url, method, entity, responseType);
+		        return response.getBody();
+		    } catch (HttpStatusCodeException e) {
+		        log.error("[External API Fail] Status: {}, Body: {}", e.getStatusCode(), e.getResponseBodyAsString());
+		        throw new RuntimeException("외부 서비스 호출 중 오류가 발생했습니다.");
+		    } catch (Exception e) {
+		        log.error("[External API System Error] Message: {}", e.getMessage());
+		        throw new RuntimeException("시스템 오류가 발생했습니다.");
+		    }
+		}
 }

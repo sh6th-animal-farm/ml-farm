@@ -31,7 +31,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/project")
 public class ProjectViewController {
 
-	@Value("${api.kakako.javascript.key}")
+	@Value("${api.kakao.javascript.key}")
 	String kakaoMapKey;
 
 	private final ProjectService projectService;

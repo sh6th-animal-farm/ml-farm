@@ -117,10 +117,6 @@
 		)
 	</select>
 
-	<select id="selectAllFarm" resultType="farmDTO">
-		select * from farms
-	</select>
-
 	<insert id="insertProject" parameterType="projectInsertDTO"
 		useGeneratedKeys="true" keyProperty="projectId" keyColumn="project_id">
 		INSERT INTO

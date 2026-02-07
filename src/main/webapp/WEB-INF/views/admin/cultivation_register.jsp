@@ -101,6 +101,6 @@
         </div>
     </div>
     
-    <script src="${pageContext.request.contextPath}/resources/js/admin.js"></script>
+    <script src="${pageContext.request.contextPath}/resources/js/domain/admin/cultivation_register.js"></script>
 </body>
 </html>
