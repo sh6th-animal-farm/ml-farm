@@ -10,6 +10,7 @@
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/admin.css">
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 </head>
 <body>
 
@@ -68,12 +69,28 @@
                         </div>
                         <div class="form-group">
                             <label>도로명/지번 (Street)</label>
-                            <input type="text" name="address_street" placeholder="도로명 주소 입력" required>
+                            <div class="input-with-btn">
+	                            <input type="text" name="address_street" placeholder="도로명 주소 입력" required>
+	                            <button type="button" class="btn-search" onclick="searchAddress()">주소 검색</button>
+                            </div>
                         </div>
                         <div class="form-group full">
                             <label>상세 주소 (Details) <span class="optional">(선택)</span></label>
                             <input type="text" name="address_details" placeholder="나머지 상세 주소">
                         </div>
+                        
+                        <div class="form-group">
+				            <label>위도 (Latitude)</label>
+				            <input type="text" name="latitude" class="readonly-input" placeholder="주소 검색 시 자동 입력" readonly>
+				        </div>
+				        <div class="form-group">
+				            <label>경도 (Longitude)</label>
+				            <input type="text" name="longitude" class="readonly-input" placeholder="주소 검색 시 자동 입력" readonly>
+				        </div>
+				        <div class="form-group">
+				            <label>고도 (Altitude)</label>
+				            <input type="text" name="altitude" class="readonly-input" placeholder="0" readonly>
+				        </div>
                     </div>
                 </div>
 
