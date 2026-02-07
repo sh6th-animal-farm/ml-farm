@@ -26,4 +26,6 @@ public interface UserRepository {
 
 	String selectUserNameById(@Param("userId")
 	Long userId);
+
+	String selectUserRoleById(Long userId);
 }

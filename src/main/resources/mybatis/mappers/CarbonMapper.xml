@@ -72,9 +72,15 @@
 	    WHERE project_id = #{projectId}
 	</select>
 	
-	<select id="getActualAmount" resultType="java.math.BigDecimal">
+	<!-- <select id="getActualAmount" resultType="java.math.BigDecimal">
 	    SELECT actual_amount 
 	    FROM projects 
+	    WHERE project_id = #{projectId}
+	</select> -->
+	
+	<select id="getTotalSupply" resultType="java.math.BigDecimal">
+	    SELECT total_supply 
+	    FROM tokens 
 	    WHERE project_id = #{projectId}
 	</select>
 	

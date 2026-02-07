@@ -106,7 +106,7 @@ public class CarbonService {
 	 * 1. maxLimit: 기존 로직 유지 (증권사 토큰 총량 대비 지분율)
 	 * 2. discountRate: 신규 로직 적용 (프로젝트 총 투자액 대비 내 투자액)
 	 */
-	private UserBenefitDTO processCalculation(BigDecimal cpAmount, BigDecimal cpPrice, BigDecimal actualAmount,
+	private UserBenefitDTO processCalculation(BigDecimal cpAmount, BigDecimal cpPrice, BigDecimal totalSupply,
 		CarbonDiscountDTO balance) {
 		// 기초 데이터 (API에서 온 값)
 		BigDecimal myBal = (balance != null) ? balance.getMyBalance() : BigDecimal.ZERO;
@@ -116,8 +116,8 @@ public class CarbonService {
 		if (totalCorpTokens.compareTo(BigDecimal.ZERO) == 0) {
 			totalCorpTokens = BigDecimal.ONE;
 		}
-		if (actualAmount == null || actualAmount.compareTo(BigDecimal.ZERO) == 0) {
-			actualAmount = BigDecimal.ONE;
+		if (totalSupply == null || totalSupply.compareTo(BigDecimal.ZERO) == 0) {
+			totalSupply = BigDecimal.ONE;
 		}
 
 		// ---------------------------------------------------------
@@ -131,7 +131,7 @@ public class CarbonService {
 		// 2. 할인율 계산 (discountRate) - 새로운 기준 적용
 		// 수식: (내 토큰 잔고 / 프로젝트 총 투자금액 actual_amount) * 100
 		// ---------------------------------------------------------
-		BigDecimal discountShareRatio = myBal.divide(actualAmount, 10, RoundingMode.HALF_UP);
+		BigDecimal discountShareRatio = myBal.divide(totalSupply, 10, RoundingMode.HALF_UP);
 		BigDecimal discountSharePercent = discountShareRatio.multiply(new BigDecimal("100"));
 
 		// DB에서 해당 퍼센트 구간의 할인율 조회
@@ -165,7 +165,7 @@ public class CarbonService {
 	// 리스트의 각 상품에 UserBenefitDTO(할인율, 최종가 등) 주입
 	private List<CarbonListDTO> applyBenefitsToList(List<CarbonListDTO> list, List<CarbonDiscountDTO> holdings) {
 		for (CarbonListDTO item : list) {
-			BigDecimal actualAmount = carbonRepository.getActualAmount(item.getProjectId()); // [cite: 2]
+			BigDecimal totalSupply = carbonRepository.getTotalSupply(item.getProjectId()); // [cite: 2]
 			Long targetTokenId = carbonRepository.getTokenIdByProjectId(item.getProjectId()); // [cite: 2]
 
 			CarbonDiscountDTO myHolding = holdings.stream()
@@ -176,7 +176,7 @@ public class CarbonService {
 			item.setUserBenefit(processCalculation(
 				item.getCpAmount(),
 				item.getCpPrice(),
-				actualAmount,
+				totalSupply,
 				myHolding));
 		}
 		return list;
@@ -238,7 +238,7 @@ public class CarbonService {
 
 		Long currentProjectId = detail.getCarbonInfo().getProjectId();
 		Long projectId = detail.getCarbonInfo().getProjectId();
-		BigDecimal actualAmount = carbonRepository.getActualAmount(projectId);
+		BigDecimal totalSupply = carbonRepository.getTotalSupply(projectId);
 
 		// 2. [핵심] ID 번역: 프로젝트 ID -> 실제 증권사 토큰 ID
 		Long targetTokenId = carbonRepository.getTokenIdByProjectId(currentProjectId);
@@ -256,7 +256,7 @@ public class CarbonService {
 		detail.setUserBenefit(processCalculation(
 			detail.getCarbonInfo().getCpAmount(),
 			detail.getCarbonInfo().getCpPrice(),
-			actualAmount, myHolding));
+			totalSupply, myHolding));
 
 		return new ApiResponseDTO<CarbonDetailDTO>("상품 상세 정보 조회에 성공했습니다.", detail);
 	}
@@ -287,7 +287,7 @@ public class CarbonService {
 		}
 
 		Long projectId = detail.getCarbonInfo().getProjectId();
-		BigDecimal actualAmount = carbonRepository.getActualAmount(projectId);
+		BigDecimal totalSupply = carbonRepository.getTotalSupply(projectId);
 		Long tokenId = carbonRepository.getTokenIdByProjectId(projectId);
 
 		List<CarbonDiscountDTO> holdings = fetchAllHoldings(walletId);
@@ -299,7 +299,7 @@ public class CarbonService {
 		UserBenefitDTO benefit = processCalculation(
 			detail.getCarbonInfo().getCpAmount(),
 			detail.getCarbonInfo().getCpPrice(),
-			actualAmount,
+			totalSupply,
 			myHolding);
 
 		BigDecimal unitPrice = (benefit != null && benefit.getCurrentPrice() != null)

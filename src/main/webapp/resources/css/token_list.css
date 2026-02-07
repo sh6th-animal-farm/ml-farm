@@ -184,3 +184,15 @@
 
 /* 트레이딩뷰 로고 제거 */
 .chart-container a { display: none !important; }
+
+/* 선택된 행(Active) 강조 스타일 */
+.token_table_main tbody tr.active-row {
+    background-color: #f0f7ff !important; /* 연한 파란색 배경 */
+    border-left: 4px solid #1E88E5;      /* 좌측에 파란색 강조선 추가 */
+    transition: all 0.2s ease;
+}
+/* 활성 행 내부의 텍스트 색상도 살짝 강조하고 싶다면 */
+.token_table_main tbody tr.active-row .token-name {
+    color: #1E88E5;
+    font-weight: 700;
+}

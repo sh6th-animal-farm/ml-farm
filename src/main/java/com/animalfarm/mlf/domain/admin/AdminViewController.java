@@ -6,15 +6,19 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.animalfarm.mlf.domain.project.FarmService;
 import com.animalfarm.mlf.domain.project.ProjectService;
 
 @Controller
 @RequestMapping("/admin")
-public class AdminController {
+public class AdminViewController {
 	static final String ACTIVE_MENU = "activeMenu";
 
 	@Autowired
 	ProjectService projectService;
+	
+	@Autowired
+	FarmService farmService;
 
 	// /admin 또는 /admin/ 으로 접속 시 실행
 	@GetMapping({"", "/"})
@@ -24,7 +28,7 @@ public class AdminController {
 
 	@GetMapping("/project/new")
 	public String newProject(Model model) {
-		model.addAttribute("farmlist", projectService.selectAllFarm());
+		model.addAttribute("farmlist", farmService.selectAllFarm());
 		model.addAttribute(ACTIVE_MENU, "project");
 		return "admin/project_register";
 	}

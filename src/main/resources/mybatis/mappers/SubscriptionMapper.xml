@@ -141,6 +141,7 @@
 		select distinct
 		user_id from subscription_hists
 		where project_id = #{projectId}
+		and payment_status = 'PAID'
 	</select>
 
 	<!-- 청약 내역 업데이트 -->

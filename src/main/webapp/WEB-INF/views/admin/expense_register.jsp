@@ -85,6 +85,6 @@
     </main>
 
 
-    <script src="${pageContext.request.contextPath}/resources/js/admin.js"></script>
+    <script src="${pageContext.request.contextPath}/resources/js/domain/admin/expense_register.js"></script>
 </body>
 </html>

@@ -58,4 +58,10 @@
 	  FROM users
 	  WHERE user_id = #{userId}
 	</select>
+	
+	<select id="selectUserRoleById" parameterType="long" resultType="string">
+	  SELECT role
+	  FROM users
+	  WHERE user_id = #{userId}
+	</select>
 </mapper>
