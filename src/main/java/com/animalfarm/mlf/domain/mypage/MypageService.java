@@ -85,7 +85,7 @@ public class MypageService {
 				List<MyTransactionHistDTO> originalList = response.getBody().getPayload();
 
 				// DB 조회가 필요한 유형 정의
-				Set<String> targetTypes = Set.of("PASS", "FAIL", "DIVIDEND", "BURN");
+				Set<String> targetTypes = Set.of("PASS", "FAIL", "BURN");
 
 				// DB 조회가 필요한 거래 번호만 필터링하여 리스트 생성
 				List<Long> targetIds = originalList.stream()
