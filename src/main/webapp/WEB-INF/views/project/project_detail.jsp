@@ -18,7 +18,7 @@
 					<div class="slider" id="slider">
 						<c:forEach items="${projectData.images}" var="imgUrl">
 							<div class="slide">
-								<img src="${pageContext.request.contextPath}/uploads/projects/${imgUrl}" alt="이미지">
+								<img src="${imgUrl}" alt="이미지">
 							</div>
 						</c:forEach>
 					</div>
