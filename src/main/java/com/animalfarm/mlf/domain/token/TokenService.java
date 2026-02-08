@@ -125,7 +125,7 @@ public class TokenService {
 			null,
 			new ParameterizedTypeReference<ApiResponse<List<OrderPriceDTO>>>() {}
 		);
-		System.out.println("orderBuyPriceList: "+orderBuyPriceList);
+
 		return orderBuyPriceList;
 	}
 
