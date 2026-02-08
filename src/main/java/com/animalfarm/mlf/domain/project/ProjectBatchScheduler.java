@@ -37,7 +37,7 @@ public class ProjectBatchScheduler {
 	private final Job projectClosingJob;
 	private final RevenueSummaryRepository summaryRepo;
 	
-
+	// 1분마다 실행
 	@Scheduled(cron = "0 * * * * *")
 	public void runBatch() {
 		projectService.selectStatus();

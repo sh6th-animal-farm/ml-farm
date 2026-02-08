@@ -177,4 +177,34 @@
 	  ON CONFLICT (user_id, project_id)
 	  DO UPDATE SET is_starred = EXCLUDED.is_starred
 	</insert>
+
+	<!-- 거래 번호로 토큰 이름 및 종목 코드 조회 -->
+	<select id="findTokenInfoByTxId" resultType="com.animalfarm.mlf.domain.mypage.dto.TokenInfoDTO">
+		SELECT
+			th.external_ref_id AS externalRefId,
+			t.token_name AS tokenName,
+			t.ticker_symbol AS tickerSymbol
+		FROM (
+			SELECT external_ref_id, token_id
+			FROM token_ledger
+			WHERE external_ref_id IN
+			<foreach item="id" collection="txIdList" open="(" separator="," close=")">
+				#{id}
+			</foreach>
+
+			UNION ALL
+
+			SELECT
+			r.external_ref_id::bigint AS externalRefId,
+			tt.token_id
+			FROM refunds r
+			INNER JOIN tokens tt ON r.project_id = tt.project_id
+			WHERE r.external_ref_id IN
+			<foreach item="id" collection="txIdList" open="(" separator="," close=")">
+				#{id}::text
+			</foreach>
+		) th
+		JOIN tokens t ON th.token_id = t.token_id
+	</select>
+
 </mapper>

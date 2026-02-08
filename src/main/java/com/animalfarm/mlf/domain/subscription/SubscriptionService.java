@@ -416,7 +416,7 @@ public class SubscriptionService {
 				Long shId = sendData.getShId();
 				Long userId = sendData.getUserId();
 				BigDecimal subscriptionAmount = sendData.getSubscriptionAmount();
-				BigDecimal pricePerToken = dto.getTargetAmount().divide(dto.getTotalSupply(), MONEY_SCALE,
+				BigDecimal pricePerToken = dto.getTargetAmount().divide(dto.getTotalSupply(), 10,
 					RoundingMode.FLOOR);
 				Long uclId = subscriptionRepository.selectUclId(userId);
 				BigDecimal resultTokenCount = standardAmount.divide(pricePerToken, TOKEN_SCALE, RoundingMode.FLOOR);
@@ -475,7 +475,7 @@ public class SubscriptionService {
 			System.out.println("projectId : " + projectId);
 			BigDecimal targetAmount = dto.getTargetAmount(); // 프로젝트 목표 금액
 			BigDecimal tokenTotalSupply = dto.getTotalSupply(); // 토큰 총 발행량
-			BigDecimal pricePerToken = dto.getTargetAmount().divide(dto.getTotalSupply(), MONEY_SCALE,
+			BigDecimal pricePerToken = dto.getTargetAmount().divide(dto.getTotalSupply(), 10,
 				RoundingMode.FLOOR); // 토큰 1개당 가격
 			BigDecimal totalExcessAmount = BigDecimal.ZERO; // 총 초과 금액
 			BigDecimal remainingTokens = tokenTotalSupply; // 나머지 토큰 수
@@ -582,7 +582,8 @@ public class SubscriptionService {
 					System.out.println("지갑ID: " + allocationRequestDTO.getWalletId());
 					System.out.println("토큰1개당 가격: " + allocationRequestDTO.getPassPrice().toPlainString());
 					System.out.println("배정수량: " + allocationRequestDTO.getPassVolume().toPlainString());
-					System.out.println("기준배정: " + standardAmount.divide(pricePerToken));
+					System.out.println("기준배정: " + standardAmount.divide(pricePerToken, TOKEN_SCALE,
+							RoundingMode.FLOOR));
 					System.out.println("추가배정: " + resultTokenCount);
 					System.out.println("--------------------------------------------------");
 
@@ -617,7 +618,7 @@ public class SubscriptionService {
 				Long shId = sendData.getShId();
 				Long userId = sendData.getUserId();
 				BigDecimal subscriptionAmount = sendData.getSubscriptionAmount();
-				BigDecimal pricePerToken = dto.getTargetAmount().divide(dto.getTotalSupply(), MONEY_SCALE,
+				BigDecimal pricePerToken = dto.getTargetAmount().divide(dto.getTotalSupply(), 10,
 					RoundingMode.FLOOR);
 				Long uclId = subscriptionRepository.selectUclId(userId);
 				BigDecimal resultTokenCount = subscriptionAmount.divide(pricePerToken, TOKEN_SCALE, RoundingMode.FLOOR);
@@ -663,6 +664,22 @@ public class SubscriptionService {
 		}
 		log.info("증권사 전송 데이터 확인: {}", requestList);
 		List<AllocationResultDTO> apiResults = resultAllocation(tokenId, requestList);
+		
+		// 토큰 원장에 넣기 위해 API 결과(apiResults)를 Map으로 만듭니다 (Key: walletId, Value: passTxId)
+		Map<Long, Long> txIdMap = apiResults.stream()
+		    .collect(Collectors.toMap(AllocationResultDTO::getWalletId, AllocationResultDTO::getPassTxId));
+		
+		// newTokenList를 돌면서 진짜 externalRefId로 교체합니다.
+		for (TokenLedgerDTO ledger : newTokenList) {
+		    // ledger에 저장된 userId로 uclId(walletId)를 다시 찾아서 맵에서 꺼냅니다.
+		    Long uclId = subscriptionRepository.selectUclId(ledger.getToUserId()); 
+		    Long realTxId = txIdMap.get(uclId);
+		    
+		    if (realTxId != null) {
+		        // 여기서 진짜 증권사 ID로 덮어쓰기! (Setter가 없다면 리플렉션이나 빌더로 교체)
+		        ledger.setExternalRefId(realTxId); 
+		    }
+		}
 		tokenService.insertTokenLedger(newTokenList);
 
 		// 2. 1대1 매칭을 위한 Map 생성 (Key: uclId / Value: InvestorDTO)
@@ -689,7 +706,7 @@ public class SubscriptionService {
 						.amount(refundAmount).refundType("PARTIAL") // 일부 배정 후 남은 금액이므로 PARTIAL
 						.reasonCode("PRO_RATA_RESIDUE") // 비례 배분 후 잔여금 사유
 						.status("SUCCESS") // 이제 막 생성했으니 대기 상태
-						.externalRefId(res.getPassTxId()) // 증권사가 준 트랜잭션 ID 기록
+						.externalRefId(res.getFailTxId()) // 증권사가 준 트랜잭션 ID 기록
 						.build();
 					refundList.add(refund);
 				}

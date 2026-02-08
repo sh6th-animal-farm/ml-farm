@@ -10,7 +10,7 @@
         <col width="80px" />  <%-- 구분 --%>
         <col width="*" />     <%-- 종목명 (나머지 공간 차지) --%>
         <col width="120px" /> <%-- 체결단가 --%>
-        <col width="100px" /> <%-- 거래수량 --%>
+        <col width="120px" /> <%-- 거래수량 --%>
         <col width="200px" /> <%-- 거래금액/잔액 --%>
     </colgroup>
     <thead>

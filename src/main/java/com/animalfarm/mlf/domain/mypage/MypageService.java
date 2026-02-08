@@ -4,7 +4,10 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
@@ -26,7 +29,9 @@ import com.animalfarm.mlf.domain.mypage.dto.ProfileDTO;
 import com.animalfarm.mlf.domain.mypage.dto.ProfileUpdateRequestDTO;
 import com.animalfarm.mlf.domain.mypage.dto.ProjectDTO;
 import com.animalfarm.mlf.domain.mypage.dto.ProjectTabsDTO;
+import com.animalfarm.mlf.domain.mypage.dto.TokenInfoDTO;
 import com.animalfarm.mlf.domain.mypage.dto.WalletDTO;
+import com.animalfarm.mlf.domain.project.dto.ProjectDetailDTO;
 
 @Service
 public class MypageService {
@@ -74,7 +79,44 @@ public class MypageService {
 				urlBuilder.toString(), HttpMethod.GET, null,
 				new ParameterizedTypeReference<ApiResponseDTO<List<MyTransactionHistDTO>>>() {});
 
-			return (response.getBody() != null) ? response.getBody().getPayload() : new ArrayList<>();
+			if (response.getBody() != null) {
+
+				// 나의 거래내역 원본 리스트
+				List<MyTransactionHistDTO> originalList = response.getBody().getPayload();
+
+				// DB 조회가 필요한 유형 정의
+				Set<String> targetTypes = Set.of("PASS", "FAIL", "BURN");
+
+				// DB 조회가 필요한 거래 번호만 필터링하여 리스트 생성
+				List<Long> targetIds = originalList.stream()
+					.filter(txHist -> targetTypes.contains(txHist.getTransactionType()))
+					.map(MyTransactionHistDTO::getTransactionId)
+					.collect(Collectors.toList());
+
+				// DB 조회하여 토큰 정보 주입
+				if (!targetIds.isEmpty()) {
+					List<TokenInfoDTO> tokenInfoList = mypageRepository.findTokenInfoByTxId(targetIds);
+
+					if (!tokenInfoList.isEmpty()) {
+						// DB에서 조회한 토큰 정보 리스트를 Map으로 변환 (Key: externalRefId, Value: TokenInfoDTO)
+						Map<Long, TokenInfoDTO> tokenMap = tokenInfoList.stream()
+							.collect(Collectors.toMap(TokenInfoDTO::getExternalRefId, info -> info));
+
+						// 원본 리스트를 순회하며 토큰 정보 주입
+						originalList.forEach(txHist -> {
+							TokenInfoDTO info = tokenMap.get(txHist.getTransactionId()); // 강황증권의 transactionId == 마리팜의 externalRefID
+							if (info != null) {
+								txHist.setTokenName(info.getTokenName());
+								txHist.setTickerSymbol(info.getTickerSymbol());
+							}
+						});
+					}
+				}
+
+				return originalList;
+			}
+
+			return new ArrayList<>(); // response body가 null이면 빈 리스트 반환
 
 		} catch (Exception e) {
 			System.err.println("[ERROR] API 호출 실패: " + e.getMessage());
