@@ -36,8 +36,8 @@ public class TokenService {
 	@Autowired
 	ExternalApiUtil externalApiUtil;
 
-//	@Value("${api.kh-stock.url}") // 강황증권 API 서버 주소 (배포)
-	  @Value("http://localhost:9090/") // 강황증권 API 서버 주소 (테스트)
+	@Value("${api.kh-stock.url}") // 강황증권 API 서버 주소 (배포)
+	// @Value("http://localhost:9090/") // 강황증권 API 서버 주소 (테스트)
 	private String khUrl;
 
 	// 전체 토큰 시세 조회
