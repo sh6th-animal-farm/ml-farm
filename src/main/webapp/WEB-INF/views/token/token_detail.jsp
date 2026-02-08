@@ -36,35 +36,7 @@
     <div class="content-wrapper">
         <div class="left-column">
             <mp:token_chart/>
-            <div class="card list-card">
-                <div class="scroll active">
-                    <table class="token-list-table">
-                        <thead>
-                        <tr>
-                            <th>종목</th>
-                            <th style="text-align: right;">현재가</th>
-                            <th style="text-align: right;">등락률</th>
-                        </tr>
-                        </thead>
-                        <tbody id="token-list-body">
-                        <c:forEach var="token" items="${tokenList}">
-                            <tr id="token-row-${token.tokenId}" data-volume="${token.dailyTradeVolume}">
-                                <td style="font: var(--font-body-03);">
-                                    ${token.tokenName}
-                                    <span style="margin-left: 4px; font: var(--font-caption-02); color: var(--gray-400);">${token.tickerSymbol}</span>
-                                </td>
-                                <td class="price" style="text-align: right; font: var(--font-body-04);">
-                                    <fmt:formatNumber value="${token.marketPrice}" pattern="#,###"/>
-                                </td>
-                                <td class="rate" style="text-align: right; font: var(--font-body-03); color: ${token.changeRate > 0 ? 'var(--error)' : 'var(--info)'};">
-                                    ${token.changeRate > 0 ? '+' : '-'} ${token.changeRate}%
-                                </td>
-                            </tr>
-                        </c:forEach>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <mp:token_table_detail/>
         </div>
 
         <div class="right-column">
@@ -152,29 +124,7 @@
                     </div>
                 </div>
             </div>
-
-            <div class="card trade-card">
-                <div class="tab-menu">
-                    <button class="trade-btn active" data-tab="order-tab">호가</button>
-                    <button class="trade-btn" data-tab="trade-tab">체결</button>
-                </div>
-                <div id="order-tab" class="scroll active">
-                    <table class="hoga-table">
-                        <thead>
-                        </thead>
-                        <tbody id="order-hist-body">
-                        </tbody>
-                    </table>
-                </div>
-
-                <div id="trade-tab" class="scroll">
-                    <table class="hoga-table">
-                        <thead>
-                        <tbody id="trade-hist-body">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <mp:token_order_trade/>
         </div>
     </div>
 </div>

@@ -1,125 +1,608 @@
 @charset "UTF-8";
 
-.token-container { margin: 24px auto; }
+.token-container {
+    margin: 24px auto;
+}
 
 /* 내용 */
-.content-wrapper { display: flex; gap: 24px; }
-.left-column { display: flex; flex-direction: column; flex: 2; gap: 24px; }
-.right-column { display: flex; flex-direction: column; flex: 1; gap: 24px; }
+.content-wrapper {
+    display: flex;
+    gap: 24px;
+    height: 1241px;
+    align-items: stretch;
+}
+
+.left-column {
+    display: flex;
+    flex-direction: column;
+    flex: 2;
+    gap: 24px;
+}
+
+.right-column {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 24px;
+}
 
 /* 카드 */
-.card { background: white; border-radius: 12px; border: 1px solid var(--gray-100); padding: 24px; box-shadow: var(--shadow); }
+.card {
+    background: white;
+    border-radius: 12px;
+    border: 1px solid var(--gray-100);
+    padding: 24px;
+    box-shadow: var(--shadow);
+}
 
 /* 차트 카드 */
-.chart-card { display: flex; flex-direction: column; gap: 16px; }
-.token-header { display: flex; justify-content: space-between; align-items: start; }
-.left-header { display: flex; flex-direction: column; gap: 12px; }
+.chart-card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.token-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+}
+
+.left-header {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
 
 /* 상단 토큰명 */
-.token-title { display:flex; gap: 8px; align-items: end; }
-.token-title h2 { font: var(--font-header-02); color: var(--gray-900); }
-.token-title p { font: var(--font-body-01); color: var(--gray-700); padding-bottom: 6px; }
+.token-title {
+    display: flex;
+    gap: 8px;
+    align-items: end;
+}
+
+.token-title h2 {
+    font: var(--font-header-02);
+    color: var(--gray-900);
+}
+
+.token-title p {
+    font: var(--font-body-01);
+    color: var(--gray-700);
+    padding-bottom: 6px;
+}
 
 /* 상단 시세 정보 */
-.token-summary { display: flex; flex-direction: column; gap: 4px; }
-.price-header { display: flex; align-items: baseline; gap: 8px; }
-.current-price { display: flex; align-items: baseline; gap: 4px; }
-.price { font: var(--font-header-02); }
-.unit { font: var(--font-caption-01); }
-.change-rate { font: var(--font-body-04); color: var(--error); }
-.info-row { display: flex; gap: 12px; font: var(--font-body-02); color: var(--gray-700); }
+.token-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.price-header {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.current-price {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+}
+
+.price {
+    font: var(--font-header-02);
+}
+
+.unit {
+    font: var(--font-caption-01);
+}
+
+.change-rate {
+    font: var(--font-body-04);
+    color: var(--error);
+}
+
+.info-row {
+    display: flex;
+    gap: 12px;
+    font: var(--font-body-02);
+    color: var(--gray-700);
+}
 
 /* 상단 주기 */
-.period-tab { display: flex; gap: 2px; background: var(--gray-100); border-radius: 6px; padding: 6px; }
-.period-btn { flex: 1; width: 40px; height: 40px; background: none; border: none; border-radius: 6px; cursor: pointer; font: var(--font-caption-02); color: var(--gray-400); }
-.period-btn.active { background: white; font: var(--font-caption-03); color: var(--green-600); }
+.period-tab {
+    display: flex;
+    gap: 2px;
+    background: var(--gray-100);
+    border-radius: 6px;
+    padding: 6px;
+}
+
+.period-btn {
+    flex: 1;
+    width: 40px;
+    height: 40px;
+    background: none;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font: var(--font-caption-02);
+    color: var(--gray-400);
+}
+
+.period-btn.active {
+    background: white;
+    font: var(--font-caption-03);
+    color: var(--green-600);
+}
 
 /* 차트 */
-.token-chart { width: 100%; height: 450px; background: var(--gray-100); border: 1px solid var(--gray-100); border-radius: 12px; overflow: hidden;}
+.token-chart {
+    width: 100%;
+    height: 450px;
+    background: var(--gray-100);
+    border: 1px solid var(--gray-100);
+    border-radius: 12px;
+    overflow: hidden;
+}
 
 /* 종목 (좌측 하단) */
-.list-card { display: flex; flex-direction: column; height: 320px; }
+.list-card {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    height: auto;
+    min-height: 0;
+}
 
 /* 주문 폼 (우측 상단) */
-.order-card { display: flex; flex-direction: column; gap: 20px; height: 434px; }
+.order-card {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: 434px;
+}
 
 /* 호가/체결 (우측 하단) */
-.trade-card { display: flex; flex-direction: column; gap: 8px; height: 508px; }
+.trade-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    height: 783px;
+}
 
 /* 탭 메뉴 */
-.tab-menu { display: flex; height: 52px; background: var(--gray-100); border-radius: 6px; padding: 6px; flex-shrink: 0; }
-.order-btn, .trade-btn { flex: 1; border: none; border-radius: 6px; cursor: pointer; font: var(--font-caption-02); color: var(--gray-400); background: none; }
-.order-btn.active, .trade-btn.active { background: white; font: var(--font-caption-03); color: var(--green-600); }
+.tab-menu {
+    display: flex;
+    height: 52px;
+    background: var(--gray-100);
+    border-radius: 6px;
+    padding: 6px;
+    flex-shrink: 0;
+}
+
+.order-btn,
+.trade-btn {
+    flex: 1;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font: var(--font-caption-02);
+    color: var(--gray-400);
+    background: none;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.order-btn.active,
+.trade-btn.active {
+    background: white;
+    font: var(--font-caption-03);
+    color: var(--green-600);
+}
 
 /* 탭 컨텐츠 */
-.tab-content-wrapper { display: none; flex-direction: column; height: calc(100% - 72px); gap: 12px; }
-.tab-content-wrapper.active { display: flex; }
-.tab-content { display: flex; flex-direction: column; height: 100%; gap: 12px; }
+.tab-content-wrapper {
+    display: none;
+    flex-direction: column;
+    height: calc(100% - 72px);
+    gap: 12px;
+}
+
+.tab-content-wrapper.active {
+    display: flex;
+    animation: premium-entrance 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+}
+
+.tab-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 12px;
+}
 
 /* 매수/매도 */
-.order-input-group { display: flex; gap: 4px; }
-.order-label { display: flex; align-items: center; width: 100px; font: var(--font-caption-02); color: var(--gray-400); }
-.input-box { width: 100%; padding: 12px; border: 1px solid var(--gray-200); border-radius: 6px; background: var(--gray-100); }
+.order-input-group {
+    display: flex;
+    gap: 4px;
+}
 
-.percentage-group { display: flex; gap: 8px; margin: 4px 0px; }
-.perc-btn { flex: 1; height: 38px; border: 1px solid var(--gray-200); background: white; border-radius: 6px; font: var(--font-caption-01); cursor: pointer; }
-.buy-perc:active { border: 1px solid var(--error); background: var(--error-light); }
-.sell-perc:active { border: 1px solid var(--info); background: var(--info-light); }
+.order-label {
+    display: flex;
+    align-items: center;
+    width: 100px;
+    font: var(--font-caption-02);
+    color: var(--gray-400);
+}
 
-.summary-row { display: flex; justify-content: space-between; font: var(--font-body-03); }
-.btn-order { width: 100%; padding: 12px; border: none; border-radius: 6px; font: var(--font-body-03); cursor: pointer; color: white; }
-.btn-buy { background-color: var(--error); }
-.btn-sell { background-color: var(--info); }
+.input-box {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--gray-200);
+    border-radius: 6px;
+    background: var(--gray-100);
+}
+
+.percentage-group {
+    display: flex;
+    gap: 8px;
+    margin: 4px 0px;
+}
+
+.perc-btn {
+    flex: 1;
+    height: 38px;
+    border: 1px solid var(--gray-200);
+    background: white;
+    border-radius: 6px;
+    font: var(--font-caption-01);
+    cursor: pointer;
+}
+
+.buy-perc:active {
+    border: 1px solid var(--error);
+    background: var(--error-light);
+}
+
+.sell-perc:active {
+    border: 1px solid var(--info);
+    background: var(--info-light);
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    font: var(--font-body-03);
+}
+
+.btn-order {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    font: var(--font-body-03);
+    cursor: pointer;
+    color: white;
+}
+
+.btn-buy {
+    background-color: var(--error);
+}
+
+.btn-sell {
+    background-color: var(--info);
+}
 
 /* 거래 내역 */
 /* 컨테이너 및 기본 설정 */
-.history-summary { display: flex; justify-content: space-between; padding: 4px; font: var(--font-caption-01); border-bottom: 1px solid var(--gray-200); }
-.no-content { display: flex; height: 300px; justify-content: center; align-items: center; text-align:center; border: none; font: var(--font-body-01); color: var(--gray-500) }
+.history-summary {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px;
+    font: var(--font-caption-01);
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.no-content {
+    display: flex;
+    height: 300px;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    border: none;
+    font: var(--font-body-01);
+    color: var(--gray-500)
+}
 
 /* 리스트 스타일 초기화 */
-.transaction-list { list-style: none; margin-top: -12px; padding: 0; }
-.transaction-item { position: relative; display: flex; flex-direction: column; gap: 20px; padding: 16px 4px; background-color: white; border-bottom: 1px solid var(--gray-200); isolation: isolate; }
+.transaction-list {
+    list-style: none;
+    margin-top: -12px;
+    padding: 0;
+}
+
+.transaction-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 16px 4px;
+    background-color: white;
+    border-bottom: 1px solid var(--gray-200);
+    isolation: isolate;
+}
 
 /* 호버 시 블러 처리 */
-.item-hover-layer { position: absolute; inset: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; opacity: 0; background: rgba(255, 255, 255, 0.5); backdrop-filter: blur(4px); transition: opacity 0.2s ease-in-out; z-index: 10; pointer-events: none; }
-.transaction-item:hover .item-hover-layer { opacity: 1; pointer-events: auto; }
-.trashcan-box { display: flex !important; width: 50px; height: 50px; align-items: center; justify-content: center; cursor: pointer; z-index: 11; }
-.trashcan { display: flex !important; align-items: center; justify-content: center; color: var(--gray-900) !important; fill: var(--gray-900) !important; }
+.item-hover-layer {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    background: rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(4px);
+    transition: opacity 0.2s ease-in-out;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.transaction-item:hover .item-hover-layer {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.trashcan-box {
+    display: flex !important;
+    width: 50px;
+    height: 50px;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 11;
+}
+
+.trashcan {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-900) !important;
+    fill: var(--gray-900) !important;
+}
 
 /* 제목 및 날짜 */
-.trade-title { display: flex; flex-direction: column; gap: 4px; }
-.item-header { display: flex; gap: 8px; align-items: center; }
-.asset-name { font: var(--font-body-04); }
-.trade-type.sell { font: var(--font-body-04); color: var(--info); }
-.trade-type.buy { font: var(--font-body-04); color: var(--error); }
-.trade-date { font: var(--font-caption-01); }
+.trade-title {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.item-header {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.asset-name {
+    font: var(--font-body-04);
+}
+
+.trade-type.sell {
+    font: var(--font-body-04);
+    color: var(--info);
+}
+
+.trade-type.buy {
+    font: var(--font-body-04);
+    color: var(--error);
+}
+
+.trade-date {
+    font: var(--font-caption-01);
+}
 
 /* 상세 데이터 행 */
-.trade-info { display: flex; flex-direction: column; gap: 8px; }
-.trade-info-row { display: flex; justify-content: space-between; align-items: center; }
-.label { font: var(--font-body-03); color: var(--gray-400); }
-.value { font: var(--font-body-04) }
+.trade-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.trade-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.label {
+    font: var(--font-body-03);
+    color: var(--gray-400);
+}
+
+.value {
+    font: var(--font-body-04)
+}
 
 /* 하단 종목 및 호가/체결 테이블 */
-.token-list-table, .hoga-table { width: 100%; font: var(--font-body-03); border-collapse: collapse; }
-.token-list-table th, .hoga-table th { position: sticky; top: 0; padding: 14px; background: #fff; text-align: left; font: var(--font-body-02); color: var(--gray-400); border-bottom: 1px solid var(--gray-200); }
-.token-list-table td, .hoga-table td { padding: 14px; border-bottom: 1px solid var(--gray-100); }
-.token-list-table tbody tr:hover { background: var(--gray-100); }
-.scroll { display: none; flex: 1; overflow-y: auto; }
-.scroll.active { display: block; }
+.token-list-table {
+    width: 100%;
+    font: var(--font-body-03);
+    border-collapse: collapse;
+}
+
+.token-list-table th {
+    position: sticky;
+    top: 0;
+    padding: 14px;
+    background: #fff;
+    text-align: left;
+    font: var(--font-body-02);
+    color: var(--gray-400);
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.token-list-table td {
+    padding: 14px;
+    border-bottom: 1px solid var(--gray-100);
+}
+
+.token-list-table tbody tr:hover {
+    background: var(--gray-50);
+    cursor: pointer;
+}
+
+.trade-history-table td {
+    padding: 14px;
+    height: 48px;
+    border-bottom: 1px solid var(--gray-100);
+}
+
+/* 호가 베이스 */
+.hoga-table {
+    width: 100%;
+    border-collapse: collapse;
+    font: var(--font-body-03);
+    table-layout: fixed;
+}
+
+.order-book-table {
+    --depth-ratio: 0;
+    --depth-color: transparent;
+}
+
+.order-book-table td {
+    padding: 0 8px;
+    height: 48px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+    vertical-align: middle;
+}
+
+.order-book-table tr {
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.order-book-table tr:hover {
+    background: var(--gray-50);
+}
+
+/* 매도 바 */
+.sell-row td:nth-child(1) {
+    position: relative;
+    isolation: isolate;
+    text-align: right;
+    font: var(--font-caption-01);
+}
+
+.sell-row td:nth-child(1)::after {
+    content: "";
+    position: absolute;
+    top: 6px;
+    bottom: 6px;
+    left: 0;
+    width: 100%;
+    background-color: var(--depth-color);
+    transform: scaleX(var(--depth-ratio, 0));
+    transform-origin: right;
+    transition: transform 0.2s ease-out;
+    z-index: -1;
+    border-radius: 4px 0 0 4px;
+}
+
+/* 매수 바 */
+.buy-row td:nth-child(3) {
+    position: relative;
+    isolation: isolate;
+    font: var(--font-caption-01);
+}
+
+.buy-row td:nth-child(3)::after {
+    content: "";
+    position: absolute;
+    top: 6px;
+    bottom: 6px;
+    right: 0;
+    width: 100%;
+    background-color: var(--depth-color);
+    transform: scaleX(var(--depth-ratio, 0));
+    transform-origin: left;
+    transition: transform 0.2s ease-out;
+    z-index: -1;
+    border-radius: 4px 0 0 4px;
+}
+
+/* 가격 열 너비 고정 (중앙 정렬 효과) */
+.order-book-table td:nth-child(2) {
+    text-align: center;
+    font: var(--font-body-03);
+    border-bottom: none;
+}
+
+.order-hist-row.is-current td:nth-child(2) {
+    border: 2px solid;
+}
+
+.scroll {
+    display: none;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.scroll.active {
+    display: block;
+}
 
 /* 종목 테이블 상세 */
-.token-code { margin-left: 4px; font: var(--font-caption-02); color: var(--gray-700); }
+.token-code {
+    margin-left: 4px;
+    font: var(--font-caption-02);
+    color: var(--gray-700);
+}
 
 /* 호가/체결 테이블 상세 */
-.trade-dir { color: var(--gray-400); }
+.trade-dir {
+    color: var(--gray-400);
+}
 
 /* 호가 컬러 */
-.hoga-sell { color: var(--info); font-weight: 600; }
-.hoga-buy { color: var(--error); font-weight: 600; }
+.hoga-sell {
+    color: var(--info);
+    font-weight: 600;
+}
+
+.hoga-buy {
+    color: var(--error);
+    font-weight: 600;
+}
 
 /* 호가 한 행 */
-.order-hist-row { cursor: pointer; }
+.order-hist-row {
+    cursor: pointer;
+}
 
 /* 트레이딩뷰 로고 제거 */
-.token-chart a { display: none !important; }
+.token-chart a {
+    display: none !important;
+}
+
+/* 1. 스크롤바 전체 너비 설정 (얇게) */
+.scroll::-webkit-scrollbar {
+    width: 5px;
+}
+/* 2. 스크롤바 트랙 (바탕) - 투명하게 해서 더 깔끔하게 */
+.scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+/* 3. 스크롤바 손잡이 (움직이는 부분) - 둥글고 은은한 회색 */
+.scroll::-webkit-scrollbar-thumb {
+    background: var(--gray-200); /* 은은한 색상 */
+    border-radius: 10px;
+}
+/* 4. 마우스 올렸을 때만 조금 더 진하게 표시 */
+.scroll::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-400);
+}
