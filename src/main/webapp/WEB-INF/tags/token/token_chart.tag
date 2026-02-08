@@ -23,9 +23,9 @@
                     </span>
                 </div>
                 <div class="info-row">
-                    <span>고가 <fmt:formatNumber value="${ohlcv != null ? ohlcv.highPrice : 0}" pattern="#,###"/></span>
-                    <span>저가 <fmt:formatNumber value="${ohlcv != null ? ohlcv.lowPrice : 0}" pattern="#,###"/></span>
-                    <span>거래량 <fmt:formatNumber value="${ohlcv != null ? ohlcv.dailyTradeVolume : 0}" pattern="#,###"/></span>
+                    <span>고가 <b><fmt:formatNumber value="${ohlcv != null ? ohlcv.highPrice : 0}" pattern="#,###"/></b></span>
+                    <span>저가 <b><fmt:formatNumber value="${ohlcv != null ? ohlcv.lowPrice : 0}" pattern="#,###"/></b></span>
+                    <span>거래대금 <b><fmt:formatNumber value="${ohlcv != null ? ohlcv.dailyTradeVolume : 0}" pattern="#,###"/></b></span>
                 </div>
             </div>
         </div>

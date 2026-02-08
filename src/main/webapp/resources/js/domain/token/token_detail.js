@@ -1,6 +1,8 @@
-import {TokenApi} from "./token_api.js";
+import { TokenApi } from "./token_api.js";
 
 const tokenId = window.tokenId;
+const norm = (p) => Number(Number(p || 0).toFixed(8));
+const KST_OFFSET = 9 * 60 * 60;
 
 let candleSeries; // 캔들
 let volumeSeries; // 거래량
@@ -43,7 +45,7 @@ const transformCandleData = (data) => {
 
 // 캔들 데이터 변환 (실시간 데이터용, 객체 하나)
 export const transformSingleCandle = (data) => ({
-    time: Number(data.candleTime),
+    time: Number(data.candleTime) + KST_OFFSET,
     open: Number(data.openingPrice),
     high: Number(data.highPrice),
     low: Number(data.lowPrice),
@@ -57,11 +59,11 @@ const transformVolumeData = (data) => {
 
 // 거래량 데이터 변환 (실시간 데이터용, 객체 하나)
 const transformSingleVolume = (data) => ({
-    time: Number(data.candleTime),
+    time: Number(data.candleTime) + KST_OFFSET,
     value: Number(data.tradeVolume || 0),
     color: Number(data.closingPrice) >= Number(data.openingPrice)
-        ? 'rgba(242, 54, 69, 0.3)'
-        : 'rgba(8, 153, 129, 0.3)'
+        ? 'rgba(209,47,47,0.3)'
+        : 'rgba(25,117,208,0.3)'
 });
 
 // 종목 리스트 변환 (실시간 데이터용, 배열)
@@ -119,7 +121,7 @@ const TokenListManager = {
         priceTd.innerText = Number(data.marketPrice).toLocaleString();
 
         // 등락률 업데이트
-        rateTd.innerText = `${isUp ? '+' : ''}${data.changeRate.toFixed(2)}%`;
+        updateRateUI(rateTd, data.changeRate);
         rateTd.style.color = color;
 
         // 정렬 기준값(거래대금) 업데이트
@@ -318,10 +320,31 @@ function updateOrderTotal(tabContent) {
 }
 
 // 인풋박스 입력 시 실시간 계산 및 업데이트
-document.querySelectorAll('.tab-content .input-box').forEach(input => {
+document.querySelectorAll('.tab-content input.input-box').forEach(input => {
     input.addEventListener('input', function () {
+        const start = this.selectionStart;
+        const prevLen = this.value.length;
+
+        if (typeof handleNumericInput === 'function') {
+            handleNumericInput(this);
+        }
+
+        const currLen = this.value.length;
+
+        if (document.activeElement === this && this.offsetWidth > 0) {
+            try {
+                const newPos = start + (currLen - prevLen);
+                this.setSelectionRange(newPos, newPos);
+            } catch (e) {
+                // 혹시 모를 브라우저 예외에도 스크립트가 죽지 않게 보호
+                console.warn("커서 위치 조정 실패:", e);
+            }
+        }
+
         const tabContent = this.closest('.tab-content');
-        updateOrderTotal(tabContent);
+        if (typeof updateOrderTotal === 'function') {
+            updateOrderTotal(tabContent);
+        }
     });
 });
 
@@ -434,7 +457,7 @@ async function handleOrder(event, side) {
 
 /* 주문 검증 */
 function validateOrder(dto) {
-    const {orderSide, orderType, orderPrice, orderVolume, totalPrice} = dto;
+    const { orderSide, orderType, orderPrice, orderVolume, totalPrice } = dto;
 
     // 1. 계좌 연동 여부 검증
     // -> 서비스 함수에서 처리
@@ -445,7 +468,7 @@ function validateOrder(dto) {
     // 2. 숫자 형식 및 음수 체크
     if (isNaN(orderPrice) || isNaN(orderVolume) || isNaN(totalPrice) ||
         orderPrice < 0 || orderVolume < 0 || totalPrice < 0) {
-        return {valid: false, msg: "가격 또는 수량을 정확히 입력해주세요."};
+        return { valid: false, msg: "가격 또는 수량을 정확히 입력해주세요." };
     }
 
     // 3. 매수 조건 검증
@@ -455,9 +478,9 @@ function validateOrder(dto) {
         if (orderType === 'LIMIT') {
             // 지정가 매수: 가격 * 수량으로 총액 계산
             if (orderPrice <= 0) {
-                return {valid: false, msg: "가격을 입력해주세요."};
+                return { valid: false, msg: "가격을 입력해주세요." };
             } else if (orderVolume <= 0) {
-                return {valid: false, msg: "수량을 입력해주세요."};
+                return { valid: false, msg: "수량을 입력해주세요." };
             }
 
             finalBuyAmount = orderPrice * orderVolume;
@@ -468,7 +491,7 @@ function validateOrder(dto) {
 
         // 최소 금액 1,000원 검증
         if (finalBuyAmount < 1000) {
-            return {valid: false, msg: "최소 주문 금액은 1,000원입니다."};
+            return { valid: false, msg: "최소 주문 금액은 1,000원입니다." };
         }
     }
 
@@ -476,16 +499,16 @@ function validateOrder(dto) {
     else if (orderSide === 'SELL') {
         // 지정가 매도 시 가격 입력 체크
         if (orderType === 'LIMIT' && orderPrice <= 0) {
-            return {valid: false, msg: "가격을 입력해주세요."};
+            return { valid: false, msg: "가격을 입력해주세요." };
         }
 
         // 최소 수량 0.00001개 검증 (시장가/지정가 공통)
         if (orderVolume < 0.00001) {
-            return {valid: false, msg: "최소 주문 수량은 0.00001개입니다."};
+            return { valid: false, msg: "최소 주문 수량은 0.00001개입니다." };
         }
     }
 
-    return {valid: true};
+    return { valid: true };
 };
 
 /* 미체결 내역 조회 */
@@ -663,6 +686,15 @@ function addNewTrade(newItem) {
     const rowHtml = createTradeRowHtml(newItem);
     tbody.insertAdjacentHTML('afterbegin', rowHtml); // 맨 위에 추가
 
+    const tradePrice = norm(newItem.price);
+    if (norm(window.ohlcv.marketPrice) !== tradePrice) {
+        window.ohlcv.marketPrice = tradePrice; // 시장가 갱신
+
+        if (typeof renderOrderBook === 'function') {
+            renderOrderBook(window.orderSellList, window.orderBuyList);
+        }
+    }
+
     // 최대 30개만 유지
     if (tbody.rows.length > 30) {
         tbody.lastElementChild.remove();
@@ -679,19 +711,104 @@ function renderOrderBook(sellList, buyList) {
         return;
     }
 
-    // 매도: 가격 낮은 순 15개 (오름차순)
-    const sortedSells = [...sellList].sort((a, b) => a.price - b.price).slice(0, 15);
-    // 매수: 가격 높은 순 15개 (내림차순)
-    const sortedBuys = [...buyList].sort((a, b) => b.price - a.price).slice(0, 15);
+    const marketPrice = Number(window.ohlcv.marketPrice || 0);
+    const tickSize = getTickSize(marketPrice);
+    const basePrice = norm(Math.round(marketPrice / tickSize) * tickSize);
 
-    // 매도 내림차순(reverse) -> 매수 내림차순
-    const sellHtml = sortedSells.reverse().map(item => createOrderRowHtml(item, 'SELL')).join('');
-    const buyHtml = sortedBuys.map(item => createOrderRowHtml(item, 'BUY')).join('');
+    const sellMap = new Map();
+    sellList.forEach(s => {
+        const p = norm(s.price);
+        sellMap.set(p, (sellMap.get(p) || 0) + Number(s.totalVolume));
+    });
+    const buyMap = new Map();
+    buyList.forEach(b => {
+        const p = norm(b.price);
+        buyMap.set(p, (buyMap.get(p) || 0) + Number(b.totalVolume));
+    });
 
-    tbody.innerHTML = sellHtml + buyHtml;
+    const ladder = [];
+
+    // 매도 15개 (위로 상승)
+    for (let i = 15; i >= 1; i--) {
+        const p = norm(basePrice + (i * tickSize));
+        if (p > 0) {
+            ladder.push({ price: p, volume: sellMap.get(p) || 0, type: 'SELL' });
+        } else {
+            ladder.push({ price: null, volume: 0, type: 'EMPTY' });
+        }
+    }
+
+    const sVol = sellMap.get(basePrice) || 0;
+    const bVol = buyMap.get(basePrice) || 0;
+
+    // 현재가
+    ladder.push({
+        price: basePrice,
+        volume: sVol || bVol || 0,
+        type: 'CURRENT',
+        actualSide: sVol > 0 ? 'SELL' : (bVol > 0 ? 'BUY' : (basePrice >= marketPrice ? 'SELL' : 'BUY'))
+    });
+
+    // 매수 15개 (아래로 하락)
+    for (let i = 1; i <= 15; i++) {
+        const p = norm(basePrice - (i * tickSize));
+        if (p > 0) {
+            ladder.push({ price: p, volume: buyMap.get(p) || 0, type: 'BUY' });
+        } else {
+            ladder.push({ price: null, volume: 0, type: 'EMPTY' });
+        }
+    }
+
+    // 물량 바 최대치 계산
+    const maxVol = Math.max(...ladder.map(r => r.volume || 0), 0.0001);
+    tbody.innerHTML = ladder.map(row => createOrderRowHtml(row, maxVol)).join('');
 }
 
-/* 호가 HTML 생성 */
+/* 호가 행 생성 */
+function createOrderRowHtml(row, maxVol) {
+
+    if (row.type === 'EMPTY' || row.price === null) {
+        return `<tr class="order-hist-row empty-row"><td></td><td>-</td><td></td></tr>`;
+    }
+
+    const isCurrent = row.type === 'CURRENT';
+    const marketPrice = norm(window.ohlcv.marketPrice);
+
+    const isSell = row.type === 'SELL' || (isCurrent && row.actualSide === 'SELL');
+    const sideClass = isSell ? 'hoga-sell' : 'hoga-buy';
+
+    const ratio = (row.volume / maxVol).toFixed(4);
+    const depthColor = isSell ? 'var(--info-light)' : 'var(--error-light)';
+
+    const formattedPrice = Number(row.price).toLocaleString();
+    const formattedVolume = row.volume > 0 ? Number(row.volume).toFixed(4) : '';
+
+    return `
+        <tr class="order-hist-row ${isSell ? 'sell-row' : 'buy-row'} ${isCurrent ? 'is-current' : ''}" 
+            style="--depth-ratio: ${ratio}; --depth-color: ${depthColor};"
+            onclick="selectPrice('${row.price}')">
+            <td>${isSell ? formattedVolume : ''}</td>
+            <td class="${sideClass}">${formattedPrice}</td>
+            <td>${!isSell ? formattedVolume : ''}</td>
+        </tr>
+    `;
+}
+
+/* 호가 클릭 시 가격 자동 주입 (기존 782~795라인 리스너 대체) */
+function selectPrice(price) {
+    const priceInputs = document.querySelectorAll('.price-group .input-box');
+    priceInputs.forEach(input => {
+        input.value = Number(price).toLocaleString();
+        // 기존에 만든 콤마 포맷팅 함수 활용
+        if (typeof handleNumericInput === 'function') handleNumericInput(input);
+    });
+    // 주문 총액 자동 재계산
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        if (typeof updateOrderTotal === 'function') updateOrderTotal(tab);
+    });
+}
+
+/* 호가 HTML 생성
 function createOrderRowHtml(item, type) {
     const isSell = type === 'SELL';
     const sideText = isSell ? '매도' : '매수';
@@ -708,7 +825,7 @@ function createOrderRowHtml(item, type) {
             <td style="text-align: right;">${formattedVolume}</td>
         </tr>
     `;
-}
+}*/
 
 /* 웹소켓 호가 추가 */
 function updateOrderBook(data) {
@@ -724,7 +841,8 @@ function updateOrderBook(data) {
 
 /* 호가 리스트 수정 (UPDATE or DELETE) */
 function updateOrderList(list, data) {
-    const index = list.findIndex(item => item.price === data.price);
+    const targetPrice = norm(data.price);
+    const index = list.findIndex(item => norm(item.price) === targetPrice);
 
     if (data.action === 'UPDATE') {
         if (index > -1) {
@@ -732,7 +850,7 @@ function updateOrderList(list, data) {
             list[index].totalVolume = data.updatedVolume;
         } else {
             // 기존 가격이 없으면 새로 추가
-            list.push({price: data.price, totalVolume: data.updatedVolume});
+            list.push({ price: data.price, totalVolume: data.updatedVolume });
         }
     } else if (data.action === 'DELETE') {
         if (index > -1) {
@@ -768,7 +886,7 @@ function syncTicker(data) {
     const rate = Number(data.changeRate || 0);
     const volume = Number(data.dailyTradeVolume || 0);
 
-    const {elements, lastPrice} = tickerState;
+    const { elements, lastPrice } = tickerState;
     if (!elements || !elements.price) return;
 
     // 가격 변화 애니메이션
@@ -788,11 +906,20 @@ function syncTicker(data) {
     const isUp = rate > 0;
     const isDown = rate < 0;
 
-    elements.rate.innerText = `${isUp ? '+' : ''}${rate.toFixed(2)}% 전일대비`;
+    updateRateUI(elements.rate, rate, true);
 
-    const color = isUp ? '#f23645' : (isDown ? '#089981' : '#333');
-    elements.price.style.color = color;
-    elements.rate.style.color = color;
+    const color = isUp ? '#d32f2f' : (isDown ? '#1976d2' : '#333');
+    elements.price.classList.remove('rate-up', 'rate-down', 'rate-zero');
+    elements.price.classList.add(isUp ? 'rate-up' : (isDown ? 'rate-down' : 'rate-zero'));
+
+    if (window.ohlcv.marketPrice !== current) {
+        window.ohlcv.marketPrice = current;
+
+        // 시세가 변함에 따라 호가 사다리를 중앙에 맞춰 다시 그립니다.
+        if (typeof renderOrderBook === 'function') {
+            renderOrderBook(window.orderSellList, window.orderBuyList);
+        }
+    }
 
     tickerState.lastPrice = current;
 }
@@ -807,26 +934,26 @@ async function initTradingChart(tokenId) {
 
     // 1. 차트 인스턴스 생성
     const chart = LightweightCharts.createChart(chartContainer, {
-        layout: {backgroundColor: '#fff', textColor: '#333'},
-        grid: {vertLines: {color: '#f0f0f0'}, horzLines: {color: '#f0f0f0'}},
+        layout: { backgroundColor: '#fff', textColor: '#333' },
+        grid: { vertLines: { color: '#f0f0f0' }, horzLines: { color: '#f0f0f0' } },
         // grid: { vertLines: { visible: false }, horzLines: { visible: false } },
-        timeScale: {timeVisible: true, secondsVisible: false},
-        localization: {locale: 'ko-KR'},
+        timeScale: { timeVisible: true, secondsVisible: false },
+        localization: { locale: 'ko-KR' },
     });
 
     // 캔들 디자인
     candleSeries = chart.addSeries(LightweightCharts.CandlestickSeries, {
-        upColor: '#f23645',
-        downColor: '#089981',
-        borderUpColor: '#f23645',
-        borderDownColor: '#089981',
-        wickUpColor: '#f23645',
-        wickDownColor: '#089981',
+        upColor: '#d32f2f',
+        downColor: '#1976d2',
+        borderUpColor: '#d32f2f',
+        borderDownColor: '#1976d2',
+        wickUpColor: '#d32f2f',
+        wickDownColor: '#1976d2',
     });
 
     // 거래량 시리즈
     volumeSeries = chart.addSeries(LightweightCharts.HistogramSeries, {
-        priceFormat: {type: 'volume'},
+        priceFormat: { type: 'volume' },
         priceScaleId: '',
     });
 
@@ -846,7 +973,11 @@ async function initTradingChart(tokenId) {
         // 지정가 주문 가격을 페이지 들어왔을 때의 시가로 고정
         const curPrice = response[response.length - 1].closingPrice; // 가장 최근 캔들 데이터의 종가
         const priceInputs = document.querySelectorAll('.price-group .input-box');
-        priceInputs.forEach(input => input.value = Number(curPrice).toFixed(4));
+
+        priceInputs.forEach(input => {
+            input.value = Number(curPrice).toFixed(4)
+            handleNumericInput(input);
+        });
 
         const chartData = transformCandleData(response);
         const volumeData = transformVolumeData(response);
@@ -869,6 +1000,53 @@ export const Icons = {
                 <path fill="var(--gray-800)" d="M7.5 4.8C7.5 4.32261 7.68964 3.86477 8.02721 3.52721C8.36477 3.18964 8.82261 3 9.3 3H14.7C15.1774 3 15.6352 3.18964 15.9728 3.52721C16.3104 3.86477 16.5 4.32261 16.5 4.8V6.6H20.1C20.3387 6.6 20.5676 6.69482 20.7364 6.8636C20.9052 7.03239 21 7.26131 21 7.5C21 7.73869 20.9052 7.96761 20.7364 8.1364C20.5676 8.30518 20.3387 8.4 20.1 8.4H19.1379L18.3576 19.3278C18.3253 19.7819 18.1221 20.2069 17.7889 20.5172C17.4557 20.8275 17.0174 21 16.5621 21H7.437C6.98173 21 6.54336 20.8275 6.2102 20.5172C5.87703 20.2069 5.67382 19.7819 5.6415 19.3278L4.863 8.4H3.9C3.66131 8.4 3.43239 8.30518 3.2636 8.1364C3.09482 7.96761 3 7.73869 3 7.5C3 7.26131 3.09482 7.03239 3.2636 6.8636C3.43239 6.69482 3.66131 6.6 3.9 6.6H7.5V4.8ZM9.3 6.6H14.7V4.8H9.3V6.6ZM6.6666 8.4L7.4379 19.2H16.563L17.3343 8.4H6.6666ZM10.2 10.2C10.4387 10.2 10.6676 10.2948 10.8364 10.4636C11.0052 10.6324 11.1 10.8613 11.1 11.1V16.5C11.1 16.7387 11.0052 16.9676 10.8364 17.1364C10.6676 17.3052 10.4387 17.4 10.2 17.4C9.96131 17.4 9.73239 17.3052 9.5636 17.1364C9.39482 16.9676 9.3 16.7387 9.3 16.5V11.1C9.3 10.8613 9.39482 10.6324 9.5636 10.4636C9.73239 10.2948 9.96131 10.2 10.2 10.2ZM13.8 10.2C14.0387 10.2 14.2676 10.2948 14.4364 10.4636C14.6052 10.6324 14.7 10.8613 14.7 11.1V16.5C14.7 16.7387 14.6052 16.9676 14.4364 17.1364C14.2676 17.3052 14.0387 17.4 13.8 17.4C13.5613 17.4 13.3324 17.3052 13.1636 17.1364C12.9948 16.9676 12.9 16.7387 12.9 16.5V11.1C12.9 10.8613 12.9948 10.6324 13.1636 10.4636C13.3324 10.2948 13.5613 10.2 13.8 10.2Z"/>
             </svg>`
 };
+
+// 등락률에 따른 클래스 및 텍스트 처리 유틸리티
+function updateRateUI(element, rate, isTicker = false) {
+    if (!element) return;
+
+    const isUp = rate > 0;
+    const isDown = rate < 0;
+
+    // 1. 클래스 교체
+    element.classList.remove('rate-up', 'rate-down', 'rate-zero');
+    element.classList.add(isUp ? 'rate-up' : (isDown ? 'rate-down' : 'rate-zero'));
+
+    // 2. 텍스트 포맷 (상단 시세는 '전일대비' 문구 포함)
+    const sign = isUp ? '+ ' : '';
+    const suffix = isTicker ? '% 전일대비' : '%';
+    element.innerText = `${sign}${rate.toFixed(2)}${suffix}`;
+}
+
+// 숫자 포맷팅 및 입력 제어 통합 로직
+function handleNumericInput(input) {
+    let value = input.value.replace(/[^0-9.]/g, ''); // 숫자와 소수점만 허용
+
+    // 소수점이 여러 개 입력되는 것 방지 (첫 번째 것만 남김)
+    const parts = value.split('.');
+    let result = "";
+
+    if (parts.length > 1) {
+        const integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        const decimalPart = parts.slice(1).join('');
+
+        result = integerPart + "." + decimalPart;
+    } else {
+        result = value.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    input.value = result;
+}
+
+function getTickSize(price) {
+    if (price < 10) return 0.01;
+    if (price < 100) return 0.1;
+    if (price < 1000) return 1;
+    if (price < 10000) return 5;
+    if (price < 100000) return 10;
+    if (price < 500000) return 50;
+    return 100;
+}
 
 window.Icons = Icons;
 
@@ -895,3 +1073,5 @@ window.addEventListener('beforeunload', () => {
 if (window.tokenId) {
     initTradingChart(window.tokenId);
 }
+
+window.selectPrice = selectPrice;

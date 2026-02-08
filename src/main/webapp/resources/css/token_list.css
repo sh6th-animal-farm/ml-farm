@@ -85,7 +85,7 @@
     background-color: #fff;
     transition: background-color 0.3s ease;
 }
-.token_table_main tbody tr:hover { background-color: var(--gray-50); }
+.token_table_main tbody tr:hover { background-color: var(--gray-50) !important; }
 /* 텍스트 스타일 통합 */
 .token_table_main .token-name { font: var(--font-body-03); color: var(--gray-900); }
 .token_table_main .token-code { font: var(--font-caption-01); color: var(--gray-400); }
@@ -187,12 +187,6 @@
 
 /* 선택된 행(Active) 강조 스타일 */
 .token_table_main tbody tr.active-row {
-    background-color: #f0f7ff !important; /* 연한 파란색 배경 */
-    border-left: 4px solid #1E88E5;      /* 좌측에 파란색 강조선 추가 */
+    background-color: var(--gray-100); /* 연한 파란색 배경 */
     transition: all 0.2s ease;
-}
-/* 활성 행 내부의 텍스트 색상도 살짝 강조하고 싶다면 */
-.token_table_main tbody tr.active-row .token-name {
-    color: #1E88E5;
-    font-weight: 700;
 }

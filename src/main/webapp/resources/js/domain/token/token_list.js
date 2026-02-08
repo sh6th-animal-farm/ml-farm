@@ -105,6 +105,19 @@ document.addEventListener("DOMContentLoaded", () => {
             clearTimeout(hoverTimer);
         }
     });
+
+    // 첫 진입 시 목록의 가장 상단에 있는 토큰 선택
+    const firstRow = tbody.querySelector('tr[id^="token-row-"]');
+    if (firstRow) {
+        const firstTokenId = firstRow.id.replace("token-row-", "");
+
+        // 시각적으로 선택 표시(배경색 등)를 위해 클래스 추가
+        firstRow.classList.add('active-row');
+
+        // 우측 패널 상세 정보 구독 및 차트 렌더링 호출
+        subscribeToTokenDetail(firstTokenId);
+        renderSideChart(firstTokenId);
+    }
 });
 
 /* 웹소켓 연결 및 구독 */
@@ -177,7 +190,7 @@ function updateRightPanelUI(data) {
             elRate.style.color = "var(--semantic-red)";
         } else if (rate < 0) {
             elRate.classList.add("negative");
-            elRate.style.color = "#1E88E5"; // 파란색 직접 지정하거나 변수 추가
+            elRate.style.color = "#1976d2"; // 파란색 직접 지정하거나 변수 추가
         } else {
             elRate.style.color = "var(--gray-600)";
         }
@@ -237,7 +250,7 @@ function updateTokenRow(row, data) {
 
 // 등락률 변화 이펙트
 function flashEffect(el, direction) {
-    const bgColor = direction === "up" ? "#ffe2e2" : "#e0efff";
+    const bgColor = direction === "up" ? "#fae9e9" : "#c7daf8";
 
     el.style.transition = "none";
     el.style.backgroundColor = bgColor;
@@ -415,12 +428,12 @@ export async function renderSideChart(tokenId) {
     });
 
     sideSeries = sideChart.addSeries(LightweightCharts.CandlestickSeries, {
-        upColor: "#E53935",
-        downColor: "#1E88E5",
-        borderUpColor: "#E53935",
-        borderDownColor: "#1E88E5",
-        wickUpColor: "#E53935",
-        wickDownColor: "#1E88E5",
+        upColor: "#d32f2f",
+        downColor: "#1976d2",
+        borderUpColor: "#d32f2f",
+        borderDownColor: "#1976d2",
+        wickUpColor: "#d32f2f",
+        wickDownColor: "#1976d2",
     });
 
     try {
