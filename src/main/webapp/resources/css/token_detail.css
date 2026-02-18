@@ -606,3 +606,16 @@
 .scroll::-webkit-scrollbar-thumb:hover {
     background: var(--gray-400);
 }
+
+/* 호가창 깊이 바(Bar) 색상을 클래스별로 미리 정의 */
+.order-hist-row.sell-row {
+    --depth-color: var(--info-light);
+}
+.order-hist-row.buy-row {
+    --depth-color: var(--error-light);
+}
+/* 현재가 강조 스타일 */
+.order-hist-row.is-current {
+    outline: 2px solid var(--primary);
+    outline-offset: -2px;
+}

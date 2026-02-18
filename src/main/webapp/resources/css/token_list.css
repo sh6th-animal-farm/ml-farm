@@ -83,7 +83,7 @@
     will-change: transform;
     cursor: pointer;
     background-color: #fff;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.2s ease;
 }
 .token_table_main tbody tr:hover { background-color: var(--gray-50) !important; }
 /* 텍스트 스타일 통합 */

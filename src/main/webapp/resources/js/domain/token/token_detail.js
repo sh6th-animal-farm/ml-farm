@@ -761,7 +761,50 @@ function renderOrderBook(sellList, buyList) {
 
     // 물량 바 최대치 계산
     const maxVol = Math.max(...ladder.map(r => r.volume || 0), 0.0001);
-    tbody.innerHTML = ladder.map(row => createOrderRowHtml(row, maxVol)).join('');
+
+    // 호가창 그리기
+    const rows = tbody.querySelectorAll('.order-hist-row');
+
+    // 행이 하나도 없거나 개수가 다를 때만 전체 렌더링 (초기 1회)
+    if(rows.length !== ladder.length) {
+        tbody.innerHTML = ladder.map(row => createOrderRowHtml(row, maxVol)).join('');
+        return;
+    }
+
+    // 행이 이미 있으면 값만 바꿈
+    ladder.forEach((row, idx) => {
+        const tr = rows[idx];
+        if (row.type === 'EMPTY' || row.price === null) {
+            if (!tr.classList.contains('empty-row')) { // 이미 빈 행이면 다시 그리지 않음
+                tr.className = 'order-hist-row empty-row';
+                tr.innerHTML = '<td></td><td>-</td><td></td>';
+                tr.onclick = null; // 이전 클릭 이벤트 제거
+                tr.style.removeProperty('--depth-ratio'); // 바 초기화
+                tr.style.removeProperty('--depth-color');
+            }
+            return;
+        }
+
+        const isCurrent = row.type === 'CURRENT';
+        const isSell = row.type === 'SELL' || (isCurrent && row.actualSide === 'SELL');
+
+        tr.className = `order-hist-row ${isSell ? 'sell-row' : 'buy-row'} ${isCurrent ? 'is-current' : ''}`;
+
+        const depthColor = isSell ? 'var(--info-light)' : 'var(--error-light)';
+        tr.style.setProperty('--depth-ratio', (row.volume / maxVol).toFixed(4));
+        tr.style.setProperty('--depth-color', depthColor);
+        tr.onclick = function() {
+            selectPrice(row.price);
+        };
+
+        const cells = tr.cells;
+        const formattedPrice = Number(row.price).toLocaleString();
+        const formattedVolume = row.volume > 0 ? Number(row.volume).toFixed(4) : '';
+        cells[0].innerText = isSell ? formattedVolume : '';
+        cells[1].innerText = formattedPrice;
+        cells[1].className = isSell ? 'hoga-sell' : 'hoga-buy'; // 색상 클래스
+        cells[2].innerText = !isSell ? formattedVolume : '';
+    });
 }
 
 /* 호가 행 생성 */
