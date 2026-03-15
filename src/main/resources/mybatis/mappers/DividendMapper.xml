@@ -32,6 +32,15 @@
 	      AND d.poll_end_date > NOW()
 	</select>
 	
+	<select id="selectProjectPollingList" resultType="dividendDTO">
+	    SELECT d.*, u.user_name as userName, u.email as userEmail
+	    FROM dividends d
+	    JOIN users u ON d.user_id = u.user_id
+	    WHERE d.status = 'PENDING' 
+	      AND d.poll_end_date > NOW()
+	      AND d.rs_id = #{rsId}
+	</select>
+	
 	<update id="updateStatusToPolling">
 		UPDATE dividends SET status = 'POLLING' WHERE dividend_id = #{dividendId}
 	</update>

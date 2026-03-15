@@ -18,7 +18,6 @@ public class ProjectClosingService {
     // 배당 수행 (배당금 계산 + 이메일 보내기)
     public void processFinalDividends(Long projectId) throws Exception {
     	dividendBatchService.runDividendBatch(projectId);
-        dividendBatchService.runEmailBatch();
     }
 
     // 프로젝트 상태 COMPLETED, 토큰 소각일 업데이트

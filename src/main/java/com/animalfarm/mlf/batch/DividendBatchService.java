@@ -29,30 +29,12 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class DividendBatchService {
 	private final JobLauncher jobLauncher;
-	private final Job settlementJob;
 	private final Job dividendJob;
-	private final Job emailJob;
 	private final Job dividendClosingJob;
 
 	private final RevenueSummaryRepository summaryRepo; // 정산 데이터 조회용
 	private final TokenRepository tokenRepository; // 토큰 발행량 조회용
 	private final DividendRepository dividendRepository;
-
-	public String runSettlementBatch() {
-		try {
-			// 배치는 동일한 파라미터로 실행하면 '이미 성공했다'고 판단해 실행되지 않음
-			// 테스트를 위해 실행 시간을 파라미터로 넣어 매번 새로운 Job으로 인식하게 함
-			JobParameters params = new JobParametersBuilder()
-				.addLong("requestTime", System.currentTimeMillis())
-				.toJobParameters();
-
-			jobLauncher.run(settlementJob, params);
-			return "Batch Job Started! Check your logs.";
-		} catch (Exception e) {
-			e.printStackTrace();
-			return "Batch Job Failed: " + e.getMessage();
-		}
-	}
 
 	public void runDividendBatch(Long projectId) throws Exception {
 		// rsId를 기반으로 정산 요약 정보 조회 (DB에서 직접 가져옴)
@@ -87,13 +69,6 @@ public class DividendBatchService {
 
 		// 배치 실행
 		jobLauncher.run(dividendJob, params);
-	}
-
-	public void runEmailBatch() throws Exception {
-		JobParameters params = new JobParametersBuilder()
-			.addString("executeDate", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
-			.toJobParameters();
-		jobLauncher.run(emailJob, params);
 	}
 
 	// 매일 새벽 2시에 실행
