@@ -16,6 +16,8 @@ public interface DividendRepository {
 	void insertDividend(DividendDTO dividend);
 
 	List<DividendDTO> selectPollingList(); // status가 POLLING이고 마감기한이 남은 유저 조회
+	
+	List<DividendDTO> selectProjectPollingList(); // status가 POLLING이고 마감기한이 남고 특정 프로젝트를 보유한 유저 조회
 
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	void updateStatusToPolling(Long dividendId);

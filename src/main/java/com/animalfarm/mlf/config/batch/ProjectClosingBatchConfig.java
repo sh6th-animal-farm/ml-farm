@@ -38,13 +38,13 @@ public class ProjectClosingBatchConfig {
     
     private final ProjectClosingService projectClosingService;
     private final Step calculateDividendStep;
-    private final Step sendEmailStep;
+    private final Step sendProjectPendingEmailStep;
 
     @Bean
     public Job projectClosingJob() {
         return jobBuilderFactory.get("projectClosingJob")
         		.start(calculateDividendStep)     	// 1. 배당금 계산
-        		.next(sendEmailStep)          		// 2. 이메일 전송
+        		.next(sendProjectPendingEmailStep)  // 2. 이메일 전송
                 .next(requestTokenBurnStep())        // 2. 소각 API
                 .next(updateFinalStatusStep())       // 3. 환불 내역, 토큰 원장 기록
                 .next(completeProjectStep())         // 4. 프로젝트 상태 변경

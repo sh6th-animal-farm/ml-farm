@@ -1,6 +1,7 @@
 package com.animalfarm.mlf.config.batch;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -74,7 +75,8 @@ public class DividendSettlementJobConfig {
 	public Job dividendJob() {
 		return jobBuilderFactory.get("dividendJob")
 			.start(createSummaryStep())
-			.start(calculateDividendStep())
+			.next(calculateDividendStep())
+			.next(sendEmailStep())
 			.build();
 	}
 
@@ -109,6 +111,16 @@ public class DividendSettlementJobConfig {
 			.writer(emailItemWriter())
 			.build();
 	}
+	
+	@Bean
+	public Step sendProjectPendingEmailStep() {
+		return stepBuilderFactory.get("sendProjectPendingEmailStep")
+			.<DividendDTO, DividendDTO>chunk(10) // 10개 단위로 메일 발송
+			.reader(emailTargetProjectReader(null))
+			.writer(emailItemWriter())
+			.build();
+	}
+	
 
 	// ======== Reader ========
 
@@ -146,6 +158,22 @@ public class DividendSettlementJobConfig {
 		return new MyBatisPagingItemReaderBuilder<DividendDTO>()
 			.sqlSessionFactory(sqlSessionFactory)
 			.queryId("com.animalfarm.mlf.domain.accounting.DividendRepository.selectPollingList")
+			.pageSize(10)
+			.build();
+	}
+
+	@Bean
+	@StepScope
+	public MyBatisPagingItemReader<DividendDTO> emailTargetProjectReader(@Value("#{jobParameters[rsId]}")
+	Long rsId) {
+		
+		Map<String, Object> parameterValues = new HashMap<>();
+		parameterValues.put("rsId", rsId);
+		
+		return new MyBatisPagingItemReaderBuilder<DividendDTO>()
+			.sqlSessionFactory(sqlSessionFactory)
+			.queryId("com.animalfarm.mlf.domain.accounting.DividendRepository.selectProjectPollingList")
+			.parameterValues(parameterValues)
 			.pageSize(10)
 			.build();
 	}

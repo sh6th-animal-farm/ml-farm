@@ -57,13 +57,14 @@ public class ProjectBatchScheduler {
                 	TokenDTO token = tokenService.selectByProjectId(projectId);
                 	
                 	// DividendBatchService에서 했던 것처럼 정산 요약 정보도 가져와야 함
+                	// !! 프로젝트 종료 배치 시작 전 정산 요약 정보가 반드시 완성되어 있어야 함
                     RevenueSummaryDTO summary = summaryRepo.selectByProjectId(projectId); 
 
                     if (summary == null || token == null) {
                         log.warn(">>> 프로젝트 {}의 정산 정보나 토큰 정보가 없어 건너뜁니다.", projectId);
                         continue;
                     }
-
+                    
                     JobParameters jobParameters = new JobParametersBuilder()
                             .addLong("projectId", projectId)
                             .addLong("tokenId", token.getTokenId())

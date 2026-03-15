@@ -19,11 +19,6 @@ public class BatchController {
 	final DividendBatchService dividendBatchService;
 	final ProjectBatchScheduler projectBatchScheduler;
 
-	@GetMapping("/dividend/settlement")
-	public String runSettlement() {
-		return dividendBatchService.runSettlementBatch();
-	}
-
 	@GetMapping("/dividend/run")
 	public ResponseEntity<String> runDividend(@RequestParam
 	Long projectId) {
@@ -35,15 +30,6 @@ public class BatchController {
 		}
 	}
 
-	@GetMapping("/dividend/email")
-	public ResponseEntity<String> runSendEmail() {
-		try {
-			dividendBatchService.runEmailBatch();
-			return ResponseEntity.ok("성공했습니다. DB를 확인해주세요.");
-		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-		}
-	}
 
 	@GetMapping("/dividend/close")
 	public ResponseEntity<String> runCloseDividend() {
